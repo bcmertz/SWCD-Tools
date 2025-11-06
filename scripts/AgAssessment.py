@@ -28,7 +28,7 @@ class Delineate(object):
         self.description = "Delienate parcels and create folder structure"
         self.category = "Automated Ag Assessment"
         self.canRunInBackground = False
-
+ 
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
