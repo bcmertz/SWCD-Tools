@@ -1,0 +1,383 @@
+import arcpy
+
+from arcpy import env
+from math import atan2, pi, exp
+
+# import log tool
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
+from printmessages import printMessages as log
+
+# TODO: calculate storage tool to be used with dam removal or dam creation, basically just diffs the existing and removed dems
+# TODO: burn in channel width at channel depth via buffer of channel width into dem
+
+class DamRemoval(object):
+    def __init__(self):
+        """Define the tool (tool name is the name of the class)."""
+        self.label = "Dam Removal"
+        self.description = "Dam Removal"
+        self.category = "Wetland Tools"
+        self.canRunInBackground = False
+   
+    def getParameterInfo(self):
+        """Define parameter definitions"""
+        param0 = arcpy.Parameter(
+            displayName="DEM",
+            name="dem",
+            datatype="GPRasterLayer",
+            parameterType="Required",
+            direction="Input")
+
+        param1 = arcpy.Parameter(
+            displayName="Analysis Area",
+            name="analysis_area",
+            datatype="GPExtent",
+            parameterType="Required",
+            direction="Input")        
+        param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+
+        param2 = arcpy.Parameter(
+            displayName="Output Features",
+            name="out_features",
+            datatype="DEFeatureClass",
+            parameterType="Required",
+            direction="Output")
+        param2.parameterDependencies = [param0.name]
+        param2.schema.clone = True
+        
+        param3 = arcpy.Parameter(
+            displayName="Pond Centerline",
+            name="centerline",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+        param3.filter.list = ["Polyline"]
+        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
+
+        param4 = arcpy.Parameter(
+            displayName="Ponded Area + Berm",
+            name="pond",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+        param4.filter.list = ["Polygon"]
+        param4.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
+
+        param5 = arcpy.Parameter(
+            displayName="Transect Spacing (ft)",
+            name="transect_spacing",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+
+        param6 = arcpy.Parameter(
+            displayName="Transect Point Spacing (ft)",
+            name="transect_point_spacing",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+
+        param7 = arcpy.Parameter(
+            displayName="Transect Width (ft)",
+            name="transect_width",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+        
+        params = [param0, param1, param2, param3, param4, param5, param6, param7]
+        return params
+
+    def updateParameters(self, parameters):
+        # default transect spacing
+        if parameters[5].value == None:
+            parameters[5].value = 30
+
+        # default transect point spacing
+        if parameters[6].value == None:
+            parameters[6].value = 30
+        
+        return
+
+    def transectLine(self, stream_line, stream_vertex, transect_length):
+        '''returns a transect to stream_line of length transect_length at stream_vertex point
+        stream_line - arcpy.PolyLine() object
+        stream_vertex - arcpy.Point() object
+        transect_length - distance in meters of transect
+        '''
+        # TODO: handle end of lines, probably don't merge them because then it's more to store in-memory (?)
+        
+        # epsilon
+        e = 1e-5
+        
+        # get stream vertex
+        stream_vertex = stream_line.queryPointAndDistance(stream_vertex, False)
+        geom = stream_vertex[0]
+        distance = stream_vertex[1]
+        spatial_reference = stream_line.spatialReference
+
+        # get points immediately before and after midpoint
+        before = stream_line.positionAlongLine(distance-e, False)
+        after = stream_line.positionAlongLine(distance+e, False)
+
+        dX = after[0].X - before[0].X
+        dY = after[0].Y - before[0].Y
+
+        # angle of the midpoint segment
+        angle = atan2(dX,dY) * 180 / pi
+
+        first_tran_point = geom.pointFromAngleAndDistance(angle - 90, transect_length/2)
+        last_tran_point = geom.pointFromAngleAndDistance(angle + 90, transect_length/2)
+        dX = first_tran_point.firstPoint.X - last_tran_point.firstPoint.X
+        dY = first_tran_point.firstPoint.Y - last_tran_point.firstPoint.Y
+
+        transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference, has_id=True)
+        return transect
+
+    
+    def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points):
+        '''return points along transect with elevations
+        transect - arcpy.PolyLine() object
+        dem_raster - elevation raster
+        lowpoint_elev - elevation of streamline, considered lowpoint of constructed surface
+        transect_width - width of transect
+        transect_point_spacing - spacing between points on transect
+        scratch_transect_points - scratch layer for transect points
+        scratch_transect_elev_points - scratch layer for transect points with elevations
+        '''      
+        arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", transect_point_spacing, "", "END_POINTS", "ADD_CHAINAGE")
+        arcpy.sa.ExtractValuesToPoints(scratch_transect_points, dem_raster, scratch_transect_elev_points, "NONE", "VALUE_ONLY")
+
+        # iterate through transect points
+        # collect new points to add and interpolate elevations along them
+        num_points = (not not transect_width % transect_point_spacing) + int(transect_width / transect_point_spacing) + 1
+        slope = elev_start = elev_end = distance_start = distance_end = elev_prev = distance_prev = None
+        new_points = []
+        with arcpy.da.SearchCursor(scratch_transect_elev_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
+            update_points = []
+            idx = 0
+            for point in cursor:
+                elev, distance = point[1], point[2]
+                point = list(point)
+                # if middle streampoint, use elevation of streamline
+                if idx == (num_points - 1) / 2:
+                    elev = lowpoint_elev
+                    point[1] = elev
+
+                if elev == -9999:
+                    # start of unknown section
+                    if elev_prev != -9999:
+                        elev_start = elev_prev
+                        distance_start = distance_prev
+                    update_points.append(point)
+                else:
+                    # found end of unknown elevation data
+                    if elev_prev == -9999:
+                        # end of unknown section
+                        elev_end = elev
+                        distance_end = distance
+                        
+                    # add interpolated points to list of points to be added to DEM
+                    if elev_start != None and elev_end != None:
+                        # TODO: option to make u-shaped valley instead of v-shaped using power function
+                        slope = (elev_end - elev_start)/(distance_end - distance_start)
+                        for i in update_points:
+                            i[1] = slope * (i[2] - distance_start) + elev_start
+                            new_points.append(tuple(i))
+                        
+                        elev_start = elev_end
+                        distance_start = distance_end
+                        elev_end = None
+                        distance_end = None
+                        update_points = []
+                        
+                    # add known elevation point to points to return
+                    new_points.append(list(point))
+                    
+                elev_prev = elev
+                distance_prev = distance
+                idx += 1
+        return new_points
+    
+    def execute(self, parameters, messages):
+        """The source code of the tool."""
+        # setup
+        arcpy.env.overwriteOutput = True
+
+        dem_raster = parameters[0].value
+        extent = arcpy.Extent(XMin = parameters[1].value.XMin,
+                              YMin = parameters[1].value.YMin,
+                              XMax = parameters[1].value.XMax,
+                              YMax = parameters[1].value.YMax)
+        extent.spatialReference = parameters[1].value.spatialReference
+        output_file = parameters[2].valueAsText
+        centerline = parameters[3].value
+        pond = parameters[4].value
+        desc = arcpy.Describe(parameters[0].value)
+        vertical_unit = desc.spatialReference.linearUnitName
+        z_unit = 3.2808 if "meter" in vertical_unit.lower() else 1
+        transect_spacing = parameters[5].value / z_unit
+        transect_point_spacing = parameters[6].value / z_unit
+        transect_width = parameters[7].value / z_unit
+
+        # project setup
+        project = arcpy.mp.ArcGISProject("Current")
+        active_map = project.activeMap
+
+        # create scratch layers
+        scratch_dem = arcpy.CreateScratchName("scratch_dem", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+        dem_pondless = "{}\\dem_pondless".format(arcpy.env.workspace)
+        scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
+        scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
+        scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)          
+        scratch_mosaic_raster = arcpy.CreateUniqueName("scratch_mosaic_raster")
+        scratch_transect_points = arcpy.CreateScratchName("scratch_transect_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
+        scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
+        scratch_final_idw_points_path = arcpy.CreateScratchName("scratch_final_idw_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        idw_raster = arcpy.CreateScratchName("idw_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+
+        # clip raster to analysis area
+        log("clipping dem")
+        rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
+        arcpy.management.Clip(dem_raster, rectangle, scratch_dem)
+
+        # extract by mask to remove pond from dem
+        log("removing ponded area from dem")
+        dem_pondless_output = arcpy.sa.ExtractByMask(scratch_dem, pond, "OUTSIDE", rectangle)
+        dem_pondless_output.save(dem_pondless)
+
+        # generate points along line
+        log("generating points along centerline")
+        arcpy.management.GeneratePointsAlongLines(centerline, scratch_centerline_points, "DISTANCE", transect_spacing, "", "END_POINTS", "ADD_CHAINAGE")
+
+        # getting number of transects
+        count_result = arcpy.management.GetCount(scratch_centerline_points)
+        record_count = int(count_result[0])
+        
+        # extract values to points
+        log("adding elevation data to centerline points")
+        arcpy.sa.ExtractValuesToPoints(scratch_centerline_points, dem_pondless, scratch_centerline_elev_points, "NONE", "VALUE_ONLY")
+
+        # iterate through centerline points
+        log("finding known centerline points")
+        slope = elev_high = elev_low = distance_high = distance_low = elev_prev = distance_prev = None
+        with arcpy.da.SearchCursor(scratch_centerline_elev_points, ["RASTERVALU", "ORIG_LEN"]) as cursor:
+            for point in cursor:
+                if elev_high != None and elev_low != None:
+                    break
+                elev, distance = point[0], point[1]
+                if elev_prev != None:
+                    if elev == -9999 and elev_prev != -9999:
+                        # elev low
+                        elev_low = elev_prev
+                        distance_low = distance_prev
+                    elif elev != -9999 and elev_prev == -9999:
+                        # elev high
+                        elev_high = elev
+                        distance_high = distance
+                elev_prev = elev
+                distance_prev = distance
+    
+        # calculate slope between known points
+        log("calculating centerline slope")
+        slope = (elev_high - elev_low)/(distance_high - distance_low)
+
+        # iterate and add elevations to unknown points
+        log("inferring unknown point elevations along centerline")
+        with arcpy.da.UpdateCursor(scratch_centerline_elev_points, ["RASTERVALU", "ORIG_LEN"]) as cursor:
+            for point in cursor:
+                elev, distance = point[0], point[1]
+                if elev == -9999:
+                    point[0] = slope * (distance - distance_low) + elev_low
+                cursor.updateRow(point)
+
+        # do we still need this mosaic? A - no, we can just pass the elevation
+        # Points to Raster
+        log("creating raster from new points")
+        arcpy.conversion.PointToRaster(scratch_centerline_elev_points, "RASTERVALU", scratch_point_raster, cellsize=3)
+
+        # Mosaic dem_pondless, raster_points
+        log("mosaic to new raster")
+        mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
+        arcpy.management.MosaicToNewRaster(
+            input_rasters=[dem_pondless, scratch_point_raster],
+            output_location=arcpy.env.workspace,
+            raster_dataset_name_with_extension=mosaic_raster,
+            pixel_type="32_BIT_FLOAT",
+            number_of_bands=1,
+            mosaic_method="LAST",
+            mosaic_colormap_mode="FIRST"
+        )
+
+        # get polyline from centerline for use in transects
+        # note - doesn't support multiple centerlines in fc
+        log("getting stream centerline")
+        centerline_polyline = None
+        with arcpy.da.SearchCursor(centerline, ["SHAPE@"]) as cursor:
+            for line in cursor:
+                centerline_polyline = line[0]
+
+        # iterate through each point
+        # impove point density with transects using the new mosaic
+        # TODO: progress bar
+        log("creating transects and interpolating elevations")
+        new_points = []
+        with arcpy.da.SearchCursor(scratch_centerline_elev_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
+            for point in cursor:
+                # read in values
+                shape, elev, distance = point[0], point[1], point[2]
+                # create transect  
+                transect = self.transectLine(centerline_polyline, shape, transect_width)
+                # interpolate elevations
+                tmp_points = self.interpolateElevations(transect, mosaic_raster, elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points)
+                # add points to list of new points
+                new_points = new_points + tmp_points
+
+        # add points to final point fc
+        log("adding interpolated points to fc")
+        scratch_final_idw_points = arcpy.management.CreateFeatureclass(arcpy.env.scratchFolder, "scratch_final_idw_points", "POINT", scratch_centerline_elev_points) 
+        with arcpy.da.InsertCursor(scratch_final_idw_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
+            for point in new_points:
+                cursor.insertRow(point)
+        
+        # IDW or Global Polynomial Interpolation
+        ## depends whether we want to IDW points (must include all points then) or want to fill in DEM and interpolate voids
+        log("performing IDW analysis on interpolated points")
+        out_idw = arcpy.sa.Idw(scratch_final_idw_points, "RASTERVALU")
+        out_idw.save(idw_raster)
+
+        # TODO: remove any values greater than original greatest value in DEM ponded area
+
+        # extract by mask
+        log("extracting ponded area from IDW raster")
+        raster_output = arcpy.sa.ExtractByMask(idw_raster, pond, "INSIDE", rectangle)
+        raster_output.save(output_file)
+        
+        # add results to map
+        log("adding results to map")
+        rem_raster = active_map.addDataFromPath(output_file)
+
+        # update raster symbology
+        log("updating raster symbology")
+        sym = rem_raster.symbology
+        if hasattr(sym, 'colorizer'):
+            if sym.colorizer.type != "RasterStretchColorizer":
+                sym.updateColorizer("RasterStretchColorizer")
+            sym.colorizer.stretchType = "MinimumMaximum"
+            sym.colorizer.colorRamp = project.listColorRamps('Slope')[0]
+            rem_raster.symbology = sym
+
+        # delete scratch variables
+        log("deleting unneeded data")
+        # scratch_final_idw_points_path, scratch_mosaic_raster, scratch_centerline_elev_points
+        arcpy.management.Delete([scratch_dem,dem_pondless,scratch_centerline_points,scratch_point_raster,scratch_transect_points,scratch_transect_elev_points,idw_raster])
+
+        # save project
+        log("saving project")
+        project.save()
+
+        return
+
+
+
+

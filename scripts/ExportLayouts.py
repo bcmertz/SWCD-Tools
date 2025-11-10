@@ -5,8 +5,9 @@ import arcpy
 # import log tool
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+#sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
+#from printmessages import printMessages as log
+#from printmessages import printMessages as log
 
 class ExportLayouts(object):
     def __init__(self):
@@ -27,8 +28,7 @@ class ExportLayouts(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input",
-            multiValue=True
-            )
+            multiValue=True)
 
         param0.filter.list = layout_list
     
@@ -37,23 +37,29 @@ class ExportLayouts(object):
             name="output_folder",
             datatype="DEType",
             parameterType="Required",
-            direction="Input"
-            )
+            direction="Input")
             
         params = [param0, param1]
         return params
+
+    def printMessages(*args):
+        """provide a list of messages to this method"""
+        out_str = ""
+        #args = args[1:] # get rid of first argument
+        for arg in args:
+            out_str += str(arg)+" "
+        arcpy.AddMessage(out_str+"\n") # and newline and print
+        return
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
         arcpy.env.overwriteOutput = True
         project = arcpy.mp.ArcGISProject("Current")
-        
+        log("here23")
         file_path = parameters[1].valueAsText
         layouts = parameters[0].valueAsText.replace("'", "").split(";")
         project_layouts = project.listLayouts()
-        log(layouts)
-        log(project_layouts)
 
         # Export layouts
         for layout in project_layouts:

@@ -2,19 +2,26 @@
 import os
 import sys
 import arcpy
+from importlib import reload
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "scripts"))
+scripts = os.path.join(os.path.dirname(__file__), "scripts")
+sys.path.append(scripts)
 
+from ExportLayouts import ExportLayouts
 from BufferTools import PointPlots, ShrubClusters
 from AnalyzeArea import ContourArea, SlopeArea
 from CollectHistoricalRasters import CollectRasters
-from ExportLayouts import ExportLayouts
-from LinearAnalysis import LocalMinimums
+from LineAnalysis import LocalMinimums
 from REMCalculator import RelativeElevationModel
 from StreamCenterlineAdjuster import LeastAction, LeastActionAcc
-from WatershedHydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, SubBasinDelineation, CalculateStreamline, StreamElevation, TopographicWetness
-from WetlandCalculator import PotentialWetlands, BermAnalysis, DamRemoval
+from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, SubBasinDelineation, CalculateStreamline, StreamElevation, TopographicWetness
+from Wetlands import PotentialWetlands, BermAnalysis, DamRemoval
 from AgAssessment import Delineate, Agland, NonAg, Forest, Process, Export
+
+def my_reloader(name):
+    del globals() [name]
+    del sys.modules [name]
+    globals() [name] = __import__(name)
 
 tools = [SlopeArea,
          ContourArea,
@@ -23,7 +30,6 @@ tools = [SlopeArea,
          LocalMinimums,
          RelativeElevationModel,
          PointPlots,
-         ShrubClusters,
          ShrubClusters,
          LeastAction,
          LeastActionAcc,
@@ -44,12 +50,23 @@ tools = [SlopeArea,
          Process,
          Export]
 
-class Toolbox:
+class Toolbox(object):
     def __init__(self):
         """Define the toolbox (the name of the toolbox is the name of the
         .pyt file)."""
         self.label = "SWCD Tools"
-        self.alias = "tools"
+        self.alias = "SWCD Tools"
+
+        #ls = []
+        #for i,j in sys.modules.items():
+        #    r,v=i,j
+        #    ls.append((r,v))
+
+        #for i in ls:
+        #    if i[0] == 'AnalyzeArea':
+        #        reload(i[1])
+
+        #my_reloader(ExportLayouts.__name__)
 
         # List of tool classes associated with this toolbox
         self.tools = tools

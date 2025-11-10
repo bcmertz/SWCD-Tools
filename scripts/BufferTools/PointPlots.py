@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-
 import arcpy
-import os
-import sys
 import math
 
 # import log tool
+import os
+import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages
+from printmessages import printMessages as log
 
 # TODO: buffer work area by 1/2 max width of cluster to prevent cluster / edge of work area overlap
 class PointPlots:
@@ -55,10 +54,9 @@ class PointPlots:
         return
 
     def execute(self, parameters, messages):
-        # TODO: add logs
         """The source code of the tool."""
-        log=printMessages
         arcpy.env.overwriteOutput = True
+        log("test76")
 
         log("reading in parameters")
         planting_area = parameters[0].value
@@ -72,13 +70,16 @@ class PointPlots:
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dissolve = arcpy.CreateScratchName("scratch_dissolve", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_dissolve = arcpy.CreateScratchName("scratch_dissolve", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
+        log(scratch_buffer)
 
         # dissolve
+        log("dissolve polygons")
         arcpy.management.Dissolve(planting_area, scratch_dissolve, multi_part="MULTI_PART")
         
         # calculate total area of planting
+        log("calculate acreage")
         field_name = "Acres"
         arcpy.management.AddField(scratch_dissolve, field_name, "FLOAT")
         arcpy.management.CalculateGeometryAttributes(in_features=scratch_dissolve, geometry_property=[[field_name, "AREA_GEODESIC"]], area_unit="ACRES_US")
@@ -90,29 +91,35 @@ class PointPlots:
         values = [row[0] for row in arcpy.da.SearchCursor(scratch_dissolve, field_name)]
         acreage = max(set(values))
 
-        radius = 11.8/3
+        radius = 11.8
         num = 1
 
         if acreage < 1:
             num = int(math.ceil(acreage * 10))
         elif acreage >= 1 and acreage < 5:
             num = int(math.ceil(acreage * 2))
-            radius = 26.3/3
+            radius = 26.3
         elif acreage >= 5 and not reduce_acreage:
             num = int(math.ceil(acreage * 2))
-            radius = 26.3/3
+            radius = 26.3
         elif acreage >= 5 and reduce_acreage:
             num = int(math.ceil(acreage * 1))
-            radius = 26.3/3
+            radius = 26.3
+
+        # convert from feet to meter
+        radius = radius / 3.2808
             
         # create buffer inside the planting area
+        log("buffer output area")
         arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, -radius)
 
         # create random plot centers
-        arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_file, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT")
+        log("create sampling locations")
+        arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_file, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance=radius*2)
 
         # add plots to map
         # TODO: or add circles to map (would need to create circles)
+        log("add data to map")
         active_map.addDataFromPath(output_file)
                 
         # TODO: output plot coordinates to csv at output file location
@@ -126,31 +133,3 @@ class PointPlots:
         project.save()
             
         return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-

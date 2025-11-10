@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-
 import arcpy
 
 # import log tool
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages
+from printmessages import printMessages as log
 
 # TODO: buffer work area by 1/2 max width of cluster to prevent cluster / edge of work area overlap
 class ShrubClusters:
@@ -63,7 +62,6 @@ class ShrubClusters:
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        log=printMessages
         arcpy.env.overwriteOutput = True
 
         log("reading in parameters")
@@ -125,19 +123,6 @@ class ShrubClusters:
         project.save()
             
         return
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
