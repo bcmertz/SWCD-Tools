@@ -12,7 +12,7 @@ class ShrubClusters:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Shrub Cluster Tool"
-        self.description = "Shrub Cluster Tool"
+        self.description = "Shrub Clusters"
         self.category = "Buffer tools"
         self.canRunInBackground = False
 

@@ -11,7 +11,7 @@ from printmessages import printMessages as log
 class RelativeElevationModel(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "REM Calculator"
+        self.label = "Relative Elevation Model (REM)"
         self.description = "Compute REM"
         self.category = "Hydrology"
         self.canRunInBackground = False
