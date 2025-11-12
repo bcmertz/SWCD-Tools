@@ -18,17 +18,25 @@ ArcGIS Pro v3.3 or greater
 # Overview of tools (TODO)
 ## Wetland Tools
 ### 1. Berm Analysis
+![image]("./assets/readme_examples/berm analysis before.png")
+![image]("./assets/readme_examples/berm analysis after.png")
 ### 2. Dam Removal
+![image]("./assets/readme_examples/dam removal before.jpg")
+![image]("./assets/readme_examples/dam removal after.jpg")
 ### 3. Model Potential Wetlands
+TODO
 ## Hydrology
 ### 1. Calculate Streamlines
 ### 1. EFH-2 Calculation
 ### 1. Relative Elevation Model (REM)
+![image]("./assets/readme_examples/rem after.png")
 ### 1. Runoff Potential
 ### 1. Stream Centerline Adjuster
 ### 1. Stream Elevation Profile
 ### 1. Sub-Basin Delienation
 ### 1. Topographic Wetness Index (TWI)
+![image]("./assets/readme_examples/twi before.png")
+![image]("./assets/readme_examples/twi after.png")
 ### 1. Watershed Delineation
 ## Buffer Tools
 ### 1. Point Plots
