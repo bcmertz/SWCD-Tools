@@ -1,3 +1,8 @@
+# Notice: Work in Progress
+
+# Requirements
+ArcGIS Pro v3.3 or greater
+
 # Installation
 
 1. Download repository
@@ -10,5 +15,36 @@
 2. in ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
 	- select `SWCD Tools.pyt` from cloned repository
 
-# Overview of tools
-- TODO
+# Overview of tools (TODO)
+## Wetland Tools
+### 1. Berm Analysis
+### 2. Dam Removal
+### 3. Model Potential Wetlands
+## Hydrology
+### 1. Calculate Streamlines
+### 1. EFH-2 Calculation
+### 1. Relative Elevation Model (REM)
+### 1. Runoff Potential
+### 1. Stream Centerline Adjuster
+### 1. Stream Elevation Profile
+### 1. Sub-Basin Delienation
+### 1. Topographic Wetness Index (TWI)
+### 1. Watershed Delineation
+## Buffer Tools
+### 1. Point Plots
+### 1. Shrub Clusters
+## Automated Agricultural Assessment
+### 1. Delineate Parcels
+### 2a. Delineate Agland
+### 2b. Delineate NonAg
+### 2c. Delineate Forest
+### 3. Process
+### 4. Export Layouts
+## Linear Analysis
+TODO
+## Analyze Area
+TODO
+## Export Layouts
+TODO
+### Historical Imagery
+TODO
