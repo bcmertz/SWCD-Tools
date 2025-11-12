@@ -18,28 +18,27 @@ ArcGIS Pro v3.3 or greater
 # Overview of tools (TODO)
 ## Wetland Tools
 ### 1. Berm Analysis
-![image](./assets/readme_examples/berm_analysis_before.png)
+<img src="./assets/readme_examples/berm_analysis_before.png" alt="drawing" width="200"/>
+<img src="./assets/readme_examples/berm_analysis_after.png" alt="drawing" width="200"/>
 
-![image](/assets/readme_examples/berm_analysis_after.png)
 ### 2. Dam Removal
-![image](/assets/readme_examples/dam_removal_before.jpg)
+<img src="./assets/readme_examples/dam_removal_before.jpg" alt="drawing" width="200"/>
+<img src="./assets/readme_examples/dam_removal_after.jpg" alt="drawing" width="200"/>
 
-![image](/assets/readme_examples/dam_removal_after.jpg)
 ### 3. Model Potential Wetlands
 TODO
 ## Hydrology
 ### 1. Calculate Streamlines
 ### 1. EFH-2 Calculation
 ### 1. Relative Elevation Model (REM)
-![image](/assets/readme_examples/rem_after.png)
+<img src="./assets/readme_examples/rem_after.png" alt="drawing" width="200"/>
 ### 1. Runoff Potential
 ### 1. Stream Centerline Adjuster
 ### 1. Stream Elevation Profile
 ### 1. Sub-Basin Delienation
 ### 1. Topographic Wetness Index (TWI)
-![image](/assets/readme_examples/twi_before.png)
-
-![image](/assets/readme_examples/twi_after.png)
+<img src="/assets/readme_examples/twi_before.png" alt="drawing" width="200"/>
+<img src="/assets/readme_examples/twi_after.png" alt="drawing" width="200"/>
 ### 1. Watershed Delineation
 ## Buffer Tools
 ### 1. Point Plots
