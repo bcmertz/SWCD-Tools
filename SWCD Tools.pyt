@@ -2,7 +2,7 @@
 import os
 import sys
 import arcpy
-from importlib import reload
+from importlib import reload, import_module
 
 scripts = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.append(scripts)
@@ -10,11 +10,9 @@ sys.path.append(scripts)
 from ExportLayouts import ExportLayouts
 from BufferTools import PointPlots, ShrubClusters
 from AnalyzeArea import ContourArea, SlopeArea
-from CollectHistoricalRasters import CollectRasters
+from Misc import CollectRasters
 from LineAnalysis import LocalMinimums
-from REMCalculator import RelativeElevationModel
-from StreamCenterlineAdjuster import LeastAction, LeastActionAcc
-from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, SubBasinDelineation, CalculateStreamline, StreamElevation, TopographicWetness
+from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, CalculateStreamline, LeastAction, StreamElevation, TopographicWetness
 from Wetlands import PotentialWetlands, BermAnalysis, DamRemoval
 from AgAssessment import Delineate, Agland, NonAg, Forest, Process, Export
 
@@ -22,7 +20,7 @@ def my_reloader(name):
     del globals() [name]
     del sys.modules [name]
     globals() [name] = __import__(name)
-
+    
 tools = [SlopeArea,
          ContourArea,
          CollectRasters,
@@ -32,7 +30,6 @@ tools = [SlopeArea,
          PointPlots,
          ShrubClusters,
          LeastAction,
-         LeastActionAcc,
          RunoffPotential,
          CalculateHydrology,
          WatershedDelineation,
@@ -61,12 +58,18 @@ class Toolbox(object):
         #for i,j in sys.modules.items():
         #    r,v=i,j
         #    ls.append((r,v))
-
         #for i in ls:
-        #    if i[0] == 'AnalyzeArea':
+        #    if i[0] == "AnalyzeArea.SlopeArea":
+        #        #raise ValueError(i[1])
         #        reload(i[1])
+        #        my_reloader(i[1])
+        #import_module(ExportLayouts)
+        #reload(ExportLayouts)
 
-        #my_reloader(ExportLayouts.__name__)
+        #import_module(SlopeArea)
+        ##for t in tools:
+         #   import_module(t)
+         #   reload(t)
 
         # List of tool classes associated with this toolbox
         self.tools = tools

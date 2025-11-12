@@ -5,9 +5,8 @@ import arcpy
 # import log tool
 import os
 import sys
-#sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-#from printmessages import printMessages as log
-#from printmessages import printMessages as log
+sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
+from printmessages import printMessages as log
 
 class ExportLayouts(object):
     def __init__(self):

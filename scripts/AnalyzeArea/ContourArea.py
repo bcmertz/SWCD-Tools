@@ -2,6 +2,7 @@
 
 import arcpy
 from arcpy import env
+import sys
 
 # import log tool
 import os

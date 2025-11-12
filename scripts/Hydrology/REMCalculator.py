@@ -13,7 +13,7 @@ class RelativeElevationModel(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "REM Calculator"
         self.description = "Compute REM"
-        self.category = "REM Calculator"
+        self.category = "Hydrology"
         self.canRunInBackground = False
    
     def getParameterInfo(self):

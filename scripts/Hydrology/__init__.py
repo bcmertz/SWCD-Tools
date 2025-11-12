@@ -5,3 +5,5 @@ from .StreamElevation import StreamElevation
 from .SubBasinDelineation import SubBasinDelineation
 from .TopographicWetness import TopographicWetness
 from .WatershedDelineation import WatershedDelineation
+from .REMCalculator import RelativeElevationModel
+from .StreamCenterlineAdjuster import LeastAction
