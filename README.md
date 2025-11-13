@@ -86,24 +86,9 @@ This tool can be used to estimate storage capacity of a dammed area using a DEM.
 
 ### 3. Model Potential Wetlands
 
-TODO: incorporate TWI, ag ditches, etc. change exclude wetlands to something more general (floodplains, wetlands, etc)
-
 This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
 
 ## Hydrology
-
-### TODO:
-
-- Stream Elevation Profile
-- Stream power
-- Time of concentration calculation
-- Curvature calculation to delineate TOB / floodplain
-- Switch tools to all use multi-directional flow directions
-- Runoff Curve Number calculation: allow user to select RCN and HSG fields like in "Model Potential Wetlands"
-- Remove hardcoded paths in EFH-2 calculation
-- Make commands more composable
-- Model Potential Wetlands: use topographic wetness index as model of hydrologic potential
-- Runoff curve number - add output file location to export a csv of soils, land uses, and rcns for the study area to plug into hydrology programs; maybe also average slope?
 
 ### 1. Calculate Streamlines
 
@@ -161,10 +146,6 @@ This example of a topographic wetness index (TWI) raster shows cyan colors being
 Takes a pour point and DEM and delineates the contributing watershed.
 
 ## Buffer Tools
-### TODO:
-
-- Consider a flexible point plot density for given sampling area
-- Shrub clusters: buffer the analysis area by the radius of the shrub cluster to avoid overlapping the analysis area boundary
 
 ### 1. Point Plots
 
@@ -175,13 +156,6 @@ Uses Upper Susquehanna Coalition (USC) point plot monitoring methodology and cre
 Create shapefile of shrub clusters in a given planting area.
 
 ## Automated Agricultural Assessment
-### TODO:
-
-- Use layout template in assets folder instead of hardcoded link
-- Remove hardcoded output paths: probably requires storing state somewhere in this project about where things should output across runs of different tool in the toolbox
-- Figure out if other counties have similar tax parcel id # structures and figure out how to incorporate other formats
-- Get author name on layout from os name isntead of hardcoded name
-  
 ### 1. Delineate Parcels
 ### 2a. Delineate Agland
 ### 2b. Delineate NonAg
@@ -192,10 +166,6 @@ Create shapefile of shrub clusters in a given planting area.
 ## Linear Analysis
 
 Tools to analyze linear features with respect to elevation.
-
-### TODO:
-
-- future tools: local maximum, absolute min and max
 
 ### 1. Local Minimums
 
