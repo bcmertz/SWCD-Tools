@@ -7,9 +7,30 @@ Notice: Work in Progress
 - [Installation](#installation)
 - [Overview of tools](#overview-of-tools)
   - [Wetland tools](#wetland-tools)
+    - [Berm Analysis](#1-berm-analysis)
+    - [Dam Removal](#2-dam-removal)
+    - [Model Potential Wetlands](#3-model-potential-wetlands)
   - [Hydrology](#hydrology)
+    - [Calculate Streamlines](#1-calculate-streamlines)
+    - [EFH-2](#2-efh-2-calculation)
+    - [Relative Elevation Model (REM)](#3-relative-elevation-model-rem)
+    - [Runoff Curve Number (RCN)](#4-runoff-curve-number)
+    - [Stream Centerline Adjuster](#5-stream-centerline-adjuster)
+    - [Stream Elevation Profile](#6-stream-elevation-profile)
+    - [Sub-Basin Delineation](#7-sub-basin-delineation)
+    - [Topographic Wetness Index (TWI)](#8-topographic-wetness-index-twi)
+    - [Watershed Delineation](#9-watershed-delineation)
   - [Planting tools](#buffer-tools)
+    - [Point Plots](#1-point-plots)
+    - [Shrub Clusters](#2-shrub-clusters)
   - [Agricultural assessment](#automated-agricultural-assessment)
+  - [Linear Analysis](#linear-analysis)
+    - [Local Minimums](#1-local-minimums)
+  - [Analyze Area](#analyze-area)
+    - [Contour Area](#1-contour-area)
+    - [Shrub Clusters](#2-shrub-clusters)
+  - [Export Layouts](#export-layouts)
+  - [Historical Imagery](#historical-imagery)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -96,7 +117,7 @@ Takes a streamline and optimizes each point along it's path to the lowest perpen
 
 TODO
 
-### 7. Sub-Basin Delienation
+### 7. Sub-Basin Delineation
 
 Find sub-basins in a given watershed based off of a watershed flow-accumulation threshold.
 
@@ -149,7 +170,7 @@ Tools to analyze
 
 - future tools: local maximum, absolute min and max
 
-### Local Minimums
+### 1. Local Minimums
 
 Find all of the local elevation minimums along a line. Uses a minimum elevation threshold to ignore small deviations in the underlying DEM data.
 
@@ -157,11 +178,11 @@ Find all of the local elevation minimums along a line. Uses a minimum elevation 
 
 Quality of life tools to improve some out of the box geoprocessing tools
 
-### Contour Area
+### 1. Contour Area
 
 Contour tool with ability to limit analysis to a given area
 
-### Slope Area
+### 2. Slope Area
 
 Slope tool with ability to limit analysis to a given area
 
@@ -169,7 +190,7 @@ Slope tool with ability to limit analysis to a given area
 
 Quality of life tool to select which layouts to export and to where
 
-### Historical Imagery
+## Historical Imagery
 
 Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
 
