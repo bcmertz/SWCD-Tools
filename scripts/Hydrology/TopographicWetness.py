@@ -120,10 +120,11 @@ class TopographicWetness(object):
         # add TWI to map
         twi_layer = active_map.addDataFromPath(output_file)
 
+        log("cleaning up")
+        arcpy.management.Delete([scratch_dem,fill_raster_scratch,flow_accumulation_scratch])
+
         # save and exit program successfully
         log("saving project")
         project.save()
         
-        log("cleaning up")
-        arcpy.management.Delete([scratch_dem,fill_raster_scratch,flow_accumulation_scratch])
         return

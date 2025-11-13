@@ -206,13 +206,14 @@ class WatershedDelineation(object):
             sym.renderer.symbol.size = 1.5
             stream_feature.symbology = sym
 
-        # save and exit program successfully
-        log("saving project")
-        project.save()
-        
         # remove temporary variables
         log("cleaning up")
         # TODO: FIX - ﻿arcgisscripting.ExecuteError: ERROR 000601: Cannot delete G:\GIS\Streamwork\OCCA Unadilla Culvert Sizing\scratch\temp0.  May be locked by another application.
         arcpy.management.Delete([fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
         arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
+
+        # save and exit program successfully
+        log("saving project")
+        project.save()
+
         return
