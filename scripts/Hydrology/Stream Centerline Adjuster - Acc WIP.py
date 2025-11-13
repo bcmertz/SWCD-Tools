@@ -7,10 +7,10 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-class LeastAction(object):
+class LeastActionAcc(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Stream Centerline Adjuster"
+        self.label = "Stream Centerline Adjuster (Accumulation - WIP)"
         self.description = "Stream Centerline Adjuster"
         self.category = "Hydrology"
         self.canRunInBackground = False
@@ -18,13 +18,12 @@ class LeastAction(object):
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
-            displayName="DEM",
+            displayName="Flow Accumulation",
             name="dem",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
 
-        # TODO: remove, not needed?
         param1 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
@@ -90,54 +89,55 @@ class LeastAction(object):
         dX = first_tran_point.firstPoint.X - last_tran_point.firstPoint.X
         dY = first_tran_point.firstPoint.Y - last_tran_point.firstPoint.Y
 
-        transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference)
+        transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference, has_id=True)
         return transect
     
-    def lowestTransectPoint(self, transect, dem_raster):
-        '''return lowest point along transect
+    def highestFlowAccumulation(self, transect, dem_raster):
+        '''return highest flow accumulation along transect
         transect - arcpy.PolyLine() object
         dem_raster - elevation raster
-        existing_elev - existing elevation of stream line at point
         '''
-        # get points via densify
-        vertex_spacing = 1
-        densified_transect = transect.densify("DISTANCE", vertex_spacing)
-
-        # get existing stream elevation
-        num_vertices = len(densified_transect[0])
-        mid_index = int((num_vertices - 1)/2) # always round number because user supplies search distance: transect width = 2x search distance
-        mid_vertex = densified_transect[0][mid_index]
-        stream_coord = "{} {}".format(mid_vertex.X, mid_vertex.Y)
-        stream_elev_result = arcpy.management.GetCellValue(dem_raster, stream_coord)
-        stream_elev = float(stream_elev_result.getOutput(0))
-
-        # average max distance of adjustment = transect_width / 2
-        transect_width = vertex_spacing * (num_vertices - 1)
-        ave_dist = transect_width / 2
-
         # set up helpers
-        current_adjustment_weight = 0
-        vertex_distance = 0
         point_tmp = ""
-    
-        for vertex in densified_transect[0]:       
-            coord = "{} {}".format(vertex.X, vertex.Y)
-            elev_result = arcpy.management.GetCellValue(dem_raster, coord)
-            elev = float(elev_result.getOutput(0))
-            delta_elev = stream_elev - elev # positive number is a good adjustment
-            distance = abs(vertex_distance - ave_dist)
-            # weighted adjustment weights the reduction in elevation with a weight from 0 - 1
-            # based off of a normal distribution for the supplied serach distance
-            weighted_adjustment = delta_elev * math.exp(-math.pow(distance,2)/(math.pow(ave_dist,2)))
-            if weighted_adjustment >= current_adjustment_weight and delta_elev > 0.2:
-                point_tmp = arcpy.Point(vertex.X, vertex.Y)
-                current_adjustment_weight = weighted_adjustment
-            vertex_distance += vertex_spacing
+
+        # get highest flow accumulation along transect
+        transect_max = arcpy.CreateScratchName("temp",
+                                               data_type="RasterDataset",
+                                               workspace=arcpy.env.scratchFolder)
+
+        #transect_oid = transect.OID
+        out_raster = arcpy.sa.ZonalStatistics(
+            in_zone_data=transect,
+            zone_field=None,
+            in_value_raster=dem_raster,
+            statistics_type="MAXIMUM",
+            ignore_nodata="DATA"
+        )
+        out_raster.save(transect_max)
+
+        # find point of highest flow accumulation
+        out_con = arcpy.CreateScratchName("temp",
+                                               data_type="RasterDataset",
+                                               workspace=arcpy.env.scratchFolder)
+        output_raster = arcpy.sa.RasterCalculator(
+            expression=' Con("{}" =="{}" ,"{}")'.format(transect_max, dem_raster, dem_raster)
+        )
+        output_raster.save(out_con)
+
+        # turn it into point
+        scratch_max_point = arcpy.CreateScratchName("temp",
+                                               data_type="FeatureClass",
+                                               workspace=arcpy.env.scratchFolder)
+        arcpy.conversion.RasterToPoint(
+            in_raster=out_con,
+            out_point_features=scratch_max_point,
+            raster_field="Value"
+        )
+
+        
+        #point_tmp = arcpy.Point(mid_vertex.X, mid_vertex.Y)
             
-        if point_tmp == "":
-            point_tmp = arcpy.Point(mid_vertex.X, mid_vertex.Y)
-            
-        return point_tmp
+        return scratch_max_point
 
     def updateParameters(self, parameters):
         return
@@ -199,8 +199,6 @@ class LeastAction(object):
         
         # iterate through each stream line polyline
         log("optimizing stream line")
-        i = 1
-        n = len([row[0] for row in arcpy.da.SearchCursor(new_stream_line, ["SHAPE@"])])
         with arcpy.da.UpdateCursor(new_stream_line, ["SHAPE@"]) as cursor:
             for stream_line in cursor:
                 # set progress per reach
@@ -217,7 +215,7 @@ class LeastAction(object):
                     #transects.append(transect)
 
                     # find lowest point in transect
-                    new_point = self.lowestTransectPoint(transect, dem_raster)
+                    new_point = self.highestFlowAccumulation(transect, dem_raster)
                     new_stream_line_arr.add(new_point)
                     #lowpoints.append(new_point)
 
@@ -225,13 +223,12 @@ class LeastAction(object):
                     arcpy.SetProgressorPosition()
 
                 # add optimized reach to output
-                log("adding optimized reach {} of {} to output".format(i, n))
+                log("adding optimized reach to output")
                 new_stream_line = arcpy.Polyline(new_stream_line_arr)
                 cursor.updateRow([new_stream_line])
 
                 # get progress bar ready for next reach
                 arcpy.SetProgressorPosition(record_count)
-                i+=1
         arcpy.ResetProgressor()
 
         ## Debugging
@@ -248,14 +245,17 @@ class LeastAction(object):
         #    for lowpoint in lowpoints:
         #        lowpoints_cursor.insertRow([lowpoint])
 
-
         # repair self intersections
         log("repairing self intersections")
-        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")              
+        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")           
 
         # add data
         log("adding data")
         active_map.addDataFromPath(new_stream_line_path)
+
+        # TODO: cleaning up
+        log("cleaning up")
+        #arcpy.management.Delete([scratch_stream_transects,scratch_transect_points_elev,scratch_transect_points,dem_raster_clip,scratch_stream_layer])
 
         # save project
         log("saving project")
