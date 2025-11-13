@@ -39,7 +39,11 @@ TODO
 <img src="./assets/readme_examples/rem_after.png" alt="drawing" width="200"/>
 </span>
 
-### 1. Runoff Potential
+### 1. Runoff Curve Number
+<span>
+<img src="./assets/readme_examples/runoff_curve_numbers_after.png" alt="drawing" width="200"/>
+</span>
+
 ### 1. Stream Centerline Adjuster
 ### 1. Stream Elevation Profile
 ### 1. Sub-Basin Delienation
