@@ -5,17 +5,17 @@
 
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Overview of tools](#overview)
-  - [Wetland tools](#wetlands)
+- [Overview of tools](#overview-of-tools-todo)
+  - [Wetland tools](#wetland-tools)
   - [Hydrology](#hydrology)
-  - [Planting tools](#planting)
-  - [Agricultural assessment](#ag-assessment)
+  - [Planting tools](#buffer-tools)
+  - [Agricultural assessment](#automated-agricultural-assessment)
 
 
-# Requirements[](#requirements)
+# Requirements
 ArcGIS Pro v3.3 or greater
 
-# Installation[](#installation)
+# Installation
 
 1. Download repository
 	- [Option 1] Using git - Note: this has the benefit of allowing you to pull updates easily any time but is more complicated for non-developers
@@ -27,8 +27,8 @@ ArcGIS Pro v3.3 or greater
 2. in ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
 	- select `SWCD Tools.pyt` from cloned repository
 
-# Overview of tools (TODO)[](#overview)
-## Wetland Tools[](#wetlands)
+# Overview of tools (TODO)
+## Wetland Tools
 ### 1. Berm Analysis
 <span>
 <img src="./assets/readme_examples/berm_analysis_before.png" alt="drawing" width="200"/>
@@ -43,7 +43,7 @@ ArcGIS Pro v3.3 or greater
 
 ### 3. Model Potential Wetlands
 TODO
-## Hydrology[](#hydrology)
+## Hydrology
 ### 1. Calculate Streamlines
 ### 2. EFH-2 Calculation
 ### 3. Relative Elevation Model (REM)
@@ -68,10 +68,10 @@ Calculates the runoff curve numbers for a given area based off of land use and h
 </span>
 
 ### 9. Watershed Delineation
-## Buffer Tools[](#planting)
+## Buffer Tools
 ### 1. Point Plots
 ### 2. Shrub Clusters
-## Automated Agricultural Assessment[](#ag-assessment)
+## Automated Agricultural Assessment
 ### 1. Delineate Parcels
 ### 2a. Delineate Agland
 ### 2b. Delineate NonAg
