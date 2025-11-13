@@ -8,7 +8,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: local maximum, absolute min and max
 class LocalMinimums:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -43,10 +42,6 @@ class LocalMinimums:
             direction="Input")        
         param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        # TODO: set search interval off of highest slope in analysis area?
-        #       the idea being that we don't want to miss significant local maxima that could get us above the threshold
-        #       so we search within an interval defined by the linear distance it takes to hit that threshold for the highest slope
-        #       ... try to think of downsides
         param3 = arcpy.Parameter(
             displayName="Search Interval (m)",
             name="search_distance",

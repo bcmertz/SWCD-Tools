@@ -25,7 +25,6 @@ class LeastActionAcc(object):
             parameterType="Required",
             direction="Input")
 
-        # TODO: remove, not needed?
         param1 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
@@ -66,9 +65,7 @@ class LeastActionAcc(object):
         stream_line - arcpy.PolyLine() object
         stream_vertex - arcpy.Point() object
         transect_length - distance in meters of transect
-        '''
-        # TODO: handle end of lines, probably don't merge them because then it's more to store in-memory (?)
-        
+        '''        
         # epsilon
         e = 1e-5
         
@@ -109,7 +106,6 @@ class LeastActionAcc(object):
                                                data_type="RasterDataset",
                                                workspace=arcpy.env.scratchFolder)
 
-        # TODO: figure out OID for polyline??? polylines don't have it and raster calculator needs it :(
         #transect_oid = transect.OID
         out_raster = arcpy.sa.ZonalStatistics(
             in_zone_data=transect,
@@ -250,15 +246,9 @@ class LeastActionAcc(object):
         #    for lowpoint in lowpoints:
         #        lowpoints_cursor.insertRow([lowpoint])
 
-
-        # TODO: dynamic search distance from sinuousity? distance between far vertices and length
-
         # repair self intersections
         log("repairing self intersections")
-        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")      
-
-        # TODO: smoothing based on distance between points (2x?)
-        
+        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")           
 
         # add data
         log("adding data")
@@ -361,9 +351,7 @@ class LeastAction(object):
         stream_line - arcpy.PolyLine() object
         stream_vertex - arcpy.Point() object
         transect_length - distance in meters of transect
-        '''
-        # TODO: handle end of lines, probably don't merge them because then it's more to store in-memory (?)
-        
+        '''        
         # epsilon
         e = 1e-5
         
@@ -544,14 +532,9 @@ class LeastAction(object):
         #        lowpoints_cursor.insertRow([lowpoint])
 
 
-        # TODO: dynamic search distance from sinuousity? distance between far vertices and length
-
         # repair self intersections
         log("repairing self intersections")
-        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")      
-
-        # TODO: smoothing based on distance between points (2x?)
-        
+        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")              
 
         # add data
         log("adding data")

@@ -14,9 +14,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: Separate streamline tool -- create order to use tools for workflow / separate tools
-# TODO: create stream profile (elevation) chart tool thing or data extractor
-
 class TopographicWetness(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -74,14 +71,10 @@ class TopographicWetness(object):
         output_file = parameters[2].valueAsText
 
         # create scratch layers
-        # TODO: remove unused
         log("creating scratch layers")
         scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
         fill_raster_scratch = arcpy.CreateScratchName("tmp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        flow_direction_scratch = "{}\\flowdir1.crf\\".format(arcpy.env.scratchFolder)
         flow_accumulation_scratch = arcpy.CreateScratchName("tmp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        slope_scratch = arcpy.CreateScratchName("tmp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        slope_tangent = arcpy.CreateScratchName("tmp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
 
         if parameters[1].value:
             # clip DEM raster to the study area
@@ -132,7 +125,6 @@ class TopographicWetness(object):
         project.save()
         
         # TODO: remove temporary variables
-        #log("cleaning up")
-        #arcpy.management.Delete([fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
-        #arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
+        log("cleaning up")
+        arcpy.management.Delete([scratch_dem,fill_raster_scratch,flow_accumulation_scratch])
         return

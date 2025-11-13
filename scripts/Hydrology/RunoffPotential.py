@@ -14,9 +14,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: Separate streamline tool -- create order to use tools for workflow / separate tools
-# TODO: create stream profile (elevation) chart tool thing or data extractor
-
 class RunoffPotential:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -51,15 +48,12 @@ class RunoffPotential:
             direction="Input")
         param2.filter.list = ["Polygon"]
 
-        # TODO: ensure RCN fields (A,B,C,D) are present
         param3 = arcpy.Parameter(
             displayName="Land Use Data",
             name="land_use",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
-
-        # TODO: summarize RCN for watershed into table?
 
         params = [param0, param1, param2, param3]
         return params
@@ -103,12 +97,10 @@ class RunoffPotential:
         out_land_use_raster_clip.save(land_use_raster_clip)
         
         # convert land usage output to polygon
-        # TODO: get land use field as param
         log("converting land use areas to polygon")
         arcpy.conversion.RasterToPolygon(land_use_raster_clip, scratch_land_use_polygon, "SIMPLIFY", "LandUse", "SINGLE_OUTER_PART")
 
         # join land use attributes to land use polygons
-        # TODO: get land use field as param
         log("join land use RCN fields into polygon")
         joined_land_use_polygon = arcpy.management.AddJoin(scratch_land_use_polygon, "LandUse", land_use_raster_clip, "LandUse", "KEEP_ALL", "INDEX_JOIN_FIELDS")
         arcpy.management.CopyFeatures(joined_land_use_polygon, scratch_joined_land_use_polygon)
@@ -124,7 +116,6 @@ class RunoffPotential:
         )
 
         # calculate RCN from HSG
-        # TODO: get RCN, HSG, RCNA/B/C/D from params?
         log("calculate RCN from HSG")
         arcpy.management.CalculateField(
             in_table=scratch_pairwise_intersection,
@@ -145,7 +136,6 @@ class RunoffPotential:
         )
 
         # dissolve RCN boundaries
-        # TODO: get RCN field from params?
         log("dissolve RCN boundaries")
         arcpy.analysis.PairwiseDissolve(
             in_features=scratch_pairwise_intersection,

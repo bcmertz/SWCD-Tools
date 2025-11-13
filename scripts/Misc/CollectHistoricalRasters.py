@@ -8,7 +8,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: handle some choice of selection, analysis area/layer boundary, or some other thing, maybe a separate tool for each?
 class CollectRasters:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""

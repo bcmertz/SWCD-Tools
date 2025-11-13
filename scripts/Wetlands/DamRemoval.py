@@ -9,9 +9,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: calculate storage tool to be used with dam removal or dam creation, basically just diffs the existing and removed dems
-# TODO: burn in channel width at channel depth via buffer of channel width into dem
-
 class DamRemoval(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -104,9 +101,7 @@ class DamRemoval(object):
         stream_line - arcpy.PolyLine() object
         stream_vertex - arcpy.Point() object
         transect_length - distance in meters of transect
-        '''
-        # TODO: handle end of lines, probably don't merge them because then it's more to store in-memory (?)
-        
+        '''        
         # epsilon
         e = 1e-5
         
@@ -179,7 +174,6 @@ class DamRemoval(object):
                         
                     # add interpolated points to list of points to be added to DEM
                     if elev_start != None and elev_end != None:
-                        # TODO: option to make u-shaped valley instead of v-shaped using power function
                         slope = (elev_end - elev_start)/(distance_end - distance_start)
                         for i in update_points:
                             i[1] = slope * (i[2] - distance_start) + elev_start
@@ -319,7 +313,6 @@ class DamRemoval(object):
 
         # iterate through each point
         # impove point density with transects using the new mosaic
-        # TODO: progress bar
         log("creating transects and interpolating elevations")
         new_points = []
         with arcpy.da.SearchCursor(scratch_centerline_elev_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
@@ -345,8 +338,6 @@ class DamRemoval(object):
         log("performing IDW analysis on interpolated points")
         out_idw = arcpy.sa.Idw(scratch_final_idw_points, "RASTERVALU")
         out_idw.save(idw_raster)
-
-        # TODO: remove any values greater than original greatest value in DEM ponded area
 
         # extract by mask
         log("extracting ponded area from IDW raster")

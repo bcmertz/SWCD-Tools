@@ -118,12 +118,9 @@ class PointPlots:
         arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_file, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance=radius*2)
 
         # add plots to map
-        # TODO: or add circles to map (would need to create circles)
         log("add data to map")
         active_map.addDataFromPath(output_file)
-                
-        # TODO: output plot coordinates to csv at output file location
-        
+                        
         # cleanup
         log("deleting unneeded data")
         arcpy.management.Delete([scratch_buffer, scratch_dissolve])

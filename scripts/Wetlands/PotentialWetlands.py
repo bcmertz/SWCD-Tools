@@ -9,9 +9,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: calculate storage tool to be used with dam removal or dam creation, basically just diffs the existing and removed dems
-# TODO: burn in channel width at channel depth via buffer of channel width into dem
-
 class PotentialWetlands(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""

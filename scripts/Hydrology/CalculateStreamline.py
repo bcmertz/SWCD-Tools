@@ -14,9 +14,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: Separate streamline tool -- create order to use tools for workflow / separate tools
-# TODO: create stream profile (elevation) chart tool thing or data extractor
-
 class CalculateStreamline(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
