@@ -93,6 +93,7 @@ This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land 
 ### TODO:
 
 - Stream Elevation Profile
+- Stream power
 - Switch tools to all use multi-directional flow directions
 - Runoff Curve Number calculation: allow user to select RCN and HSG fields like in "Model Potential Wetlands"
 - Remove hardcoded paths in EFH-2 calculation
