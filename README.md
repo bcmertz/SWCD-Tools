@@ -86,6 +86,8 @@ This tool can be used to estimate storage capacity of a dammed area using a DEM.
 
 ### 3. Model Potential Wetlands
 
+TODO: incorporate TWI, ag ditches, etc. change exclude wetlands to something more general (floodplains, wetlands, etc)
+
 This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
 
 ## Hydrology
@@ -94,6 +96,8 @@ This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land 
 
 - Stream Elevation Profile
 - Stream power
+- Time of concentration calculation
+- Curvature calculation to delineate TOB / floodplain
 - Switch tools to all use multi-directional flow directions
 - Runoff Curve Number calculation: allow user to select RCN and HSG fields like in "Model Potential Wetlands"
 - Remove hardcoded paths in EFH-2 calculation
@@ -215,6 +219,10 @@ Quality of life tool to select which layouts to export and to where
 ## Historical Imagery
 
 Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
+
+## TODO: Geocode address tool
+
+Take NYS address and geocode it to point
 
 # Contributing
 
