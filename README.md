@@ -180,6 +180,7 @@ Create shapefile of shrub clusters in a given planting area.
 - Use layout template in assets folder instead of hardcoded link
 - Remove hardcoded output paths: probably requires storing state somewhere in this project about where things should output across runs of different tool in the toolbox
 - Figure out if other counties have similar tax parcel id # structures and figure out how to incorporate other formats
+- Get author name on layout from os name isntead of hardcoded name
   
 ### 1. Delineate Parcels
 ### 2a. Delineate Agland
