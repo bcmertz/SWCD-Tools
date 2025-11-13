@@ -8,7 +8,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 
-# TODO: buffer work area by 1/2 max width of cluster to prevent cluster / edge of work area overlap
 class PointPlots:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""

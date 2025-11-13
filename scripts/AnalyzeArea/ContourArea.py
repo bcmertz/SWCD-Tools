@@ -20,7 +20,6 @@ class ContourArea(object):
    
     def getParameterInfo(self):
         """Define parameter definitions"""
-        # TODO: Add parameters help text
         param0 = arcpy.Parameter(
             displayName="DEM",
             name="dem",
@@ -93,9 +92,6 @@ class ContourArea(object):
 
         log("creating contour")
         arcpy.sa.Contour(scratch_dem, output_file, contour_interval, z_factor=z_factor)
-
-        # TODO: Clip to polygon if provided - might not be possible since it is an extent type??
-        # log(parameters[1].value)
 
         log("adding contours to map")
         land_use_clip_layer = active_map.addDataFromPath(output_file)

@@ -18,9 +18,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from printmessages import printMessages as log
 from sanitize import sanitize
 
-# TODO: Remove hardcoded layers and add layer template to SWCD Tools folder
-# TODO: Get name from os username instead of layout
-
 class Process(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
