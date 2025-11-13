@@ -31,14 +31,14 @@ ArcGIS Pro v3.3 or greater
 ## Wetland Tools
 ### 1. Berm Analysis
 <span>
-<img src="./assets/readme_examples/berm_analysis_before.png" alt="drawing" width="200"/>
-<img src="./assets/readme_examples/berm_analysis_after.png" alt="drawing" width="200"/>
+<img src="./assets/readme_examples/berm_analysis_before.png" alt="drawing" height="300"/>
+<img src="./assets/readme_examples/berm_analysis_after.png" alt="drawing" height="300"/>
 </span>
 
 ### 2. Dam Removal
 <span>
-<img src="./assets/readme_examples/dam_removal_before.jpg" alt="drawing" width="200"/>
-<img src="./assets/readme_examples/dam_removal_after.jpg" alt="drawing" width="200"/>
+<img src="./assets/readme_examples/dam_removal_before.jpg" alt="drawing" height="300"/>
+<img src="./assets/readme_examples/dam_removal_after.jpg" alt="drawing" height="300"/>
 </span>
 
 ### 3. Model Potential Wetlands
@@ -48,14 +48,14 @@ TODO
 ### 2. EFH-2 Calculation
 ### 3. Relative Elevation Model (REM)
 <span>
-<img src="./assets/readme_examples/rem_after.png" alt="drawing" width="200"/>
+<img src="./assets/readme_examples/rem_after.png" alt="drawing" height="300"/>
 </span>
 
 ### 4. Runoff Curve Number
 Calculates the runoff curve numbers for a given area based off of land use and hydrologic soil group.
 
 <span>
-<img src="./assets/readme_examples/runoff_curve_numbers_after.png" alt="drawing" width="200"/>
+<img src="./assets/readme_examples/runoff_curve_numbers_after.png" alt="drawing" height="300"/>
 </span>
 
 ### 5. Stream Centerline Adjuster
@@ -63,8 +63,8 @@ Calculates the runoff curve numbers for a given area based off of land use and h
 ### 7. Sub-Basin Delienation
 ### 8. Topographic Wetness Index (TWI)
 <span>
-<img src="/assets/readme_examples/twi_before.png" alt="drawing" width="200"/>
-<img src="/assets/readme_examples/twi_after.png" alt="drawing" width="200"/>
+<img src="/assets/readme_examples/twi_before.png" alt="drawing" height="300"/>
+<img src="/assets/readme_examples/twi_after.png" alt="drawing" height="300"/>
 </span>
 
 ### 9. Watershed Delineation
