@@ -4,12 +4,18 @@
 # Table of Contents
 
 - [Requirements](#requirements)
+- [Installation](#installation)
+- [Overview of tools](#overview)
+  - [Wetland tools](#wetlands)
+  - [Hydrology](#hydrology)
+  - [Planting tools](#planting)
+  - [Agricultural assessment](#ag-assessment)
 
 
 # Requirements[](#requirements)
 ArcGIS Pro v3.3 or greater
 
-# Installation
+# Installation[](#installation)
 
 1. Download repository
 	- [Option 1] Using git - Note: this has the benefit of allowing you to pull updates easily any time but is more complicated for non-developers
@@ -21,8 +27,8 @@ ArcGIS Pro v3.3 or greater
 2. in ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
 	- select `SWCD Tools.pyt` from cloned repository
 
-# Overview of tools (TODO)
-## Wetland Tools
+# Overview of tools (TODO)[](#overview)
+## Wetland Tools[](#wetlands)
 ### 1. Berm Analysis
 <span>
 <img src="./assets/readme_examples/berm_analysis_before.png" alt="drawing" width="200"/>
@@ -37,7 +43,7 @@ ArcGIS Pro v3.3 or greater
 
 ### 3. Model Potential Wetlands
 TODO
-## Hydrology
+## Hydrology[](#hydrology)
 ### 1. Calculate Streamlines
 ### 2. EFH-2 Calculation
 ### 3. Relative Elevation Model (REM)
@@ -62,10 +68,10 @@ Calculates the runoff curve numbers for a given area based off of land use and h
 </span>
 
 ### 9. Watershed Delineation
-## Buffer Tools
+## Buffer Tools[](#planting)
 ### 1. Point Plots
 ### 2. Shrub Clusters
-## Automated Agricultural Assessment
+## Automated Agricultural Assessment[](#ag-assessment)
 ### 1. Delineate Parcels
 ### 2a. Delineate Agland
 ### 2b. Delineate NonAg
