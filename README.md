@@ -1,6 +1,12 @@
 # Notice: Work in Progress
 
-# Requirements
+
+# Table of Contents
+
+- [Requirements](#requirements)
+
+
+# Requirements[](#requirements)
 ArcGIS Pro v3.3 or greater
 
 # Installation
@@ -33,30 +39,32 @@ ArcGIS Pro v3.3 or greater
 TODO
 ## Hydrology
 ### 1. Calculate Streamlines
-### 1. EFH-2 Calculation
-### 1. Relative Elevation Model (REM)
+### 2. EFH-2 Calculation
+### 3. Relative Elevation Model (REM)
 <span>
 <img src="./assets/readme_examples/rem_after.png" alt="drawing" width="200"/>
 </span>
 
-### 1. Runoff Curve Number
+### 4. Runoff Curve Number
+Calculates the runoff curve numbers for a given area based off of land use and hydrologic soil group.
+
 <span>
 <img src="./assets/readme_examples/runoff_curve_numbers_after.png" alt="drawing" width="200"/>
 </span>
 
-### 1. Stream Centerline Adjuster
-### 1. Stream Elevation Profile
-### 1. Sub-Basin Delienation
-### 1. Topographic Wetness Index (TWI)
+### 5. Stream Centerline Adjuster
+### 6. Stream Elevation Profile
+### 7. Sub-Basin Delienation
+### 8. Topographic Wetness Index (TWI)
 <span>
 <img src="/assets/readme_examples/twi_before.png" alt="drawing" width="200"/>
 <img src="/assets/readme_examples/twi_after.png" alt="drawing" width="200"/>
 </span>
 
-### 1. Watershed Delineation
+### 9. Watershed Delineation
 ## Buffer Tools
 ### 1. Point Plots
-### 1. Shrub Clusters
+### 2. Shrub Clusters
 ## Automated Agricultural Assessment
 ### 1. Delineate Parcels
 ### 2a. Delineate Agland
