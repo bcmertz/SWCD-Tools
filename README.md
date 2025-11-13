@@ -39,7 +39,9 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
 - [License](#license)
 
 # Requirements
-ArcGIS Pro v3.3 or greater
+ArcGIS Pro v3.3 or greater with access to the following licenses:
+- 3D Analyst
+- Spatial Analyst
 
 # Installation
 
