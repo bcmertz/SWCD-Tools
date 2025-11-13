@@ -20,9 +20,9 @@ from printmessages import printMessages as log
 class RunoffPotential:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Runoff Potential"
+        self.label = "Calculate Runoff Curve Numbers"
         self.category = "Hydrology"
-        self.description = "Calculate the runoff potential of the given watershed"
+        self.description = "Calculate the runoff curve numbers of a given watershed"
 
     def getParameterInfo(self):
         """Define parameter definitions"""
