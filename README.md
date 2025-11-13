@@ -1,8 +1,12 @@
 Notice: Work in Progress
 
+# Overview
+
+This is a set of tools for various GIS workflows related to hydrology, wetlands, agricultural conservation, and DEM processing.
 
 # Table of Contents
 
+- [Overview](#overview)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Overview of tools](#overview-of-tools)
