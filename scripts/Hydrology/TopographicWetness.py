@@ -124,7 +124,6 @@ class TopographicWetness(object):
         log("saving project")
         project.save()
         
-        # TODO: remove temporary variables
         log("cleaning up")
         arcpy.management.Delete([scratch_dem,fill_raster_scratch,flow_accumulation_scratch])
         return
