@@ -26,6 +26,7 @@ class PointPlots:
             parameterType="Required",
             direction="Input")
         param0.filter.list = ["Polygon"]
+        param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         param1 = arcpy.Parameter(
             displayName="Output Features",
