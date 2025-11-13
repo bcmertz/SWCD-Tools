@@ -56,9 +56,10 @@ ArcGIS Pro v3.3 or greater
 Analyze the backwater effects of a proposed berm. Optionally: calculate the lowest effective height of the berm, create contours of ponded area
 
 <span>
-<img src="./assets/readme_examples/berm_analysis_before.png" alt="drawing" height="300"/>
-<img src="./assets/readme_examples/berm_analysis_after.png" alt="drawing" height="300"/>
+<img src="./assets/readme_examples/berm_analysis_before.png" alt="berm analysis before image showing the berm drawn representing a ditch plug" height="300"/>
+<img src="./assets/readme_examples/berm_analysis_after.png" alt="berm analysis after image showing the backwatered area created by the ditch plug" height="300"/>
 </span>
+Example above shows a ditch plug backwatering a substantial area of a field
 
 ### 2. Dam Removal
 Remove a dam from a DEM. Takes a ponded area and a proposed stream line through the area, calculates the estimated thalweg elevations through the ponded area and linearly interpolates the walls of the valley to the thalway to produce a DEM with the ponded area removed.
@@ -66,9 +67,12 @@ Remove a dam from a DEM. Takes a ponded area and a proposed stream line through 
 Eventually this tool should support other valley types such as U-shaped glaciated valleys and flat floodplain creation.
 
 <span>
-<img src="./assets/readme_examples/dam_removal_before.jpg" alt="drawing" height="300"/>
-<img src="./assets/readme_examples/dam_removal_after.jpg" alt="drawing" height="300"/>
+<img src="./assets/readme_examples/dam_removal_before.jpg" alt="dam removal before image showing a digital elevation model (DEM) of a pond and dam" height="300"/>
+<img src="./assets/readme_examples/dam_removal_after.jpg" alt="dam removal after image showing the same DEM with the dam and pond removed and pre-dam elevations estimated using the tool" height="300"/>
 </span>
+Example above shows the tool removing a dam and pond from a digital elevation model (DEM) and estimating the elevations which existed before.
+
+This tool can be used to estimate storage capacity of a dammed area using a DEM.
 
 ### 3. Model Potential Wetlands
 
@@ -84,6 +88,7 @@ This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land 
 - Remove hardcoded paths in EFH-2 calculation
 - Make commands more composable
 - Model Potential Wetlands: use topographic wetness index as model of hydrologic potential
+- Runoff curve number - add output file location to export a csv of soils, land uses, and rcns for the study area to plug into hydrology programs; maybe also average slope?
 
 ### 1. Calculate Streamlines
 
@@ -98,16 +103,18 @@ Perform EFH-2 runoff calculations for a given watershed using DEM and land-use d
 Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and indentifying geomorphic features.
 
 <span>
-<img src="./assets/readme_examples/rem_after.png" alt="drawing" height="300"/>
+<img src="./assets/readme_examples/rem_after.png" alt="a relative elevation model (REM) along a stream, showing high streambank incision through legacy sedient deposits behind a breached mill dam" height="300"/>
 </span>
+This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
 
 ### 4. Runoff Curve Number
 
 Calculates the runoff curve numbers for a given area based off of land use and hydrologic soil group.
 
 <span>
-<img src="./assets/readme_examples/runoff_curve_numbers_after.png" alt="drawing" height="300"/>
+<img src="./assets/readme_examples/runoff_curve_numbers_after.png" alt="an example output from the runoff curve number tool showing a gradient of red-colored polygons where the darker features have higher runoff curve numbers" height="300"/>
 </span>
+The example above shows a sample output from this tool, where the darker colors represent a higher band of runoff curve numbers.
 
 ### 5. Stream Centerline Adjuster
 
@@ -126,9 +133,10 @@ Find sub-basins in a given watershed based off of a watershed flow-accumulation 
 Calculates topographic wetness index (TWI) as a model of wetness due to topography and surface flow.
 
 <span>
-<img src="/assets/readme_examples/twi_before.png" alt="drawing" height="300"/>
-<img src="/assets/readme_examples/twi_after.png" alt="drawing" height="300"/>
+<img src="/assets/readme_examples/twi_before.png" alt="topographic wetness index before - showing aerial photograph of study area" height="300" max-width="300"/>
+<img src="/assets/readme_examples/twi_after.png" alt="topographic wetness index before - showing output TWI raster with cyan colors being higher TWI values and blue colors being lower TWI values" height="300" max-width="300"/>
 </span>
+This example of a topographic wetness index (TWI) raster shows cyan colors being higher TWI values and light blue colors being lower TWI values. You can clearly see the stream channel, as well as how topography impacts wetness.
 
 ### 9. Watershed Delineation
 
@@ -164,7 +172,7 @@ Create shapefile of shrub clusters in a given planting area.
 
 ## Linear Analysis
 
-Tools to analyze 
+Tools to analyze linear features with respect to elevation.
 
 ### TODO:
 
