@@ -10,8 +10,8 @@
   - [Hydrology](#hydrology)
   - [Planting tools](#buffer-tools)
   - [Agricultural assessment](#automated-agricultural-assessment)
-- Contributing
-- License
+- [Contributing](#contributing)
+- [License](#license)
 
 # Requirements
 ArcGIS Pro v3.3 or greater
