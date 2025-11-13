@@ -10,7 +10,8 @@
   - [Hydrology](#hydrology)
   - [Planting tools](#buffer-tools)
   - [Agricultural assessment](#automated-agricultural-assessment)
-
+- Contributing
+- License
 
 # Requirements
 ArcGIS Pro v3.3 or greater
@@ -27,7 +28,7 @@ ArcGIS Pro v3.3 or greater
 2. in ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
 	- select `SWCD Tools.pyt` from cloned repository
 
-# Overview of tools (TODO)
+# Overview of tools
 ## Wetland Tools
 ### 1. Berm Analysis
 <span>
@@ -86,3 +87,7 @@ TODO
 TODO
 ### Historical Imagery
 TODO
+# Contributing
+Contributions welcome, please open issues for feature requests and bugs, and pull requests for code changes.
+# License
+Please refer to the [LICENSE](LICENSE) file.
