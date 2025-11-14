@@ -143,8 +143,8 @@ Find sub-basins in a given watershed based off of a watershed flow-accumulation 
 Calculates topographic wetness index (TWI) as a model of wetness due to topography and surface flow.
 
 <span>
-<img src="/assets/readme_examples/twi_before.png" alt="topographic wetness index before - showing aerial photograph of study area" height="300" max-width="220"/>
-<img src="/assets/readme_examples/twi_after.png" alt="topographic wetness index before - showing output TWI raster with cyan colors being higher TWI values and blue colors being lower TWI values" height="300" max-width="220"/>
+<img src="/assets/readme_examples/twi_before.png" alt="topographic wetness index before - showing aerial photograph of study area" height="300" max-width="200"/>
+<img src="/assets/readme_examples/twi_after.png" alt="topographic wetness index before - showing output TWI raster with cyan colors being higher TWI values and blue colors being lower TWI values" height="300" max-width="200"/>
 </span>
 
 This example of a topographic wetness index (TWI) raster shows cyan colors being higher TWI values and light blue colors being lower TWI values. You can clearly see the stream channel, as well as how topography impacts wetness.
