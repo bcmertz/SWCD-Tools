@@ -76,8 +76,8 @@ Remove a dam from a DEM. Takes a ponded area and a proposed stream line through 
 Eventually this tool should support other valley types such as U-shaped glaciated valleys and flat floodplain creation.
 
 <span>
-<img src="./assets/readme_examples/dam_removal_before.jpg" alt="dam removal before image showing a digital elevation model (DEM) of a pond and dam" height="300"/>
-<img src="./assets/readme_examples/dam_removal_after.jpg" alt="dam removal after image showing the same DEM with the dam and pond removed and pre-dam elevations estimated using the tool" height="300"/>
+<img src="./assets/readme_examples/dam_removal_before.jpg" alt="dam removal before image showing a digital elevation model (DEM) of a pond and dam" width="300"/>
+<img src="./assets/readme_examples/dam_removal_after.jpg" alt="dam removal after image showing the same DEM with the dam and pond removed and pre-dam elevations estimated using the tool" width="300"/>
 </span>
 
 Example above shows the tool removing a dam and pond from a digital elevation model (DEM) and estimating the elevations which existed before.
