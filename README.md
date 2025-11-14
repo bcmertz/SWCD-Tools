@@ -142,7 +142,7 @@ Calculates topographic wetness index (TWI) as a model of wetness due to topograp
 This example of a topographic wetness index (TWI) raster shows cyan colors being higher TWI values and light blue colors being lower TWI values. You can clearly see the stream channel, as well as how topography impacts wetness.
 
 <span>
-<img src="/assets/readme_examples/twi_after_mapped_wetlands.png" alt="topographic wetness index after - output TWI raster overlaid with red hatched lines where wetlands have been mapped (DEC + NWI). There is significant overlap with the darkest TWI areas" height="300" max-width="250"/>
+<img src="/assets/readme_examples/twi_after_mapped_wetlands.png" alt="topographic wetness index after - output TWI raster overlaid with red hatched lines where wetlands have been mapped (DEC + NWI). There is significant overlap with the darkest TWI areas" height="350"/>
 </span>
 
 This shows a TWI output with mapped NWI and DEC wetlands. Notice the  significant overlap with the darkest TWI areas.
