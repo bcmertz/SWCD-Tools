@@ -19,6 +19,7 @@ from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
 from sanitize import sanitize
 from validate_spatial_reference import validate_spatial_reference as validate
+from license import license as license
 
 class Forest(object):
     def __init__(self):
@@ -27,6 +28,10 @@ class Forest(object):
         self.category = "Automated Ag Assessment"
         self.description = "Select all forest land for delineation"
 
+    def isLicensed(self):
+        """Set whether the tool is licensed to execute."""
+        return license([])
+    
     def getParameterInfo(self):
         """Define parameter definitions"""
         params = []

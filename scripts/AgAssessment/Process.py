@@ -19,6 +19,7 @@ from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
 from sanitize import sanitize
 from validate_spatial_reference import validate_spatial_reference as validate
+from license import license as license
 
 class Process(object):
     def __init__(self):
@@ -30,6 +31,10 @@ class Process(object):
     def getParameterInfo(self):
         """Define parameter definitions"""
         return
+
+    def isLicensed(self):
+        """Set whether the tool is licensed to execute."""
+        return license([])
     
     def execute(self, parameters, messages):
         """The source code of the tool."""

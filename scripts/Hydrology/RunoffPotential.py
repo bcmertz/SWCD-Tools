@@ -15,6 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
 from validate_spatial_reference import validate_spatial_reference as validate
+from license import license as license
 
 class RunoffPotential:
     def __init__(self):
@@ -60,6 +61,10 @@ class RunoffPotential:
         params = [param0, param1, param2, param3]
         return params
 
+    def isLicensed(self):
+        """Set whether the tool is licensed to execute."""
+        return license(['Spatial'])
+    
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)

@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
 from validate_spatial_reference import validate_spatial_reference as validate
+from license import license as license
 
 class RelativeElevationModel(object):
     def __init__(self):
@@ -73,6 +74,10 @@ class RelativeElevationModel(object):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
+
+    def isLicensed(self):
+        """Set whether the tool is licensed to execute."""
+        return license(['Spatial'])
     
     def updateParameters(self, parameters):
         # default buffer radius

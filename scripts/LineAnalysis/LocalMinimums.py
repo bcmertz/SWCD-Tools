@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
 from validate_spatial_reference import validate_spatial_reference as validate
+from license import license as license
 
 class LocalMinimums:
     def __init__(self):
@@ -18,6 +19,10 @@ class LocalMinimums:
         self.category = "Linear Analysis"
         self.canRunInBackground = False
 
+    def isLicensed(self):
+        """Set whether the tool is licensed to execute."""
+        return license([])
+    
     def getParameterInfo(self):
         """Define the tool parameters."""
         param0 = arcpy.Parameter(
