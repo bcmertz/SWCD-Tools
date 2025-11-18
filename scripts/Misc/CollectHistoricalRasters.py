@@ -2,11 +2,12 @@
 
 import arcpy
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class CollectRasters:
     def __init__(self):
@@ -27,8 +28,9 @@ class CollectRasters:
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        arcpy.env.overwriteOutput = True
-
+        # Setup
+        setup()
+        
         project = arcpy.mp.ArcGISProject("Current")
         orig_map = project.activeMap
         lyrs = orig_map.listLayers("*Key")

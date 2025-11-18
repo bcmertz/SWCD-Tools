@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import arcpy
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class ShrubClusters:
     def __init__(self):
@@ -61,7 +62,8 @@ class ShrubClusters:
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        arcpy.env.overwriteOutput = True
+        # Setup
+        setup()
 
         log("reading in parameters")
         area = parameters[0].value

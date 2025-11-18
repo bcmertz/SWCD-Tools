@@ -3,11 +3,12 @@ import arcpy
 from arcpy import env
 from math import atan2, pi, exp
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class PotentialWetlands(object):
     def __init__(self):
@@ -186,7 +187,7 @@ class PotentialWetlands(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        arcpy.env.overwriteOutput = True
+        setup()
 
         dem_raster = parameters[0].value
         extent = arcpy.Extent(XMin = parameters[1].value.XMin,

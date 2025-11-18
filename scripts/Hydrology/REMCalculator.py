@@ -2,11 +2,12 @@ import arcpy
 
 from arcpy import env
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class RelativeElevationModel(object):
     def __init__(self):
@@ -79,8 +80,8 @@ class RelativeElevationModel(object):
     
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        # setup
-        arcpy.env.overwriteOutput = True
+        # Setup
+        setup()
         arcpy.env.parallelProcessingFactor = "75%"
 
         dem_raster = parameters[0].value
@@ -126,7 +127,7 @@ class RelativeElevationModel(object):
         scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer",
                                                data_type="FeatureClass",
                                                workspace=arcpy.env.scratchFolder)          
-        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, buffer_radius, "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, " Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
 
         # clip dem to buffer
         log("clipping DEM to buffer")

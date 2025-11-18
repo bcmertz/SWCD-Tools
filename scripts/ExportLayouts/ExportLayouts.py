@@ -2,11 +2,12 @@
 
 import arcpy
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class ExportLayouts(object):
     def __init__(self):
@@ -53,7 +54,8 @@ class ExportLayouts(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        arcpy.env.overwriteOutput = True
+        setup()
+
         project = arcpy.mp.ArcGISProject("Current")
         log("here23")
         file_path = parameters[1].valueAsText

@@ -11,12 +11,12 @@ import csv
 
 from arcpy import env
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
-from sanitize import sanitize
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class Agland(object):
     def __init__(self):
@@ -33,7 +33,7 @@ class Agland(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        arcpy.env.overwriteOutput = True
+        setup()
 
         # Helpers
         project = arcpy.mp.ArcGISProject("Current")

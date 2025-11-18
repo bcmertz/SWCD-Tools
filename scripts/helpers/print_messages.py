@@ -1,6 +1,6 @@
 import arcpy
 
-def printMessages(*args):
+def print_messages(*args):
     """provide a list of messages to this method"""
     out_str = ""
     #args = args[1:] # get rid of first argument

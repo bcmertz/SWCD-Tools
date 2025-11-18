@@ -8,11 +8,12 @@ import math
 
 from pprint import pprint
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class CalculateHydrology:
     def __init__(self):
@@ -75,9 +76,9 @@ class CalculateHydrology:
         
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        # setup
+        # Setup
+        setup()
         addLayerToGroup=self.addLayerToGroup
-        arcpy.env.overwriteOutput = True
         project = arcpy.mp.ArcGISProject("Current")
 
         # helper variables

@@ -2,11 +2,12 @@
 import arcpy
 import math
 
-# import log tool
+# setup helpers
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
-from printmessages import printMessages as log
+from print_messages import print_messages as log
+from setup_environment import setup_environment as setup
 
 class PointPlots:
     def __init__(self):
@@ -55,8 +56,9 @@ class PointPlots:
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        arcpy.env.overwriteOutput = True
-        log("test76")
+        # Setup
+        setup()
+        log(arcpy.env.overwriteOutput,arcpy.env.outputCoordinateSystem)
 
         log("reading in parameters")
         planting_area = parameters[0].value
@@ -67,12 +69,11 @@ class PointPlots:
         log("setting up project")
         project = arcpy.mp.ArcGISProject("Current")
         active_map = project.activeMap
-
+    
         # create scratch layers
         log("creating scratch layers")
         scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_dissolve = arcpy.CreateScratchName("scratch_dissolve", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        log(scratch_buffer)
 
         # dissolve
         log("dissolve polygons")
@@ -106,12 +107,9 @@ class PointPlots:
             num = int(math.ceil(acreage * 1))
             radius = 26.3
 
-        # convert from feet to meter
-        radius = radius / 3.2808
-            
         # create buffer inside the planting area
         log("buffer output area")
-        arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, -radius)
+        arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, "{} Feet".format(-radius))
 
         # create random plot centers
         log("create sampling locations")
