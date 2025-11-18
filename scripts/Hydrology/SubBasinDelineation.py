@@ -89,10 +89,8 @@ class SubBasinDelineation(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
-
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
+        log("setting up project")
+        project, active_map = setup()
 
         # read in parameters
         raster_layer = parameters[0].value

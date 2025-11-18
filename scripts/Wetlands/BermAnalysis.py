@@ -136,7 +136,8 @@ class BermAnalysis(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
         log("reading in parameters")
         dem_raster = parameters[0].value       
@@ -154,10 +155,6 @@ class BermAnalysis(object):
         contour_bool = parameters[7].value
         contour_interval = parameters[8].value
         contour_output = parameters[9].valueAsText
-
-        # project setup
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
 
         # setup scratch variables
         log("creating scratch variables")

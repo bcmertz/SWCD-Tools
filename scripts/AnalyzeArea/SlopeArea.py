@@ -75,7 +75,8 @@ class SlopeArea(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
         raster_layer = parameters[0].value
         extent = arcpy.Extent(XMin = parameters[1].value.XMin,
@@ -96,9 +97,6 @@ class SlopeArea(object):
 
         if z_unit != "METER" and z_unit != "FOOT":
             raise ValueError("Bad z-unit value")
-
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
 
         log("clipping DEM")
         scratch_dem = arcpy.CreateScratchName("temp",

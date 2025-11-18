@@ -86,7 +86,8 @@ class Delineate(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
         parcel_layer = 'Parcels'
 
         # Parameters
@@ -99,7 +100,6 @@ class Delineate(object):
         zip_code = parameters[6].valueAsText
 
         # Helpers
-        project = arcpy.mp.ArcGISProject("Current")
         project_name = project.filePath.split("\\")[-1][:-5]
         year = datetime.date.today().year
         path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)

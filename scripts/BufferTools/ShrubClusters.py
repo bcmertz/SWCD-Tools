@@ -63,18 +63,14 @@ class ShrubClusters:
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
         log("reading in parameters")
         area = parameters[0].value
         output_file = parameters[1].valueAsText
         width = parameters[2].value
         number = parameters[3].value
-
-        # project setup
-        log("setting up project")
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
 
         # create scratch layers
         log("creating scratch layers")

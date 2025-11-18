@@ -68,7 +68,8 @@ class ContourArea(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
         raster_layer = parameters[0].value
         extent = arcpy.Extent(XMin = parameters[1].value.XMin,
@@ -79,9 +80,6 @@ class ContourArea(object):
         output_file = parameters[2].valueAsText
         contour_interval = parameters[3].valueAsText
         z_factor = parameters[4].valueAsText
-
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
 
         log("clipping raster")
         scratch_dem = arcpy.CreateScratchName("temp",

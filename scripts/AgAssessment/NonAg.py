@@ -34,10 +34,10 @@ class NonAg(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
         # Helpers
-        project = arcpy.mp.ArcGISProject("Current")
         project_name = project.filePath.split("\\")[-1][:-5]
  
         maps = project.listMaps()

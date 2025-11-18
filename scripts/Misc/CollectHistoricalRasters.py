@@ -29,10 +29,9 @@ class CollectRasters:
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
         
-        project = arcpy.mp.ArcGISProject("Current")
-        orig_map = project.activeMap
         lyrs = orig_map.listLayers("*Key")
 
         for lyr in lyrs:

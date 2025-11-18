@@ -54,10 +54,9 @@ class ExportLayouts(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
-        project = arcpy.mp.ArcGISProject("Current")
-        log("here23")
         file_path = parameters[1].valueAsText
         layouts = parameters[0].valueAsText.replace("'", "").split(";")
         project_layouts = project.listLayouts()

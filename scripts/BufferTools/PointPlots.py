@@ -57,18 +57,13 @@ class PointPlots:
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
-        log(arcpy.env.overwriteOutput,arcpy.env.outputCoordinateSystem)
+        log("setting up project")
+        project, active_map = setup()
 
         log("reading in parameters")
         planting_area = parameters[0].value
         output_file = parameters[1].valueAsText
         reduce_acreage = parameters[2].value
-
-        # project setup
-        log("setting up project")
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
     
         # create scratch layers
         log("creating scratch layers")

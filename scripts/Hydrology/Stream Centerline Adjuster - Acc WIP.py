@@ -146,12 +146,9 @@ class LeastActionAcc(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
         arcpy.env.parallelProcessingFactor = "75%"
-        
-        # project setup
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
         
         # read in parameters
         dem_raster = parameters[0].value       

@@ -197,7 +197,8 @@ class DamRemoval(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
         dem_raster = parameters[0].value
         extent = arcpy.Extent(XMin = parameters[1].value.XMin,
@@ -214,10 +215,6 @@ class DamRemoval(object):
         transect_spacing = parameters[5].value / z_unit
         transect_point_spacing = parameters[6].value / z_unit
         transect_width = parameters[7].value / z_unit
-
-        # project setup
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
 
         # create scratch layers
         scratch_dem = arcpy.CreateScratchName("scratch_dem", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)

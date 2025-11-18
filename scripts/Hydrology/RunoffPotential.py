@@ -62,7 +62,8 @@ class RunoffPotential:
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
         arcpy.env.qualifiedFieldNames = False
 
         # read in parameters
@@ -70,12 +71,7 @@ class RunoffPotential:
         output_fc = parameters[1].valueAsText
         soils = parameters[2].value
         land_use_raster = parameters[3].value
-
-        # project setup
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
-
-        
+       
         #colorramps = project.listColorRamps()
         #for i in colorramps:
         #    log(i.name)

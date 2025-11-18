@@ -187,7 +187,8 @@ class PotentialWetlands(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
 
         dem_raster = parameters[0].value
         extent = arcpy.Extent(XMin = parameters[1].value.XMin,
@@ -205,10 +206,6 @@ class PotentialWetlands(object):
         land_use_values = parameters[9].valueAsText.replace("'","").split(";")
         calculate_wetlands = parameters[10].value
         wetland_layers = parameters[11].valueAsText.replace("'","").split(";") if calculate_wetlands else []
-
-        # project setup
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
 
         # setup DEM area
         log("clipping DEM")

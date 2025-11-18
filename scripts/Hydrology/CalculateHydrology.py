@@ -77,12 +77,12 @@ class CalculateHydrology:
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
         addLayerToGroup=self.addLayerToGroup
-        project = arcpy.mp.ArcGISProject("Current")
 
         # helper variables
-        orig_map = project.activeMap
+        orig_map = active_map
         orig_layout = project.listLayouts("Layout")[0]
         layouts = []
 

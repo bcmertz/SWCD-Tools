@@ -81,7 +81,8 @@ class RelativeElevationModel(object):
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
+        log("setting up project")
+        project, active_map = setup()
         arcpy.env.parallelProcessingFactor = "75%"
 
         dem_raster = parameters[0].value
@@ -95,10 +96,6 @@ class RelativeElevationModel(object):
         stream_layer = parameters[3].value
         buffer_radius = int(parameters[4].value)
         sampling_interval = int(parameters[5].value)
-
-        # project setup
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
 
         # create area to process from extent
         log("creating area from extent")

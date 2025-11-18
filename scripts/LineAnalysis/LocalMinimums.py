@@ -93,8 +93,11 @@ class LocalMinimums:
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
-        setup()
-        
+        log("setting up project")
+        project, active_map = setup()
+        spatial_reference_name = active_map.spatialReference.name
+        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
+
         log("reading in parameters")
         line = parameters[0].value
         dem_raster = parameters[1].value
@@ -109,13 +112,6 @@ class LocalMinimums:
         threshold = parameters[4].value / (3.2808 * 12)
         # endpoints_bool = parameters[5].value
         output_file = parameters[5].valueAsText
-
-        # project setup
-        log("setting up project")
-        project = arcpy.mp.ArcGISProject("Current")
-        active_map = project.activeMap
-        spatial_reference_name = active_map.spatialReference.name
-        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
 
         # create scratch layers
         log("creating scratch layers")
