@@ -17,6 +17,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
+from validate_spatial_reference import validate_spatial_reference as validate
 
 class Export(object):
     def __init__(self):

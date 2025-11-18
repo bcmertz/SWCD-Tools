@@ -14,6 +14,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
+from validate_spatial_reference import validate_spatial_reference as validate
 
 class SubBasinDelineation(object):
     def __init__(self):
@@ -34,7 +35,7 @@ class SubBasinDelineation(object):
         if parameters[2].value == None:
             parameters[2].value = 25000
         return
-        
+
     def updateMessages(self, parameters):
         if parameters[3].value == True:
             parameters[4].setIDMessage("ERROR", 530)
@@ -42,6 +43,7 @@ class SubBasinDelineation(object):
             parameters[4].clearMessage()
         if parameters[4].value:
             parameters[4].clearMessage()
+        validate(parameters)
         return
 
     def getParameterInfo(self):
