@@ -124,27 +124,17 @@ class RunoffPotential:
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
-        warning_message = "Input has an unknown coordinate system. This may cause errors in running this tool. Please define a coordinate system for the input using 'define projection'"
+
+        warning_message = """In order to use this tool you must have land use / runoff curve number data.
+                             We recommend using Chesapeake Bay Land Use Data and modifying the raster to include fields
+                             for runoff curve number values for each hydrologic soil groups A,B,C,D."""
     
-        for param in parameters:
-            if param.value and param.direction == "Input":
-                try:
-                    desc = arcpy.Describe(param)
-                    if hasattr(desc, "spatialReference"):
-                        spatial_ref = desc.spatialReference
-                        param.setWarningMessage(warning_message)
-
-                        # If the spatial reference is unknown
-                        if spatial_ref.name == "Unknown":
-                            param.setWarningMessage(warning_message)
-                        else:
-                            if param.hasWarning:
-                                param.clearMessage()
-                except:
-                    pass
-
-
+        if parameters[4].value and (not parameters[5].value or not parameters[6].value or not parameters[7].value or not parameters[8].value):
+            parameters[4].setWarningMessage(warning_message)
+        else:
+            if parameters[4].hasWarning:
+              parameters[4].clearMessage()
+  
         return
 
     def updateParameters(self, parameters):
