@@ -1,3 +1,4 @@
 *.xml
 example/
 scripts/**/__pycache__
+.cache/
