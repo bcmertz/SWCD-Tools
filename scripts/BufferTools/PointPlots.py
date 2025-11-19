@@ -127,8 +127,6 @@ class PointPlots:
         log("buffer output area")
         arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, "{} Feet".format(-radius))
 
-        log(num, acreage)
-
         # create random plot centers
         log("create sampling locations")
         arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance="{} Feet".format(radius*2))
