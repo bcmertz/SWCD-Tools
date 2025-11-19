@@ -125,9 +125,7 @@ class RunoffPotential:
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
-        warning_message = """In order to use this tool you must have land use / runoff curve number data.
-                             We recommend using Chesapeake Bay Land Use Data and modifying the raster to include fields
-                             for runoff curve number values for each hydrologic soil groups A,B,C,D."""
+        warning_message = "In order to use this tool you must have land use / runoff curve number data. We recommend using Chesapeake Bay Land Use Data and modifying the raster to include fields for runoff curve number values for each hydrologic soil groups A,B,C,D."
     
         if parameters[4].value and (not parameters[5].value or not parameters[6].value or not parameters[7].value or not parameters[8].value):
             parameters[4].setWarningMessage(warning_message)
