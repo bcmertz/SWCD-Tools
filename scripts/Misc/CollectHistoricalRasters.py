@@ -42,7 +42,7 @@ class CollectRasters:
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, orig_map = setup()
         
         lyrs = orig_map.listLayers("*Key")
 
