@@ -1,5 +1,3 @@
-Work in Progress
-
 # Overview
 
 This is a set of tools for various GIS workflows related to hydrology, wetlands, agricultural conservation, and DEM processing.
@@ -124,6 +122,12 @@ Calculates the runoff curve numbers for a given area based off of land use and h
 </span>
 
 The example above shows a sample output from this tool, where the darker colors represent a higher band of runoff curve numbers.
+
+Note: in order to use this tool you must have land use / runoff curve number data. We recommend using [Chesapeake Bay Land Use Data](https://www.chesapeakeconservancy.org/projects/cbp-land-use-land-cover-data-project) and modifying the raster to include fields for runoff curve number values for each hydrologic soil groups A,B,C,D as shown:
+
+<span>
+<img src="./assets/readme_examples/runoff_curve_numbers_rcn_table.png" alt="a picture of a raster attribute table showing runoff curve number values for hydrologic soil groups A,B,C,D for " width="800"/>
+</span>
 
 ### 5. Stream Centerline Adjuster
 
