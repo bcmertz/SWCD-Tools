@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Potential Wetlands
+# Purpose:     This tool analyzes soils, hydrology, and land use to calculate
+#              potential wetland areas.
 #
 # Author:      Reya Mertz
 #

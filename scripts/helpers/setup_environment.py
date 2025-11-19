@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Setup Environment
+# Purpose:     This helper is used in various other tools to help setup
+#              environmental variables and return the active project and map.
 #
 # Author:      Reya Mertz
 #

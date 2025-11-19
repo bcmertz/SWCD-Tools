@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        License
+# Purpose:     This helper is used in various other tools to verify whether the
+#              user has the required GIS license installed
 #
 # Author:      Reya Mertz
 #

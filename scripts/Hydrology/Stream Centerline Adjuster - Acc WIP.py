@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Stream Centerline Adjuster - Flow Accumulation
+# Purpose:     This tool is a work-in-progres and proposed replacement for the
+#              Stream Centerline Adjuster tool.
 #
 # Author:      Reya Mertz
 #

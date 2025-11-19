@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Stream Centerline Adjuster
+# Purpose:     This tool corrects a streamline to a DEM by minimizing elevation.
 #
 # Author:      Reya Mertz
 #

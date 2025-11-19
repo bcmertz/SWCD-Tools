@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Stream Elevation
+# Purpose:     This tool is a work-in-progress tool which will collect elevation
+#              data along a drainage network for visualization.
 #
 # Author:      Reya Mertz
 #

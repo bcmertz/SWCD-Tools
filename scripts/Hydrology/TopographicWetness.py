@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Topographic Wetness Index (TWI)
+# Purpose:     This tool calculates the TWI for an estimate of hydrologic activity.
 #
 # Author:      Reya Mertz
 #

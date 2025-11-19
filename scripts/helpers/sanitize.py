@@ -1,7 +1,6 @@
-# --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+## --------------------------------------------------------------------------------
+# Name:        Sanitize
+# Purpose:     This helper is used in various other tools to sanitize a file path
 #
 # Author:      Reya Mertz
 #
@@ -15,5 +14,5 @@ import arcpy
 import string
 
 def sanitize(text):
-    """provide a list of messages to this method"""
+    """return a sanitized file path string"""
     return str(text).translate(str.maketrans('', '', string.punctuation))

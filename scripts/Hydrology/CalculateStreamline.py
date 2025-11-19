@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Calculate Streamline
+# Purpose:     This tool uses flow accumulation to define stream lines from a DEM.
 #
 # Author:      Reya Mertz
 #

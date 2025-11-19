@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Sub-Basin Delineation
+# Purpose:     This tool finds sub-basins within a given flow accumulation threshold
+#              and defines their watersheds.
 #
 # Author:      Reya Mertz
 #

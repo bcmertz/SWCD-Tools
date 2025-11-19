@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Collect Historical Rasters
+# Purpose:     This tool pulls selected historical rasters into map.
 #
 # Author:      Reya Mertz
 #

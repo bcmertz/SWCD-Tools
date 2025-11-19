@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Runoff Potential
+# Purpose:     This tool calculates runoff curve numbers (RCNs) for a given study
+#              area.
 #
 # Author:      Reya Mertz
 #

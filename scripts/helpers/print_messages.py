@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Print Messages
+# Purpose:     This helper is used in various other tools to combine and print
+#              messages to the tool output.
 #
 # Author:      Reya Mertz
 #

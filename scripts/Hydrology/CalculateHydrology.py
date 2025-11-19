@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Calculate Hydrology
+# Purpose:     This tool takes a watershed and calculates all of the RCNs, slopes,
+#              longest flow path, and other parameters needed to run EFH-2 analysis
 #
 # Author:      Reya Mertz
 #

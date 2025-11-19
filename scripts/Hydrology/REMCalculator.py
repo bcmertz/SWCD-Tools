@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Relative Elevation Model (REM)
+# Purpose:     This tool creates an REM from a DEM and streamline. This can be used
+#              for modeling stream incision, geomorphic features, and other uses.
 #
 # Author:      Reya Mertz
 #

@@ -1,7 +1,9 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Berm Analysis
+# Purpose:     This tool creates a berm and calculates the potential backwater of
+#              it. Users are able to add contour lines as well indicating depth.
+#              If berm height isn't supplied then this tool calculates the maximum
+#              useful height.
 #
 # Author:      Reya Mertz
 #

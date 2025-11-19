@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Dam Removal
+# Purpose:     This tool removes the footprint of a dam from a DEM and estimates
+#              the ground surface beneath the currently inundated area.
 #
 # Author:      Reya Mertz
 #

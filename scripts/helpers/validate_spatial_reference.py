@@ -1,7 +1,8 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Validate Spatial Reference
+# Purpose:     This helper is used in various other tools to verify that each input
+#              that can have a spatial references has a valid spatial reference
+#              defined in order to avoid errors.
 #
 # Author:      Reya Mertz
 #

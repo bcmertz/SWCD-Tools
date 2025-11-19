@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Watershed Delineation
+# Purpose:     This tool delineates a watershed from a DEM for a given pour point.
 #
 # Author:      Reya Mertz
 #

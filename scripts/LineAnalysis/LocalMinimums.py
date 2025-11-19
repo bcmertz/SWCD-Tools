@@ -1,8 +1,12 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Local Minimums
+# Purpose:     This tool finds local minimums that are larger minimums than the
+#              given threshold value. 
 #
+#              example: minimums greater than the diameter of a proposed pipe would
+#                       be detected - this would correspond to areas where water
+#                       would pool after draining
+#                         
 # Author:      Reya Mertz
 #
 # Created:     11/2025
