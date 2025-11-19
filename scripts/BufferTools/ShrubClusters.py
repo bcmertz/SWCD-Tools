@@ -12,6 +12,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+import math
 
 # setup helpers
 import os
@@ -74,10 +75,6 @@ class ShrubClusters:
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
-    
-    def updateParameters(self, parameters):
-        # default search interval
-        return
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
@@ -93,13 +90,19 @@ class ShrubClusters:
 
         # create scratch layers
         log("creating scratch layers")
+        scratch_area = arcpy.CreateScratchName("scratch_area", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_points = arcpy.CreateScratchName("scratch_points", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_bounding = arcpy.CreateScratchName("scratch_bounding", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
+
+        # create buffer inside the planting area
+        log("buffer output area")
+        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} Feet".format(-int(width*math.sqrt(2))))
         
         # create point locations
+        log("creating shrub cluster point locations")
         arcpy.management.CreateSpatialSamplingLocations(
-            in_study_area=area,
+            in_study_area=scratch_area,
             out_features=scratch_points,
             sampling_method="SYSTEMATIC",
             bin_shape="HEXAGON",
@@ -109,6 +112,7 @@ class ShrubClusters:
         )
 
         # buffer points by width
+        log("creating buffer around shrub cluster points")
         arcpy.analysis.Buffer(
             in_features=scratch_points,
             out_feature_class=scratch_buffer,
@@ -116,6 +120,7 @@ class ShrubClusters:
         )
 
         # make square around buffer
+        log("creating square shrub cluster")
         arcpy.management.MinimumBoundingGeometry(
             in_features=scratch_buffer,
             out_feature_class=scratch_bounding,
@@ -124,6 +129,7 @@ class ShrubClusters:
         )
 
         # convert to feature class
+        log("converting output to feature class")
         arcpy.management.FeatureEnvelopeToPolygon(
             in_features=scratch_bounding,
             out_feature_class=output_file,
@@ -132,7 +138,7 @@ class ShrubClusters:
 
         # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_points, scratch_buffer, scratch_bounding])
+        arcpy.management.Delete([scratch_points, scratch_buffer, scratch_bounding, scratch_area])
 
         # save
         log("saving project")
