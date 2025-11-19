@@ -1,4 +1,15 @@
-# -*- coding: utf-8 -*-
+# --------------------------------------------------------------------------------
+# Name:        Slope Area
+# Purpose:     This tool takes an area of interest and creates a slope raster
+#              for it
+#
+# Author:      Reya Mertz
+#
+# Created:     11/2025
+# Modified:    11/2025
+# License:     GNU Affero General Public License v3.
+#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# --------------------------------------------------------------------------------
 
 import arcpy
 from arcpy import env

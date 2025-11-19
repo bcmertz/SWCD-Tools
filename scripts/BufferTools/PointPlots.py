@@ -1,4 +1,22 @@
-# -*- coding: utf-8 -*-
+# --------------------------------------------------------------------------------
+# Name:        Point Plots
+# Purpose:     This tool creates point plots for a given analysis area based off
+#              the Upper Susquehanna Coalition (USC) riparian forest buffer
+#              yearly monitoring program rates:
+#                  < 1 acres - plot radius 11.8ft; 10 / acre
+#                  < 5 acres - plot radius 26.3ft; 2 / acre
+#                  > 5 acres - plot radius 26.3ft; 1 / acre
+#              Consider eventually making these user set to allow for more broad
+#              use cases.
+#
+# Author:      Reya Mertz
+#
+# Created:     11/2025
+# Modified:    11/2025
+# License:     GNU Affero General Public License v3.
+#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# --------------------------------------------------------------------------------
+
 import arcpy
 import math
 
@@ -31,8 +49,8 @@ class PointPlots:
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         param1 = arcpy.Parameter(
-            displayName="Output Features",
-            name="out_features",
+            displayName="Output Point Feature",
+            name="out_point",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
@@ -65,7 +83,7 @@ class PointPlots:
 
         log("reading in parameters")
         planting_area = parameters[0].value
-        output_file = parameters[1].valueAsText
+        output_points = parameters[1].valueAsText
         reduce_acreage = parameters[2].value
     
         # create scratch layers
@@ -109,13 +127,15 @@ class PointPlots:
         log("buffer output area")
         arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, "{} Feet".format(-radius))
 
+        log(num, acreage)
+
         # create random plot centers
         log("create sampling locations")
-        arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_file, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance=radius*2)
+        arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance="{} Feet".format(radius*2))
 
-        # add plots to map
+        # add data to map
         log("add data to map")
-        active_map.addDataFromPath(output_file)
+        active_map.addDataFromPath(output_points)
                         
         # cleanup
         log("deleting unneeded data")
