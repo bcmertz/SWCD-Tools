@@ -36,8 +36,8 @@ class PotentialWetlands(object):
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
-            displayName="DEM",
-            name="dem",
+            displayName="Topographic Wetness Index (TWI)",
+            name="twi",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
@@ -60,8 +60,8 @@ class PotentialWetlands(object):
         param2.schema.clone = True
 
         param3 = arcpy.Parameter(
-            displayName="Maximum Slope (percent)",
-            name="max_slope",
+            displayName="Minimum TWI value",
+            name="min_twi",
             datatype="GPDouble",
             parameterType="Optional",
             direction="Output")
@@ -190,7 +190,7 @@ class PotentialWetlands(object):
         if not parameters[7].value:
             parameters[9].enabled = False
             
-        # default maximum slope value
+        # default minimum twi value
         if parameters[3].value == None:
             parameters[3].value = 5
 
@@ -213,14 +213,14 @@ class PotentialWetlands(object):
         log("setting up project")
         project, active_map = setup()
 
-        dem_raster = parameters[0].value
+        twi_raster = parameters[0].value
         extent = arcpy.Extent(XMin = parameters[1].value.XMin,
                               YMin = parameters[1].value.YMin,
                               XMax = parameters[1].value.XMax,
                               YMax = parameters[1].value.YMax)
         extent.spatialReference = parameters[1].value.spatialReference
         output_file = parameters[2].valueAsText
-        max_slope = parameters[3].value if parameters[3].value else 8
+        min_twi = parameters[3].value if parameters[3].value else 5
         soils_shapefile = parameters[4].value
         soils_hsg_field = parameters[5].value
         hsg_values = parameters[6].valueAsText.split(";")
@@ -230,63 +230,51 @@ class PotentialWetlands(object):
         calculate_wetlands = parameters[10].value
         wetland_layers = parameters[11].valueAsText.replace("'","").split(";") if calculate_wetlands else []
 
-        # setup DEM area
-        log("clipping DEM")
-        scratch_dem = arcpy.CreateScratchName("temp",
+        # setup TWI area
+        log("clipping TWI")
+        scratch_twi = arcpy.CreateScratchName("temp",
                                                data_type="RasterDataset",
                                                workspace=arcpy.env.scratchFolder)       
         rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
-        arcpy.management.Clip(dem_raster, rectangle, scratch_dem)
-
-        #dem_raster_clip = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        #out_raster_clip = arcpy.sa.ExtractByMask(dem_raster, scratch_stream_buffer, "INSIDE", "MINOF")
-        #out_raster_clip.save(dem_raster_clip)
+        arcpy.management.Clip(twi_raster, rectangle, scratch_twi)
         
-        # slope raster
-        log("creating slope raster from DEM")
-        scratch_slope = arcpy.CreateScratchName("temp",
+        # twi > min_twi
+        log("selecting topographic wetness indices greater than or equal to {}%".format(min_twi))
+        scratch_high_twi = arcpy.CreateScratchName("temp",
                                                data_type="RasterDataset",
                                                workspace=arcpy.env.scratchFolder)
-        out_slope = arcpy.sa.Slope(scratch_dem, "PERCENT_RISE", "", "GEODESIC", "METER")
-        out_slope.save(scratch_slope)
-
-        # slopes < 5 percent
-        log("selecting slopes less than or equal to {}%".format(max_slope))
-        scratch_low_slope = arcpy.CreateScratchName("temp",
-                                               data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)
-        slope_sql_query = "VALUE <= {}".format(max_slope)
-        outCon = arcpy.sa.Con(scratch_slope, scratch_slope, "", slope_sql_query)
-        outCon.save(scratch_low_slope)
+        twi_sql_query = "VALUE >= {}".format(min_twi)
+        outCon = arcpy.sa.Con(scratch_twi, scratch_twi, "", twi_sql_query)
+        outCon.save(scratch_high_twi)
             
         # convert con output to int
-        log("converting slope raster to int")
-        scratch_int_slope = arcpy.CreateScratchName("temp",
+        log("converting twi raster to int")
+        scratch_int_twi = arcpy.CreateScratchName("temp",
                                                data_type="RasterDataset",
                                                workspace=arcpy.env.scratchFolder)        
-        scratch_int_slope = arcpy.sa.Int(scratch_low_slope)
+        scratch_int_twi = arcpy.sa.Int(scratch_high_twi)
 
-        # slope raster to polygon
-        log("converting slope raster to polygon")
-        scratch_slope_polygon = arcpy.CreateScratchName("temp",
+        # twi raster to polygon
+        log("converting twi raster to polygon")
+        scratch_twi_polygon = arcpy.CreateScratchName("temp",
                                                data_type="FeatureClass",
                                                workspace=arcpy.env.scratchFolder)
-        arcpy.conversion.RasterToPolygon(scratch_int_slope, scratch_slope_polygon, "NO_SIMPLIFY")
+        arcpy.conversion.RasterToPolygon(scratch_int_twi, scratch_twi_polygon, "NO_SIMPLIFY")
 
         # dissolve raster polygon features
-        log("dissolving slope polygon boundaries")
-        scratch_slope_dissolve_polygon = arcpy.CreateScratchName("temp",
+        log("dissolving twi polygon boundaries")
+        scratch_twi_dissolve_polygon = arcpy.CreateScratchName("temp",
                                                data_type="FeatureClass",
                                                workspace=arcpy.env.scratchFolder)        
-        arcpy.management.Dissolve(scratch_slope_polygon, scratch_slope_dissolve_polygon)
+        arcpy.management.Dissolve(scratch_twi_polygon, scratch_twi_dissolve_polygon)
         
 
-        # clip soils layer to low slope area
-        log("clipping soils to low slope areas")
+        # clip soils layer to high twi area
+        log("clipping soils to high twi areas")
         scratch_soils_area = arcpy.CreateScratchName("temp",
                                                data_type="FeatureClass",
                                                workspace=arcpy.env.scratchFolder)
-        arcpy.analysis.Clip(soils_shapefile, scratch_slope_dissolve_polygon, scratch_soils_area)
+        arcpy.analysis.Clip(soils_shapefile, scratch_twi_dissolve_polygon, scratch_soils_area)
 
         # select HSG: A/D, B/D, C/D, C, or D from soils
         log("selecting hydric soils")
@@ -303,7 +291,7 @@ class PotentialWetlands(object):
         arcpy.analysis.Select(scratch_soils_area, scratch_hsg_soils, hsg_sql_query)
 
         # clip land use raster
-        log("clipping land use raster to valid soils area and slopes less than or equal to {}%".format(max_slope))
+        log("clipping land use raster to valid soils area and twi greater than or equal to {}%".format(min_twi))
         land_use_raster_clip = "{}\\land_use_raster_clip".format(arcpy.env.workspace)
         out_land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, scratch_hsg_soils, "INSIDE", "MINOF")
         out_land_use_raster_clip.save(land_use_raster_clip)
@@ -363,7 +351,7 @@ class PotentialWetlands(object):
         log("delete unused layers")
         arcpy.management.Delete(land_use_raster_clip)
         arcpy.management.Delete(scratch_land_use)
-        arcpy.management.Delete([scratch_dem, scratch_slope,scratch_low_slope,scratch_int_slope,scratch_slope_polygon,scratch_slope_dissolve_polygon,scratch_hsg_soils,scratch_soils_area,scratch_land_use_polygon,scratch_reduced_potential_wetland])
+        arcpy.management.Delete([scratch_twi,scratch_high_twi,scratch_int_twi,scratch_twi_polygon,scratch_twi_dissolve_polygon,scratch_hsg_soils,scratch_soils_area,scratch_land_use_polygon,scratch_reduced_potential_wetland])
 
         # finish up
         log("finishing up")
