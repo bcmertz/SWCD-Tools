@@ -135,6 +135,14 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 
 Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
 
+<span>
+<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="800"/>
+</span>
+
+Red line shows before blue line shows after
+
+Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
+
 ### 6. Stream Elevation Profile
 
 TODO
