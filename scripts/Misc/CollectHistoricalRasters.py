@@ -26,7 +26,7 @@ class CollectRasters:
         """Define the tool (tool name is the name of the class)."""
         self.label = "Collect historical imagery rasters"
         self.description = ""
-        self.category = "Historical Imagery"
+        self.category = "Misc"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

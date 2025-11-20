@@ -7,10 +7,9 @@ from importlib import reload, import_module
 scripts = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.append(scripts)
 
-from ExportLayouts import ExportLayouts
 from BufferTools import PointPlots, ShrubClusters
 from AnalyzeArea import ContourArea, SlopeArea
-from Misc import CollectRasters
+from Misc import CollectRasters, ExportLayouts
 from LineAnalysis import LocalMinimums
 from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, CalculateStreamline, LeastAction, StreamElevation, TopographicWetness
 from Wetlands import PotentialWetlands, BermAnalysis, DamRemoval

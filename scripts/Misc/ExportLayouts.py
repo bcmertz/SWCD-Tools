@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Agland
-# Purpose:     This tool categorizes a piece of land in an ag assessment as
-#              agricultural land for further processing
+# Name:        Export Layouts
+# Purpose:     This tool takes a list of layouts and exports them as PDFs to a folder
 #
 # Author:      Reya Mertz
 #
@@ -27,7 +26,7 @@ class ExportLayouts(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Export Layouts"
         self.description = "Run to export layouts"
-        self.category = "Export Layouts"
+        self.category = "Misc"
         self.canRunInBackground = False
 
     def isLicensed(self):
