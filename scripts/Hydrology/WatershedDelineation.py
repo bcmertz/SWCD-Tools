@@ -54,7 +54,7 @@ class WatershedDelineation(object):
 
         param2 = arcpy.Parameter(
             displayName="Pour Point",
-            name="boundary",
+            name="pourpoint",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")

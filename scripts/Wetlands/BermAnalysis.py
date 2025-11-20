@@ -69,8 +69,8 @@ class BermAnalysis(object):
         param3.schema.clone = True
 
         param4 = arcpy.Parameter(
-            displayName="Line",
-            name="line",
+            displayName="Berm",
+            name="berm",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
