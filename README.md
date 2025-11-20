@@ -254,14 +254,6 @@ Calculate acreage and soil types across each land use and fill out the soil grou
 
 Export all relevant maps to PDF in the project folder.
 
-## Linear Analysis
-
-Tools to analyze linear features with respect to elevation.
-
-### 1. Local Minimums
-
-Find all of the local elevation minimums along a line. Uses a minimum elevation threshold to ignore small deviations in the underlying DEM data.
-
 ## Analyze Area
 
 Quality of life tools to improve some out of the box geoprocessing tools
@@ -270,9 +262,31 @@ Quality of life tools to improve some out of the box geoprocessing tools
 
 Contour tool with ability to limit analysis to a given area
 
+<span>
+<img src="./assets/readme_examples/contour_before.png" alt="iamge showing aerial of farm field without contours" height="300"/>
+<img src="./assets/readme_examples/contour_after.png" alt="after image showing same field with 1 foot contours in yellow lines" height="300"/>
+</span>
+
+Example showing a before and after of 1' contours in a sloping field.
+
 ### 2. Slope Area
 
 Slope tool with ability to limit analysis to a given area
+
+## Linear Analysis
+
+Tools to analyze linear features with respect to elevation.
+
+### 1. Local Minimums
+
+Find all of the local elevation minimums along a line. Uses a minimum elevation threshold to ignore small deviations in the underlying DEM data.
+
+<span>
+<img src="./assets/readme_examples/berm_analysis_before.png" alt="before image showing 1 foot contours, aerial imagery and blue line" height="300"/>
+<img src="./assets/readme_examples/berm_analysis_after.png" alt="after image showing 1 foot contours, aerial imagery, blue line, and 3 local minimums along the line as blue dots" height="300"/>
+</span>
+
+Example showing a water line in a field and all of the local minimums along it. Lines represent 1' contours, and the local minimum threshold was 2".
 
 ## Miscelaneous
 
