@@ -143,12 +143,12 @@ class TopographicWetness(object):
 
         # update raster symbology
         log("updating twi symbology")
-        sym = rem_raster.symbology
+        sym = twi_layer.symbology
         if hasattr(sym, 'colorizer'):
             if sym.colorizer.type != "RasterStretchColorizer":
                 sym.updateColorizer("RasterStretchColorizer")
             sym.colorizer.colorRamp = project.listColorRamps('Blue Bright')[0]
-            rem_raster.symbology = sym
+            twi_layer.symbology = sym
 
         log("cleaning up")
         arcpy.management.Delete([scratch_dem,fill_raster_scratch,flow_accumulation_scratch])
