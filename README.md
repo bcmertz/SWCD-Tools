@@ -31,8 +31,10 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
   - [Analyze Area](#analyze-area)
     - [Contour Area](#1-contour-area)
     - [Shrub Clusters](#2-shrub-clusters)
-  - [Export Layouts](#export-layouts)
-  - [Historical Imagery](#historical-imagery)
+  - [Miscelaneous](#miscelaneous)
+  	- [Export Layouts](#export-layouts)
+ 	- [Historical Imagery](#historical-imagery)
+ 	- [Geocode Address](#geocode-address-tool)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -200,15 +202,17 @@ Contour tool with ability to limit analysis to a given area
 
 Slope tool with ability to limit analysis to a given area
 
-## Export Layouts
+## Miscelaneous
+
+### Export Layouts
 
 Quality of life tool to select which layouts to export and to where
 
-## Historical Imagery
+### Historical Imagery
 
 Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
 
-## Geocode address tool
+### Geocode address tool
 
 TODO
 
