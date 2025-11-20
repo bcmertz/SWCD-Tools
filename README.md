@@ -176,11 +176,28 @@ Create shapefile of shrub clusters in a given planting area.
 
 ## Automated Agricultural Assessment
 ### 1. Delineate Parcels
+
+Sets up ag assessment project folder and selects all relevant parcels for later analysis.
+
 ### 2a. Delineate Agland
+
+After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as agricultural land.
+
 ### 2b. Delineate NonAg
+
+After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as non-agricultural land.
+
 ### 2c. Delineate Forest
+
+After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as forest land.
+
 ### 3. Process
+
+Calculate acreage and soil types across each land use and fill out the soil group worksheet.
+
 ### 4. Export Layouts
+
+Export all relevant maps to PDF in the project folder.
 
 ## Linear Analysis
 
