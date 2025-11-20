@@ -13,10 +13,10 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Dam Removal](#2-dam-removal)
     - [Model Potential Wetlands](#3-model-potential-wetlands)
   - [Hydrology](#hydrology)
-    - [Calculate Streamlines](#1-calculate-streamlines)
-    - [Stream Centerline Adjuster](#2-stream-centerline-adjuster)
-    - [Stream Elevation Profile](#3-stream-elevation-profile)
-    - [Watershed Delineation](#4-watershed-delineation)
+    - [Stream Centerline Adjuster](#1-stream-centerline-adjuster)
+    - [Stream Elevation Profile](#2-stream-elevation-profile)
+    - [Watershed Delineation](#3-watershed-delineation)
+    - [Calculate Streamlines](#4-calculate-streamlines)
     - [Sub-Basin Delineation](#5-sub-basin-delineation)
     - [Runoff Curve Number (RCN)](#6-runoff-curve-number)
     - [EFH-2](#7-efh-2-calculation)
@@ -104,11 +104,7 @@ Exmaple showing modeled potential wetlands (without existing wetland exclusion) 
 
 ## Hydrology
 
-### 1. Calculate Streamlines
-
-In a given watershed use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold
-
-### 2. Stream Centerline Adjuster
+### 1. Stream Centerline Adjuster
 
 Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
 
@@ -120,11 +116,11 @@ Red line shows before blue line shows after
 
 Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
 
-### 3. Stream Elevation Profile
+### 2. Stream Elevation Profile
 
 TODO
 
-### 4. Watershed Delineation
+### 3. Watershed Delineation
 
 Takes a pour point and DEM and delineates the contributing watershed.
 
@@ -134,6 +130,15 @@ Takes a pour point and DEM and delineates the contributing watershed.
 </span>
 
 Before and after showing study area topographic map and the delineated watershed
+
+### 4. Calculate Streamlines
+
+In a given watershed use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold
+
+<span>
+<img src="/assets/readme_examples/watershed_delineation_after.png" alt="before image showing delineated watershed polygon over top of topographic map" height="250"/>
+<img src="/assets/readme_examples/calculate_streamlines_after.png" alt="after image showing watershed with delienated stream lines" height="250" />
+</span>
 
 ### 5. Sub-Basin Delineation
 
