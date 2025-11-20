@@ -10,16 +10,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import string
 import arcpy
-import datetime
-import shutil
-import pathlib
-import openpyxl
-import re
-import csv
-
-from arcpy import env
 
 # setup helpers
 import os
@@ -60,6 +51,7 @@ class Export(object):
         path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
     
         # Export layouts
+        log("exporting layouts")
         layouts = project.listLayouts()
         for layout in layouts:
             if layout.name == "Layout":
@@ -68,6 +60,7 @@ class Export(object):
             layout.exportToPDF(layout_file_path)
 
         # Open project folder
+        log("opening project folder")
         os.startfile(path_root)
 
         return

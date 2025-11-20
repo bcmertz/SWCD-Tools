@@ -11,16 +11,8 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import string
 import arcpy
-import datetime
-import shutil
-import pathlib
-import openpyxl
 import re
-import csv
-
-from arcpy import env
 
 # setup helpers
 import os
@@ -60,6 +52,7 @@ class Agland(object):
         # Check if we're on a created map
         map_name_format = re.compile('[0-9]+\.[0-9]+\-[0-9]\-[0-9]+\.[0-9]+')
         layouts = []
+        log("iterating through maps and delineated agland")
         for m in maps:
             # Get Tax ID Number for map
             tax_id_num = m.name
@@ -105,6 +98,7 @@ class Agland(object):
             m.clearSelection()
 
         # Cleanup
+        log("cleaning up")
         project.save()
         return
 

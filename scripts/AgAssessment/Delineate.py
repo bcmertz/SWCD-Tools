@@ -10,16 +10,11 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import string
 import arcpy
 import datetime
 import shutil
 import pathlib
 import openpyxl
-import re
-import csv
-
-from arcpy import env
 
 # setup helpers
 import os
@@ -111,6 +106,7 @@ class Delineate(object):
         parcel_layer = 'Parcels'
 
         # Parameters
+        log("reading in parameters")
         tax_id_nums = parameters[0].valueAsText.split(";")
         last_name = parameters[1].valueAsText
         first_name = parameters[2].valueAsText
@@ -125,12 +121,14 @@ class Delineate(object):
         path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
 
         # Make a folder for the client
+        log("creating project folder")
         pathlib.Path(path_root).mkdir(parents=True, exist_ok=True)
 
         orig_map = project.listMaps("Map")[0]
         orig_map.clearSelection()
 
         # TODO: use layout template
+        log("finding layout")
         #orig_layout = project.importDocument(os.path.join(os.path.dirname(__file__), '..', 'assets', 'agassessment_layout.pagx'))
         orig_layout = project.listLayouts("Layout")[0]
         
@@ -140,11 +138,13 @@ class Delineate(object):
             layer_path = "{}\\{}".format(arcpy.env.workspace, sanitized_name)
 
             # create new map and make it active
+            log("creating map for {}".format(tax_id_num))
             new_map = project.copyItem(orig_map, tax_id_num)
             new_map.openView()
             cam = project.activeView.camera
 
             # create a new layout
+            log("creating layout for {}".format(tax_id_num))               
             new_layout = project.copyItem(orig_layout, tax_id_num)
             new_layout.openView()
             
@@ -161,22 +161,26 @@ class Delineate(object):
             sql_expr="PRINT_KEY = '{}'".format(tax_id_num)
 
             # create parcel layer and add it to the map
+            log("adding parcel {}".format(tax_id_num))
             feat = arcpy.management.MakeFeatureLayer(parcel_layer, layer_name, sql_expr)
             arcpy.management.CopyFeatures(feat, layer_path)
             lyr = new_map.addDataFromPath(layer_path)
             lyr.name = layer_name
 
             # update parcel symbology
+            log("updating layer symbology {}".format(tax_id_num))
             sym = lyr.symbology
             sym.renderer.symbol.applySymbolFromGallery("Black Outline (2 pts)")
             lyr.symbology = sym
 
             # Create soil group worksheets for each layout
+            log("creating soil group worksheet for {}".format(tax_id_num))
             sgw_path = r'{}\{}.xlsx'.format(path_root, new_layout.name)
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()            
             shutil.copyfile('O:\Ag Assessments\Soil Group Worksheet.xlsx', sgw_path)
             
             # set SWIS code in layout
+            log("finding property values for {}".format(tax_id_num))
             swis_box = new_layout.listElements("TEXT_ELEMENT", "SWIS")[0]
             swis_value = [row[0] for row in arcpy.da.SearchCursor(layer_path, "SWIS")][0]
             swis_box.text = "SWIS: {}".format(swis_value)
@@ -199,6 +203,7 @@ class Delineate(object):
                 agdist_value = "x"
 
             # set SWIS, municipality, tax map identifier, etc in soil group worksheet
+            log("writing values to soil group worksheet {}".format(tax_id_num))
             sgw_workbook = openpyxl.load_workbook(sgw_path)
             ws = sgw_workbook['SGW']
             ws['D24'] = swis_value
@@ -215,6 +220,7 @@ class Delineate(object):
             sgw_workbook.save(sgw_path)
 
             # zoom to layer in map object
+            log("zooming map to {}".format(tax_id_num))
             ext = arcpy.Describe(lyr).extent
             cam.setExtent(ext)
 
@@ -227,6 +233,7 @@ class Delineate(object):
             project.closeViews("LAYOUTS")
             
         layouts = project.listLayouts()
+        log("exporting layouts")
         for layout in layouts:
             if layout.name == "Layout":
                 continue
@@ -234,9 +241,11 @@ class Delineate(object):
             layout.exportToPDF(layout_file_path)
 
         # cleanup
+        log("cleaning up project")
         project.save()
 
         # open folder to print out maps
+        log("opening project folder")
         os.startfile(path_root)
 
         return

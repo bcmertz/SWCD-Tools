@@ -10,16 +10,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import string
 import arcpy
-import datetime
-import shutil
-import pathlib
-import openpyxl
-import re
-import csv
-
-from arcpy import env
 
 # setup helpers
 import os
@@ -58,9 +49,10 @@ class Process(object):
         # Path Root
         year = datetime.date.today().year
         path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
-    
+        
         maps = project.listMaps()
         layouts = []
+        log("iterating through maps")
         for m in maps:
             # Clear selection
             m.clearSelection()
@@ -83,6 +75,7 @@ class Process(object):
             # Start work
             lyrs = m.listLayers()
             lyr_types = set()
+            log("processing {}".format(tax_id_num))
             for lyr in lyrs:
                 # Update symbology
                 lyr_type = ""
@@ -180,11 +173,13 @@ class Process(object):
                 project.closeViews("LAYOUTS")
 
             # Reorder layers so soils layers are last
+            log("reordering layers for {}".format(tax_id_num))
             for soils_layer in soils_layers:
                 for use_layer in use_layers:
                     m.moveLayer(use_layer, soils_layer, "AFTER")
 
             # Remove unused tables
+            log("removing unused tables for {}".format(tax_id_num))
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
                 if not i in lyr_types:
@@ -192,6 +187,7 @@ class Process(object):
                     lyt.deleteElement(tbl_remove)
 
             # Display wanted legend items only
+            log("removing unused legend items for {}".format(tax_id_num))
             legend = lyt.listElements("LEGEND_ELEMENT")[0]
             legend_items = legend.items
             use_layer_names = [ i.name for i in use_layers ]
@@ -202,6 +198,7 @@ class Process(object):
                     item.visible = False
 
             # Export tables
+            log("exporting tables for {}".format(tax_id_num))
             soils_tables = []
             for table in tables:
                 table_file_path = "{}\{}.csv".format(path_root, table.name)
@@ -212,6 +209,7 @@ class Process(object):
             sgw_path = "{}\{}.xlsx".format(path_root, lyt.name)
 
             # Populate soil group worksheet with values
+            log("filling out soil group worksheet for {}".format(tax_id_num))
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
             sgw_workbook = openpyxl.load_workbook(sgw_path)
             ws = sgw_workbook['SGW']
@@ -253,10 +251,13 @@ class Process(object):
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
 
+        # open layouts
+        log("opening layouts")
         for layout in layouts:
             layout.openView()
 
-        # Cleanup
+        # Save
+        log("saving project")
         project.save()
 
         return
