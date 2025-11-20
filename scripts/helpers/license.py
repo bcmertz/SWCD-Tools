@@ -12,6 +12,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+import os
 
 # only needed for spatial analyst, but potential image analyst, ddd or others if
 # we end up using them
@@ -21,9 +22,13 @@ def license(licenses):
     """verify the required licenses are installed"""
     try:
         for l in licenses:
-            status = arcpy.CheckExtension(l)
-            if status != "Available":
-                return False
+            if l == "OSWCD_GIS":
+                if not os.path.exists("G:\GIS"):
+                    return False
+            else:
+                status = arcpy.CheckExtension(l)
+                if status != "Available":
+                    return False
         return True
     except:
         return False

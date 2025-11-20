@@ -36,7 +36,7 @@ class CollectRasters:
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license([])
+        return license(['OSWCD_GIS'])
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
