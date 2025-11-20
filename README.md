@@ -274,8 +274,8 @@ Example showing a before and after of 1' contours in a sloping field.
 Slope tool with ability to limit analysis to a given area
 
 <span>
-<img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="220"/>
-<img src="./assets/readme_examples/slope_after.png" alt="after image showing green-red slope raster of the same area" height="220"/>
+<img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="300"/>
+<img src="./assets/readme_examples/slope_after.png" alt="after image showing green-red slope raster of the same area" height="300"/>
 </span>
 
 Example showing before aerials and output slope raster.
