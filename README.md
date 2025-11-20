@@ -31,7 +31,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
   - [Analyze Area](#analyze-area)
     - [Contour Area](#1-contour-area)
     - [Slope Area](#2-slope-area)
-  - [Miscelaneous](#miscelaneous)
+  - [Miscellaneous](#miscellaneous)
   	- [Export Layouts](#export-layouts)
  	- [Historical Imagery](#historical-imagery)
  	- [Geocode Address](#geocode-address-tool)
@@ -330,7 +330,7 @@ Find all of the local elevation minimums along a line. Uses a minimum elevation 
 
 Example showing a water line in a field and all of the local minimums along it. Lines represent 1' contours, and the local minimum threshold was 2".
 
-## Miscelaneous
+## Miscellaneous
 
 ### Export Layouts
 
