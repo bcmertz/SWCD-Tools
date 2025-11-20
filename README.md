@@ -129,8 +129,8 @@ TODO
 Takes a pour point and DEM and delineates the contributing watershed.
 
 <span>
-<img src="/assets/readme_examples/watershed_delineation_before_topo.png" alt="before image showing topographic map of study area and analysis pour point" height="300" />
-<img src="/assets/readme_examples/watershed_delineation_after.png" alt="after image showing delineated watershed polygon over top of topographic map" height="300"/>
+<img src="/assets/readme_examples/watershed_delineation_before_topo.png" alt="before image showing topographic map of study area and analysis pour point" height="250" />
+<img src="/assets/readme_examples/watershed_delineation_after.png" alt="after image showing delineated watershed polygon over top of topographic map" height="250"/>
 </span>
 
 Before and after showing study area topographic map and the delineated watershed
