@@ -277,7 +277,7 @@ Output of step 2c showing forest land delineated.
 
 Calculate acreage and soil types across each land use and fill out the soil group worksheet.
 
-Note: you must manually add MUSYM and ACRES to the tables via the contents pane.
+Note: you must manually add `MUSYM` and `ACRES` to the tables via the contents pane.
 
 <span>
 <img src="/assets/readme_examples/ag_process.png" alt="" height="350"/>
