@@ -211,9 +211,23 @@ This example outputs show legacy sediment deposits behind a breached 19th centur
 
 Uses Upper Susquehanna Coalition (USC) point plot monitoring methodology and creates the appropriate number of randomized plots for a given riparian forest buffer.
 
+<span>
+<img src="/assets/readme_examples/shrub_clusters_before.png" alt="image showing a planting area polygon in blue" height="250" />
+<img src="/assets/readme_examples/point_plots_after.png" alt="image showing a planting area polygon in blue and random point plots distributed over it" height="250" />
+</span>
+
+This example shows a potential planting area and randomized point plots within it.
+
 ### 2. Shrub Clusters
 
 Create shapefile of shrub clusters in a given planting area.
+
+<span>
+<img src="/assets/readme_examples/shrub_clusters_before.png" alt="image showing a planting area polygon in blue" height="250" />
+<img src="/assets/readme_examples/shrub_clusters_after.png" alt="image showing a planting area polygon in blue and square shrub cluster polygons overtop of it" height="250" />
+</span>
+
+This example shows a potential planting area and shrub clusters at a specified size and density within it.
 
 ## Automated Agricultural Assessment
 ### 1. Delineate Parcels
