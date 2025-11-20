@@ -104,7 +104,7 @@ Exmaple showing modeled potential wetlands (without existing wetland exclusion) 
 
 ## Hydrology
 
-### 2. Stream Centerline Adjuster
+### 1. Stream Centerline Adjuster
 
 Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
 
@@ -116,11 +116,11 @@ Red line shows before blue line shows after
 
 Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
 
-### 3. Stream Elevation Profile
+### 2. Stream Elevation Profile
 
 TODO
 
-### 4. Watershed Delineation
+### 3. Watershed Delineation
 
 Takes a pour point and DEM and delineates the contributing watershed.
 
@@ -131,7 +131,7 @@ Takes a pour point and DEM and delineates the contributing watershed.
 
 Before and after showing study area topographic map and the delineated watershed
 
-### 1. Calculate Streamlines
+### 4. Calculate Streamlines
 
 In a given watershed use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold
 
