@@ -138,7 +138,17 @@ class TopographicWetness(object):
         out_TWI.save(output_file)
       
         # add TWI to map
+        log("adding twi to map")
         twi_layer = active_map.addDataFromPath(output_file)
+
+        # update raster symbology
+        log("updating twi symbology")
+        sym = rem_raster.symbology
+        if hasattr(sym, 'colorizer'):
+            if sym.colorizer.type != "RasterStretchColorizer":
+                sym.updateColorizer("RasterStretchColorizer")
+            sym.colorizer.colorRamp = project.listColorRamps('Blue Bright')[0]
+            rem_raster.symbology = sym
 
         log("cleaning up")
         arcpy.management.Delete([scratch_dem,fill_raster_scratch,flow_accumulation_scratch])
