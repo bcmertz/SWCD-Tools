@@ -25,7 +25,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
   - [Planting tools](#buffer-tools)
     - [Point Plots](#1-point-plots)
     - [Shrub Clusters](#2-shrub-clusters)
-  - [Agricultural assessment](#automated-agricultural-assessment)
+  - [Agricultural Assessment](#automated-agricultural-assessment)
   - [Linear Analysis](#linear-analysis)
     - [Local Minimums](#1-local-minimums)
   - [Analyze Area](#analyze-area)
