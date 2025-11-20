@@ -113,7 +113,7 @@ In a given watershed use elevation data to find streamlines for flow accumulatio
 Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
 
 <span>
-<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="800"/>
+<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="600"/>
 </span>
 
 Red line shows before blue line shows after
