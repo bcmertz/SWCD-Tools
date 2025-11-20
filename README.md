@@ -101,21 +101,39 @@ This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land 
 
 In a given watershed use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold
 
-### 2. EFH-2 Calculation
+### 2. Stream Centerline Adjuster
 
-Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
-
-### 3. Relative Elevation Model (REM)
-
-Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and indentifying geomorphic features.
+Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
 
 <span>
-<img src="./assets/readme_examples/rem_after.png" alt="a relative elevation model (REM) along a stream, showing high streambank incision through legacy sedient deposits behind a breached mill dam" width="300"/>
+<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="800"/>
 </span>
 
-This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
+Red line shows before blue line shows after
 
-### 4. Runoff Curve Number
+Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
+
+### 3. Stream Elevation Profile
+
+TODO
+
+### 4. Watershed Delineation
+
+Takes a pour point and DEM and delineates the contributing watershed.
+
+<span>
+<img src="/assets/readme_examples/watershed_delineation_before_topo.png" alt="before image showing topographic map of study area and analysis pour point" height="300" />
+<img src="/assets/readme_examples/watershed_delineation_after.png" alt="after image showing delineated watershed polygon over top of topographic map" height="300"/>
+</span>
+
+Before and after showing study area topographic map and the delineated watershed
+
+### 5. Sub-Basin Delineation
+
+Find sub-basins in a given watershed based off of a watershed flow-accumulation threshold.
+
+
+### 6. Runoff Curve Number
 
 Calculates the runoff curve numbers for a given area based off of land use and hydrologic soil group.
 
@@ -131,25 +149,9 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 <img src="./assets/readme_examples/runoff_curve_numbers_rcn_table.png" alt="a picture of a raster attribute table showing runoff curve number values for hydrologic soil groups A,B,C,D for " width="800"/>
 </span>
 
-### 5. Stream Centerline Adjuster
+### 7. EFH-2 Calculation
 
-Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
-
-<span>
-<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="800"/>
-</span>
-
-Red line shows before blue line shows after
-
-Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
-
-### 6. Stream Elevation Profile
-
-TODO
-
-### 7. Sub-Basin Delineation
-
-Find sub-basins in a given watershed based off of a watershed flow-accumulation threshold.
+Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
 
 ### 8. Topographic Wetness Index (TWI)
 
@@ -175,16 +177,15 @@ After images showing output topographic wetness index (TWI) rasters for both low
 
 This shows a TWI output with mapped NWI and DEC wetlands. Notice the  significant overlap with the darkest TWI areas.
 
-### 9. Watershed Delineation
+### 9. Relative Elevation Model (REM)
 
-Takes a pour point and DEM and delineates the contributing watershed.
+Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and indentifying geomorphic features.
 
 <span>
-<img src="/assets/readme_examples/watershed_delineation_before_topo.png" alt="before image showing topographic map of study area and analysis pour point" height="300" />
-<img src="/assets/readme_examples/watershed_delineation_after.png" alt="after image showing delineated watershed polygon over top of topographic map" height="300"/>
+<img src="./assets/readme_examples/rem_after.png" alt="a relative elevation model (REM) along a stream, showing high streambank incision through legacy sedient deposits behind a breached mill dam" width="300"/>
 </span>
 
-Before and after showing study area topographic map and the delineated watershed
+This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
 
 ## Buffer Tools
 
