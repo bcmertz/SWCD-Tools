@@ -30,7 +30,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Local Minimums](#1-local-minimums)
   - [Analyze Area](#analyze-area)
     - [Contour Area](#1-contour-area)
-    - [Shrub Clusters](#2-shrub-clusters)
+    - [Slope Area](#2-slope-area)
   - [Miscelaneous](#miscelaneous)
   	- [Export Layouts](#export-layouts)
  	- [Historical Imagery](#historical-imagery)
