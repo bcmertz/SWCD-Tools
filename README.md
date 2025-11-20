@@ -234,21 +234,56 @@ This example shows a potential planting area and shrub clusters at a specified s
 
 Sets up ag assessment project folder and selects all relevant parcels for later analysis.
 
+Once the tool is done, you must manually split each land use (ag, nonag, forest) for each map before proceeding.
+
+<span>
+<img src="/assets/readme_examples/ag_delineate.png" alt="" height="350"/>
+<img src="/assets/readme_examples/ag_delineate_split.png" alt="" height="350"/>
+</span>
+
+Output of step one, and the same parcel after manually splitting and saving the three land uses - ag, nonag, and forest.
+
 ### 2a. Delineate Agland
 
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as agricultural land.
+
+<span>
+<img src="/assets/readme_examples/ag_agland.png" alt="" height="350"/>
+</span>
+
+Output of step 2a showing agricultural land delineated.
 
 ### 2b. Delineate NonAg
 
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as non-agricultural land.
 
+<span>
+<img src="/assets/readme_examples/ag_nonag.png" alt="" height="350"/>
+</span>
+
+Output of step 2b showing non-agricultural land delineated.
+
 ### 2c. Delineate Forest
 
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as forest land.
 
+<span>
+<img src="/assets/readme_examples/ag_forest.png" alt="" height="350"/>
+</span>
+
+Output of step 2c showing forest land delineated.
+
 ### 3. Process
 
 Calculate acreage and soil types across each land use and fill out the soil group worksheet.
+
+Note: you must manually add MUSYM and ACRES to the tables via the contents pane.
+
+<span>
+<img src="/assets/readme_examples/ag_process.png" alt="" height="350"/>
+</span>
+
+Output of step 3 showing the final layout.
 
 ### 4. Export Layouts
 
