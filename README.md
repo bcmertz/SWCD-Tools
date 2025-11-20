@@ -140,8 +140,8 @@ Before and after showing study area topographic map and the delineated watershed
 Find sub-basins in a given watershed based off of a watershed flow-accumulation threshold.
 
 <span>
-<img src="/assets/readme_examples/sub_basin_before.png" alt="before image showing watershed on topographic map" height="300" />
-<img src="/assets/readme_examples/sub_basin_after.png" alt="after image showing 4 sub-basins in the original watershed with streamlines" height="300"/>
+<img src="/assets/readme_examples/sub_basin_before.png" alt="before image showing watershed on topographic map" height="250" />
+<img src="/assets/readme_examples/sub_basin_after.png" alt="after image showing 4 sub-basins in the original watershed with streamlines" height="250"/>
 </span>
 
 Before and after showing the delineation of 4 sub-watersheds based off of the specified flow accumulation threshold.
