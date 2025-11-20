@@ -283,7 +283,7 @@ Find all of the local elevation minimums along a line. Uses a minimum elevation 
 
 <span>
 <img src="./assets/readme_examples/local_minimums_before.png" alt="before image showing 1 foot contours, aerial imagery and blue line" height="300"/>
-<img src="./assets/readme_examples/local_minimums_before.png" alt="after image showing 1 foot contours, aerial imagery, blue line, and 3 local minimums along the line as blue dots" height="300"/>
+<img src="./assets/readme_examples/local_minimums_after.png" alt="after image showing 1 foot contours, aerial imagery, blue line, and 3 local minimums along the line as blue dots" height="300"/>
 </span>
 
 Example showing a water line in a field and all of the local minimums along it. Lines represent 1' contours, and the local minimum threshold was 2".
