@@ -148,11 +148,18 @@ Find sub-basins in a given watershed based off of a watershed flow-accumulation 
 Calculates topographic wetness index (TWI) as a model of wetness due to topography and surface flow.
 
 <span>
-<img src="/assets/readme_examples/twi_before.png" alt="topographic wetness index before - showing aerial photograph of study area" height="250" max-width="180"/>
-<img src="/assets/readme_examples/twi_after.png" alt="topographic wetness index before - showing output TWI raster with cyan colors being higher TWI values and blue colors being lower TWI values" height="250" max-width="180"/>
+<img src="/assets/readme_examples/twi_before_aerial.png" alt="topographic wetness index before - showing aerial photograph of study area" height="250" max-width="180"/>
+<img src="/assets/readme_examples/twi_before_hillshade.png" alt="topographic wetness index before - showing greyscale hillshade raster of study area" height="250" max-width="180"/>
 </span>
 
-This example of a topographic wetness index (TWI) raster shows cyan colors being higher TWI values and light blue colors being lower TWI values. You can clearly see the stream channel, as well as how topography impacts wetness.
+Before images showing the study area from aerial and elevation hillshade
+
+<span>
+<img src="/assets/readme_examples/twi_after_low_rest.png" alt="hi-res topographic wetness index after - showing output TWI raster with blue colors being higher TWI values and white colors being lower TWI values" height="250" max-width="180"/>
+<img src="/assets/readme_examples/twi_after_hi_res.png" alt="hi-res topographic wetness index after - showing output TWI raster with blue colors being higher TWI values and white colors being lower TWI values" height="250" max-width="180"/>
+</span>
+
+After images showing output topographic wetness index (TWI) rasters for both low-res and hi-res elevation data. Blue colors represent higher (wetter) TWI values and white colors lower TWI values. You can clearly see drainage channels, as well as how topography impacts wetness.
 
 <span>
 <img src="/assets/readme_examples/twi_after_mapped_wetlands.png" alt="topographic wetness index after - output TWI raster overlaid with red hatched lines where wetlands have been mapped (DEC + NWI). There is significant overlap with the darkest TWI areas" height="350"/>
