@@ -1,3 +1,4 @@
 example/
 scripts/**/__pycache__
 .cache/
+assets/Thumbs.db
