@@ -282,8 +282,8 @@ Tools to analyze linear features with respect to elevation.
 Find all of the local elevation minimums along a line. Uses a minimum elevation threshold to ignore small deviations in the underlying DEM data.
 
 <span>
-<img src="./assets/readme_examples/berm_analysis_before.png" alt="before image showing 1 foot contours, aerial imagery and blue line" height="300"/>
-<img src="./assets/readme_examples/berm_analysis_after.png" alt="after image showing 1 foot contours, aerial imagery, blue line, and 3 local minimums along the line as blue dots" height="300"/>
+<img src="./assets/readme_examples/local_minimums_before.png" alt="before image showing 1 foot contours, aerial imagery and blue line" height="300"/>
+<img src="./assets/readme_examples/local_minimums_before.png" alt="after image showing 1 foot contours, aerial imagery, blue line, and 3 local minimums along the line as blue dots" height="300"/>
 </span>
 
 Example showing a water line in a field and all of the local minimums along it. Lines represent 1' contours, and the local minimum threshold was 2".
