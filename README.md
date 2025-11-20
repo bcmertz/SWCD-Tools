@@ -96,8 +96,8 @@ This tool can be used to estimate storage capacity of a dammed area using a DEM.
 This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
 
 <span>
-<img src="./assets/readme_examples/potential_wetlands_after.png" alt="picture showing output of model potential wetlands tool with areas along a stream highlited red to indicate potential wetland areas" height="300"/>
-<img src="./assets/readme_examples/potential_wetlands_nwi.png" alt="picture showing national wetlands invenotry mapping of the same area in purple. There is considerable overlap between this and the previous photo" height="300"/>
+<img src="./assets/readme_examples/potential_wetlands_after.png" alt="picture showing output of model potential wetlands tool with areas along a stream highlited red to indicate potential wetland areas" height="250"/>
+<img src="./assets/readme_examples/potential_wetlands_nwi.png" alt="picture showing national wetlands invenotry mapping of the same area in purple. There is considerable overlap between this and the previous photo" height="250"/>
 </span>
 
 Exmaple showing modeled potential wetlands (without existing wetland exclusion) in red on the left and mapped wetlands (NWI) in purple on the right.
