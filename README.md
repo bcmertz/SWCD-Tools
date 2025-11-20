@@ -155,7 +155,7 @@ Calculates topographic wetness index (TWI) as a model of wetness due to topograp
 Before images showing the study area from aerial and elevation hillshade
 
 <span>
-<img src="/assets/readme_examples/twi_after_low_rest.png" alt="hi-res topographic wetness index after - showing output TWI raster with blue colors being higher TWI values and white colors being lower TWI values" height="250" max-width="180"/>
+<img src="/assets/readme_examples/twi_after_low_res.png" alt="hi-res topographic wetness index after - showing output TWI raster with blue colors being higher TWI values and white colors being lower TWI values" height="250" max-width="180"/>
 <img src="/assets/readme_examples/twi_after_hi_res.png" alt="hi-res topographic wetness index after - showing output TWI raster with blue colors being higher TWI values and white colors being lower TWI values" height="250" max-width="180"/>
 </span>
 
