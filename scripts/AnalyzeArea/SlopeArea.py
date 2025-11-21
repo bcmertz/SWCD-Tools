@@ -12,7 +12,6 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-from arcpy import env
 
 # setup helpers
 import os
