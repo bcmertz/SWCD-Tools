@@ -146,7 +146,7 @@ class RelativeElevationModel(object):
         scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer",
                                                data_type="FeatureClass",
                                                workspace=arcpy.env.scratchFolder)          
-        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, " Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, "{} Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
 
         # clip dem to buffer
         log("clipping DEM to buffer")
