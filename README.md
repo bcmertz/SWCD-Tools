@@ -237,8 +237,8 @@ Sets up ag assessment project folder and selects all relevant parcels for later 
 Once the tool is done, you must manually split each land use (ag, nonag, forest) for each map before proceeding.
 
 <span>
-<img src="/assets/readme_examples/ag_delineate.png" alt="" height="350"/>
-<img src="/assets/readme_examples/ag_delineate_split.png" alt="" height="350"/>
+<img src="/assets/readme_examples/ag_delienate.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID" height="350"/>
+<img src="/assets/readme_examples/ag_delineate_split.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID split into its various land uses" height="350"/>
 </span>
 
 Output of step one, and the same parcel after manually splitting and saving the three land uses - ag, nonag, and forest.
@@ -248,7 +248,7 @@ Output of step one, and the same parcel after manually splitting and saving the 
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as agricultural land.
 
 <span>
-<img src="/assets/readme_examples/ag_agland.png" alt="" height="350"/>
+<img src="/assets/readme_examples/ag_agland.png" alt="Aerial view of a split up parcel with the agricultural areas outlined red" height="350"/>
 </span>
 
 Output of step 2a showing agricultural land delineated.
@@ -258,7 +258,7 @@ Output of step 2a showing agricultural land delineated.
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as non-agricultural land.
 
 <span>
-<img src="/assets/readme_examples/ag_nonag.png" alt="" height="350"/>
+<img src="/assets/readme_examples/ag_nonag.png" alt="Aerial view of a split up parcel with the non-agricultural areas outlined blue" height="350"/>
 </span>
 
 Output of step 2b showing non-agricultural land delineated.
@@ -268,7 +268,7 @@ Output of step 2b showing non-agricultural land delineated.
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as forest land.
 
 <span>
-<img src="/assets/readme_examples/ag_forest.png" alt="" height="350"/>
+<img src="/assets/readme_examples/ag_forest.png" alt="Aerial view of a split up parcel with the forest areas outlined green" height="350"/>
 </span>
 
 Output of step 2c showing forest land delineated.
@@ -280,7 +280,7 @@ Calculate acreage and soil types across each land use and fill out the soil grou
 Note: you must manually add `MUSYM` and `ACRES` to the tables via the contents pane.
 
 <span>
-<img src="/assets/readme_examples/ag_process.png" alt="" height="350"/>
+<img src="/assets/readme_examples/ag_process.png" alt="Image of an ArcGIS Pro layout showing ag, nonag, and forest land uses, as well as tables of acres and soils of each" height="350"/>
 </span>
 
 Output of step 3 showing the final layout.
