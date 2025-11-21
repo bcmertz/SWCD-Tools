@@ -63,7 +63,21 @@ class PointPlots:
             parameterType="Optional",
             direction="Input")
 
-        params = [param0, param1, param2]
+        param3 = arcpy.Parameter(
+            displayName="Output point plot GPS coordinates to csv?",
+            name="locations",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+
+        param4 = arcpy.Parameter(
+            displayName="Output Coordinates CSV",
+            name="coordinates_output",
+            parameterType="Required",            
+            datatype="DEFile",
+            direction="Output")
+        
+        params = [param0, param1, param2, param3, param4]
         return params
 
     def isLicensed(self):
@@ -75,6 +89,19 @@ class PointPlots:
         validate(parameters)
         return
 
+    def updateParameters(self, parameters):
+        # toggle asking for coordinate output path        
+        if parameters[3].value == True:
+            parameters[4].enabled = True
+            #if parameters[1].value and not parameters[4].value:
+            #    point_path = str(parameters[1].value)
+            #    project_path = arcpy.mp.ArcGISProject("Current").filePath
+            #    file_path = os.path.dirname(project_path)
+            #    file_name = os.path.basename(point_path)
+            #    parameters[4].value = "{}\\{}{}".format(file_path, file_name, "_contours")
+        else:
+            parameters[4].enabled = False
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -85,6 +112,8 @@ class PointPlots:
         planting_area = parameters[0].value
         output_points = parameters[1].valueAsText
         reduce_acreage = parameters[2].value
+        coords = parameters[3].value
+        output_coords = parameters[4].value
     
         # create scratch layers
         log("creating scratch layers")
@@ -133,8 +162,22 @@ class PointPlots:
 
         # add data to map
         log("add data to map")
-        active_map.addDataFromPath(output_points)
-                        
+        points_lyr = active_map.addDataFromPath(output_points)
+
+        if coords:
+            log("calculating point x y coordinates")
+            # add coordinate fields
+            arcpy.management.AddField(points_lyr, "x_coord", "FLOAT", 6, 6, field_alias="X Coordinate")            
+            arcpy.management.AddField(points_lyr, "y_coord", "FLOAT", 6, 6, field_alias="X Coordinate")            
+
+            # calculate geometry - coordinates
+            arcpy.management.CalculateGeometryAttributes(in_features=points_lyr.name, geometry_property=[["x_coord", "POINT_X"]],coordinate_format="DD")
+            arcpy.management.CalculateGeometryAttributes(in_features=points_lyr.name, geometry_property=[["y_coord", "POINT_Y"]],coordinate_format="DD")
+
+            # export attribute table to csv at path
+            log("exporting point plot coordinates")
+            arcpy.conversion.ExportTable(output_points, r"{}".format(output_coords))
+                
         # cleanup
         log("deleting unneeded data")
         arcpy.management.Delete([scratch_buffer, scratch_dissolve])
