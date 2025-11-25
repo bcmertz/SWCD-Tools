@@ -13,9 +13,6 @@
 
 import arcpy
 
-from arcpy import env
-from math import atan2, pi, exp
-
 # setup helpers
 import os
 import sys
@@ -32,7 +29,7 @@ class PotentialWetlands(object):
         self.description = "Model potential wetlands from DEM"
         self.category = "Wetland Tools"
         self.canRunInBackground = False
-   
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
@@ -47,7 +44,7 @@ class PotentialWetlands(object):
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
@@ -73,7 +70,7 @@ class PotentialWetlands(object):
             parameterType="Required",
             direction="Input")
         param4.filter.list = ["Polygon"]
-        
+
         param5 = arcpy.Parameter(
             displayName="HSG Field",
             name="hsg_field",
@@ -134,14 +131,14 @@ class PotentialWetlands(object):
             parameterType="Optional",
            direction="Input")
         param11.filter.list = ["Polygon"]
-        
+
         params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11]
         return params
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def updateParameters(self, parameters):
         # get soils field
         if parameters[4].value:
@@ -151,7 +148,7 @@ class PotentialWetlands(object):
         if not parameters[4].value:
             parameters[5].enabled = False
             parameters[5].value = None
-            
+
         # toggle which soil hsg values to use
         if parameters[5].value:
             parameters[6].enabled = True
@@ -189,7 +186,7 @@ class PotentialWetlands(object):
             parameters[9].filter.list = values2
         if not parameters[7].value:
             parameters[9].enabled = False
-            
+
         # default minimum twi value
         if parameters[3].value == None:
             parameters[3].value = 5
@@ -199,14 +196,14 @@ class PotentialWetlands(object):
             parameters[11].enabled = True
         else:
             parameters[11].enabled = False
-            
+
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -234,10 +231,10 @@ class PotentialWetlands(object):
         log("clipping TWI")
         scratch_twi = arcpy.CreateScratchName("temp",
                                                data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)       
+                                               workspace=arcpy.env.scratchFolder)
         rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
         arcpy.management.Clip(twi_raster, rectangle, scratch_twi)
-        
+
         # twi > min_twi
         log("selecting topographic wetness indices greater than or equal to {}%".format(min_twi))
         scratch_high_twi = arcpy.CreateScratchName("temp",
@@ -246,12 +243,12 @@ class PotentialWetlands(object):
         twi_sql_query = "VALUE >= {}".format(min_twi)
         outCon = arcpy.sa.Con(scratch_twi, scratch_twi, "", twi_sql_query)
         outCon.save(scratch_high_twi)
-            
+
         # convert con output to int
         log("converting twi raster to int")
         scratch_int_twi = arcpy.CreateScratchName("temp",
                                                data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)        
+                                               workspace=arcpy.env.scratchFolder)
         scratch_int_twi = arcpy.sa.Int(scratch_high_twi)
 
         # twi raster to polygon
@@ -265,9 +262,9 @@ class PotentialWetlands(object):
         log("dissolving twi polygon boundaries")
         scratch_twi_dissolve_polygon = arcpy.CreateScratchName("temp",
                                                data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)        
+                                               workspace=arcpy.env.scratchFolder)
         arcpy.management.Dissolve(scratch_twi_polygon, scratch_twi_dissolve_polygon)
-        
+
 
         # clip soils layer to high twi area
         log("clipping soils to high twi areas")
@@ -303,7 +300,7 @@ class PotentialWetlands(object):
         existing_values = []
         with arcpy.da.SearchCursor(land_use_raster_clip, land_use_field) as cursor:
             existing_values = sorted({row[0] for row in cursor})
-        land_use_values = [ i for i in land_use_values if i in existing_values ] 
+        land_use_values = [ i for i in land_use_values if i in existing_values ]
         if len(land_use_values) != 0:
             for value in land_use_values:
                 if land_use_sql_query == "":
@@ -315,7 +312,7 @@ class PotentialWetlands(object):
         else:
             log("no valid land uses found in area, please try again with land uses found in analysis area")
             return
-     
+
         # convert land usage output to polygon
         log("converting land use areas to polygon")
         scratch_land_use_polygon = arcpy.CreateScratchName("temp",
@@ -325,17 +322,17 @@ class PotentialWetlands(object):
 
         # copy potential wetlands to new layer
         log("copying potential wetlands to new layer")
-        potential_wetland_locations = arcpy.CreateUniqueName("potential_wetland_locations", arcpy.env.workspace)
+        potential_wetland_locations = output_file
         arcpy.management.CopyFeatures(scratch_land_use_polygon, potential_wetland_locations)
 
         # setup temporary potential wetland layer helper
         scratch_reduced_potential_wetland = arcpy.CreateScratchName("temp",
                                                data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder) 
+                                               workspace=arcpy.env.scratchFolder)
 
         # erase NWI / DEC wetlands if selected
         if calculate_wetlands:
-            log("erasing mapped wetlands from output") 
+            log("erasing mapped wetlands from output")
             for wetland_layer in wetland_layers:
                 # erase wetlands
                 try:
@@ -362,6 +359,3 @@ class PotentialWetlands(object):
         project.save()
 
         return
-
-
-

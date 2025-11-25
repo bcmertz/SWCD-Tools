@@ -12,12 +12,6 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-import pathlib
-import openpyxl
-import datetime
-import math
-
-from pprint import pprint
 
 # setup helpers
 import os
@@ -70,7 +64,7 @@ class StreamElevation(object):
             direction="Output")
         param3.parameterDependencies = [param0.name]
         param3.schema.clone = True
-        
+
         params = [param0, param1, param2, param3]
         return params
 
@@ -80,12 +74,12 @@ class StreamElevation(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
-    
+
     def updateMessages(self, parameters):
         ".sa""Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -100,14 +94,14 @@ class StreamElevation(object):
         if parameters[2].value:
                 extent.spatialReference = parameters[2].value.spatialReference
         output_file = parameters[3].valueAsText
-      
+
         # create scratch layers
         log("creating scratch layers")
         scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
         streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines",
                                                data_type="FeatureClass",
                                                workspace=arcpy.env.scratchFolder)
-        
+
         if parameters[2].value:
             # clip streamlines to the study area
             log("clipping waterbody to analysis area")
@@ -120,7 +114,7 @@ class StreamElevation(object):
         # save and exit program successfully
         log("saving project")
         project.save()
-        
+
         # remove temporary variables
         log("cleaning up")
         # TODO: FIX - ﻿arcgisscripting.ExecuteError: ERROR 000601: Cannot delete G:\GIS\Streamwork\OCCA Unadilla Culvert Sizing\scratch\temp0.  May be locked by another application.

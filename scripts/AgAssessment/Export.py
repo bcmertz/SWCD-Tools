@@ -10,7 +10,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import arcpy
+import datetime
 
 # setup helpers
 import os

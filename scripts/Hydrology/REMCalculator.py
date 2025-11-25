@@ -12,7 +12,6 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-from arcpy import env
 
 # setup helpers
 import os
@@ -30,7 +29,7 @@ class RelativeElevationModel(object):
         self.description = "Compute REM"
         self.category = "Hydrology"
         self.canRunInBackground = False
-   
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
@@ -45,7 +44,7 @@ class RelativeElevationModel(object):
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
@@ -56,7 +55,7 @@ class RelativeElevationModel(object):
             direction="Output")
         param2.parameterDependencies = [param0.name]
         param2.schema.clone = True
-        
+
         param3 = arcpy.Parameter(
             displayName="Stream Feature Class",
             name="streams",
@@ -78,7 +77,7 @@ class RelativeElevationModel(object):
             datatype="GPDouble",
             parameterType="Optional",
             direction="Input")
-        
+
         params = [param0, param1, param2, param3, param4, param5]
         return params
 
@@ -90,7 +89,7 @@ class RelativeElevationModel(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def updateParameters(self, parameters):
         # default buffer radius
         if parameters[4].value == None:
@@ -99,7 +98,7 @@ class RelativeElevationModel(object):
         if parameters[5].value == None:
             parameters[5].value = 25
         return
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -145,7 +144,7 @@ class RelativeElevationModel(object):
         log("creating buffer polygon around stream")
         scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer",
                                                data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)          
+                                               workspace=arcpy.env.scratchFolder)
         arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, "{} Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
 
         # clip dem to buffer
@@ -153,7 +152,7 @@ class RelativeElevationModel(object):
         dem_raster_clip = "{}\\dem_raster_clip".format(arcpy.env.workspace)
         # OLD CODE - slower (https://www.reddit.com/r/gis/comments/17act1u/comment/k5ddrpx/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
         out_raster_clip = arcpy.sa.ExtractByMask(dem_raster, scratch_stream_buffer, "INSIDE", "MINOF")
-        out_raster_clip.save(dem_raster_clip)      
+        out_raster_clip.save(dem_raster_clip)
         # other method - doesn't restrict raster to shape
         #arcpy.management.Clip(dem_raster, scratch_stream_buffer, dem_raster_clip)
 
@@ -162,14 +161,14 @@ class RelativeElevationModel(object):
         log("generating points along stream")
         scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points",
                                                data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)          
+                                               workspace=arcpy.env.scratchFolder)
         arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
-        
+
         # extract values to points
         log("adding elevation data to stream line points")
         scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points",
                                                data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)          
+                                               workspace=arcpy.env.scratchFolder)
         arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem_raster_clip, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
 
         # IDW (to buffer extent)

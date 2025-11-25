@@ -18,7 +18,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
-from validate_spatial_reference import validate_spatial_reference as validate
 from license import license as license
 
 class CollectRasters:
@@ -30,7 +29,7 @@ class CollectRasters:
         self.canRunInBackground = False
 
     def getParameterInfo(self):
-        """Define the tool parameters."""      
+        """Define the tool parameters."""
         params = []
         return params
 
@@ -43,7 +42,7 @@ class CollectRasters:
         # Setup
         log("setting up project")
         project, orig_map = setup()
-        
+
         lyrs = orig_map.listLayers("*Key")
 
         for lyr in lyrs:
@@ -81,53 +80,3 @@ class CollectRasters:
                             new_lyr.setDefinition(new_lyr_cim)
 
         return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

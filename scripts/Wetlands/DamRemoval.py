@@ -12,9 +12,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-
-from arcpy import env
-from math import atan2, pi, exp
+from math import atan2, pi
 
 # setup helpers
 import os
@@ -32,7 +30,7 @@ class DamRemoval(object):
         self.description = "Dam Removal"
         self.category = "Wetland Tools"
         self.canRunInBackground = False
-   
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
@@ -47,7 +45,7 @@ class DamRemoval(object):
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
@@ -58,7 +56,7 @@ class DamRemoval(object):
             direction="Output")
         param2.parameterDependencies = [param0.name]
         param2.schema.clone = True
-        
+
         param3 = arcpy.Parameter(
             displayName="Pond Centerline",
             name="centerline",
@@ -97,7 +95,7 @@ class DamRemoval(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        
+
         params = [param0, param1, param2, param3, param4, param5, param6, param7]
         return params
 
@@ -109,7 +107,7 @@ class DamRemoval(object):
         # default transect point spacing
         if parameters[6].value == None:
             parameters[6].value = 30
-        
+
         return
 
     def updateMessages(self, parameters):
@@ -120,16 +118,16 @@ class DamRemoval(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def transectLine(self, stream_line, stream_vertex, transect_length):
         '''returns a transect to stream_line of length transect_length at stream_vertex point
         stream_line - arcpy.PolyLine() object
         stream_vertex - arcpy.Point() object
         transect_length - distance in meters of transect
-        '''        
+        '''
         # epsilon
         e = 1e-5
-        
+
         # get stream vertex
         stream_vertex = stream_line.queryPointAndDistance(stream_vertex, False)
         geom = stream_vertex[0]
@@ -154,7 +152,7 @@ class DamRemoval(object):
         transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference, has_id=True)
         return transect
 
-    
+
     def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points):
         '''return points along transect with elevations
         transect - arcpy.PolyLine() object
@@ -164,7 +162,7 @@ class DamRemoval(object):
         transect_point_spacing - spacing between points on transect
         scratch_transect_points - scratch layer for transect points
         scratch_transect_elev_points - scratch layer for transect points with elevations
-        '''      
+        '''
         arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", transect_point_spacing, "", "END_POINTS", "ADD_CHAINAGE")
         arcpy.sa.ExtractValuesToPoints(scratch_transect_points, dem_raster, scratch_transect_elev_points, "NONE", "VALUE_ONLY")
 
@@ -196,28 +194,28 @@ class DamRemoval(object):
                         # end of unknown section
                         elev_end = elev
                         distance_end = distance
-                        
+
                     # add interpolated points to list of points to be added to DEM
                     if elev_start != None and elev_end != None:
                         slope = (elev_end - elev_start)/(distance_end - distance_start)
                         for i in update_points:
                             i[1] = slope * (i[2] - distance_start) + elev_start
                             new_points.append(tuple(i))
-                        
+
                         elev_start = elev_end
                         distance_start = distance_end
                         elev_end = None
                         distance_end = None
                         update_points = []
-                        
+
                     # add known elevation point to points to return
                     new_points.append(list(point))
-                    
+
                 elev_prev = elev
                 distance_prev = distance
                 idx += 1
         return new_points
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -243,13 +241,12 @@ class DamRemoval(object):
         # create scratch layers
         scratch_dem = arcpy.CreateScratchName("scratch_dem", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
         dem_pondless = "{}\\dem_pondless".format(arcpy.env.workspace)
-        scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
-        scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
-        scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)          
+        scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
         scratch_mosaic_raster = arcpy.CreateUniqueName("scratch_mosaic_raster")
-        scratch_transect_points = arcpy.CreateScratchName("scratch_transect_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
-        scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)          
-        scratch_final_idw_points_path = arcpy.CreateScratchName("scratch_final_idw_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_transect_points = arcpy.CreateScratchName("scratch_transect_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         idw_raster = arcpy.CreateScratchName("idw_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
 
         # clip raster to analysis area
@@ -266,10 +263,6 @@ class DamRemoval(object):
         log("generating points along centerline")
         arcpy.management.GeneratePointsAlongLines(centerline, scratch_centerline_points, "DISTANCE", transect_spacing, "", "END_POINTS", "ADD_CHAINAGE")
 
-        # getting number of transects
-        count_result = arcpy.management.GetCount(scratch_centerline_points)
-        record_count = int(count_result[0])
-        
         # extract values to points
         log("adding elevation data to centerline points")
         arcpy.sa.ExtractValuesToPoints(scratch_centerline_points, dem_pondless, scratch_centerline_elev_points, "NONE", "VALUE_ONLY")
@@ -293,7 +286,7 @@ class DamRemoval(object):
                         distance_high = distance
                 elev_prev = elev
                 distance_prev = distance
-    
+
         # calculate slope between known points
         log("calculating centerline slope")
         slope = (elev_high - elev_low)/(distance_high - distance_low)
@@ -341,7 +334,7 @@ class DamRemoval(object):
             for point in cursor:
                 # read in values
                 shape, elev, distance = point[0], point[1], point[2]
-                # create transect  
+                # create transect
                 transect = self.transectLine(centerline_polyline, shape, transect_width)
                 # interpolate elevations
                 tmp_points = self.interpolateElevations(transect, mosaic_raster, elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points)
@@ -350,11 +343,11 @@ class DamRemoval(object):
 
         # add points to final point fc
         log("adding interpolated points to fc")
-        scratch_final_idw_points = arcpy.management.CreateFeatureclass(arcpy.env.scratchFolder, "scratch_final_idw_points", "POINT", scratch_centerline_elev_points) 
+        scratch_final_idw_points = arcpy.management.CreateFeatureclass(arcpy.env.scratchFolder, "scratch_final_idw_points", "POINT", scratch_centerline_elev_points)
         with arcpy.da.InsertCursor(scratch_final_idw_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
             for point in new_points:
                 cursor.insertRow(point)
-        
+
         # IDW or Global Polynomial Interpolation
         ## depends whether we want to IDW points (must include all points then) or want to fill in DEM and interpolate voids
         log("performing IDW analysis on interpolated points")
@@ -365,7 +358,7 @@ class DamRemoval(object):
         log("extracting ponded area from IDW raster")
         raster_output = arcpy.sa.ExtractByMask(idw_raster, pond, "INSIDE", rectangle)
         raster_output.save(output_file)
-        
+
         # add results to map
         log("adding results to map")
         rem_raster = active_map.addDataFromPath(output_file)
@@ -390,7 +383,3 @@ class DamRemoval(object):
         project.save()
 
         return
-
-
-
-

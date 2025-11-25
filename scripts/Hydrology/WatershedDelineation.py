@@ -11,12 +11,6 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-import pathlib
-import openpyxl
-import datetime
-import math
-
-from pprint import pprint
 
 # setup helpers
 import os
@@ -32,7 +26,7 @@ class WatershedDelineation(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Watershed Delineation"
         self.description = "Calculate watershed for a given point"
-        self.category = "Hydrology"        
+        self.category = "Hydrology"
         self.canRunInBackground = False
 
     def getParameterInfo(self):
@@ -49,7 +43,7 @@ class WatershedDelineation(object):
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Optional",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
@@ -67,14 +61,14 @@ class WatershedDelineation(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        
+
         param4 = arcpy.Parameter(
             displayName="Derive stream lines?",
             name="calculations",
             datatype="GPBoolean",
             parameterType="Optional",
             direction="Input")
-        
+
         param5 = arcpy.Parameter(
             displayName="Stream Threshold Value",
             name="threshold",
@@ -91,14 +85,14 @@ class WatershedDelineation(object):
             direction="Output")
         param6.parameterDependencies = [param0.name]
         param6.schema.clone = True
-        
+
         params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def updateParameters(self, parameters):
         # Enable/Disable folder parameter based on if user will perform calculations
         if parameters[4].value == True:
@@ -114,7 +108,7 @@ class WatershedDelineation(object):
         if parameters[3].value == None:
             parameters[3].value = 10
         return
-    
+
     def updateMessages(self, parameters):
         if parameters[4].value == True:
             parameters[5].setIDMessage("ERROR", 530)
@@ -180,9 +174,9 @@ class WatershedDelineation(object):
         # watershed
         log("delineating watershed")
         watershed = arcpy.sa.Watershed(flow_direction_scratch, pour_points_adjusted_scratch)
-        
+
         # watershed raster to polyon
-        log("converting watershed to polygon")       
+        log("converting watershed to polygon")
         watershed_polygon_path = arcpy.CreateUniqueName(output_file)
         watershed_polygon = arcpy.conversion.RasterToPolygon(watershed, watershed_polygon_path, create_multipart_features=True)
         watershed_polygon = active_map.addDataFromPath(watershed_polygon)
@@ -199,12 +193,8 @@ class WatershedDelineation(object):
             # con
             log("converting raster to stream network")
             sql_query = "VALUE > {}".format(accumulation_threshold)
-            con_accumulation_scratch = arcpy.sa.Con(clip_flow_accumulation_scratch, 1, "", sql_query)     
-            
-            # stream link
-            log("calculating stream links")
-            stream_link = arcpy.sa.StreamLink(con_accumulation_scratch, flow_direction_scratch)
-            
+            con_accumulation_scratch = arcpy.sa.Con(clip_flow_accumulation_scratch, 1, "", sql_query)
+
             # stream to feature
             log("creating stream feature")
             stream_feature_path = "{}\\stream_to_feature".format(arcpy.env.workspace)

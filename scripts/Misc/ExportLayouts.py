@@ -18,7 +18,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
-from validate_spatial_reference import validate_spatial_reference as validate
 from license import license as license
 
 class ExportLayouts(object):
@@ -32,12 +31,12 @@ class ExportLayouts(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
-    
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         project = arcpy.mp.ArcGISProject("Current")
         layout_list = [l.name for l in project.listLayouts()]
-        
+
         param0 = arcpy.Parameter(
             displayName="Layouts to Export",
             name="layouts",
@@ -47,14 +46,14 @@ class ExportLayouts(object):
             multiValue=True)
 
         param0.filter.list = layout_list
-    
+
         param1 = arcpy.Parameter(
             displayName="Output Folder",
             name="output_folder",
             datatype="DEType",
             parameterType="Required",
             direction="Input")
-            
+
         params = [param0, param1]
         return params
 
@@ -87,5 +86,3 @@ class ExportLayouts(object):
         os.startfile(file_path)
 
         return
-
-    

@@ -44,7 +44,7 @@ class SlopeArea(object):
             name="slope_area",
             datatype="GPExtent",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
@@ -63,7 +63,7 @@ class SlopeArea(object):
             parameterType="Optional",
             direction="Input")
         param3.filter.list = ["Degree", "Percent Slope"]
-       
+
         param4 = arcpy.Parameter(
             displayName="Z Unit",
             name="z_unit",
@@ -71,7 +71,7 @@ class SlopeArea(object):
             parameterType="Optional",
             direction="Input")
         param4.filter.list = ["METER", "FOOT"]
-        
+
         params = [param0, param1, param2, param3, param4]
         return params
 
@@ -85,7 +85,7 @@ class SlopeArea(object):
             parameters[3].value = "Percent Slope"
         if parameters[4].value == None:
             parameters[4].value = "METER"
-            
+
         return
 
     def updateMessages(self, parameters):
@@ -131,15 +131,9 @@ class SlopeArea(object):
         log("saving slope raster")
         out_slope.save(output_file)
         log("adding slope raster")
-        slope_layer = active_map.addDataFromPath(output_file)
+        active_map.addDataFromPath(output_file)
 
         # Delete scratch dataset
         arcpy.management.Delete(scratch_dem)
 
         return
-
-
-
-
-
-    
