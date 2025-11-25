@@ -34,11 +34,16 @@ class Forest(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
-    
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         params = []
         return params
+
+    def updateMessages(self, parameters):
+        """Modify the messages created by internal validation for each tool parameter."""
+        validate(parameters)
+        return
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
@@ -48,7 +53,7 @@ class Forest(object):
 
         # Helpers
         project_name = project.filePath.split("\\")[-1][:-5]
- 
+
         maps = project.listMaps()
         # Check if we're on a created map
         map_name_format = re.compile('[0-9]+\.[0-9]+\-[0-9]\-[0-9]+\.[0-9]+')
@@ -60,7 +65,7 @@ class Forest(object):
             # look at next map if this one isn't a tax id number map
             if map_name_format.match(tax_id_num) is None:
                 continue
-            
+
             # get parcel layer or drop off of map
             lyrs = m.listLayers("*_{}".format(tax_id_num))
             if len(lyrs) == 0:
@@ -90,11 +95,11 @@ class Forest(object):
 
             # update symbology
             sym = lyr.symbology
-            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}                  
+            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
             sym.renderer.symbol.outlineColor = {'RGB' : [85, 255, 0, 100]}
             sym.renderer.symbol.size = 3
             lyr.symbology = sym
-            
+
             # clear selection
             m.clearSelection()
 
@@ -102,4 +107,3 @@ class Forest(object):
         log("saving project")
         project.save()
         return
-

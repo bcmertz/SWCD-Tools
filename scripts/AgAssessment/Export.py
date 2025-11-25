@@ -28,7 +28,7 @@ class Export(object):
         self.description = "Run to export layouts"
         self.category = "Automated Ag Assessment"
         self.canRunInBackground = False
-   
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         return
@@ -36,7 +36,12 @@ class Export(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
-    
+
+    def updateMessages(self, parameters):
+        """Modify the messages created by internal validation for each tool parameter."""
+        validate(parameters)
+        return
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -49,7 +54,7 @@ class Export(object):
         # Path Root
         year = datetime.date.today().year
         path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
-    
+
         # Export layouts
         log("exporting layouts")
         layouts = project.listLayouts()

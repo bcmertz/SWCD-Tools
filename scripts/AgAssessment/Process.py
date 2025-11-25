@@ -36,7 +36,12 @@ class Process(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
-    
+
+    def updateMessages(self, parameters):
+        """Modify the messages created by internal validation for each tool parameter."""
+        validate(parameters)
+        return
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -49,7 +54,7 @@ class Process(object):
         # Path Root
         year = datetime.date.today().year
         path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
-        
+
         maps = project.listMaps()
         layouts = []
         log("iterating through maps")
@@ -102,7 +107,7 @@ class Process(object):
                 arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, "MUSYM")
 
                 # Add to map
-                new_layer = m.addDataFromPath(dissolve_layer_path)               
+                new_layer = m.addDataFromPath(dissolve_layer_path)
                 soils_layers.append(new_layer)
                 new_layer.name = "{}_soils".format(lyr.name)
 
@@ -113,7 +118,7 @@ class Process(object):
                 # Calculate geometry
                 arcpy.management.CalculateGeometryAttributes(in_features=new_layer.name, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
 
-                # Update soils clip layer symbology    
+                # Update soils clip layer symbology
                 sym = new_layer.symbology
                 sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
                 sym.renderer.symbol.outlineColor = {'RGB' : [255, 255, 0, 100]}
@@ -128,7 +133,7 @@ class Process(object):
 
                 l_cim = new_layer.getDefinition('V3')
                 lc = l_cim.labelClasses[0]
-      
+
                 # Update text properties of label
                 lc.textSymbol.symbol.height = 12
                 lc.textSymbol.symbol.symbol.symbolLayers = [
@@ -169,7 +174,7 @@ class Process(object):
                 lyt_cim = lyt.getDefinition('V3')
                 lyt.setDefinition(lyt_cim)
 
-                project.save()            
+                project.save()
                 project.closeViews("LAYOUTS")
 
             # Reorder layers so soils layers are last
@@ -230,7 +235,7 @@ class Process(object):
                                 soil_cell = 'N{}'.format(9 + idx)
                                 area_cell = 'U{}'.format(9 + idx)
                                 ws[soil_cell] = row[0]
-                                ws[area_cell] = round(float(row[1]), 2)                                
+                                ws[area_cell] = round(float(row[1]), 2)
                             idx += 1
                 elif "nonag" in tbl.lower():
                     tot = 0
@@ -247,7 +252,7 @@ class Process(object):
                         fields = next(csvreader)
                         for row in csvreader:
                             tot += float(row[1])
-                    ws['L24'] = tot                
+                    ws['L24'] = tot
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
 
@@ -261,4 +266,3 @@ class Process(object):
         project.save()
 
         return
-
