@@ -11,12 +11,6 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-import pathlib
-import openpyxl
-import datetime
-import math
-
-from pprint import pprint
 
 # setup helpers
 import os
@@ -66,7 +60,7 @@ class CalculateStreamline(object):
             direction="Output")
         param3.parameterDependencies = [param0.name]
         param3.schema.clone = True
-        
+
         params = [param0, param1, param2, param3]
         return params
 
@@ -78,7 +72,7 @@ class CalculateStreamline(object):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
-    
+
     def updateParameters(self, parameters):
         # Default stream threshold value
         if parameters[2].value == None:
@@ -94,7 +88,7 @@ class CalculateStreamline(object):
         raster_layer = parameters[0].value
         watershed_polygon = parameters[1].value
         accumulation_threshold = parameters[2].value
-        output_file = parameters[3].value
+        stream_feature_path = parameters[3].value
 
         # create scratch layers
         log("creating scratch layers")
@@ -105,7 +99,7 @@ class CalculateStreamline(object):
         #clip_flow_accumulation_scratch = "{}\\flow_accumulation_clip".format(arcpy.env.workspace)
         clip_flow_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
         con_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        
+
         if parameters[1].value:
             # clip DEM raster to the study area
             log("clipping raster to analysis area")
@@ -131,15 +125,10 @@ class CalculateStreamline(object):
         # con
         log("converting raster to stream network")
         sql_query = "VALUE > {}".format(accumulation_threshold)
-        con_accumulation_scratch = arcpy.sa.Con(clip_flow_accumulation_scratch, 1, "", sql_query)     
-        
-        # stream link
-        log("calculating stream links")
-        stream_link = arcpy.sa.StreamLink(con_accumulation_scratch, flow_direction_scratch)
-        
+        con_accumulation_scratch = arcpy.sa.Con(clip_flow_accumulation_scratch, 1, "", sql_query)
+
         # stream to feature
         log("creating stream feature")
-        stream_feature_path = "{}\\stream_to_feature".format(arcpy.env.workspace)
         stream_feature = arcpy.sa.StreamToFeature(con_accumulation_scratch, flow_direction_scratch, stream_feature_path, True)
         stream_feature = active_map.addDataFromPath(stream_feature)
         sym = stream_feature.symbology
@@ -151,7 +140,7 @@ class CalculateStreamline(object):
         # save and exit program successfully
         log("saving project")
         project.save()
-        
+
         # remove temporary variables
         log("cleaning up")
         arcpy.management.Delete([scratch_dem, fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, clip_flow_accumulation_scratch, con_accumulation_scratch])

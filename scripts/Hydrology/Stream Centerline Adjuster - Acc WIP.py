@@ -30,7 +30,7 @@ class LeastActionAcc(object):
         self.description = "Stream Centerline Adjuster"
         self.category = "Hydrology"
         self.canRunInBackground = False
-   
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
@@ -45,9 +45,9 @@ class LeastActionAcc(object):
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
-       
+
         param2 = arcpy.Parameter(
             displayName="Stream Feature Class",
             name="streams",
@@ -64,35 +64,35 @@ class LeastActionAcc(object):
             direction="Output")
         param3.parameterDependencies = [param0.name]
         param3.schema.clone = True
-        
+
         param4 = arcpy.Parameter(
             displayName="Search Distance (m)",
             name="search_distance",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        
+
         params = [param0, param1, param2, param3, param4]
         return params
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
-    
+
     def transectLine(self, stream_line, stream_vertex, transect_length):
         '''returns a transect to stream_line of length transect_length at stream_vertex point
         stream_line - arcpy.PolyLine() object
         stream_vertex - arcpy.Point() object
         transect_length - distance in meters of transect
-        '''        
+        '''
         # epsilon
         e = 1e-5
-        
+
         # get stream vertex
         stream_vertex = stream_line.queryPointAndDistance(stream_vertex, False)
         geom = stream_vertex[0]
@@ -116,14 +116,14 @@ class LeastActionAcc(object):
 
         transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference, has_id=True)
         return transect
-    
+
     def highestFlowAccumulation(self, transect, dem_raster):
         '''return highest flow accumulation along transect
         transect - arcpy.PolyLine() object
         dem_raster - elevation raster
         '''
-        # set up helpers
-        point_tmp = ""
+        ## set up helpers
+        # point_tmp = ""
 
         # get highest flow accumulation along transect
         transect_max = arcpy.CreateScratchName("temp",
@@ -159,23 +159,23 @@ class LeastActionAcc(object):
             raster_field="Value"
         )
 
-        
+
         #point_tmp = arcpy.Point(mid_vertex.X, mid_vertex.Y)
-            
+
         return scratch_max_point
 
     def updateParameters(self, parameters):
         return
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
         project, active_map = setup()
         arcpy.env.parallelProcessingFactor = "75%"
-        
+
         # read in parameters
-        dem_raster = parameters[0].value       
+        dem_raster = parameters[0].value
         extent = parameters[1].value
         stream_layer = parameters[2].value
         output_file = parameters[3].valueAsText
@@ -191,7 +191,7 @@ class LeastActionAcc(object):
         XMin = extent.XMin
         YMin = extent.YMin
         XMax = extent.XMax
-        YMax = extent.YMax        
+        YMax = extent.YMax
         pnt1 = arcpy.Point(XMin, YMin)
         pnt2 = arcpy.Point(XMin, YMax)
         pnt3 = arcpy.Point(XMax, YMax)
@@ -218,7 +218,7 @@ class LeastActionAcc(object):
         #transects_fc = arcpy.management.CreateFeatureclass(env_path, "transects", "POLYLINE", spatial_reference=spatial_reference, has_m="ENABLED", has_z="ENABLED")
         #transects = []
         #lowpoints = []
-        
+
         # iterate through each stream line polyline
         log("optimizing stream line")
         with arcpy.da.UpdateCursor(new_stream_line, ["SHAPE@"]) as cursor:
@@ -226,7 +226,7 @@ class LeastActionAcc(object):
                 # set progress per reach
                 record_count = len(stream_line[0][0]) # number of vertices in a given reach, not the best way but it works on a per-reach basis
                 arcpy.SetProgressor("step", "iterating through vertices in stream reach to find lowest points", 0, record_count, 1)
-                
+
                 # construct line for stream reach
                 new_stream_line_arr = arcpy.Array()
 
@@ -260,7 +260,7 @@ class LeastActionAcc(object):
         #    for transect in transects:
         #        transect_cursor.insertRow([transect])
 
-        ## Debugging            
+        ## Debugging
         ## output low points
         #log("adding lowpoints")
         #with arcpy.da.InsertCursor(lowpoints_fc, ["SHAPE@"]) as lowpoints_cursor:
@@ -269,7 +269,7 @@ class LeastActionAcc(object):
 
         # repair self intersections
         log("repairing self intersections")
-        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")           
+        arcpy.topographic.RepairSelfIntersection(new_stream_line, "DELETE")
 
         # add data
         log("adding data")

@@ -21,6 +21,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
 from validate_spatial_reference import validate_spatial_reference as validate
+from sanitize import sanitize
 from license import license as license
 
 class Agland(object):
@@ -50,13 +51,9 @@ class Agland(object):
         log("setting up project")
         project, active_map = setup()
 
-        # Helpers
-        project_name = project.filePath.split("\\")[-1][:-5]
-
         maps = project.listMaps()
         # Check if we're on a created map
         map_name_format = re.compile('[0-9]+\.[0-9]+\-[0-9]\-[0-9]+\.[0-9]+')
-        layouts = []
         log("iterating through maps and delineated agland")
         for m in maps:
             # Get Tax ID Number for map

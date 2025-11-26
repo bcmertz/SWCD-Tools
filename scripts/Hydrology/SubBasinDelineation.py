@@ -12,10 +12,6 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-import pathlib
-import openpyxl
-import datetime
-import math
 
 from pprint import pprint
 
@@ -66,14 +62,14 @@ class SubBasinDelineation(object):
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
-       
+
         param1 = arcpy.Parameter(
             displayName="Basin Shapefile",
             name="boundary",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = ["Polygon"]     
+        param1.filter.list = ["Polygon"]
 
         param2 = arcpy.Parameter(
             displayName="Stream Threshold Value",
@@ -81,7 +77,7 @@ class SubBasinDelineation(object):
             datatype="GPDouble",
             parameterType="Optional",
             direction="Input")
-        
+
         param3 = arcpy.Parameter(
             displayName="Perform hydrology calculations on each sub-basin?",
             name="calculations",
@@ -103,7 +99,7 @@ class SubBasinDelineation(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -127,32 +123,32 @@ class SubBasinDelineation(object):
         # clip DEM raster to the watershed
         log("clipping raster to watershed")
         arcpy.management.Clip(raster_layer, "", clip_raster_scratch, watershed, "#", "ClippingGeometry")
-        
+
         # fill raster
         log("filling raster")
         fill_raster_scratch = arcpy.sa.Fill(clip_raster_scratch)
-        
+
         # flow direction
         log("calculating flow direction")
         flow_direction_scratch = arcpy.sa.FlowDirection(fill_raster_scratch)
-        
+
         # flow accumulation
         log("calculating flow accumulation")
         flow_accumulation_scratch = arcpy.sa.FlowAccumulation(flow_direction_scratch)
-        
+
         # con
         log("converting raster to stream network")
         sql_query = "VALUE > {}".format(con_threshold)
-        con_accumulation_scratch = arcpy.sa.Con(flow_accumulation_scratch, 1, "", sql_query)     
-        
+        con_accumulation_scratch = arcpy.sa.Con(flow_accumulation_scratch, 1, "", sql_query)
+
         # stream link
         log("calculating stream links")
         stream_link = arcpy.sa.StreamLink(con_accumulation_scratch, flow_direction_scratch)
-        
+
         # watershed
         log("calculating watershed")
         watershed = arcpy.sa.Watershed(flow_direction_scratch, stream_link)
-        
+
         # stream to feature
         log("craeting stream feature")
         stream_feature_path = "{}\\stream_to_feature".format(arcpy.env.workspace)
@@ -163,7 +159,7 @@ class SubBasinDelineation(object):
         sym.renderer.symbol.outlineColor = {'RGB' : [0, 112, 255, 100]}
         sym.renderer.symbol.size = 1.5
         stream_feature.symbology = sym
-        
+
         # watershed raster to polyon
         log("converting watershed to polygon")
         watershed_polygon_path = "{}\\watershed_polygon".format(arcpy.env.workspace)
@@ -174,7 +170,7 @@ class SubBasinDelineation(object):
         sym.renderer.fields = ['gridcode']
         watershed_polygon.symbology = sym
         watershed_polygon.visible = False
-        
+
         # hydrology of each subbasin
         if hydrology_calculations == True:
             log("calculating watershed hydrology of each subbasin")
@@ -199,6 +195,5 @@ class SubBasinDelineation(object):
         # remove temporary variables
         log("cleaning up")
         arcpy.management.Delete([clip_raster_scratch, fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
-        
-        return
 
+        return

@@ -12,12 +12,6 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-import pathlib
-import openpyxl
-import datetime
-import math
-
-from pprint import pprint
 
 # setup helpers
 import os
@@ -86,7 +80,7 @@ class RunoffPotential:
             direction="Input")
         param5.filter.type = "ValueList"
         param5.filter.list = []
-        
+
         param6 = arcpy.Parameter(
             displayName="RCN Field - HSG B",
             name="rcn_field_b",
@@ -113,26 +107,26 @@ class RunoffPotential:
             direction="Input")
         param8.filter.type = "ValueList"
         param8.filter.list = []
-        
+
         params = [param0, param1, param2, param3, param4, param5, param6, param7, param8]
         return params
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
         warning_message = "In order to use this tool you must have land use / runoff curve number data. We recommend using Chesapeake Bay Land Use Data and modifying the raster to include fields for runoff curve number values for each hydrologic soil groups A,B,C,D."
-    
+
         if parameters[4].value and (not parameters[5].value or not parameters[6].value or not parameters[7].value or not parameters[8].value):
             parameters[4].setWarningMessage(warning_message)
         else:
             if parameters[4].hasWarning:
               parameters[4].clearMessage()
-  
+
         return
 
     def updateParameters(self, parameters):
@@ -144,7 +138,7 @@ class RunoffPotential:
         if not parameters[2].value:
             parameters[3].enabled = False
             parameters[3].value = None
-        
+
         # get rcn fields
         if parameters[4].value:
             parameters[5].enabled = True
@@ -158,7 +152,7 @@ class RunoffPotential:
             parameters[8].filter.list = fields2
         if not parameters[4].value:
             parameters[5].enabled = False
-            parameters[6].enabled = False           
+            parameters[6].enabled = False
             parameters[7].enabled = False
             parameters[8].enabled = False
 
@@ -181,7 +175,7 @@ class RunoffPotential:
         rcn_field_b = parameters[6].value
         rcn_field_c = parameters[7].value
         rcn_field_d = parameters[8].value
-       
+
         #colorramps = project.listColorRamps()
         #for i in colorramps:
         #    log(i.name)
@@ -203,7 +197,7 @@ class RunoffPotential:
         log("clipping land use raster to watershed")
         out_land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, watershed, "INSIDE")
         out_land_use_raster_clip.save(land_use_raster_clip)
-        
+
         # convert land usage output to polygon
         log("converting land use areas to polygon")
         arcpy.conversion.RasterToPolygon(land_use_raster_clip, scratch_land_use_polygon, "SIMPLIFY", "LandUse", "SINGLE_OUTER_PART")
@@ -274,9 +268,9 @@ class RunoffPotential:
         # delete not needed scratch layers
         log("delete unused layers")
         arcpy.management.Delete([soils_scratch, land_use_raster_clip, scratch_land_use_polygon, scratch_joined_land_use_polygon, scratch_pairwise_intersection])
-        
+
         # save project
         log("saving project")
-        project.save()    
+        project.save()
 
         return

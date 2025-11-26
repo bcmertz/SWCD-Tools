@@ -29,7 +29,7 @@ class ContourArea(object):
         self.description = "Contour specific area of DEM"
         self.category = "Analyze Area"
         self.canRunInBackground = True
-   
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
@@ -44,7 +44,7 @@ class ContourArea(object):
             name="contour_area",
             datatype="GPExtent",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
@@ -61,7 +61,7 @@ class ContourArea(object):
             name="contour_interval",
             datatype="GPLong",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
 
         # TODO: just ask for DEM units instead
         #desc = arcpy.Describe(raster_layer)
@@ -72,7 +72,7 @@ class ContourArea(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        
+
         params = [param0, param1, param2, param3, param4]
         return params
 
@@ -84,7 +84,7 @@ class ContourArea(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -113,12 +113,10 @@ class ContourArea(object):
         arcpy.sa.Contour(scratch_dem, output_file, contour_interval, z_factor=z_factor)
 
         log("adding contours to map")
-        land_use_clip_layer = active_map.addDataFromPath(output_file)
+        active_map.addDataFromPath(output_file)
 
         # Delete scratch dataset
         log("finishing up")
         arcpy.management.Delete(scratch_dem)
 
         return
-
-    

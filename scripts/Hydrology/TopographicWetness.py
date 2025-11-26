@@ -11,12 +11,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-import pathlib
-import openpyxl
-import datetime
 import math
-
-from pprint import pprint
 
 # setup helpers
 import os
@@ -49,7 +44,7 @@ class TopographicWetness(object):
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Optional",
-            direction="Input")        
+            direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
@@ -60,14 +55,14 @@ class TopographicWetness(object):
             direction="Output")
         param2.parameterDependencies = [param0.name]
         param2.schema.clone = True
-        
+
         params = [param0, param1, param2]
         return params
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
@@ -106,7 +101,7 @@ class TopographicWetness(object):
         # fill raster
         log("filling raster")
         fill_raster_scratch = arcpy.sa.Fill(raster_layer)
-            
+
         # flow accumulation
         log("calculating flow accumulation")
         out_accumulation_raster = arcpy.sa.DeriveContinuousFlow(fill_raster_scratch, flow_direction_type="MFD")
@@ -127,7 +122,7 @@ class TopographicWetness(object):
         # calculate slope tangent
         log("calculating slope tangent")
         out_slope_tan = arcpy.sa.Tan(slope_radians)
-        
+
         # adjust flow accumulation
         log("adjusting flow accumulation")
         adjusted_flow_accumulation = int_flow_accumulation + 1
@@ -136,7 +131,7 @@ class TopographicWetness(object):
         log("calculating slope tangent")
         out_TWI = arcpy.sa.Ln(adjusted_flow_accumulation / out_slope_tan)
         out_TWI.save(output_file)
-      
+
         # add TWI to map
         log("adding twi to map")
         twi_layer = active_map.addDataFromPath(output_file)
@@ -156,5 +151,5 @@ class TopographicWetness(object):
         # save and exit program successfully
         log("saving project")
         project.save()
-        
+
         return

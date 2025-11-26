@@ -1,12 +1,12 @@
 # --------------------------------------------------------------------------------
 # Name:        Local Minimums
 # Purpose:     This tool finds local minimums that are larger minimums than the
-#              given threshold value. 
+#              given threshold value.
 #
 #              example: minimums greater than the diameter of a proposed pipe would
 #                       be detected - this would correspond to areas where water
 #                       would pool after draining
-#                         
+#
 # Author:      Reya Mertz
 #
 # Created:     11/2025
@@ -37,7 +37,7 @@ class LocalMinimums:
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
-    
+
     def getParameterInfo(self):
         """Define the tool parameters."""
         param0 = arcpy.Parameter(
@@ -61,7 +61,7 @@ class LocalMinimums:
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Optional",
-            direction="Input")        
+            direction="Input")
         param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param3 = arcpy.Parameter(
@@ -93,13 +93,9 @@ class LocalMinimums:
             direction="Output")
         param5.parameterDependencies = [param0.name]
         param5.schema.clone = True
-        
+
         params = [param0, param1, param2, param3, param4, param5]
         return params
-
-    def isLicensed(self):
-        """Set whether the tool is licensed to execute."""
-        return True
 
     def updateParameters(self, parameters):
         # default search interval
@@ -193,8 +189,8 @@ class LocalMinimums:
                             lowpoint_elev = elev_cur
                         delta_1 = threshold if prev_local_maximum_elev == -9999 else prev_local_maximum_elev - lowpoint_elev
                         if delta_1 >= threshold:
-                            local_minimums.append(arcpy.PointGeometry(lowpoint))                        
-                            
+                            local_minimums.append(arcpy.PointGeometry(lowpoint))
+
                     # downhill
                     elif elev_prev > elev_cur:
                         delta_1 = threshold if prev_local_maximum_elev == -9999 else prev_local_maximum_elev - lowpoint_elev
@@ -212,7 +208,7 @@ class LocalMinimums:
                             if prev_local_maximum_elev == -9999:
                                 if elev_cur < lowpoint_elev:
                                     lowpoint = vertex
-                                    lowpoint_elev = elev_cur                                
+                                    lowpoint_elev = elev_cur
                             elif elev_cur < lowpoint_elev:
                                 lowpoint = vertex
                                 lowpoint_elev = elev_cur
@@ -224,8 +220,8 @@ class LocalMinimums:
                             prev_local_maximum_elev = elev_prev
                             lowpoint = vertex
                             lowpoint_elev = elev_cur
-                            
-                        # neither passes 
+
+                        # neither passes
                         else:
                             if elev_cur < lowpoint_elev:
                                 lowpoint = vertex
@@ -235,10 +231,10 @@ class LocalMinimums:
                     else:
                         pass
 
-                    
+
                     # setup for next iteration
                     elev_prev = elev_cur
-                    
+
             # add points to map
             if len(local_minimums) > 0:
                 log("copying points to feature class")
@@ -246,7 +242,7 @@ class LocalMinimums:
                 log("defining spatial reference of feature")
                 arcpy.management.DefineProjection(output_file,spatial_reference)
                 log("adding minimums to map")
-                active_map.addDataFromPath(output_file)                
+                active_map.addDataFromPath(output_file)
             else:
                 log("no local minimums found")
 
@@ -257,5 +253,5 @@ class LocalMinimums:
         # save
         log("saving project")
         project.save()
-            
+
         return

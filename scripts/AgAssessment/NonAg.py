@@ -57,7 +57,6 @@ class NonAg(object):
         maps = project.listMaps()
         # Check if we're on a created map
         map_name_format = re.compile('[0-9]+\.[0-9]+\-[0-9]\-[0-9]+\.[0-9]+')
-        layouts = []
         log("iterating through maps and delineating nonag land")
         for m in maps:
             # Get Tax ID Number for map

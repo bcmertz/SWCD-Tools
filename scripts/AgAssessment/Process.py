@@ -11,6 +11,10 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+import datetime
+import pathlib
+import openpyxl
+import csv
 
 # setup helpers
 import os
@@ -148,7 +152,7 @@ class Process(object):
                 ]
                 lc.standardLabelPlacementProperties.numLabelsOption = "OneLabelPerPart"
 
-                # Update CIM defintion
+                # Update CIM definition
                 new_layer.setDefinition(l_cim)
 
                 # Get soils layer attribute table and export / extract needed fields for layout
@@ -159,7 +163,7 @@ class Process(object):
                 # Add soils table export to the given map
                 soils_table = arcpy.mp.Table(table_path)
                 tables.append(soils_table)
-                addTab = m.addTable(soils_table)
+                m.addTable(soils_table)
                 soils_table_uri = soils_table.URI
 
                 # Get layout table

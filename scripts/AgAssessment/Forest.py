@@ -51,13 +51,9 @@ class Forest(object):
         log("setting up project")
         project, active_map = setup()
 
-        # Helpers
-        project_name = project.filePath.split("\\")[-1][:-5]
-
         maps = project.listMaps()
         # Check if we're on a created map
         map_name_format = re.compile('[0-9]+\.[0-9]+\-[0-9]\-[0-9]+\.[0-9]+')
-        layouts = []
         log("iterating through maps and delineating forest land")
         for m in maps:
             # Get Tax ID Number for map
