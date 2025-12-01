@@ -14,10 +14,10 @@ import openpyxl
 import datetime
 
 from helpers import *
-from print_messages import print_messages as log
-from setup_environment import setup_environment as setup
-from validate_spatial_reference import validate_spatial_reference as validate
-from license import license as license
+import print_messages as log
+import setup_environment as setup
+import validate_spatial_reference as validate
+import license as license
 
 class CalculateHydrology:
     def __init__(self):
@@ -29,30 +29,30 @@ class CalculateHydrology:
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
-            displayName="Watershed Boundary Layer",
-            name="watershed",
-            datatype="GPFeatureLayer",
-            parameterType="Required",
-            direction="Input")
-
-        param1 = arcpy.Parameter(
             displayName="DEM",
             name="dem",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
 
+        param1 = arcpy.Parameter(
+            displayName="Watershed Boundary Layer",
+            name="watershed",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+
         param2 = arcpy.Parameter(
-            displayName="Output Folder",
-            name="output_location",
-            datatype="DEFolder",
+            displayName="Runoff Curve Number Layer",
+            name="rcns",
+            datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
 
         param3 = arcpy.Parameter(
-            displayName="Land Use Data",
-            name="land_use",
-            datatype="GPRasterLayer",
+            displayName="Output Folder",
+            name="output_location",
+            datatype="DEFolder",
             parameterType="Required",
             direction="Input")
 
@@ -79,10 +79,10 @@ class CalculateHydrology:
 
         # read in parameters
         log("reading in parameters")
-        watershed_layer = parameters[0].value
-        raster_layer = parameters[1].value
-        output_folder_path = parameters[2].valueAsText
-        land_use_layer = parameters[3].value
+        raster_layer = parameters[0].value
+        watershed_layer = parameters[1].value
+        land_use_layer = parameters[2].value
+        output_folder_path = parameters[3].valueAsText
 
         # add watershed layer to the map if needed
         if not arcpy.Exists(watershed_layer):
@@ -98,62 +98,13 @@ class CalculateHydrology:
         # utils
         watershed_layer_id = arcpy.ValidateTableName(watershed_layer.name)
 
-        # clip land use raster
-        log("clip land use raster")
-        land_use_path = "{}\\{}_{}".format(arcpy.env.workspace, "cblc_clip", watershed_layer_id)
-        land_use_clip_layer = arcpy.management.Clip(land_use_layer, "", land_use_path, watershed_layer, "#", "ClippingGeometry")
-        land_use_clip_layer = active_map.addDataFromPath(land_use_clip_layer)
-        land_use_clip_layer.name = "Watershed Land Use Clip"
-
-        # land use raster to polygon
-        log("create land use polygons")
-        land_use_polygon_path = "{}_{}".format(land_use_path, "to_polygon")
-        land_use_polygon_layer = arcpy.conversion.RasterToPolygon(land_use_clip_layer, land_use_polygon_path, "NO_SIMPLIFY", "LandUse")
-        land_use_polygon_layer = active_map.addDataFromPath(land_use_polygon_layer)
-        land_use_polygon_layer.name = "Watershed Land Use Clip to Polygon {}".format(watershed_layer_id)
-
-        # join raster fields (rcns and LandUse fields)
-        log("join runoff curve numbers to land use polygons")
-        arcpy.management.JoinField(land_use_polygon_layer, "LandUse", land_use_clip_layer, "LandUse", ["RCNA", "RCNB", "RCNC", "RCND"])
-
-        # intersect land cover and soils
-        log("intersect land cover and soils")
-        active_map.listLayers("Soils")[0]
-        intersection_name = "land_use_soils_intersection_{}".format(watershed_layer_id)
-        land_use_soils_intersection = arcpy.analysis.PairwiseIntersect([land_use_polygon_layer, "Soils/Soils"], intersection_name)
-        land_use_soils_intersection = active_map.addDataFromPath(land_use_soils_intersection)
-
-        # add column for runoff curve number
-        arcpy.management.AddField(land_use_soils_intersection, "RCN", "Short", "", "", "", "Runoff Curve Number")
-
-        # populate runoff curve numbers based off of hydrologic soil group
-        log("populate soils data with runoff curve numbers")
-        with arcpy.da.UpdateCursor(land_use_soils_intersection, ["hydgrpdcd","RCN", "RCNA", "RCNB", "RCNC", "RCND"]) as cursor:
-            for row in cursor:
-                hsg = row[0]
-                if hsg == None:
-                    hsg = "D"
-                elif len(hsg) != 1:
-                    hsg = hsg.split("/")[0]
-                if hsg == "A":
-                    row[1] = row[2]
-                elif hsg == "B":
-                    row[1] = row[3]
-                elif hsg == "C":
-                    row[1] = row[4]
-                elif hsg == "D":
-                    row[1] = row[5]
-                cursor.updateRow(row)
-
-        # delete unecessary fields
-        log("cleaning up unecessary soils fields")
-        arcpy.management.DeleteField(land_use_soils_intersection, ["LandUse", "hydgrpdcd", "Hydrologic Group - Dominant Conditions", "RCN", "MUSYM"], "KEEP_FIELDS")
-
+        # TODO: runoff curve numbers
+        #
         # add acres field and calculate for land use / soils
         log("calculating acreage of different hydrologic land uses")
         if "Acres" not in [f.name for f in arcpy.ListFields(land_use_soils_intersection)]:
             arcpy.management.AddField(land_use_soils_intersection, "Acres", "FLOAT", field_precision=255, field_scale=2)
-        arcpy.management.CalculateGeometryAttributes(in_features=land_use_soils_intersection.name, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        arcpy.management.CalculateGeometryAttributes(in_features=land_use_soils_intersection, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
 
         # add acres field and calculate for watershed
         log("calculating watershed size")
@@ -175,7 +126,7 @@ class CalculateHydrology:
         #if arcpy.Exists(out_slope_path):
         #    log("exists")
         #    arcpy.management.Delete(out_slope_path)
-        slope_raster = arcpy.sa.Slope(clip_1m_dem.name, "PERCENT_RISE", "", "GEODESIC", "METER")
+        slope_raster = arcpy.sa.Slope(clip_1m_dem, "PERCENT_RISE", "", "GEODESIC", "METER")
         slope_raster.save(out_slope_path)
 
         # zonal statistics
@@ -220,7 +171,7 @@ class CalculateHydrology:
         # raster calculator con to get max flow length and raster to point
         log("creating point at max flow length location")
         max_flow_point_raster_path = "{}\\max_flow_point_{}".format(arcpy.env.workspace, watershed_layer_id)
-        max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats.name,flow_length_raster.name], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
+        max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats,flow_length_raster], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
         max_flow_raster.save(max_flow_point_raster_path)
         max_flow_length_point_path = "{}\\max_flow_length_point_{}".format(arcpy.env.workspace, watershed_layer_id)
         max_flow_length_point = arcpy.conversion.RasterToPoint(max_flow_raster, max_flow_length_point_path,"Value")

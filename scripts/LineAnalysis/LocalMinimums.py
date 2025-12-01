@@ -14,10 +14,10 @@
 import arcpy
 
 from helpers import *
-from print_messages import print_messages as log
-from setup_environment import setup_environment as setup
-from validate_spatial_reference import validate_spatial_reference as validate
-from license import license as license
+import print_messages as log
+import setup_environment as setup
+import validate_spatial_reference as validate
+import license as license
 
 class LocalMinimums:
     def __init__(self):

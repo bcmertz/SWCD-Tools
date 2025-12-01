@@ -9,9 +9,9 @@ import os
 import arcpy
 
 from helpers import *
-from print_messages import print_messages as log
-from setup_environment import setup_environment as setup
-from license import license as license
+import print_messages as log
+import setup_environment as setup
+import license as license
 
 class ExportLayouts(object):
     def __init__(self):
