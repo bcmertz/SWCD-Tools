@@ -7,7 +7,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-def addLayerToGroup(active_map, group, layer, hide=False):
+def add_layer_to_group(active_map, group, layer, hide=False):
     # add layer to group, remove old layer, return new layer
     active_map.addLayerToGroup(group, layer)
     layer_name = layer.name
