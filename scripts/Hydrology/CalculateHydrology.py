@@ -6,7 +6,7 @@
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
-
+import os
 import sys 
 import arcpy
 import pathlib
@@ -128,7 +128,6 @@ class CalculateHydrology:
         out_table_path = "{}\\{}".format(arcpy.env.workspace, out_table_name)
         field_name = arcpy.Describe(watershed_layer).OIDFieldName
         arcpy.sa.ZonalStatisticsAsTable(watershed_layer, field_name, slope_raster, out_table_name, "", "MEAN")
-        active_map.addDataFromPath(out_table_path)
         mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(out_table_path, "MEAN")][0]),2)
 
         # fill DEM to eventually find flow length of watershed
@@ -153,32 +152,33 @@ class CalculateHydrology:
         log("finding max flow length")
         flow_length_maximum = int(float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))*3.2808)
 
-        # create max flow length raster
-        log("creating max flow length raster")
-        outZonalStats_path = "{}\\zonal_stats_{}".format(arcpy.env.workspace, watershed_layer_id)
-        oidFieldName = arcpy.Describe(watershed_layer).oidFieldName
-        outZonalStats = arcpy.sa.ZonalStatistics(watershed_layer, oidFieldName, flow_length_raster, "MAXIMUM")
-        outZonalStats.save(outZonalStats_path)
+        ## create max flow length raster
+        #log("creating max flow length raster")
+        #outZonalStats_path = "{}\\zonal_stats_{}".format(arcpy.env.workspace, watershed_layer_id)
+        #oidFieldName = arcpy.Describe(watershed_layer).oidFieldName
+        #outZonalStats = arcpy.sa.ZonalStatistics(watershed_layer, oidFieldName, flow_length_raster, "MAXIMUM")
+        #outZonalStats.save(outZonalStats_path)
 
-        # raster calculator con to get max flow length and raster to point
-        log("creating point at max flow length location")
-        max_flow_point_raster_path = "{}\\max_flow_point_{}".format(arcpy.env.workspace, watershed_layer_id)
-        max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats_path,out_flow_length_path], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
-        max_flow_raster.save(max_flow_point_raster_path)
-        max_flow_length_point_path = "{}\\max_flow_length_point_{}".format(arcpy.env.workspace, watershed_layer_id)
-        max_flow_length_point = arcpy.conversion.RasterToPoint(max_flow_raster, max_flow_length_point_path,"Value")
+        ## raster calculator con to get max flow length and raster to point
+        #log("creating point at max flow length location")
+        #max_flow_point_raster_path = "{}\\max_flow_point_{}".format(arcpy.env.workspace, watershed_layer_id)
+        #log(outZonalStats.name,flow_length_raster.name)
+        #max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats.name,flow_length_raster.name], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
+        #max_flow_raster.save(max_flow_point_raster_path)
+        #max_flow_length_point_path = "{}\\max_flow_length_point_{}".format(arcpy.env.workspace, watershed_layer_id)
+        #max_flow_length_point = arcpy.conversion.RasterToPoint(max_flow_raster, max_flow_length_point_path,"Value")
 
-        # optimal path as raster
-        log("creating optimal flow path raster")
-        optimal_path_raster_path = "{}\\optimal_path_raster_{}".format(arcpy.env.workspace, watershed_layer_id)
-        out_path_accumulation_raster = arcpy.sa.OptimalPathAsRaster(max_flow_length_point, flow_length_raster, flow_direction_raster)
-        out_path_accumulation_raster.save(optimal_path_raster_path)
+        ## optimal path as raster
+        #log("creating optimal flow path raster")
+        #optimal_path_raster_path = "{}\\optimal_path_raster_{}".format(arcpy.env.workspace, watershed_layer_id)
+        #out_path_accumulation_raster = arcpy.sa.OptimalPathAsRaster(max_flow_length_point, flow_length_raster, flow_direction_raster)
+        #out_path_accumulation_raster.save(optimal_path_raster_path)
 
-        # raster to polyline
-        log("converting optimal flow path raster to polyline")
-        optimal_line_path = "{}\\optimal_line_{}".format(arcpy.env.workspace, watershed_layer_id)
-        arcpy.conversion.RasterToPolyline(out_path_accumulation_raster, optimal_line_path)
-        active_map.addDataFromPath(optimal_line_path)
+        ## raster to polyline
+        #log("converting optimal flow path raster to polyline")
+        #optimal_line_path = "{}\\optimal_line_{}".format(arcpy.env.workspace, watershed_layer_id)
+        #arcpy.conversion.RasterToPolyline(out_path_accumulation_raster, optimal_line_path)
+        #active_map.addDataFromPath(optimal_line_path)
 
         # setup hydrology worksheet locations
         log("creating hydrology worksheet")
@@ -199,17 +199,17 @@ class CalculateHydrology:
         ws_calculations['G6'] = flow_length_maximum
         ws_calculations['G7'] = mean_slope
 
-        with arcpy.da.SearchCursor(land_use_soils_intersection, ["RCN", "Acres", "LandUse", "hydgrpdcd"]) as cursor:
+        with arcpy.da.SearchCursor(rcn_layer, ["RCN", "Acres"]) as cursor:
             idx = 1
             for row in cursor:
                 rcn = row[0]
                 acres = row[1]
-                land_use = row[2]
-                hsg = row[3]
+                #land_use = row[2]
+                #hsg = row[3]
                 ws_data["C"+str(idx)] = rcn
                 ws_data["D"+str(idx)] = acres
-                ws_data["A"+str(idx)] = land_use
-                ws_data["B"+str(idx)] = hsg
+                #ws_data["A"+str(idx)] = land_use
+                #ws_data["B"+str(idx)] = hsg
                 idx += 1
 
         hydrology_worksheet.save(output_worksheet_path)
