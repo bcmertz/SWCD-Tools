@@ -106,7 +106,7 @@ class WatershedDelineation(object):
         # create scratch layers
         log("creating scratch layers")
         scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        clip_flow_accumulation_scratch = arcpy.CreateScratchName("clip_flow_accumulation_scratch", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+        flow_accumulation_scratch = arcpy.CreateScratchName("flow_accumulation_scratch", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
         pour_points_adjusted_scratch = "{}\\pour_points_adjusted_scratch".format(arcpy.env.workspace)
 
         if parameters[1].value:
@@ -147,7 +147,7 @@ class WatershedDelineation(object):
 
         # remove temporary variables
         log("cleaning up")
-        arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
+        arcpy.management.Delete([scratch_dem, flow_accumulation_scratch, pour_points_adjusted_scratch])
 
         # save and exit program successfully
         log("saving project")
