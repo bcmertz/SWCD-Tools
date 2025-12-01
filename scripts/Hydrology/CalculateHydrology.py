@@ -35,7 +35,6 @@ class CalculateHydrology:
             name="watershed",
             datatype="GPFeatureLayer",
             parameterType="Required",
-            multiValue=True,
             direction="Input")
 
         param1 = arcpy.Parameter(
@@ -53,21 +52,13 @@ class CalculateHydrology:
             direction="Input")
 
         param3 = arcpy.Parameter(
-            displayName="Stream Feature Class",
-            name="streams",
-            datatype="GPFeatureLayer",
-            parameterType="Required",
-            direction="Input")
-        param3.filter.list = ["Polyline"]
-
-        param4 = arcpy.Parameter(
             displayName="Land Use Data",
             name="land_use",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3]
         return params
 
     def updateMessages(self, parameters):
@@ -79,380 +70,214 @@ class CalculateHydrology:
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
 
-    def addLayerToGroup(self, active_map, group, layer, hide=False):
-        # add layer to group, remove old layer, return new layer
-        active_map.addLayerToGroup(group, layer)
-        layer_name = layer.name
-        active_map.removeLayer(layer)
-        new_layer = active_map.listLayers(layer_name)[0]
-        if hide:
-            new_layer.visible = False
-        return new_layer
-
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
         project, active_map = setup()
-        addLayerToGroup=self.addLayerToGroup
 
         # helper variables
         orig_map = active_map
-        orig_layout = project.listLayouts("Layout")[0]
-        layouts = []
 
         # read in parameters
         log("reading in parameters")
-        watershed_layers = parameters[0].valueAsText.replace("'","").split(";")
+        watershed_layer = parameters[0].value
         raster_layer = parameters[1].value
         output_folder_path = parameters[2].valueAsText
-        waterbodies_layer = parameters[3].value
-        land_use_layer = parameters[4].value
+        land_use_layer = parameters[3].value
 
-        log("iterating through watersheds")
-        for watershed_layer in watershed_layers:
-            # create new map and make it active
-            log("creating new map and layout")
-            active_map = project.copyItem(orig_map, watershed_layer)
-            active_map.openView()
-            cam = project.activeView.camera
+        # add watershed layer to the map if needed
+        if not arcpy.Exists(watershed_layer):
+            # need to add the layer to the map and make it a geodatabase
+            watershed_layer = active_map.addDataFromPath(watershed_layer)
+            watershed_layer_path = "{}\\{}".format(arcpy.env.workspace, watershed_layer.name)
+            arcpy.conversion.ExportFeatures(watershed_layer, watershed_layer_path)
+            watershed_layer = active_map.addDataFromPath(watershed_layer_path)
+            watershed_layer = active_map.listLayers(watershed_layer)[0]
+        else:
+            watershed_layer = active_map.listLayers(watershed_layer)[0]
 
-            hydrology_group_layer = active_map.listLayers("Hydrology Analysis")
-            if len(hydrology_group_layer) == 0:
-                hydrology_group_layer = active_map.createGroupLayer("Hydrology Analysis")
-            else:
-                hydrology_group_layer = active_map.listLayers("Hydrology Analysis")[0]
+        # utils
+        watershed_layer_id = arcpy.ValidateTableName(watershed_layer.name)
 
-            # add watershed layer to new map if needed and rename map to just the name
-            if not arcpy.Exists(watershed_layer):
-                # need to add the layer to the map and make it a geodatabase
-                watershed_layer = active_map.addDataFromPath(watershed_layer)
-                active_map.name = watershed_layer.name
-                watershed_layer_path = "{}\\{}".format(arcpy.env.workspace, watershed_layer.name)
-                arcpy.conversion.ExportFeatures(watershed_layer, watershed_layer_path)
-                watershed_layer = active_map.addDataFromPath(watershed_layer_path)
-                watershed_layer = addLayerToGroup(active_map, hydrology_group_layer, watershed_layer, True)
-                watershed_layer = active_map.listLayers(watershed_layer)[0]
-            else:
-                watershed_layer = active_map.listLayers(watershed_layer)[0]
+        # clip land use raster
+        log("clip land use raster")
+        land_use_path = "{}\\{}_{}".format(arcpy.env.workspace, "cblc_clip", watershed_layer_id)
+        land_use_clip_layer = arcpy.management.Clip(land_use_layer, "", land_use_path, watershed_layer, "#", "ClippingGeometry")
+        land_use_clip_layer = active_map.addDataFromPath(land_use_clip_layer)
+        land_use_clip_layer.name = "Watershed Land Use Clip"
 
-            # create a new layout
-            new_layout = project.copyItem(orig_layout, watershed_layer.name)
-            new_layout.openView()
-            layouts.append(new_layout)
+        # land use raster to polygon
+        log("create land use polygons")
+        land_use_polygon_path = "{}_{}".format(land_use_path, "to_polygon")
+        land_use_polygon_layer = arcpy.conversion.RasterToPolygon(land_use_clip_layer, land_use_polygon_path, "NO_SIMPLIFY", "LandUse")
+        land_use_polygon_layer = active_map.addDataFromPath(land_use_polygon_layer)
+        land_use_polygon_layer.name = "Watershed Land Use Clip to Polygon {}".format(watershed_layer_id)
 
-            # set layout's map to new map created
-            mf = new_layout.listElements("MAPFRAME_ELEMENT")[0]
-            mf.map = active_map
-            mf.name = watershed_layer.name
+        # join raster fields (rcns and LandUse fields)
+        log("join runoff curve numbers to land use polygons")
+        arcpy.management.JoinField(land_use_polygon_layer, "LandUse", land_use_clip_layer, "LandUse", ["RCNA", "RCNB", "RCNC", "RCND"])
 
-            # utils
-            watershed_layer_id = arcpy.ValidateTableName(watershed_layer.name)
+        # intersect land cover and soils
+        log("intersect land cover and soils")
+        active_map.listLayers("Soils")[0]
+        intersection_name = "land_use_soils_intersection_{}".format(watershed_layer_id)
+        land_use_soils_intersection = arcpy.analysis.PairwiseIntersect([land_use_polygon_layer, "Soils/Soils"], intersection_name)
+        land_use_soils_intersection = active_map.addDataFromPath(land_use_soils_intersection)
 
-            # clip land use raster
-            log("clip land use raster")
-            land_use_path = "{}\\{}_{}".format(arcpy.env.workspace, "cblc_clip", watershed_layer_id)
-            land_use_clip_layer = arcpy.management.Clip(land_use_layer, "", land_use_path, watershed_layer, "#", "ClippingGeometry")
-            land_use_clip_layer = active_map.addDataFromPath(land_use_clip_layer)
-            land_use_clip_layer.name = "Watershed Land Use Clip"
-            land_use_clip_layer = addLayerToGroup(active_map, hydrology_group_layer, land_use_clip_layer, True)
+        # add column for runoff curve number
+        arcpy.management.AddField(land_use_soils_intersection, "RCN", "Short", "", "", "", "Runoff Curve Number")
 
-            # land use raster to polygon
-            log("create land use polygons")
-            land_use_polygon_path = "{}_{}".format(land_use_path, "to_polygon")
-            land_use_polygon_layer = arcpy.conversion.RasterToPolygon(land_use_clip_layer, land_use_polygon_path, "NO_SIMPLIFY", "LandUse")
-            land_use_polygon_layer = active_map.addDataFromPath(land_use_polygon_layer)
-            land_use_polygon_layer.name = "Watershed Land Use Clip to Polygon {}".format(watershed_layer_id)
-            land_use_polygon_layer = addLayerToGroup(active_map, hydrology_group_layer, land_use_polygon_layer, True)
+        # populate runoff curve numbers based off of hydrologic soil group
+        log("populate soils data with runoff curve numbers")
+        with arcpy.da.UpdateCursor(land_use_soils_intersection, ["hydgrpdcd","RCN", "RCNA", "RCNB", "RCNC", "RCND"]) as cursor:
+            for row in cursor:
+                hsg = row[0]
+                if hsg == None:
+                    hsg = "D"
+                elif len(hsg) != 1:
+                    hsg = hsg.split("/")[0]
+                if hsg == "A":
+                    row[1] = row[2]
+                elif hsg == "B":
+                    row[1] = row[3]
+                elif hsg == "C":
+                    row[1] = row[4]
+                elif hsg == "D":
+                    row[1] = row[5]
+                cursor.updateRow(row)
 
-            # join raster fields (rcns and LandUse fields)
-            log("join runoff curve numbers to land use polygons")
-            arcpy.management.JoinField(land_use_polygon_layer, "LandUse", land_use_clip_layer, "LandUse", ["RCNA", "RCNB", "RCNC", "RCND"])
+        # delete unecessary fields
+        log("cleaning up unecessary soils fields")
+        arcpy.management.DeleteField(land_use_soils_intersection, ["LandUse", "hydgrpdcd", "Hydrologic Group - Dominant Conditions", "RCN", "MUSYM"], "KEEP_FIELDS")
 
-            # intersect land cover and soils
-            log("intersect land cover and soils")
-            active_map.listLayers("Soils")[0]
-            intersection_name = "land_use_soils_intersection_{}".format(watershed_layer_id)
-            land_use_soils_intersection = arcpy.analysis.PairwiseIntersect([land_use_polygon_layer, "Soils/Soils"], intersection_name)
-            land_use_soils_intersection = active_map.addDataFromPath(land_use_soils_intersection)
-            land_use_soils_intersection = addLayerToGroup(active_map, hydrology_group_layer, land_use_soils_intersection, True)
+        # add acres field and calculate for land use / soils
+        log("calculating acreage of different hydrologic land uses")
+        if "Acres" not in [f.name for f in arcpy.ListFields(land_use_soils_intersection)]:
+            arcpy.management.AddField(land_use_soils_intersection, "Acres", "FLOAT", field_precision=255, field_scale=2)
+        arcpy.management.CalculateGeometryAttributes(in_features=land_use_soils_intersection.name, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
 
-            # add column for runoff curve number
-            arcpy.management.AddField(land_use_soils_intersection, "RCN", "Short", "", "", "", "Runoff Curve Number")
+        # add acres field and calculate for watershed
+        log("calculating watershed size")
+        if "Acres" not in [f.name for f in arcpy.ListFields(watershed_layer.dataSource)]:
+            arcpy.management.AddField(watershed_layer, "Acres", "FLOAT", field_precision=255, field_scale=2)
+        arcpy.management.CalculateGeometryAttributes(in_features=watershed_layer, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        acres = round(float([row[0] for row in arcpy.da.SearchCursor(watershed_layer, "Acres")][0]),2)
 
-            # populate runoff curve numbers based off of hydrologic soil group
-            log("populate soils data with runoff curve numbers")
-            with arcpy.da.UpdateCursor(land_use_soils_intersection, ["hydgrpdcd","RCN", "RCNA", "RCNB", "RCNC", "RCND"]) as cursor:
-                for row in cursor:
-                    hsg = row[0]
-                    if hsg == None:
-                        hsg = "D"
-                    elif len(hsg) != 1:
-                        hsg = hsg.split("/")[0]
-                    if hsg == "A":
-                        row[1] = row[2]
-                    elif hsg == "B":
-                        row[1] = row[3]
-                    elif hsg == "C":
-                        row[1] = row[4]
-                    elif hsg == "D":
-                        row[1] = row[5]
-                    cursor.updateRow(row)
+        # clip DEM raster
+        log("clipping elevation data to watershed")
+        clip_1m_dem = raster_layer
+        out_dem_path = "{}\\{}_{}".format(arcpy.env.workspace, "DEM_1m_clip", watershed_layer_id)
+        clip_1m_dem = arcpy.management.Clip(clip_1m_dem, "", out_dem_path, watershed_layer, "#", "ClippingGeometry")
 
-            # delete unecessary fields
-            log("cleaning up unecessary soils fields")
-            arcpy.management.DeleteField(land_use_soils_intersection, ["LandUse", "hydgrpdcd", "Hydrologic Group - Dominant Conditions", "RCN", "MUSYM"], "KEEP_FIELDS")
+        # slope map
+        log("creating slope map")
+        out_slope_path = "{}\\w_slope".format(arcpy.env.workspace)
+        # breaks the script for unknown reason, possibly related: https://community.esri.com/t5/arcgis-spatial-analyst-questions/using-arcpy-to-create-slope-surfaces/td-p/206039
+        #if arcpy.Exists(out_slope_path):
+        #    log("exists")
+        #    arcpy.management.Delete(out_slope_path)
+        slope_raster = arcpy.sa.Slope(clip_1m_dem.name, "PERCENT_RISE", "", "GEODESIC", "METER")
+        slope_raster.save(out_slope_path)
 
-            # add acres field and calculate for land use / soils
-            log("calculating acreage of different hydrologic land uses")
-            if "Acres" not in [f.name for f in arcpy.ListFields(land_use_soils_intersection)]:
-                arcpy.management.AddField(land_use_soils_intersection, "Acres", "FLOAT", field_precision=255, field_scale=2)
-            arcpy.management.CalculateGeometryAttributes(in_features=land_use_soils_intersection.name, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        # zonal statistics
+        log("finding average slope")
+        out_table_name = "zonalstatistics_{}".format(watershed_layer_id)
+        out_table_path = "{}\\{}".format(arcpy.env.workspace, out_table_name)
+        field_name = arcpy.Describe(watershed_layer).OIDFieldName
+        arcpy.sa.ZonalStatisticsAsTable(watershed_layer, field_name, slope_raster, out_table_name, "", "MEAN")
+        active_map.addDataFromPath(out_table_path)
+        mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(out_table_path, "MEAN")][0]),2)
 
-            # add acres field and calculate for watershed
-            log("calculating watershed size")
-            if "Acres" not in [f.name for f in arcpy.ListFields(watershed_layer.dataSource)]:
-                arcpy.management.AddField(watershed_layer, "Acres", "FLOAT", field_precision=255, field_scale=2)
-            arcpy.management.CalculateGeometryAttributes(in_features=watershed_layer, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
-            acres = round(float([row[0] for row in arcpy.da.SearchCursor(watershed_layer, "Acres")][0]),2)
-            subtitle = new_layout.listElements("TEXT_ELEMENT", "Subtitle")[0]
-            subtitle.text = "Watershed: {} acres".format(acres)
+        # fill DEM to eventually find flow length of watershed
+        log("filling DEM for flow direction calculation")
+        out_fill_path = "{}_{}".format(out_dem_path, "fill")
+        filled_dem = arcpy.sa.Fill(clip_1m_dem)
+        filled_dem.save(out_fill_path)
 
-            # clip DEM raster
-            log("clipping elevation data to watershed")
-            clip_1m_dem = raster_layer
-            out_dem_path = "{}\\{}_{}".format(arcpy.env.workspace, "DEM_1m_clip", watershed_layer_id)
-            clip_1m_dem = arcpy.management.Clip(clip_1m_dem, "", out_dem_path, watershed_layer, "#", "ClippingGeometry")
-            clip_1m_dem = active_map.addDataFromPath(clip_1m_dem)
-            clip_1m_dem = addLayerToGroup(active_map, hydrology_group_layer, clip_1m_dem, True)
+        # calculate flow directions
+        log("calculating flow direction")
+        out_flowdir_path = "{}\\flow_direction_{}".format(arcpy.env.workspace, watershed_layer_id)
+        flow_direction_raster = arcpy.sa.FlowDirection(filled_dem)
+        flow_direction_raster.save(out_flowdir_path)
 
-            # slope map
-            log("creating slope map")
-            out_slope_path = "{}\\w{}_slope".format(arcpy.env.workspace, len(layouts))
-            # breaks the script for unknown reason, possibly related: https://community.esri.com/t5/arcgis-spatial-analyst-questions/using-arcpy-to-create-slope-surfaces/td-p/206039
-            #if arcpy.Exists(out_slope_path):
-            #    log("exists")
-            #    arcpy.management.Delete(out_slope_path)
-            slope_raster = arcpy.sa.Slope(clip_1m_dem.name, "PERCENT_RISE", "", "GEODESIC", "METER")
-            slope_raster.save(out_slope_path)
-            slope_raster = active_map.addDataFromPath(slope_raster)
-            slope_raster = addLayerToGroup(active_map, hydrology_group_layer, slope_raster)
+        # find flow lengths of watershed
+        log("creating flow length raster")
+        out_flow_length_path = "{}\\flow_length_{}".format(arcpy.env.workspace, watershed_layer_id)
+        flow_length_raster = arcpy.sa.FlowLength(flow_direction_raster, "DOWNSTREAM")
+        flow_length_raster.save(out_flow_length_path)
 
-            # zonal statistics
-            log("finding average slope")
-            out_table_name = "zonalstatistics_{}".format(watershed_layer_id)
-            out_table_path = "{}\\{}".format(arcpy.env.workspace, out_table_name)
-            field_name = arcpy.Describe(watershed_layer).OIDFieldName
-            arcpy.sa.ZonalStatisticsAsTable(watershed_layer, field_name, slope_raster, out_table_name, "", "MEAN")
-            active_map.addDataFromPath(out_table_path)
-            mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(out_table_path, "MEAN")][0]),2)
+        # find maximum flow length
+        log("finding max flow length")
+        ##flow_length_max_val = float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0)
+        flow_length_maximum = int(float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))*3.2808)
 
-            # fill DEM to eventually find flow length of watershed
-            log("filling DEM for flow direction calculation")
-            out_fill_path = "{}_{}".format(out_dem_path, "fill")
-            filled_dem = arcpy.sa.Fill(clip_1m_dem)
-            filled_dem.save(out_fill_path)
-            filled_dem = active_map.addDataFromPath(filled_dem)
-            filled_dem = addLayerToGroup(active_map, hydrology_group_layer, filled_dem, True)
+        # create max flow length raster
+        log("creating max flow length raster")
+        outZonalStats_path = "{}\\zonal_stats_{}".format(arcpy.env.workspace, watershed_layer_id)
+        oidFieldName = arcpy.Describe(watershed_layer).oidFieldName
+        outZonalStats = arcpy.sa.ZonalStatistics(watershed_layer, oidFieldName, flow_length_raster, "MAXIMUM")
+        outZonalStats.save(outZonalStats_path)
 
-            # calculate flow directions
-            log("calculating flow direction")
-            out_flowdir_path = "{}\\flow_direction_{}".format(arcpy.env.workspace, watershed_layer_id)
-            flow_direction_raster = arcpy.sa.FlowDirection(filled_dem)
-            flow_direction_raster.save(out_flowdir_path)
-            flow_direction_raster = active_map.addDataFromPath(flow_direction_raster)
-            flow_direction_raster = addLayerToGroup(active_map, hydrology_group_layer, flow_direction_raster, True)
+        # raster calculator con to get max flow length and raster to point
+        log("creating point at max flow length location")
+        max_flow_point_raster_path = "{}\\max_flow_point_{}".format(arcpy.env.workspace, watershed_layer_id)
+        max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats.name,flow_length_raster.name], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
+        max_flow_raster.save(max_flow_point_raster_path)
+        max_flow_length_point_path = "{}\\max_flow_length_point_{}".format(arcpy.env.workspace, watershed_layer_id)
+        max_flow_length_point = arcpy.conversion.RasterToPoint(max_flow_raster, max_flow_length_point_path,"Value")
 
-            # find flow lengths of watershed
-            log("creating flow length raster")
-            out_flow_length_path = "{}\\flow_length_{}".format(arcpy.env.workspace, watershed_layer_id)
-            flow_length_raster = arcpy.sa.FlowLength(flow_direction_raster, "DOWNSTREAM")
-            flow_length_raster.save(out_flow_length_path)
-            flow_length_raster = active_map.addDataFromPath(flow_length_raster)
-            flow_length_raster = addLayerToGroup(active_map, hydrology_group_layer, flow_length_raster, True)
+        # optimal path as raster
+        log("creating optimal flow path raster")
+        optimal_path_raster_path = "{}\\optimal_path_raster_{}".format(arcpy.env.workspace, watershed_layer_id)
+        out_path_accumulation_raster = arcpy.sa.OptimalPathAsRaster(max_flow_length_point, flow_length_raster, flow_direction_raster)
+        out_path_accumulation_raster.save(optimal_path_raster_path)
 
-            # find maximum flow length
-            log("finding max flow length")
-            ##flow_length_max_val = float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0)
-            flow_length_maximum = int(float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))*3.2808)
+        # raster to polyline
+        log("converting optimal flow path raster to polyline")
+        optimal_line_path = "{}\\optimal_line_{}".format(arcpy.env.workspace, watershed_layer_id)
+        arcpy.conversion.RasterToPolyline(out_path_accumulation_raster, optimal_line_path)
+        active_map.addDataFromPath(optimal_line_path)
 
-            # create max flow length raster
-            log("creating max flow length raster")
-            outZonalStats_path = "{}\\zonal_stats_{}".format(arcpy.env.workspace, watershed_layer_id)
-            oidFieldName = arcpy.Describe(watershed_layer).oidFieldName
-            outZonalStats = arcpy.sa.ZonalStatistics(watershed_layer, oidFieldName, flow_length_raster, "MAXIMUM")
-            outZonalStats.save(outZonalStats_path)
+        # setup hydrology worksheet locations
+        log("creating hydrology worksheet")
+        hydrology_worksheet = os.path.join(os.path.dirname(__file__), '..', 'assets', 'Hydrology Data Form.xlsx')
+        output_worksheet_path = '{}\{}_hydrology.xlsx'.format(output_folder_path, watershed_layer_id)
+        output_worksheet_path = pathlib.PureWindowsPath(output_worksheet_path).as_posix()
 
-            # raster calculator con to get max flow length and raster to point
-            log("creating point at max flow length location")
-            max_flow_point_raster_path = "{}\\max_flow_point_{}".format(arcpy.env.workspace, watershed_layer_id)
-            max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats.name,flow_length_raster.name], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
-            max_flow_raster.save(max_flow_point_raster_path)
-            max_flow_length_point_path = "{}\\max_flow_length_point_{}".format(arcpy.env.workspace, watershed_layer_id)
-            max_flow_length_point = arcpy.conversion.RasterToPoint(max_flow_raster, max_flow_length_point_path,"Value")
+        # fill out hydrology worksheet
+        log("filling out hydrology worksheet")
+        hydrology_worksheet = openpyxl.load_workbook(hydrology_worksheet)
+        ws_calculations = hydrology_worksheet['Calculations']
+        ws_data = hydrology_worksheet['Data']
+        ws_calculations["E1"] = project.filePath.split("\\")[-1][:-5]
+        ws_calculations['F2'] = datetime.date.today().isoformat()
+        ws_calculations['G2'] = datetime.datetime.now().strftime("%H:%M:%S")
+        ws_calculations['H2'] = watershed_layer.name
+        ws_calculations['G4'] = acres
+        ws_calculations['G6'] = flow_length_maximum
+        ws_calculations['G7'] = mean_slope
 
-            # optimal path as raster
-            log("creating optimal flow path raster")
-            optimal_path_raster_path = "{}\\optimal_path_raster_{}".format(arcpy.env.workspace, watershed_layer_id)
-            out_path_accumulation_raster = arcpy.sa.OptimalPathAsRaster(max_flow_length_point, flow_length_raster, flow_direction_raster)
-            out_path_accumulation_raster.save(optimal_path_raster_path)
+        with arcpy.da.SearchCursor(land_use_soils_intersection, ["RCN", "Acres", "LandUse", "hydgrpdcd"]) as cursor:
+            idx = 1
+            for row in cursor:
+                rcn = row[0]
+                acres = row[1]
+                land_use = row[2]
+                hsg = row[3]
+                ws_data["C"+str(idx)] = rcn
+                ws_data["D"+str(idx)] = acres
+                ws_data["A"+str(idx)] = land_use
+                ws_data["B"+str(idx)] = hsg
+                idx += 1
 
-            # raster to polyline
-            log("converting optimal flow path raster to polyline")
-            optimal_line_path = "{}\\optimal_line_{}".format(arcpy.env.workspace, watershed_layer_id)
-            arcpy.conversion.RasterToPolyline(out_path_accumulation_raster, optimal_line_path)
-            active_map.addDataFromPath(optimal_line_path)
+        hydrology_worksheet.save(output_worksheet_path)
 
-            # setup hydrology worksheet locations
-            log("creating hydrology worksheet")
-            hydrology_worksheet = 'O:\Stream and Culvert Projects\Hydrology Data Form.xlsx'
-            output_worksheet_path = '{}\{}_hydrology.xlsx'.format(output_folder_path, watershed_layer_id)
-            output_worksheet_path = pathlib.PureWindowsPath(output_worksheet_path).as_posix()
+        # zoom to layer in map object
+        ext = arcpy.Describe(watershed_layer).extent
+        cam.setExtent(ext)
 
-            # fill out hydrology worksheet
-            log("filling out hydrology worksheet")
-            hydrology_worksheet = openpyxl.load_workbook(hydrology_worksheet)
-            ws_calculations = hydrology_worksheet['Calculations']
-            ws_data = hydrology_worksheet['Data']
-            ws_calculations["E1"] = project.filePath.split("\\")[-1][:-5]
-            ws_calculations['F2'] = datetime.date.today().isoformat()
-            ws_calculations['G2'] = datetime.datetime.now().strftime("%H:%M:%S")
-            ws_calculations['H2'] = watershed_layer.name
-            ws_calculations['G4'] = acres
-            ws_calculations['G6'] = flow_length_maximum
-            ws_calculations['G7'] = mean_slope
-
-            with arcpy.da.SearchCursor(land_use_soils_intersection, ["RCN", "Acres", "LandUse", "hydgrpdcd"]) as cursor:
-                idx = 1
-                for row in cursor:
-                    rcn = row[0]
-                    acres = row[1]
-                    land_use = row[2]
-                    hsg = row[3]
-                    ws_data["C"+str(idx)] = rcn
-                    ws_data["D"+str(idx)] = acres
-                    ws_data["A"+str(idx)] = land_use
-                    ws_data["B"+str(idx)] = hsg
-                    idx += 1
-
-            hydrology_worksheet.save(output_worksheet_path)
-
-            # clip waterbodies
-            log("clipping waterbodies")
-            out_clip_waterbodies_path = "{}\\streams_clip_{}".format(arcpy.env.workspace, watershed_layer_id)
-            waterbodies_clip_layer = arcpy.analysis.Clip(waterbodies_layer, watershed_layer, out_clip_waterbodies_path)
-            waterbodies_clip_layer = active_map.addDataFromPath(waterbodies_clip_layer)
-            waterbodies_clip_layer.name = "Waterbodies"
-            waterbodies_clip_layer = addLayerToGroup(active_map, hydrology_group_layer, waterbodies_clip_layer)
-
-            # waterbodies styling
-            log("styling waterbodies")
-            sym = waterbodies_clip_layer.symbology
-            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
-            sym.renderer.symbol.outlineColor = {'RGB' : [0, 112, 255, 100]}
-            sym.renderer.symbol.size = 1.5
-            waterbodies_clip_layer.symbology = sym
-            waterbodies_clip_layer.showLabels = True
-
-            # waterbody name
-            log("updating waterbody label")
-            waterbody_label_name = waterbodies_clip_layer.listLabelClasses()[0]
-            waterbody_label_name.visible = True
-            waterbody_label_name.expression = "$feature.NAME"
-            l_cim = waterbodies_clip_layer.getDefinition('V3')
-            lc = l_cim.labelClasses[0]
-
-            # Update text properties of label
-            lc.textSymbol.symbol.height = 10
-            lc.textSymbol.symbol.symbol.symbolLayers = [
-                {
-                    "type": "CIMSolidFill",
-                    "enable": True,
-                    "color": {
-                        "type": "CIMRGBColor",
-                        "values": [0, 112, 255, 100]
-                        }
-                    }
-                ]
-            lc.maplexLabelPlacementProperties.linePlacementMethod = "OffsetHorizontalFromLine"
-            lc.maplexLabelPlacementProperties.thinDuplicateLabels = True
-            lc.maplexLabelPlacementProperties.thinningDistanceUnit = "Map"
-            sym = arcpy.cim.CreateCIMObjectFromClassName('CIMPolygonSymbol', 'V3')
-            sym.symbolLayers = [
-                {
-                    "type": "CIMSolidFill",
-                    "enable": True,
-                    "color": {
-                        "type": "CIMRGBColor",
-                        "values": [255, 255, 255, 100]
-                        }
-                    }
-                ]
-            lc.textSymbol.symbol.haloSize = 1
-            lc.textSymbol.symbol.haloSymbol = sym
-            waterbodies_clip_layer.setDefinition(l_cim)
-
-            # create waterbody classification
-            waterbody_label_classification = waterbodies_clip_layer.createLabelClass("Waterbody Classification", "$feature.STANDARD")
-            waterbody_label_classification.visible = True
-            waterbody_label_classification.expression = "$feature.STANDARD"
-            l_cim = waterbodies_clip_layer.getDefinition('V3')
-            lc = l_cim.labelClasses[1]
-
-            # Update text properties of label
-            lc.textSymbol.symbol.height = 10
-            lc.textSymbol.symbol.symbol.symbolLayers = [
-                {
-                    "type": "CIMSolidFill",
-                    "enable": True,
-                    "color": {
-                        "type": "CIMRGBColor",
-                        "values": [0, 112, 255, 100]
-                        }
-                    }
-                ]
-            #lc.standardLabelPlacementProperties.numLabelsOption = "OneLabelPerName"
-            lc.maplexLabelPlacementProperties.linePlacementMethod = "OffsetHorizontalFromLine"
-            lc.maplexLabelPlacementProperties.thinDuplicateLabels = True
-            lc.maplexLabelPlacementProperties.thinningDistanceUnit = "Map"
-            lc.textSymbol.symbol.haloSize = 1
-            lc.textSymbol.symbol.haloSymbol = sym
-            waterbodies_clip_layer.setDefinition(l_cim)
-
-            # move slope layer second
-            log("moving layers and adjusting map zoom")
-            active_map.moveLayer(waterbodies_clip_layer, slope_raster, "AFTER")
-
-            # zoom to layer in map object
-            ext = arcpy.Describe(watershed_layer).extent
-            cam.setExtent(ext)
-
-            # zoom layout to last active map
-            mf = new_layout.listElements("MAPFRAME_ELEMENT")[0]
-            mf.camera.setExtent(mf.getLayerExtent(watershed_layer))
-            mf.camera.scale = mf.camera.scale * 1.1
-
-            # Need to close layouts for camera change to take effect
-            project.closeViews("LAYOUTS")
-
-            # turn off unimportant legend item
-            log("turning off unimportant legend items")
-            legend = new_layout.listElements("LEGEND_ELEMENT")[0]
-            legend_items = legend.items
-            use_layer_names = [ watershed_layer.name, waterbodies_clip_layer.name ]
-            for item in legend_items:
-                if item.name in use_layer_names:
-                    item.visible = True
-            else:
-                item.visible = False
-
-        log("exporting layouts")
-        for layout in layouts:
-            layout.openView()
-            layout_file_path = "{}\{}.pdf".format(output_folder_path, layout.name)
-            layout.exportToPDF(layout_file_path)
-
-        # save and exit program successfully
+        # save program successfully
         log("saving project")
         project.save()
 
