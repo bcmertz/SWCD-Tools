@@ -5,7 +5,7 @@
 # Author:      Reya Mertz
 #
 # Created:     11/2025
-# Modified:    12/2025
+# Modified:    11/2025
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
@@ -84,6 +84,10 @@ class WatershedDelineation(object):
             parameters[3].value = 10
         return
 
+    def updateMessages(self, parameters):
+        validate(parameters)
+        return
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -106,7 +110,7 @@ class WatershedDelineation(object):
         # create scratch layers
         log("creating scratch layers")
         scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        flow_accumulation_scratch = arcpy.CreateScratchName("flow_accumulation_scratch", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+        clip_flow_accumulation_scratch = arcpy.CreateScratchName("clip_flow_accumulation_scratch", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
         pour_points_adjusted_scratch = "{}\\pour_points_adjusted_scratch".format(arcpy.env.workspace)
 
         if parameters[1].value:
@@ -120,10 +124,13 @@ class WatershedDelineation(object):
         log("filling raster")
         fill_raster_scratch = arcpy.sa.Fill(raster_layer)
 
+        # flow direction
+        log("calculating flow direction")
+        flow_direction_scratch = arcpy.sa.FlowDirection(fill_raster_scratch)
+
         # flow accumulation
         log("calculating flow accumulation")
-        out_accumulation_raster = arcpy.sa.DeriveContinuousFlow(fill_raster_scratch, flow_direction_type="MFD")
-        out_accumulation_raster.save(flow_accumulation_scratch)
+        flow_accumulation_scratch = arcpy.sa.FlowAccumulation(flow_direction_scratch)
 
         # adjust pour points
         log("adjusting pour point data")
@@ -147,7 +154,7 @@ class WatershedDelineation(object):
 
         # remove temporary variables
         log("cleaning up")
-        arcpy.management.Delete([scratch_dem, flow_accumulation_scratch, pour_points_adjusted_scratch])
+        arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
 
         # save and exit program successfully
         log("saving project")
