@@ -182,7 +182,7 @@ class CalculateHydrology:
 
         # setup hydrology worksheet locations
         log("creating hydrology worksheet")
-        hydrology_worksheet = os.path.join(os.path.dirname(__file__), '..', 'assets', 'Hydrology Data Form.xlsx')
+        hydrology_worksheet = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'Hydrology Data Form.xlsx')
         output_worksheet_path = '{}\{}_hydrology.xlsx'.format(output_folder_path, watershed_layer_id)
         output_worksheet_path = pathlib.PureWindowsPath(output_worksheet_path).as_posix()
 
@@ -213,10 +213,6 @@ class CalculateHydrology:
                 idx += 1
 
         hydrology_worksheet.save(output_worksheet_path)
-
-        # zoom to layer in map object
-        ext = arcpy.Describe(watershed_layer).extent
-        cam.setExtent(ext)
 
         # save program successfully
         log("saving project")
