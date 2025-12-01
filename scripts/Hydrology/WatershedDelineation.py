@@ -5,7 +5,7 @@
 # Author:      Reya Mertz
 #
 # Created:     11/2025
-# Modified:    11/2025
+# Modified:    12/2025
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
@@ -63,30 +63,15 @@ class WatershedDelineation(object):
             direction="Input")
 
         param4 = arcpy.Parameter(
-            displayName="Derive stream lines?",
-            name="calculations",
-            datatype="GPBoolean",
-            parameterType="Optional",
-            direction="Input")
-
-        param5 = arcpy.Parameter(
-            displayName="Stream Threshold Value",
-            name="threshold",
-            datatype="GPDouble",
-            enabled=False,
-            parameterType="Optional",
-            direction="Input")
-
-        param6 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param6.parameterDependencies = [param0.name]
-        param6.schema.clone = True
+        param4.parameterDependencies = [param0.name]
+        param4.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4, param5, param6]
+        params = [param0, param1, param2, param3, param4]
         return params
 
     def isLicensed(self):
@@ -94,29 +79,9 @@ class WatershedDelineation(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
-        # Enable/Disable folder parameter based on if user will perform calculations
-        if parameters[4].value == True:
-            parameters[5].enabled = True
-        if parameters[4].value == False:
-            parameters[5].enabled = False
-
-        # Default stream threshold value
-        if parameters[5].value == None:
-            parameters[5].value = 25000
-
         # Default snap pour point adjustment value
         if parameters[3].value == None:
             parameters[3].value = 10
-        return
-
-    def updateMessages(self, parameters):
-        if parameters[4].value == True:
-            parameters[5].setIDMessage("ERROR", 530)
-        if parameters[4].value == False:
-            parameters[5].clearMessage()
-        if parameters[4].value:
-            parameters[5].clearMessage()
-        validate(parameters)
         return
 
     def execute(self, parameters, messages):
@@ -136,9 +101,7 @@ class WatershedDelineation(object):
                 extent.spatialReference = parameters[1].value.spatialReference
         pour_points = parameters[2].value
         snap_adjustment = parameters[3].value
-        stream_lines_bool = parameters[4].value
-        accumulation_threshold = parameters[5].value
-        output_file = parameters[6].valueAsText
+        output_file = parameters[4].valueAsText
 
         # create scratch layers
         log("creating scratch layers")
@@ -157,13 +120,10 @@ class WatershedDelineation(object):
         log("filling raster")
         fill_raster_scratch = arcpy.sa.Fill(raster_layer)
 
-        # flow direction
-        log("calculating flow direction")
-        flow_direction_scratch = arcpy.sa.FlowDirection(fill_raster_scratch)
-
         # flow accumulation
         log("calculating flow accumulation")
-        flow_accumulation_scratch = arcpy.sa.FlowAccumulation(flow_direction_scratch)
+        out_accumulation_raster = arcpy.sa.DeriveContinuousFlow(fill_raster_scratch, flow_direction_type="MFD")
+        out_accumulation_raster.save(flow_accumulation_scratch)
 
         # adjust pour points
         log("adjusting pour point data")
@@ -184,27 +144,6 @@ class WatershedDelineation(object):
         sym.updateRenderer('UniqueValueRenderer')
         sym.renderer.fields = ['gridcode']
         watershed_polygon.symbology = sym
-
-        if stream_lines_bool:
-            # clip flow accumulation
-            log("clipping flow accumulation raster to watershed shape")
-            arcpy.management.Clip(flow_accumulation_scratch, "", clip_flow_accumulation_scratch, watershed_polygon, "#", "ClippingGeometry")
-
-            # con
-            log("converting raster to stream network")
-            sql_query = "VALUE > {}".format(accumulation_threshold)
-            con_accumulation_scratch = arcpy.sa.Con(clip_flow_accumulation_scratch, 1, "", sql_query)
-
-            # stream to feature
-            log("creating stream feature")
-            stream_feature_path = "{}\\stream_to_feature".format(arcpy.env.workspace)
-            stream_feature = arcpy.sa.StreamToFeature(con_accumulation_scratch, flow_direction_scratch, stream_feature_path, True)
-            stream_feature = active_map.addDataFromPath(stream_feature)
-            sym = stream_feature.symbology
-            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
-            sym.renderer.symbol.outlineColor = {'RGB' : [0, 112, 255, 100]}
-            sym.renderer.symbol.size = 1.5
-            stream_feature.symbology = sym
 
         # remove temporary variables
         log("cleaning up")
