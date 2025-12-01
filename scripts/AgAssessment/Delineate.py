@@ -5,13 +5,12 @@
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
-
+import os
 import arcpy
 import datetime
 import shutil
 import pathlib
 import openpyxl
-import os
 
 from helpers import license, sanitize
 from helpers import print_messages as log
@@ -119,10 +118,10 @@ class Delineate(object):
         orig_map = project.listMaps("Map")[0]
         orig_map.clearSelection()
 
-        # TODO: use layout template
+        # use layout template
         log("finding layout")
-        #orig_layout = project.importDocument(os.path.join(os.path.dirname(__file__), '..', 'assets', 'agassessment_layout.pagx'))
-        orig_layout = project.listLayouts("Layout")[0]
+        orig_layout = project.importDocument(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'agassessment_layout.pagx'))
+        layouts = []
         
         for tax_id_num in tax_id_nums:
             layer_name = "{}_{}".format(last_name, tax_id_num)
@@ -136,8 +135,9 @@ class Delineate(object):
             cam = project.activeView.camera
 
             # create a new layout
-            log("creating layout for {}".format(tax_id_num))               
+            log("creating layout for {}".format(tax_id_num))
             new_layout = project.copyItem(orig_layout, tax_id_num)
+            layouts.append(new_layout)
             new_layout.openView()
             
             # set layout's map to new map created
@@ -224,20 +224,17 @@ class Delineate(object):
             # Need to close layouts for camera change to take effect
             project.closeViews("LAYOUTS")
             
-        layouts = project.listLayouts()
         log("exporting layouts")
         for layout in layouts:
-            if layout.name == "Layout":
-                continue
             layout_file_path = "{}\{}.pdf".format(path_root, layout.name)
             layout.exportToPDF(layout_file_path)
-
-        # cleanup
-        log("cleaning up project")
-        project.save()
 
         # open folder to print out maps
         log("opening project folder")
         os.startfile(path_root)
+        
+        # cleanup
+        log("saving project")
+        project.save()
 
         return
