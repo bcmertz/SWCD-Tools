@@ -6,11 +6,11 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-from .addlayertogroup import add_layer_to_group
+from .add_layer_to_group import add_layer_to_group
 from .license import license
-from .printmessages import print_messages
+from .print_messages import print_messages
 from .sanitize import sanitize
-from .setupenvironment import setup_environment
-from .validatespatialreference import validate_spatial_reference
+from .setup_environment import setup_environment
+from .validate_spatial_reference import validate_spatial_reference
 
 
