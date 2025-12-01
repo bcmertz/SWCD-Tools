@@ -1,13 +1,13 @@
 # --------------------------------------------------------------------------------
 # Name:        Calculate Hydrology
-# Purpose:     This tool takes a watershed and calculates all of the RCNs, slopes,
+# Purpose:     This tool takes a watershed and RCNs, and calculates slopes,
 #              longest flow path, and other parameters needed to run EFH-2 analysis
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import sys
+import sys 
 import arcpy
 import pathlib
 import openpyxl
@@ -80,7 +80,7 @@ class CalculateHydrology:
         log("reading in parameters")
         raster_layer = parameters[0].value
         watershed_layer = parameters[1].value
-        land_use_layer = parameters[2].value
+        rcn_layer = parameters[2].value
         output_folder_path = parameters[3].valueAsText
 
         # add watershed layer to the map if needed
@@ -97,13 +97,11 @@ class CalculateHydrology:
         # utils
         watershed_layer_id = arcpy.ValidateTableName(watershed_layer.name)
 
-        # TODO: runoff curve numbers
-        #
-        # add acres field and calculate for land use / soils
-        log("calculating acreage of different hydrologic land uses")
-        if "Acres" not in [f.name for f in arcpy.ListFields(land_use_soils_intersection)]:
-            arcpy.management.AddField(land_use_soils_intersection, "Acres", "FLOAT", field_precision=255, field_scale=2)
-        arcpy.management.CalculateGeometryAttributes(in_features=land_use_soils_intersection, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        # calculate runoff curve number acreage
+        log("calculating runoff curve number acreage")
+        if "Acres" not in [f.name for f in arcpy.ListFields(rcn_layer)]:
+            arcpy.management.AddField(rcn_layer, "Acres", "FLOAT", field_precision=255, field_scale=2)
+        arcpy.management.CalculateGeometryAttributes(in_features=rcn_layer, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
 
         # add acres field and calculate for watershed
         log("calculating watershed size")
@@ -121,10 +119,6 @@ class CalculateHydrology:
         # slope map
         log("creating slope map")
         out_slope_path = "{}\\w_slope".format(arcpy.env.workspace)
-        # breaks the script for unknown reason, possibly related: https://community.esri.com/t5/arcgis-spatial-analyst-questions/using-arcpy-to-create-slope-surfaces/td-p/206039
-        #if arcpy.Exists(out_slope_path):
-        #    log("exists")
-        #    arcpy.management.Delete(out_slope_path)
         slope_raster = arcpy.sa.Slope(clip_1m_dem, "PERCENT_RISE", "", "GEODESIC", "METER")
         slope_raster.save(out_slope_path)
 
@@ -157,7 +151,6 @@ class CalculateHydrology:
 
         # find maximum flow length
         log("finding max flow length")
-        ##flow_length_max_val = float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0)
         flow_length_maximum = int(float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))*3.2808)
 
         # create max flow length raster
@@ -170,7 +163,7 @@ class CalculateHydrology:
         # raster calculator con to get max flow length and raster to point
         log("creating point at max flow length location")
         max_flow_point_raster_path = "{}\\max_flow_point_{}".format(arcpy.env.workspace, watershed_layer_id)
-        max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats,flow_length_raster], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
+        max_flow_raster = arcpy.sa.RasterCalculator([outZonalStats_path,out_flow_length_path], ["max_length", "flow_length"], r' Con(Raster("max_length") == Raster("flow_length"), Raster("flow_length"))')
         max_flow_raster.save(max_flow_point_raster_path)
         max_flow_length_point_path = "{}\\max_flow_length_point_{}".format(arcpy.env.workspace, watershed_layer_id)
         max_flow_length_point = arcpy.conversion.RasterToPoint(max_flow_raster, max_flow_length_point_path,"Value")
