@@ -5,9 +5,7 @@ import arcpy
 from importlib import reload, import_module
 
 scripts = os.path.join(os.path.dirname(__file__), "scripts")
-helpers = os.path.join(os.path.dirname(__file__), "scripts/helpers")
 sys.path.append(scripts)
-sys.path.append(helpers)
 
 from BufferTools import PointPlots, ShrubClusters
 from AnalyzeArea import ContourArea, SlopeArea

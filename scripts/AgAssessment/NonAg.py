@@ -10,12 +10,10 @@
 import arcpy
 import re
 
-from helpers import *
-import print_messages as log
-import setup_environment as setup
-import sanitize
-import validate_spatial_reference as validate
-import license as license
+from helpers import sanitize, license
+from helpers import print_messages as log
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class NonAg(object):
     def __init__(self):
