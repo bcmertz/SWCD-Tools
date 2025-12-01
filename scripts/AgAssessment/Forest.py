@@ -75,7 +75,6 @@ class Forest(object):
 
             # export shape to new feature class
             feat = arcpy.management.MakeFeatureLayer(fc, layer_name)
-            log("layer_path: ", layer_path)
             arcpy.management.CopyFeatures(feat, layer_path)
             lyr = m.addDataFromPath(layer_path)
             lyr.name = "Forest_{}".format(sanitize(tax_id_num.split("-")[-1]))

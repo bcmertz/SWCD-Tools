@@ -210,6 +210,7 @@ class Delineate(object):
             ws['J15'] = state
             ws['K15'] = zip_code
             sgw_workbook.save(sgw_path)
+            sgw_workbook.close()
 
             # zoom to layer in map object
             log("zooming map to {}".format(tax_id_num))
@@ -223,18 +224,22 @@ class Delineate(object):
 
             # Need to close layouts for camera change to take effect
             project.closeViews("LAYOUTS")
-            
+
+        # export parcel layouts to folder
         log("exporting layouts")
         for layout in layouts:
             layout_file_path = "{}\{}.pdf".format(path_root, layout.name)
             layout.exportToPDF(layout_file_path)
 
-        # open folder to print out maps
-        log("opening project folder")
-        os.startfile(path_root)
+        # remove unused layout
+        project.deleteItem(orig_layout) 
         
         # cleanup
         log("saving project")
         project.save()
+
+        # open folder to print out maps
+        log("opening project folder")
+        os.startfile(path_root)
 
         return
