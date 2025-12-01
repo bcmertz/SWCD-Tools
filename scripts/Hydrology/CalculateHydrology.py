@@ -13,7 +13,6 @@ import pathlib
 import openpyxl
 import datetime
 
-# setup helpers
 from helpers import *
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup

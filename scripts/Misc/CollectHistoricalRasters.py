@@ -8,10 +8,7 @@
 
 import arcpy
 
-# setup helpers
-import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "../helpers"))
+from helpers import *
 from print_messages import print_messages as log
 from setup_environment import setup_environment as setup
 from license import license as license
