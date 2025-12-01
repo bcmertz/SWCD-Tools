@@ -7,6 +7,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
 - [Overview](#overview)
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Project Structure](#project-structure)
 - [Overview of tools](#overview-of-tools)
   - [Wetland tools](#wetland-tools)
     - [Berm Analysis](#1-berm-analysis)
@@ -54,6 +55,26 @@ ArcGIS Pro v3.3 or greater with access to the following licenses:
 2. Add toolbox to ArcGIS Pro
     - ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
     	- select `SWCD Tools.pyt` from cloned repository
+
+# Project Structure
+```
+SWCD-Tools/
+├── assets/                  # various static assets for use by tools
+│   ├── readme_examples/     # contains before and after images of tools for documentation
+├── scripts/                 # folder containing all python scripts / tools
+│   ├── AgAssessment/        # automated agricultural assessment tools
+│   ├── AnalyzeArea/         # raster geoprocessing tools
+│   ├── BufferTools/         # tools for riparian forest buffer planning
+│   ├── Hydrology/           # hydrology toolbox
+│   ├── LineAnalysis/        # tools for analysis of lines in 3D
+│   ├── Misc/                # misc quality of life tools
+│   ├── Wetlands/            # wetland tools
+│   └── helpers/             # helper tools for use by other tools
+├── LICENSE                  # license
+├── README.md                # readme
+├── SWCD Tools.*.pyt.xml     # tool metadata including parameter descriptions
+└── SWCD Tools.pyt           # main entry-point to project
+```
 
 # Overview of tools
 ## Wetland Tools
