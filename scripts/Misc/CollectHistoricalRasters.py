@@ -2,10 +2,6 @@
 # Name:        Collect Historical Rasters
 # Purpose:     This tool pulls selected historical rasters into map.
 #
-# Author:      Reya Mertz
-#
-# Created:     11/2025
-# Modified:    11/2025
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------

@@ -4,10 +4,6 @@
 #              that can have a spatial references has a valid spatial reference
 #              defined in order to avoid errors.
 #
-# Author:      Reya Mertz
-#
-# Created:     11/2025
-# Modified:    11/2025
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
