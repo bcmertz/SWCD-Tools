@@ -6,6 +6,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 import os
+import json
 import arcpy
 import shutil
 import pathlib
@@ -33,8 +34,17 @@ class Delineate(object):
             parameterType="Required",
             direction="Input")
         param0.filter.list = ["Polygon"]
-        
+
         param1 = arcpy.Parameter(
+            displayName="Parcel ID Field",
+            name="parcel_id_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param1.filter.type = "ValueList"
+        param1.filter.list = []        
+        
+        param2 = arcpy.Parameter(
             displayName="Tax ID Number",
             name="tax_id_number",
             datatype="GPString",
@@ -42,58 +52,67 @@ class Delineate(object):
             direction="Input",
             multiValue=True)
 
-        param2 = arcpy.Parameter(
+        param3 = arcpy.Parameter(
             displayName="Last Name",
             name="last_name",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="First Name",
             name="first_name",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="Mailing Street Name and Number",
             name="street_name_num",
             datatype="GPString",
             parameterType="Required",
             direction="Input")        
 
-        param5 = arcpy.Parameter(
+        param6 = arcpy.Parameter(
             displayName="Mailing City/Town",
             name="city_town",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param6 = arcpy.Parameter(
+        param7 = arcpy.Parameter(
             displayName="Mailing State (two letter)",
             name="state",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param7 = arcpy.Parameter(
+        param8 = arcpy.Parameter(
             displayName="Mailing Zip Code",
             name="zip_code",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param8 = arcpy.Parameter(
+        param9 = arcpy.Parameter(
             displayName="Output Folder",
             name="output_location",
             datatype="DEFolder",
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8]
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9]
         return params
 
+    def updateParameters(self, parameters):
+        # get parcel id field
+        if parameters[0].value:
+            fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+            parameters[1].filter.list = fields
+        if not parameters[0].value:
+            parameters[1].value = []
+        return
+    
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
@@ -108,18 +127,30 @@ class Delineate(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        project_dir = project.homeFolder
+        cache_file_path = "{}/.ag_cache.json".format(project_dir)
 
         # Parameters
         log("reading in parameters")
         parcel_layer = parameters[0].value
-        tax_id_nums = parameters[1].valueAsText.split(";")
-        last_name = parameters[2].valueAsText
-        first_name = parameters[3].valueAsText
-        street_name_num = parameters[4].valueAsText
-        city_town = parameters[5].valueAsText
-        state = parameters[6].valueAsText
-        zip_code = parameters[7].valueAsText
-        path_root = parameters[8].valueAsText
+        parcel_layer_field = parameters[1].value
+        tax_id_nums = parameters[2].valueAsText.split(";")
+        last_name = parameters[3].valueAsText
+        first_name = parameters[4].valueAsText
+        street_name_num = parameters[5].valueAsText
+        city_town = parameters[6].valueAsText
+        state = parameters[7].valueAsText
+        zip_code = parameters[8].valueAsText
+        output_folder = parameters[9].valueAsText
+
+        # setup cache
+        log("setting up cache")
+        cache_json = {
+            "parcels": tax_id_nums,
+            "output_folder": output_folder,
+        }
+        with open(cache_file_path, "w") as file:
+            json.dump(cache_json, file)            
 
         # clear selections from map
         orig_map = active_map
@@ -159,7 +190,7 @@ class Delineate(object):
             parcel_layer.visible = False
    
             # create sql expression to select correct parcel
-            sql_expr="PRINT_KEY = '{}'".format(tax_id_num)
+            sql_expr="{} = '{}'".format(parcel_layer_field, tax_id_num)
 
             # create parcel layer and add it to the map
             log("adding parcel {}".format(tax_id_num))
@@ -176,7 +207,7 @@ class Delineate(object):
 
             # Create soil group worksheets for each layout
             log("creating soil group worksheet for {}".format(tax_id_num))
-            sgw_path = r'{}\{}.xlsx'.format(path_root, new_layout.name)
+            sgw_path = r'{}\{}.xlsx'.format(output_folder, new_layout.name)
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()            
             shutil.copyfile(sgw_template, sgw_path)
             
@@ -237,11 +268,11 @@ class Delineate(object):
         # export parcel layouts to folder
         log("exporting layouts")
         for layout in layouts:
-            layout_file_path = "{}\{}.pdf".format(path_root, layout.name)
+            layout_file_path = "{}\{}.pdf".format(output_folder, layout.name)
             layout.exportToPDF(layout_file_path)
 
         # remove unused layout
-        project.deleteItem(orig_layout) 
+        project.deleteItem(orig_layout)
         
         # cleanup
         log("saving project")
@@ -249,6 +280,6 @@ class Delineate(object):
 
         # open folder to print out maps
         log("opening project folder")
-        os.startfile(path_root)
+        os.startfile(output_folder)
 
         return

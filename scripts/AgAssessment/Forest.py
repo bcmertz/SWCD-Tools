@@ -7,8 +7,9 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import arcpy
 import re
+import json
+import arcpy
 
 from helpers import sanitize, license
 from helpers import print_messages as log
@@ -41,27 +42,34 @@ class Forest(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        project_dir = project.homeFolder
+        cache_file_path = "{}/.ag_cache.json".format(project_dir)
 
-        maps = project.listMaps()
-        # Check if we're on a created map
-        map_name_format = re.compile('[0-9]+\.[0-9]+\-[0-9]\-[0-9]+\.[0-9]+')
+        # read in json
+        log("reading in cache")
+        cache = {}
+        with open(cache_file_path) as file:
+            cache = json.load(file)
+        parcels = cache["parcels"]
+        output_folder = cache["output_folder"]
+        
         log("iterating through maps and delineating forest land")
-        for m in maps:
-            # Get Tax ID Number for map
-            tax_id_num = m.name
-            # look at next map if this one isn't a tax id number map
-            if map_name_format.match(tax_id_num) is None:
+        for parcel in parcels:
+            # find map of parcel
+            m = None
+            try:
+                m = project.listMaps(parcel)[0]
+            except:
+                log("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
 
             # get parcel layer or drop off of map
-            lyrs = m.listLayers("*_{}".format(tax_id_num))
-            if len(lyrs) == 0:
-                log("no appropriate parcel layer found")
+            fc = None
+            try:
+                fc = m.listLayers("*_{}".format(parcel))[0]
+            except:
+                log("no appropriate parcel layer found for {}, results may be incomplete".format(parcel))
                 continue
-
-            # get cursor shape
-            fc = lyrs[0]
-            #fc_print_key = [row[0] for row in arcpy.da.SearchCursor(fc, "PRINT_KEY")][0]
 
             # check how many pieces are selected
             sel_set = fc.getSelectionSet()
@@ -77,7 +85,7 @@ class Forest(object):
             feat = arcpy.management.MakeFeatureLayer(fc, layer_name)
             arcpy.management.CopyFeatures(feat, layer_path)
             lyr = m.addDataFromPath(layer_path)
-            lyr.name = "Forest_{}".format(sanitize(tax_id_num.split("-")[-1]))
+            lyr.name = "Forest_{}".format(sanitize(parcel)[-4:])
 
             # update symbology
             sym = lyr.symbology
@@ -89,7 +97,7 @@ class Forest(object):
             # clear selection
             m.clearSelection()
 
-        # Save
-        log("saving project")
+        # Cleanup
+        log("cleaning up")
         project.save()
         return
