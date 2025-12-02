@@ -137,7 +137,6 @@ class Process(object):
 
                 # Create clip layer
                 new_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils".format(sanitize(lyr.name), sanitize(parcel)))
-                log(soil_layer, new_layer_path)
                 arcpy.analysis.Clip(soil_layer, lyr, new_layer_path)
 
                 # Dissolve duplicate MUSYMs
