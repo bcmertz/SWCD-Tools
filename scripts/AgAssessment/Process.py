@@ -116,7 +116,7 @@ class Process(object):
 
             # Start work
             parcel_last_four = sanitize(parcel)[-4:]
-            lyrs = m.listLayers(parcel_last_four)
+            lyrs = m.listLayers("*_{}".format(parcel_last_four))
             lyr_types = set()
             log("processing {}".format(parcel))
             for lyr in lyrs:
