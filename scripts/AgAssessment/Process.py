@@ -6,11 +6,11 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
+import csv
+import json
 import arcpy
-import datetime
 import pathlib
 import openpyxl
-import csv
 
 from helpers import sanitize, license
 from helpers import print_messages as log
@@ -26,8 +26,35 @@ class Process(object):
 
     def getParameterInfo(self):
         """Define parameter definitions"""
-        return
+        param0 = arcpy.Parameter(
+            displayName="Parcels",
+            name="parcels",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+        param0.filter.list = ["Polygon"]
 
+        param1 = arcpy.Parameter(
+            displayName="Soils MUSYM Field",
+            name="soils_musym_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param1.filter.type = "ValueList"
+        param1.filter.list = []    
+
+        params = [param0, param1]
+        return params
+
+    def updateParameters(self, parameters):
+        # get soils MUSYM field
+        if parameters[0].value:
+            fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+            parameters[1].filter.list = fields
+        if not parameters[0].value:
+            parameters[1].value = []
+        return
+    
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([])
@@ -42,29 +69,44 @@ class Process(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        project_dir = project.homeFolder
+        cache_file_path = "{}/.ag_cache.json".format(project_dir)
 
-        # Helpers
-        project_name = project.filePath.split("\\")[-1][:-5]
+        # read in json
+        log("reading in cache")
+        cache = {}
+        with open(cache_file_path) as file:
+            cache = json.load(file)
+        parcels = cache["parcels"]
+        output_folder = cache["output_folder"]
+        
+        # Parameters
+        log("reading in parameters")
+        soil_layer = parameters[0].value
+        soils_musym = parameters[1].value
 
-        # Path Root
-        year = datetime.date.today().year
-        path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
-
-        maps = project.listMaps()
+        # collect layouts to be able to close and redisplay later
         layouts = []
-        log("iterating through maps")
-        for m in maps:
+        log("iterating through parcels and processing")
+        for parcel in parcels:
+            # find map of parcel
+            m = None
+            try:
+                m = project.listMaps(parcel)[0]
+            except:
+                log("unable to find map for {}, results may be incomplete".format(parcel))
+                continue
+            
             # Clear selection
             m.clearSelection()
-            # Get Tax ID Number for map
-            tax_id_num = m.name
-            # Check if we're on a created map
-            lyts = project.listLayouts(tax_id_num)
-            lyt = ""
-            if len(lyts) == 1:
-                lyt = lyts[0]
+            
+            # find layout
+            lyt = None
+            try:
+                lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
-            else:
+            except:
+                log("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
                 continue
 
             # Helper variables
@@ -75,7 +117,7 @@ class Process(object):
             # Start work
             lyrs = m.listLayers()
             lyr_types = set()
-            log("processing {}".format(tax_id_num))
+            log("processing {}".format(parcel))
             for lyr in lyrs:
                 # Update symbology
                 lyr_type = ""
@@ -93,13 +135,12 @@ class Process(object):
                 lyr_types.add(lyr_type)
 
                 # Create clip layer
-                soil_layer = m.listLayers("Soils")[0]
-                new_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils".format(sanitize(lyr.name), sanitize(tax_id_num)))
+                new_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils".format(sanitize(lyr.name), sanitize(parcel)))
                 arcpy.analysis.Clip(soil_layer, lyr, new_layer_path)
 
                 # Dissolve duplicate MUSYMs
-                dissolve_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils_dissolved".format(sanitize(lyr.name), sanitize(tax_id_num)))
-                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, "MUSYM")
+                dissolve_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils_dissolved".format(sanitize(lyr.name), sanitize(parcel)))
+                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, soils_musym)
 
                 # Add to map
                 new_layer = m.addDataFromPath(dissolve_layer_path)
@@ -124,7 +165,7 @@ class Process(object):
                 new_layer.showLabels = True
                 label_class = new_layer.listLabelClasses()[0]
                 label_class.visible = True
-                label_class.expression = "$feature.MUSYM"
+                label_class.expression = "$feature.{}".format(soils_musym)
 
                 l_cim = new_layer.getDefinition('V3')
                 lc = l_cim.labelClasses[0]
@@ -149,7 +190,7 @@ class Process(object):
                 # Get soils layer attribute table and export / extract needed fields for layout
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer.name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
-                arcpy.management.DeleteField(table_path, ["MUSYM", "Acres"], "KEEP_FIELDS")
+                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres"], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
                 soils_table = arcpy.mp.Table(table_path)
@@ -173,13 +214,13 @@ class Process(object):
                 project.closeViews("LAYOUTS")
 
             # Reorder layers so soils layers are last
-            log("reordering layers for {}".format(tax_id_num))
+            log("reordering layers for {}".format(parcel))
             for soils_layer in soils_layers:
                 for use_layer in use_layers:
                     m.moveLayer(use_layer, soils_layer, "AFTER")
 
             # Remove unused tables
-            log("removing unused tables for {}".format(tax_id_num))
+            log("removing unused tables for {}".format(parcel))
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
                 if not i in lyr_types:
@@ -187,7 +228,7 @@ class Process(object):
                     lyt.deleteElement(tbl_remove)
 
             # Display wanted legend items only
-            log("removing unused legend items for {}".format(tax_id_num))
+            log("removing unused legend items for {}".format(parcel))
             legend = lyt.listElements("LEGEND_ELEMENT")[0]
             legend_items = legend.items
             use_layer_names = [ i.name for i in use_layers ]
@@ -198,18 +239,18 @@ class Process(object):
                     item.visible = False
 
             # Export tables
-            log("exporting tables for {}".format(tax_id_num))
+            log("exporting tables for {}".format(parcel))
             soils_tables = []
             for table in tables:
-                table_file_path = "{}\{}.csv".format(path_root, table.name)
+                table_file_path = "{}\{}.csv".format(output_folder, table.name)
                 soils_tables.append(table_file_path)
                 arcpy.conversion.ExportTable(table, table_file_path)
 
             # Soil group worksheet
-            sgw_path = "{}\{}.xlsx".format(path_root, lyt.name)
+            sgw_path = "{}\{}.xlsx".format(output_folder, lyt.name)
 
             # Populate soil group worksheet with values
-            log("filling out soil group worksheet for {}".format(tax_id_num))
+            log("filling out soil group worksheet for {}".format(parcel))
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
             sgw_workbook = openpyxl.load_workbook(sgw_path)
             ws = sgw_workbook['SGW']

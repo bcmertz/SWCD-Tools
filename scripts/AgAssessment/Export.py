@@ -6,7 +6,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 import os
-import datetime
+import json
 
 from helpers import license
 from helpers import print_messages as log
@@ -39,25 +39,27 @@ class Export(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        project_dir = project.homeFolder
+        cache_file_path = "{}/.ag_cache.json".format(project_dir)
 
-        # Helpers
-        project_name = project.filePath.split("\\")[-1][:-5]
-
-        # Path Root
-        year = datetime.date.today().year
-        path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
-
+        # read in json
+        log("reading in cache")
+        cache = {}
+        with open(cache_file_path) as file:
+            cache = json.load(file)
+        parcels = set(cache["parcels"])
+        output_folder = cache["output_folder"]
+        
         # Export layouts
         log("exporting layouts")
         layouts = project.listLayouts()
         for layout in layouts:
-            if layout.name == "Layout":
-                continue
-            layout_file_path = "{}\{}.pdf".format(path_root, layout.name)
-            layout.exportToPDF(layout_file_path)
+            if layout.name in parcels:
+                layout_file_path = "{}\{}.pdf".format(output_folder, layout.name)
+                layout.exportToPDF(layout_file_path)
 
         # Open project folder
         log("opening project folder")
-        os.startfile(path_root)
+        os.startfile(output_folder)
 
         return

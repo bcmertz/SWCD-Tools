@@ -7,7 +7,6 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import re
 import json
 import arcpy
 
