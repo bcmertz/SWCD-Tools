@@ -27,8 +27,8 @@ class Process(object):
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
-            displayName="Parcels",
-            name="parcels",
+            displayName="Soils",
+            name="soils",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
@@ -115,7 +115,8 @@ class Process(object):
             tables = []
 
             # Start work
-            lyrs = m.listLayers()
+            parcel_last_four = sanitize(parcel)[-4:]
+            lyrs = m.listLayers(parcel_last_four)
             lyr_types = set()
             log("processing {}".format(parcel))
             for lyr in lyrs:
@@ -136,6 +137,7 @@ class Process(object):
 
                 # Create clip layer
                 new_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils".format(sanitize(lyr.name), sanitize(parcel)))
+                log(soil_layer, new_layer_path)
                 arcpy.analysis.Clip(soil_layer, lyr, new_layer_path)
 
                 # Dissolve duplicate MUSYMs
