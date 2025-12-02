@@ -7,7 +7,6 @@
 # --------------------------------------------------------------------------------
 import os
 import arcpy
-import datetime
 import shutil
 import pathlib
 import openpyxl
@@ -28,6 +27,14 @@ class Delineate(object):
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
+            displayName="Parcels",
+            name="parcels",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+        param0.filter.list = ["Polygon"]
+        
+        param1 = arcpy.Parameter(
             displayName="Tax ID Number",
             name="tax_id_number",
             datatype="GPString",
@@ -35,49 +42,56 @@ class Delineate(object):
             direction="Input",
             multiValue=True)
 
-        param1 = arcpy.Parameter(
+        param2 = arcpy.Parameter(
             displayName="Last Name",
             name="last_name",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param2 = arcpy.Parameter(
+        param3 = arcpy.Parameter(
             displayName="First Name",
             name="first_name",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="Mailing Street Name and Number",
             name="street_name_num",
             datatype="GPString",
             parameterType="Required",
             direction="Input")        
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="Mailing City/Town",
             name="city_town",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param5 = arcpy.Parameter(
+        param6 = arcpy.Parameter(
             displayName="Mailing State (two letter)",
             name="state",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param6 = arcpy.Parameter(
+        param7 = arcpy.Parameter(
             displayName="Mailing Zip Code",
             name="zip_code",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4, param5, param6]
+        param8 = arcpy.Parameter(
+            displayName="Output Folder",
+            name="output_location",
+            datatype="DEFolder",
+            parameterType="Required",
+            direction="Input")
+
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8]
         return params
 
     def updateMessages(self, parameters):
@@ -94,29 +108,25 @@ class Delineate(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
-        parcel_layer = 'Parcels'
 
         # Parameters
         log("reading in parameters")
-        tax_id_nums = parameters[0].valueAsText.split(";")
-        last_name = parameters[1].valueAsText
-        first_name = parameters[2].valueAsText
-        street_name_num = parameters[3].valueAsText
-        city_town = parameters[4].valueAsText
-        state = parameters[5].valueAsText
-        zip_code = parameters[6].valueAsText
+        parcel_layer = parameters[0].value
+        tax_id_nums = parameters[1].valueAsText.split(";")
+        last_name = parameters[2].valueAsText
+        first_name = parameters[3].valueAsText
+        street_name_num = parameters[4].valueAsText
+        city_town = parameters[5].valueAsText
+        state = parameters[6].valueAsText
+        zip_code = parameters[7].valueAsText
+        path_root = parameters[8].valueAsText
 
-        # Helpers
-        project_name = project.filePath.split("\\")[-1][:-5]
-        year = datetime.date.today().year
-        path_root = "O:\Ag Assessments\{}\{}".format(year, project_name)
-
-        # Make a folder for the client
-        log("creating project folder")
-        pathlib.Path(path_root).mkdir(parents=True, exist_ok=True)
-
-        orig_map = project.listMaps("Map")[0]
+        # clear selections from map
+        orig_map = active_map
         orig_map.clearSelection()
+
+        # sgw template path
+        sgw_template = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'Soil Group Worksheet.xlsx')
 
         # use layout template
         log("finding layout")
@@ -145,8 +155,7 @@ class Delineate(object):
             mf.map = new_map
             mf.name = tax_id_num
 
-            # turn off Parcels layer
-            parcel_layer = new_map.listLayers("Parcels")[0]
+            # turn off parcel layer
             parcel_layer.visible = False
    
             # create sql expression to select correct parcel
@@ -169,7 +178,7 @@ class Delineate(object):
             log("creating soil group worksheet for {}".format(tax_id_num))
             sgw_path = r'{}\{}.xlsx'.format(path_root, new_layout.name)
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()            
-            shutil.copyfile('O:\Ag Assessments\Soil Group Worksheet.xlsx', sgw_path)
+            shutil.copyfile(sgw_template, sgw_path)
             
             # set SWIS code in layout
             log("finding property values for {}".format(tax_id_num))
