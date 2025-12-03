@@ -132,62 +132,60 @@ class PotentialWetlands(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
-        # get soils field
-        if parameters[4].value:
-            parameters[5].enabled = True
-            fields = [f.name for f in arcpy.ListFields(parameters[4].value)]
-            parameters[5].filter.list = fields
-        if not parameters[4].value:
-            parameters[5].enabled = False
-            parameters[5].value = None
-
-        # toggle which soil hsg values to use
-        if parameters[5].value:
-            parameters[6].enabled = True
-            values = set()
-            with arcpy.da.SearchCursor(parameters[4].value, parameters[5].value) as cursor:
-                for row in cursor:
-                    if row[0] != None:
-                        values.add(row[0])
-            values = sorted(list(values))
-##            for f in arcpy.ListFields(parameters[4].value):
-##                if f.aliasName == parameters[5].value:
-##                    with arcpy.da.SearchCursor(parameters[4].value, f.name) as cursor:
-##                        for row in cursor:
-##                            if row[0] != None:
-##                                values.add(row[0])
-##                    values = sorted(list(values))
-            parameters[6].filter.list = values
-        if not parameters[5].value:
-            parameters[6].enabled = False
-
-        # get land use field
-        if parameters[7].value:
-            parameters[8].enabled = True
-            fields2 = [f2.name for f2 in arcpy.ListFields(parameters[7].value)]
-            parameters[8].filter.list = fields2
-        if not parameters[7].value:
-            parameters[8].enabled = False
-
-        # toggle which land use values to use
-        if parameters[8].value:
-            parameters[9].enabled = True
-            values2 = []
-            with arcpy.da.SearchCursor(parameters[7].value, parameters[8].value) as cursor2:
-                    values2 = sorted({row2[0] for row2 in cursor2})
-            parameters[9].filter.list = values2
-        if not parameters[7].value:
-            parameters[9].enabled = False
-
         # default minimum twi value
         if parameters[3].value == None:
             parameters[3].value = 5
 
+        # get soils field
+        if not parameters[4].hasBeenValidated:
+            if parameters[4].value:
+                parameters[5].enabled = True
+                fields = [f.name for f in arcpy.ListFields(parameters[4].value)]
+                parameters[5].filter.list = fields
+            else:
+                parameters[5].enabled = False
+                parameters[5].value = None
+
+        # toggle which soil hsg values to use
+        if not parameters[5].hasBeenValidated:
+            if parameters[5].value:
+                parameters[6].enabled = True
+                values = set()
+                with arcpy.da.SearchCursor(parameters[4].value, parameters[5].value) as cursor:
+                    for row in cursor:
+                        if row[0] != None:
+                            values.add(row[0])
+                values = sorted(list(values))
+                parameters[6].filter.list = values
+            else:
+                parameters[6].enabled = False
+
+        # get land use field
+        if not parameters[7].hasBeenValidated:
+            if parameters[7].value:
+                parameters[8].enabled = True
+                fields2 = [f2.name for f2 in arcpy.ListFields(parameters[7].value)]
+                parameters[8].filter.list = fields2
+            else:
+                parameters[8].enabled = False
+
+        # toggle which land use values to use
+        if not parameters[8].hasBeenValidated:
+            if parameters[8].value:
+                parameters[9].enabled = True
+                values2 = []
+                with arcpy.da.SearchCursor(parameters[7].value, parameters[8].value) as cursor2:
+                        values2 = sorted({row2[0] for row2 in cursor2})
+                parameters[9].filter.list = values2
+            else:
+                parameters[9].enabled = False
+
         # toggle asking for wetland layers
-        if parameters[10].value == True:
-            parameters[11].enabled = True
-        else:
-            parameters[11].enabled = False
+        if not parameters[10].hasBeenValidated:
+            if parameters[10].value == True:
+                parameters[11].enabled = True
+            else:
+                parameters[11].enabled = False
 
         return
 

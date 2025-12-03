@@ -113,14 +113,16 @@ class BermAnalysis(object):
     def updateParameters(self, parameters):
         # update parameters before execution if needed
         # toggle asking for berm height
-        if parameters[0].value != None:
-            desc = arcpy.Describe(parameters[0].value)
-            parameters[2].value = desc.spatialReference.linearUnitName
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value != None:
+                desc = arcpy.Describe(parameters[0].value)
+                parameters[2].value = desc.spatialReference.linearUnitName
 
-        if parameters[5].value == True:
-            parameters[6].enabled = True
-        else:
-            parameters[6].enabled = False
+        if not parameters[5].hasBeenValidated:
+            if parameters[5].value == True:
+                parameters[6].enabled = True
+            else:
+                parameters[6].enabled = False
 
         # default berm height
         if parameters[6].value == None:
@@ -131,15 +133,15 @@ class BermAnalysis(object):
             parameters[8].value = 1
 
         # toggle asking for default contour interval and output
-        if parameters[7].value == True:
-            parameters[8].enabled = True
-            parameters[9].enabled = True
-            if parameters[3].value:
-                parameters[9].value = str(parameters[3].value) + "_contours_" + str(int(parameters[8].value)) + "ft"
-        else:
-            parameters[8].enabled = False
-            parameters[9].enabled = False
-
+        if not parameters[7].hasBeenValidated:
+            if parameters[7].value == True:
+                parameters[8].enabled = True
+                parameters[9].enabled = True
+                if parameters[3].value:
+                    parameters[9].value = str(parameters[3].value) + "_contours_" + str(int(parameters[8].value)) + "ft"
+            else:
+                parameters[8].enabled = False
+                parameters[9].enabled = False
 
         return
 

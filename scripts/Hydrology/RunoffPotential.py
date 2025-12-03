@@ -123,30 +123,32 @@ class RunoffPotential:
 
     def updateParameters(self, parameters):
         # get soils field
-        if parameters[2].value:
-            parameters[3].enabled = True
-            fields = [f.name for f in arcpy.ListFields(parameters[2].value)]
-            parameters[3].filter.list = fields
-        if not parameters[2].value:
-            parameters[3].enabled = False
-            parameters[3].value = None
+        if not parameters[2].hasBeenValidated:
+            if parameters[2].value:
+                parameters[3].enabled = True
+                fields = [f.name for f in arcpy.ListFields(parameters[2].value)]
+                parameters[3].filter.list = fields
+            else:
+                parameters[3].enabled = False
+                parameters[3].value = None
 
         # get rcn fields
-        if parameters[4].value:
-            parameters[5].enabled = True
-            parameters[6].enabled = True
-            parameters[7].enabled = True
-            parameters[8].enabled = True
-            fields2 = [f2.name for f2 in arcpy.ListFields(parameters[4].value)]
-            parameters[5].filter.list = fields2
-            parameters[6].filter.list = fields2
-            parameters[7].filter.list = fields2
-            parameters[8].filter.list = fields2
-        if not parameters[4].value:
-            parameters[5].enabled = False
-            parameters[6].enabled = False
-            parameters[7].enabled = False
-            parameters[8].enabled = False
+        if not parameters[4].hasBeenValidated:
+            if parameters[4].value:
+                parameters[5].enabled = True
+                parameters[6].enabled = True
+                parameters[7].enabled = True
+                parameters[8].enabled = True
+                fields2 = [f2.name for f2 in arcpy.ListFields(parameters[4].value)]
+                parameters[5].filter.list = fields2
+                parameters[6].filter.list = fields2
+                parameters[7].filter.list = fields2
+                parameters[8].filter.list = fields2
+            else:
+                parameters[5].enabled = False
+                parameters[6].enabled = False
+                parameters[7].enabled = False
+                parameters[8].enabled = False
 
         return
 

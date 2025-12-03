@@ -48,21 +48,23 @@ class Process(object):
 
     def updateParameters(self, parameters):
         # get soils MUSYM field
-        if parameters[0].value:
-            fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
-            parameters[1].filter.list = fields
-        if not parameters[0].value:
-            parameters[1].value = []
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+                parameters[1].filter.list = fields
+            else:
+                parameters[1].value = []
+
         return
     
-    def isLicensed(self):
-        """Set whether the tool is licensed to execute."""
-        return license([])
-
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
+
+    def isLicensed(self):
+        """Set whether the tool is licensed to execute."""
+        return license([])
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
