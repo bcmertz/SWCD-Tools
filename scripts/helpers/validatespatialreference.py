@@ -4,6 +4,13 @@
 #              that can have a spatial references has a valid spatial reference
 #              defined in order to avoid errors.
 #
+# Notes:       This tool expects to run in updatemessages to avoid being overwritten
+#              by internal validation. This still allows use of param.hasBeenValidated
+#              to check for parameter changes. However, for some reason arcgis pro seems
+#              to overwrite warning messages that are only set once.
+#              Refer to https://pro.arcgis.com/en/pro-app/3.3/arcpy/geoprocessing_and_python/updating-schema-in-a-python-toolbox.htm
+#              for documentation of python toolbox lifecycles and validation.
+#
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
@@ -19,20 +26,30 @@ def validate_spatial_reference(parameters):
     warning_message = "Input has an unknown coordinate system. This may cause errors in running this tool. Please define a coordinate system for the input using 'define projection'"
     
     for param in parameters:
-        if param.value and param.direction == "Input":
+        valid_sr = True
+
+        # ignore unset parameters, output parameters, and parameters which haven't been changed
+        # since the last time validation ran
+        #
+        #if param.altered and param.direction == "Input" and not param.hasBeenValidated: # broken - arcgis pro overwrites warnings set once
+        if param.altered and param.direction == "Input":
             try:
                 desc = arcpy.Describe(param)
                 if hasattr(desc, "spatialReference"):
                     spatial_ref = desc.spatialReference
-                    param.setWarningMessage(warning_message)
-
                     # If the spatial reference is unknown
                     if spatial_ref.name == "Unknown":
-                        param.setWarningMessage(warning_message)
-                    else:
-                        if param.hasWarning:
-                            param.clearMessage()
+                        valid_sr = False
             except:
-                pass
-            
+                continue
+        else:
+            continue
+
+        # set or clear warning messages
+        if valid_sr:
+            if param.message == warning_message:
+                param.clearMessage()
+        else:
+            param.setWarningMessage(warning_message)
+
     return
