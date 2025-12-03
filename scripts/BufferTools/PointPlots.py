@@ -13,8 +13,9 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import arcpy
+import os
 import math
+import arcpy
 
 from helpers import license
 from helpers import print_messages as log
@@ -41,7 +42,7 @@ class PointPlots:
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         param1 = arcpy.Parameter(
-            displayName="Output Point Feature",
+            displayName="Output Point Feature Class",
             name="out_point",
             datatype="DEFeatureClass",
             parameterType="Required",
@@ -63,10 +64,10 @@ class PointPlots:
             direction="Input")
 
         param4 = arcpy.Parameter(
-            displayName="Output Coordinates CSV",
+            displayName="Output Folder - Coordinates Spreadsheet",
             name="coordinates_output",
             parameterType="Optional",
-            datatype="DEFile",
+            datatype="DEFolder",
             direction="Output")
         
         params = [param0, param1, param2, param3, param4]
@@ -176,12 +177,17 @@ class PointPlots:
 
             # export attribute table to csv at path
             log("exporting point plot coordinates")
-            arcpy.conversion.ExportTable(output_points, r"{}".format(output_coords))
+            arcpy.conversion.ExportTable(output_points, r"{}/point_plots.csv".format(output_coords))
                 
         # cleanup
         log("deleting unneeded data")
         arcpy.management.Delete([scratch_buffer, scratch_dissolve])
 
+        # open coordinates folder
+        if coords:
+            log("opening folder with coordinates")
+            os.startfile(output_coords)
+        
         # save
         log("saving project")
         project.save()
