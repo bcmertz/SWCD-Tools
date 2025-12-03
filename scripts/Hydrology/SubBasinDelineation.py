@@ -48,32 +48,10 @@ class SubBasinDelineation(object):
             parameterType="Optional",
             direction="Input")
 
-        param3 = arcpy.Parameter(
-            displayName="Perform hydrology calculations on each sub-basin?",
-            name="calculations",
-            datatype="GPBoolean",
-            parameterType="Optional",
-            direction="Input")
-
-        param4 = arcpy.Parameter(
-            displayName="Hydrology Calculations output folder",
-            name="folder",
-            datatype="DEFolder",
-            enabled=False,
-            parameterType="Optional",
-            direction="Input")
-
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2]
         return params
 
     def updateParameters(self, parameters):
-        # Enable/Disable folder parameter based on if user will perform calculations
-        if not parameters[3].hasBeenValidated:
-            if parameters[3].value == True:
-                parameters[4].enabled = True
-            elif parameters[3].value == False:
-                parameters[4].enabled = False
-
         # Default stream threshold value
         if parameters[2].value == None:
             parameters[2].value = 25000
@@ -81,13 +59,6 @@ class SubBasinDelineation(object):
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
-        # toggle required for parameter 4
-        # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
-        if not parameters[3].hasBeenValidated:
-            if parameters[3].value == True:
-                parameters[4].setIDMessage("ERROR", 530)
-            else:
-                parameters[4].clearMessage()
         validate(parameters)
         return
 
@@ -105,8 +76,6 @@ class SubBasinDelineation(object):
         raster_layer = parameters[0].value
         watershed = parameters[1].value
         con_threshold = parameters[2].value if parameters[2].value else 25000
-        hydrology_calculations = parameters[3].value
-        calculations_folder = parameters[4].value
 
         # create scratch layers
         clip_raster_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
@@ -164,29 +133,8 @@ class SubBasinDelineation(object):
         sym.updateRenderer('UniqueValueRenderer')
         sym.renderer.fields = ['gridcode']
         watershed_polygon.symbology = sym
-        watershed_polygon.visible = False
-
-        # hydrology of each subbasin
-        if hydrology_calculations == True:
-            log("calculating watershed hydrology of each subbasin")
-            arcpy.ImportToolbox("Watershed Hydrology.pyt", "Hydrology")
-            basin_id = 0
-            for row in arcpy.da.SearchCursor(watershed_polygon, "*"):
-                sub_basin_path = "{}\\subbasin_{}".format(arcpy.env.workspace, basin_id)
-                sql="""{0} = {1}""".format(arcpy.AddFieldDelimiters(watershed_polygon, arcpy.Describe(watershed_polygon).OIDFieldName),row[0])
-                arcpy.analysis.Select(watershed_polygon, sub_basin_path, where_clause=sql)
-                sub_basin = active_map.addDataFromPath(sub_basin_path)
-                sub_basin.visible = False
-                try:
-                    arcpy.Hydrology.Calculate(sub_basin, clip_raster_scratch, calculations_folder)
-                except arcpy.ExecuteError:
-                    log(sub_basin.name, " failed calculation")
-                    log(arcpy.GetMessages())
-                    pprint(arcpy.GetAllMessages(), width=100)
-                basin_id += 1
-                sub_basin.visible = True
-
         watershed_polygon.visible = True
+        
         # remove temporary variables
         log("cleaning up")
         arcpy.management.Delete([clip_raster_scratch, fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
