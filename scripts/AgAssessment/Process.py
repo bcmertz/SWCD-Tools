@@ -261,7 +261,7 @@ class Process(object):
                 if "agland" in tbl.lower():
                     with open(tbl, 'r') as csvfile:
                         csvreader = csv.reader(csvfile)
-                        fields = next(csvreader)
+                        next(csvreader)
                         idx = 0
                         for row in csvreader:
                             if idx < 24:
@@ -280,7 +280,7 @@ class Process(object):
                     tot = 0
                     with open(tbl, 'r') as csvfile:
                         csvreader = csv.reader(csvfile)
-                        fields = next(csvreader)
+                        next(csvreader)
                         for row in csvreader:
                             tot += float(row[1])
                     ws['K28'] = tot
@@ -288,7 +288,7 @@ class Process(object):
                     tot = 0
                     with open(tbl, 'r') as csvfile:
                         csvreader = csv.reader(csvfile)
-                        fields = next(csvreader)
+                        next(csvreader)
                         for row in csvreader:
                             tot += float(row[1])
                     ws['L24'] = tot

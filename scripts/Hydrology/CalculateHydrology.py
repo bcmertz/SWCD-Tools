@@ -72,9 +72,6 @@ class CalculateHydrology:
         log("setting up project")
         project, active_map = setup()
 
-        # helper variables
-        orig_map = active_map
-
         # read in parameters
         log("reading in parameters")
         raster_layer = parameters[0].value

@@ -50,7 +50,6 @@ class Agland(object):
         with open(cache_file_path) as file:
             cache = json.load(file)
         parcels = cache["parcels"]
-        output_folder = cache["output_folder"]
 
         log("iterating through parcels and delineated agland")
         for parcel in parcels:
