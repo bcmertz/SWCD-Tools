@@ -57,7 +57,7 @@ class PointPlots:
             direction="Input")
 
         param3 = arcpy.Parameter(
-            displayName="Output point plot GPS coordinates to csv?",
+            displayName="Output point plot GPS coordinates to spreadsheet?",
             name="locations",
             datatype="GPBoolean",
             parameterType="Optional",
