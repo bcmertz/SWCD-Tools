@@ -82,17 +82,18 @@ class PointPlots:
         return
 
     def updateParameters(self, parameters):
-        # toggle asking for coordinate output path        
-        if parameters[3].value == True:
-            parameters[4].enabled = True
-            #if parameters[1].value and not parameters[4].value:
-            #    point_path = str(parameters[1].value)
-            #    project_path = arcpy.mp.ArcGISProject("Current").filePath
-            #    file_path = os.path.dirname(project_path)
-            #    file_name = os.path.basename(point_path)
-            #    parameters[4].value = "{}\\{}{}".format(file_path, file_name, "_contours")
-        else:
-            parameters[4].enabled = False
+        # toggle asking for coordinate output path
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].value == True:
+                parameters[4].enabled = True
+                #if parameters[1].value and not parameters[4].value:
+                #    point_path = str(parameters[1].value)
+                #    project_path = arcpy.mp.ArcGISProject("Current").filePath
+                #    file_path = os.path.dirname(project_path)
+                #    file_name = os.path.basename(point_path)
+                #    parameters[4].value = "{}\\{}{}".format(file_path, file_name, "_contours")
+            else:
+                parameters[4].enabled = False
 
     def execute(self, parameters, messages):
         """The source code of the tool."""

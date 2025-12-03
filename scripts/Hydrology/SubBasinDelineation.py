@@ -24,28 +24,6 @@ class SubBasinDelineation(object):
         self.category = "Hydrology"
         self.canRunInBackground = False
 
-    def updateParameters(self, parameters):
-        # Enable/Disable folder parameter based on if user will perform calculations
-        if parameters[3].value == True:
-            parameters[4].enabled = True
-        if parameters[3].value == False:
-            parameters[4].enabled = False
-
-        # Default stream threshold value
-        if parameters[2].value == None:
-            parameters[2].value = 25000
-        return
-
-    def updateMessages(self, parameters):
-        if parameters[3].value == True:
-            parameters[4].setIDMessage("ERROR", 530)
-        if parameters[3].value == False:
-            parameters[4].clearMessage()
-        if parameters[4].value:
-            parameters[4].clearMessage()
-        validate(parameters)
-        return
-
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
@@ -87,6 +65,29 @@ class SubBasinDelineation(object):
 
         params = [param0, param1, param2, param3, param4]
         return params
+
+    def updateParameters(self, parameters):
+        # Enable/Disable folder parameter based on if user will perform calculations
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].value == True:
+                parameters[4].enabled = True
+            elif parameters[3].value == False:
+                parameters[4].enabled = False
+
+        # Default stream threshold value
+        if parameters[2].value == None:
+            parameters[2].value = 25000
+        return
+
+    def updateMessages(self, parameters):
+        if parameters[3].value == True:
+            parameters[4].setIDMessage("ERROR", 530)
+        if parameters[3].value == False:
+            parameters[4].clearMessage()
+        if parameters[4].value:
+            parameters[4].clearMessage()
+        validate(parameters)
+        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""

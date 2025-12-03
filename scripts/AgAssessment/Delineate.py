@@ -106,11 +106,13 @@ class Delineate(object):
 
     def updateParameters(self, parameters):
         # get parcel id field
-        if parameters[0].value:
-            fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
-            parameters[1].filter.list = fields
-        if not parameters[0].value:
-            parameters[1].value = []
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+                parameters[1].filter.list = fields
+            else:
+                parameters[1].value = []
+
         return
     
     def updateMessages(self, parameters):
