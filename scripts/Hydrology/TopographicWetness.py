@@ -6,8 +6,8 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import arcpy
 import math
+import arcpy
 
 from helpers import license
 from helpers import print_messages as log
