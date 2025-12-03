@@ -116,7 +116,7 @@ class RunoffPotential:
         if parameters[4].value and (not parameters[5].value or not parameters[6].value or not parameters[7].value or not parameters[8].value):
             parameters[4].setWarningMessage(warning_message)
         else:
-            if parameters[4].hasWarning:
+            if parameters[4].message == warning_message:
               parameters[4].clearMessage()
 
         return
