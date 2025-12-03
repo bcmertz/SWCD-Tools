@@ -51,7 +51,7 @@ class Agland(object):
             cache = json.load(file)
         parcels = cache["parcels"]
         output_folder = cache["output_folder"]
-        
+
         log("iterating through parcels and delineated agland")
         for parcel in parcels:
             # find map of parcel

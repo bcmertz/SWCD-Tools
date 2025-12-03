@@ -49,7 +49,7 @@ class Export(object):
             cache = json.load(file)
         parcels = set(cache["parcels"])
         output_folder = cache["output_folder"]
-        
+
         # Export layouts
         log("exporting layouts")
         layouts = project.listLayouts()

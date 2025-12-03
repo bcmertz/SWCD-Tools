@@ -69,7 +69,7 @@ class PointPlots:
             parameterType="Optional",
             datatype="DEFolder",
             direction="Output")
-        
+
         params = [param0, param1, param2, param3, param4]
         return params
 
@@ -115,7 +115,7 @@ class PointPlots:
         reduce_acreage = parameters[2].value
         coords = parameters[3].value
         output_coords = parameters[4].value
-    
+
         # create scratch layers
         log("creating scratch layers")
         scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
@@ -124,7 +124,7 @@ class PointPlots:
         # dissolve
         log("dissolve polygons")
         arcpy.management.Dissolve(planting_area, scratch_dissolve, multi_part="MULTI_PART")
-        
+
         # calculate total area of planting
         log("calculate acreage")
         field_name = "Acres"
@@ -168,8 +168,8 @@ class PointPlots:
         if coords:
             log("calculating point x y coordinates")
             # add coordinate fields
-            arcpy.management.AddField(points_lyr, "x_coord", "FLOAT", 6, 6, field_alias="X Coordinate")            
-            arcpy.management.AddField(points_lyr, "y_coord", "FLOAT", 6, 6, field_alias="X Coordinate")            
+            arcpy.management.AddField(points_lyr, "x_coord", "FLOAT", 6, 6, field_alias="X Coordinate")
+            arcpy.management.AddField(points_lyr, "y_coord", "FLOAT", 6, 6, field_alias="X Coordinate")
 
             # calculate geometry - coordinates
             arcpy.management.CalculateGeometryAttributes(in_features=points_lyr.name, geometry_property=[["x_coord", "POINT_X"]],coordinate_format="DD")
@@ -178,7 +178,7 @@ class PointPlots:
             # export attribute table to csv at path
             log("exporting point plot coordinates")
             arcpy.conversion.ExportTable(output_points, r"{}/point_plots.csv".format(output_coords))
-                
+
         # cleanup
         log("deleting unneeded data")
         arcpy.management.Delete([scratch_buffer, scratch_dissolve])
@@ -187,9 +187,9 @@ class PointPlots:
         if coords:
             log("opening folder with coordinates")
             os.startfile(output_coords)
-        
+
         # save
         log("saving project")
         project.save()
-            
+
         return

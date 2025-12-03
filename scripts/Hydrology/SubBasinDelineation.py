@@ -11,7 +11,7 @@ import arcpy
 
 from pprint import pprint
 
-from helpers import license 
+from helpers import license
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -134,7 +134,7 @@ class SubBasinDelineation(object):
         sym.renderer.fields = ['gridcode']
         watershed_polygon.symbology = sym
         watershed_polygon.visible = True
-        
+
         # remove temporary variables
         log("cleaning up")
         arcpy.management.Delete([clip_raster_scratch, fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])

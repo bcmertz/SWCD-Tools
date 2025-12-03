@@ -51,7 +51,7 @@ class NonAg(object):
             cache = json.load(file)
         parcels = cache["parcels"]
         output_folder = cache["output_folder"]
-        
+
         log("iterating through maps and delineating nonag land")
         for parcel in parcels:
             # find map of parcel

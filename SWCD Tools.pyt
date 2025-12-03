@@ -19,7 +19,7 @@ def my_reloader(name):
     del globals() [name]
     del sys.modules [name]
     globals() [name] = __import__(name)
-    
+
 tools = [SlopeArea,
          ContourArea,
          CollectRasters,

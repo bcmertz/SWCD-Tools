@@ -22,9 +22,9 @@ def validate_spatial_reference(parameters):
     This is used to make sure any parameters passed in
     which need a spatial reference have a spatial refernence.
     """
-    
+
     warning_message = "Input has an unknown coordinate system. This may cause errors in running this tool. Please define a coordinate system for the input using 'define projection'"
-    
+
     for param in parameters:
         valid_sr = True
 

@@ -24,7 +24,7 @@ class Delineate(object):
         self.description = "Delienate parcels and create folder structure"
         self.category = "Automated Ag Assessment"
         self.canRunInBackground = False
- 
+
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
@@ -42,8 +42,8 @@ class Delineate(object):
             parameterType="Required",
             direction="Input")
         param1.filter.type = "ValueList"
-        param1.filter.list = []        
-        
+        param1.filter.list = []
+
         param2 = arcpy.Parameter(
             displayName="Tax ID Number",
             name="tax_id_number",
@@ -71,7 +71,7 @@ class Delineate(object):
             name="street_name_num",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")        
+            direction="Input")
 
         param6 = arcpy.Parameter(
             displayName="Mailing City/Town",
@@ -114,7 +114,7 @@ class Delineate(object):
                 parameters[1].value = []
 
         return
-    
+
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
@@ -152,7 +152,7 @@ class Delineate(object):
             "output_folder": output_folder,
         }
         with open(cache_file_path, "w") as file:
-            json.dump(cache_json, file)            
+            json.dump(cache_json, file)
 
         # clear selections from map
         orig_map = active_map
@@ -165,7 +165,7 @@ class Delineate(object):
         log("finding layout")
         orig_layout = project.importDocument(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'agassessment_layout.pagx'))
         layouts = []
-        
+
         for tax_id_num in tax_id_nums:
             layer_name = "{}_{}".format(last_name, tax_id_num)
             sanitized_name = sanitize(layer_name)
@@ -182,7 +182,7 @@ class Delineate(object):
             new_layout = project.copyItem(orig_layout, tax_id_num)
             layouts.append(new_layout)
             new_layout.openView()
-            
+
             # set layout's map to new map created
             mf = new_layout.listElements("MAPFRAME_ELEMENT")[0]
             mf.map = new_map
@@ -190,7 +190,7 @@ class Delineate(object):
 
             # turn off parcel layer
             parcel_layer.visible = False
-   
+
             # create sql expression to select correct parcel
             sql_expr="{} = '{}'".format(parcel_layer_field, tax_id_num)
 
@@ -210,9 +210,9 @@ class Delineate(object):
             # Create soil group worksheets for each layout
             log("creating soil group worksheet for {}".format(tax_id_num))
             sgw_path = r'{}\{}.xlsx'.format(output_folder, new_layout.name)
-            sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()            
+            sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
             shutil.copyfile(sgw_template, sgw_path)
-            
+
             # set SWIS code in layout
             log("finding property values for {}".format(tax_id_num))
             swis_box = new_layout.listElements("TEXT_ELEMENT", "SWIS")[0]
@@ -275,7 +275,7 @@ class Delineate(object):
 
         # remove unused layout
         project.deleteItem(orig_layout)
-        
+
         # cleanup
         log("saving project")
         project.save()

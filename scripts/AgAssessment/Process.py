@@ -41,7 +41,7 @@ class Process(object):
             parameterType="Required",
             direction="Input")
         param1.filter.type = "ValueList"
-        param1.filter.list = []    
+        param1.filter.list = []
 
         params = [param0, param1]
         return params
@@ -56,7 +56,7 @@ class Process(object):
                 parameters[1].value = []
 
         return
-    
+
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
@@ -81,7 +81,7 @@ class Process(object):
             cache = json.load(file)
         parcels = cache["parcels"]
         output_folder = cache["output_folder"]
-        
+
         # Parameters
         log("reading in parameters")
         soil_layer = parameters[0].value
@@ -98,10 +98,10 @@ class Process(object):
             except:
                 log("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
-            
+
             # Clear selection
             m.clearSelection()
-            
+
             # find layout
             lyt = None
             try:

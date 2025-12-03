@@ -41,14 +41,14 @@ class ShrubClusters:
             parameterType="Required",
             direction="Output")
         param1.parameterDependencies = [param0.name]
-        
+
         param2 = arcpy.Parameter(
             displayName="Cluster Width (ft)",
             name="width",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        
+
         param3 = arcpy.Parameter(
             displayName="Number of clusters",
             name="number",
@@ -90,7 +90,7 @@ class ShrubClusters:
         # create buffer inside the planting area
         log("buffer output area")
         arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} Feet".format(-int(width*math.sqrt(2))))
-        
+
         # create point locations
         log("creating shrub cluster point locations")
         arcpy.management.CreateSpatialSamplingLocations(
@@ -135,20 +135,5 @@ class ShrubClusters:
         # save
         log("saving project")
         project.save()
-            
+
         return
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
