@@ -80,12 +80,14 @@ class SubBasinDelineation(object):
         return
 
     def updateMessages(self, parameters):
-        if parameters[3].value == True:
-            parameters[4].setIDMessage("ERROR", 530)
-        if parameters[3].value == False:
-            parameters[4].clearMessage()
-        if parameters[4].value:
-            parameters[4].clearMessage()
+        """Modify the messages created by internal validation for each tool parameter."""
+        # toggle required for parameter 4
+        # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].value == True:
+                parameters[4].setIDMessage("ERROR", 530)
+            else:
+                parameters[4].clearMessage()
         validate(parameters)
         return
 
