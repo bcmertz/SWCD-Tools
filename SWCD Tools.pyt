@@ -11,7 +11,7 @@ from BufferTools import PointPlots, ShrubClusters
 from AnalyzeArea import ContourArea, SlopeArea
 from Misc import CollectRasters, ExportLayouts
 from LineAnalysis import LocalMinimums
-from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, CalculateStreamline, LeastAction, StreamElevation, TopographicWetness
+from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, CalculateStreamline, LeastAction, TopographicWetness
 from Wetlands import PotentialWetlands, BermAnalysis, DamRemoval
 from AgAssessment import Delineate, Agland, NonAg, Forest, Process, Export
 
@@ -34,7 +34,6 @@ tools = [SlopeArea,
          WatershedDelineation,
          SubBasinDelineation,
          CalculateStreamline,
-         StreamElevation,
          TopographicWetness,
          PotentialWetlands,
          BermAnalysis,
