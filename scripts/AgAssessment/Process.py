@@ -143,7 +143,7 @@ class Process(object):
 
                 # Dissolve duplicate MUSYMs
                 dissolve_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils_dissolved".format(sanitize(lyr.name), sanitize(parcel)))
-                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, soils_musym)
+                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,"MUKEY"])
 
                 # Add to map
                 new_layer = m.addDataFromPath(dissolve_layer_path)
@@ -193,7 +193,7 @@ class Process(object):
                 # Get soils layer attribute table and export / extract needed fields for layout
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer.name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
-                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres"], "KEEP_FIELDS")
+                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "MUKEY"], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
                 soils_table = arcpy.mp.Table(table_path)
@@ -267,14 +267,18 @@ class Process(object):
                             if idx < 24:
                                 soil_cell = 'A{}'.format(34 + idx)
                                 area_cell = 'H{}'.format(34 + idx)
+                                mukey_cell = 'F{}'.format(34 + idx)
                                 ws[soil_cell] = row[0]
-                                ws[area_cell] = round(float(row[1]), 2)
+                                ws[mukey_cell] = row[1]
+                                ws[area_cell] = round(float(row[2]), 2)
                             else:
                                 # overflow
                                 soil_cell = 'N{}'.format(9 + idx)
                                 area_cell = 'U{}'.format(9 + idx)
+                                mukey_cell = 'S{}'.format(9 + idx)
                                 ws[soil_cell] = row[0]
-                                ws[area_cell] = round(float(row[1]), 2)
+                                ws[mukey_cell] = row[1]
+                                ws[area_cell] = round(float(row[2]), 2)
                             idx += 1
                 elif "nonag" in tbl.lower():
                     tot = 0
@@ -282,7 +286,7 @@ class Process(object):
                         csvreader = csv.reader(csvfile)
                         next(csvreader)
                         for row in csvreader:
-                            tot += float(row[1])
+                            tot += float(row[2])
                     ws['K28'] = tot
                 elif "forest" in tbl.lower():
                     tot = 0
@@ -290,7 +294,7 @@ class Process(object):
                         csvreader = csv.reader(csvfile)
                         next(csvreader)
                         for row in csvreader:
-                            tot += float(row[1])
+                            tot += float(row[2])
                     ws['L24'] = tot
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
@@ -303,5 +307,6 @@ class Process(object):
         # Save
         log("saving project")
         project.save()
-
+        del project
+        
         return

@@ -98,4 +98,6 @@ class NonAg(object):
         # Cleanup
         log("cleaning up")
         project.save()
+        del project
+
         return
