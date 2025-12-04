@@ -251,6 +251,12 @@ Create shapefile of shrub clusters in a given planting area.
 This example shows a potential planting area and shrub clusters at a specified size and density within it.
 
 ## Automated Agricultural Assessment
+
+### Notes:
+This tool tries to assume nothing about your layer files or folder structure. This means you have to specify layers and fields in those layers to use for processing. This means you need a soils layer with a MUSYM attribute, as well as a parcel layer with parcel ID, municipality, ag district, and a street name/no (123 Apple St) field. You are able to manually specify to the program the name of these fields.
+
+Additionally, you may want to edit the default Soil Group Worksheet template to have your County name or other data.
+
 ### 1. Delineate Parcels
 
 Sets up ag assessment project folder and selects all relevant parcels for later analysis.
