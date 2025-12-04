@@ -46,6 +46,42 @@ class Delineate(object):
         param1.filter.list = []
 
         param2 = arcpy.Parameter(
+            displayName="SWIS Code Field",
+            name="swis_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param2.filter.type = "ValueList"
+        param2.filter.list = []
+
+        param3 = arcpy.Parameter(
+            displayName="Municipality Field",
+            name="municipality_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param3.filter.type = "ValueList"
+        param3.filter.list = []
+
+        param4 = arcpy.Parameter(
+            displayName="Address Field",
+            name="address_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param4.filter.type = "ValueList"
+        param4.filter.list = []
+
+        param5 = arcpy.Parameter(
+            displayName="Ag District Field",
+            name="ag_dist_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param5.filter.type = "ValueList"
+        param5.filter.list = []
+
+        param6 = arcpy.Parameter(
             displayName="Tax ID Number",
             name="tax_id_number",
             datatype="GPString",
@@ -53,66 +89,74 @@ class Delineate(object):
             direction="Input",
             multiValue=True)
 
-        param3 = arcpy.Parameter(
+        param7 = arcpy.Parameter(
             displayName="Last Name",
             name="last_name",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param4 = arcpy.Parameter(
+        param8 = arcpy.Parameter(
             displayName="First Name",
             name="first_name",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param5 = arcpy.Parameter(
+        param9 = arcpy.Parameter(
             displayName="Mailing Street Name and Number",
             name="street_name_num",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param6 = arcpy.Parameter(
+        param10 = arcpy.Parameter(
             displayName="Mailing City/Town",
             name="city_town",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param7 = arcpy.Parameter(
+        param11 = arcpy.Parameter(
             displayName="Mailing State (two letter)",
             name="state",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param8 = arcpy.Parameter(
+        param12 = arcpy.Parameter(
             displayName="Mailing Zip Code",
             name="zip_code",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
 
-        param9 = arcpy.Parameter(
+        param13 = arcpy.Parameter(
             displayName="Output Folder",
             name="output_location",
             datatype="DEFolder",
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9]
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13]
         return params
 
     def updateParameters(self, parameters):
-        # get parcel id field
+        # get Parcel Id, SWIS, Municipality, Address, and Ag District fields
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
                 parameters[1].filter.list = fields
+                parameters[2].filter.list = fields
+                parameters[3].filter.list = fields
+                parameters[4].filter.list = fields
+                parameters[5].filter.list = fields
             else:
                 parameters[1].value = []
+                parameters[2].value = []
+                parameters[3].value = []
+                parameters[4].value = []
+                parameters[5].value = []
 
         return
 
@@ -137,14 +181,18 @@ class Delineate(object):
         log("reading in parameters")
         parcel_layer = parameters[0].value
         parcel_layer_field = parameters[1].value
-        tax_id_nums = parameters[2].valueAsText.split(";")
-        last_name = parameters[3].valueAsText
-        first_name = parameters[4].valueAsText
-        street_name_num = parameters[5].valueAsText
-        city_town = parameters[6].valueAsText
-        state = parameters[7].valueAsText
-        zip_code = parameters[8].valueAsText
-        output_folder = parameters[9].valueAsText
+        swis_field = parameters[2].value
+        municipality_field = parameters[3].value
+        address_field = parameters[4].value
+        ag_dist_field = parameters[5].value
+        tax_id_nums = parameters[6].valueAsText.split(";")
+        last_name = parameters[7].valueAsText
+        first_name = parameters[8].valueAsText
+        street_name_num = parameters[9].valueAsText
+        city_town = parameters[10].valueAsText
+        state = parameters[11].valueAsText
+        zip_code = parameters[12].valueAsText
+        output_folder = parameters[13].valueAsText
 
         # setup cache
         log("setting up cache")
@@ -170,7 +218,7 @@ class Delineate(object):
         for tax_id_num in tax_id_nums:
             layer_name = "{}_{}".format(last_name, tax_id_num)
             sanitized_name = sanitize(layer_name)
-            layer_path = "{}\\{}".format(arcpy.env.workspace, sanitized_name)
+            parcel_path = "{}\\{}".format(arcpy.env.workspace, sanitized_name)
 
             # create new map and make it active
             log("creating map for {}".format(tax_id_num))
@@ -198,8 +246,8 @@ class Delineate(object):
             # create parcel layer and add it to the map
             log("adding parcel {}".format(tax_id_num))
             feat = arcpy.management.MakeFeatureLayer(parcel_layer, layer_name, sql_expr)
-            arcpy.management.CopyFeatures(feat, layer_path)
-            lyr = new_map.addDataFromPath(layer_path)
+            arcpy.management.CopyFeatures(feat, parcel_path)
+            lyr = new_map.addDataFromPath(parcel_path)
             lyr.name = layer_name
 
             # update parcel symbology
@@ -217,7 +265,7 @@ class Delineate(object):
             # set SWIS code in layout
             log("finding property values for {}".format(tax_id_num))
             swis_box = new_layout.listElements("TEXT_ELEMENT", "SWIS")[0]
-            swis_value = [row[0] for row in arcpy.da.SearchCursor(layer_path, "SWIS")][0]
+            swis_value = [row[0] for row in arcpy.da.SearchCursor(parcel_path, swis_field)][0]
             swis_box.text = "SWIS: {}".format(swis_value)
 
             # set name in layout
@@ -226,12 +274,12 @@ class Delineate(object):
 
             # set municipality in layout
             municipality_box = new_layout.listElements("TEXT_ELEMENT", "Municipality")[0]
-            municipality_value = [row[0] for row in arcpy.da.SearchCursor(layer_path, "TOWN")][0]
+            municipality_value = [row[0] for row in arcpy.da.SearchCursor(parcel_path, municipality_field)][0]
             municipality_box.text = "{}".format(municipality_value)
 
             # get property address info
-            location_value = [row[0] for row in arcpy.da.SearchCursor(layer_path, "LOCATION")][0]
-            agdist_value = [row[0] for row in arcpy.da.SearchCursor(layer_path, "AGDIST")][0]
+            location_value = [row[0] for row in arcpy.da.SearchCursor(parcel_path, address_field)][0]
+            agdist_value = [row[0] for row in arcpy.da.SearchCursor(parcel_path, ag_dist_field)][0]
             if agdist_value in ["", None, " "]:
                 agdist_value = "__"
             else:
