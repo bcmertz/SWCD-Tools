@@ -29,7 +29,7 @@ class Delineate(object):
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
-            displayName="Parcels",
+            displayName="Parcels Layer",
             name="parcels",
             datatype="GPFeatureLayer",
             parameterType="Required",
@@ -37,10 +37,10 @@ class Delineate(object):
         param0.filter.list = ["Polygon"]
 
         param1 = arcpy.Parameter(
-            displayName="Parcel ID Field",
+            displayName="Tax Parcel ID Field",
             name="parcel_id_field",
             datatype="GPString",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param1.filter.type = "ValueList"
         param1.filter.list = []
@@ -49,7 +49,7 @@ class Delineate(object):
             displayName="SWIS Code Field",
             name="swis_field",
             datatype="GPString",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param2.filter.type = "ValueList"
         param2.filter.list = []
@@ -58,7 +58,7 @@ class Delineate(object):
             displayName="Municipality Field",
             name="municipality_field",
             datatype="GPString",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param3.filter.type = "ValueList"
         param3.filter.list = []
@@ -67,7 +67,7 @@ class Delineate(object):
             displayName="Address Field",
             name="address_field",
             datatype="GPString",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param4.filter.type = "ValueList"
         param4.filter.list = []
@@ -76,13 +76,13 @@ class Delineate(object):
             displayName="Ag District Field",
             name="ag_dist_field",
             datatype="GPString",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param5.filter.type = "ValueList"
         param5.filter.list = []
 
         param6 = arcpy.Parameter(
-            displayName="Tax ID Number",
+            displayName="Tax Parcel ID Number",
             name="tax_id_number",
             datatype="GPString",
             parameterType="Required",
@@ -143,25 +143,77 @@ class Delineate(object):
 
     def updateParameters(self, parameters):
         # get Parcel Id, SWIS, Municipality, Address, and Ag District fields
+        # set value if default field exists
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+                fields = [str(f.name) for f in arcpy.ListFields(parameters[0].value)]
+                parameters[1].enabled = True
+                parameters[2].enabled = True
+                parameters[3].enabled = True
+                parameters[4].enabled = True
+                parameters[5].enabled = True
                 parameters[1].filter.list = fields
                 parameters[2].filter.list = fields
                 parameters[3].filter.list = fields
                 parameters[4].filter.list = fields
                 parameters[5].filter.list = fields
+                if "PRINT_KEY" in fields:
+                    parameters[1].value = "PRINT_KEY"
+                if "SWIS" in fields:
+                    parameters[2].value = "SWIS"
+                if "TOWN" in fields:
+                    parameters[3].value = "TOWN"
+                if "LOCATION" in fields:
+                    parameters[4].value = "LOCATION"
+                if "AGDIST" in fields:
+                    parameters[5].value = "AGDIST"
             else:
-                parameters[1].value = []
-                parameters[2].value = []
-                parameters[3].value = []
-                parameters[4].value = []
-                parameters[5].value = []
+                parameters[1].enabled = False
+                parameters[2].enabled = False
+                parameters[3].enabled = False
+                parameters[4].enabled = False
+                parameters[5].enabled = False
 
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
+        # toggle required for dependent parameters 1-5
+        # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                parameters[1].setIDMessage("ERROR", 530)
+                parameters[2].setIDMessage("ERROR", 530)
+                parameters[3].setIDMessage("ERROR", 530)
+                parameters[4].setIDMessage("ERROR", 530)
+                parameters[5].setIDMessage("ERROR", 530)
+            else:
+                parameters[1].clearMessage()
+                parameters[2].clearMessage()
+                parameters[3].clearMessage()
+                parameters[4].clearMessage()
+                parameters[5].clearMessage()
+
+        if not parameters[1].hasBeenValidated:
+            if parameters[1].value:
+                parameters[1].clearMessage()
+
+        if not parameters[2].hasBeenValidated:
+            if parameters[2].value:
+                parameters[2].clearMessage()
+
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].value:
+                parameters[3].clearMessage()
+
+        if not parameters[4].hasBeenValidated:
+            if parameters[4].value:
+                parameters[4].clearMessage()
+
+        if not parameters[5].hasBeenValidated:
+            if parameters[5].value:
+                parameters[5].clearMessage()
+
         validate(parameters)
         return
 
