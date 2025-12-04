@@ -76,17 +76,19 @@ class Process(object):
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
-        # toggle required for dependent parameters 1-5
-        # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
+        # make newly toggled on parameter required
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 if not parameters[1].value:
                     parameters[1].setIDMessage("ERROR", 530)
                 if not parameters[2].value:
                     parameters[2].setIDMessage("ERROR", 530)
-            else:
-                parameters[1].clearMessage()
-                parameters[2].clearMessage()
+
+        # handle deleted parameter value
+        if not parameters[1].hasBeenValidated and not parameters[1].value:
+            parameters[1].setIDMessage("ERROR", 530)
+        if not parameters[2].hasBeenValidated and not parameters[2].value:
+            parameters[2].setIDMessage("ERROR", 530)
 
         validate(parameters)
         return
