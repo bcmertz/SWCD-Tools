@@ -182,36 +182,21 @@ class Delineate(object):
         # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                parameters[1].setIDMessage("ERROR", 530)
-                parameters[2].setIDMessage("ERROR", 530)
-                parameters[3].setIDMessage("ERROR", 530)
-                parameters[4].setIDMessage("ERROR", 530)
-                parameters[5].setIDMessage("ERROR", 530)
+                if not parameters[1].value:
+                    parameters[1].setIDMessage("ERROR", 530)
+                if not parameters[2].value:
+                    parameters[2].setIDMessage("ERROR", 530)
+                if not parameters[4].value:
+                    parameters[3].setIDMessage("ERROR", 530)
+                if not parameters[4].value:
+                    parameters[4].setIDMessage("ERROR", 530)
+                if not parameters[5].value:
+                    parameters[5].setIDMessage("ERROR", 530)
             else:
                 parameters[1].clearMessage()
                 parameters[2].clearMessage()
                 parameters[3].clearMessage()
                 parameters[4].clearMessage()
-                parameters[5].clearMessage()
-
-        if not parameters[1].hasBeenValidated:
-            if parameters[1].value:
-                parameters[1].clearMessage()
-
-        if not parameters[2].hasBeenValidated:
-            if parameters[2].value:
-                parameters[2].clearMessage()
-
-        if not parameters[3].hasBeenValidated:
-            if parameters[3].value:
-                parameters[3].clearMessage()
-
-        if not parameters[4].hasBeenValidated:
-            if parameters[4].value:
-                parameters[4].clearMessage()
-
-        if not parameters[5].hasBeenValidated:
-            if parameters[5].value:
                 parameters[5].clearMessage()
 
         validate(parameters)

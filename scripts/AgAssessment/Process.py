@@ -80,18 +80,12 @@ class Process(object):
         # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                parameters[1].setIDMessage("ERROR", 530)
-                parameters[2].setIDMessage("ERROR", 530)
+                if not parameters[1].value:
+                    parameters[1].setIDMessage("ERROR", 530)
+                if not parameters[2].value:
+                    parameters[2].setIDMessage("ERROR", 530)
             else:
                 parameters[1].clearMessage()
-                parameters[2].clearMessage()
-
-        if not parameters[1].hasBeenValidated:
-            if parameters[1].value:
-                parameters[1].clearMessage()
-
-        if not parameters[2].hasBeenValidated:
-            if parameters[2].value:
                 parameters[2].clearMessage()
 
         validate(parameters)
