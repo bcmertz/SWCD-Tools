@@ -67,8 +67,8 @@ class PointPlots:
             displayName="Output Folder - Coordinates Spreadsheet",
             name="coordinates_output",
             parameterType="Optional",
-            datatype="DEFolder",
-            direction="Output")
+            datatype="DEType",
+            direction="Input")
 
         params = [param0, param1, param2, param3, param4]
         return params
@@ -83,9 +83,11 @@ class PointPlots:
         # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
         if not parameters[3].hasBeenValidated:
             if parameters[3].value == True:
-                parameters[4].setIDMessage("ERROR", 530)
+                if not parameters[4].value:
+                    parameters[4].setIDMessage("ERROR", 530)
             else:
                 parameters[4].clearMessage()
+
         validate(parameters)
         return
 
@@ -114,7 +116,8 @@ class PointPlots:
         output_points = parameters[1].valueAsText
         reduce_acreage = parameters[2].value
         coords = parameters[3].value
-        output_coords = parameters[4].value
+        output_coords = parameters[4].valueAsText
+        log(type(output_coords))
 
         # create scratch layers
         log("creating scratch layers")
