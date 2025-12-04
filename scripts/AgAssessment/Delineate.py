@@ -146,7 +146,7 @@ class Delineate(object):
         # set value if default field exists
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                fields = [str(f.name) for f in arcpy.ListFields(parameters[0].value)]
+                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
                 parameters[1].enabled = True
                 parameters[2].enabled = True
                 parameters[3].enabled = True

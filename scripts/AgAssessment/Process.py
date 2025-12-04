@@ -43,22 +43,57 @@ class Process(object):
         param1.filter.type = "ValueList"
         param1.filter.list = []
 
-        params = [param0, param1]
+        param2 = arcpy.Parameter(
+            displayName="Soils MUKEY Field",
+            name="soils_mukey_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param2.filter.type = "ValueList"
+        param2.filter.list = []
+
+        params = [param0, param1, param2]
         return params
 
     def updateParameters(self, parameters):
-        # get soils MUSYM field
+        # get soils MUSYM nad MUKEY field
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+                parameters[1].enabled = True
+                parameters[2].enabled = True
                 parameters[1].filter.list = fields
+                parameters[2].filter.list = fields
+                if "MUSYM" in fields:
+                    parameters[1].value = "MUSYM"
+                if "MUKEY" in fields:
+                    parameters[2].value = "MUKEY"
             else:
-                parameters[1].value = []
+                parameters[1].enabled = False
+                parameters[2].enabled = False
 
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
+        # toggle required for dependent parameters 1-5
+        # per https://pro.arcgis.com/en/pro-app/3.4/arcpy/classes/parameter.htm
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                parameters[1].setIDMessage("ERROR", 530)
+                parameters[2].setIDMessage("ERROR", 530)
+            else:
+                parameters[1].clearMessage()
+                parameters[2].clearMessage()
+
+        if not parameters[1].hasBeenValidated:
+            if parameters[1].value:
+                parameters[1].clearMessage()
+
+        if not parameters[2].hasBeenValidated:
+            if parameters[2].value:
+                parameters[2].clearMessage()
+
         validate(parameters)
         return
 
@@ -86,6 +121,7 @@ class Process(object):
         log("reading in parameters")
         soil_layer = parameters[0].value
         soils_musym = parameters[1].value
+        soils_mukey = parameters[2].value
 
         # collect layouts to be able to close and redisplay later
         layouts = []
@@ -143,7 +179,7 @@ class Process(object):
 
                 # Dissolve duplicate MUSYMs
                 dissolve_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils_dissolved".format(sanitize(lyr.name), sanitize(parcel)))
-                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,"MUKEY"])
+                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,soils_mukey])
 
                 # Add to map
                 new_layer = m.addDataFromPath(dissolve_layer_path)
@@ -193,7 +229,7 @@ class Process(object):
                 # Get soils layer attribute table and export / extract needed fields for layout
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer.name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
-                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "MUKEY"], "KEEP_FIELDS")
+                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".soils_mukey], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
                 soils_table = arcpy.mp.Table(table_path)
@@ -269,7 +305,7 @@ class Process(object):
                                 area_cell = 'H{}'.format(34 + idx)
                                 mukey_cell = 'F{}'.format(34 + idx)
                                 ws[soil_cell] = row[0]
-                                ws[mukey_cell] = row[1]
+                                ws[mukey_cell] = int(row[1])
                                 ws[area_cell] = round(float(row[2]), 2)
                             else:
                                 # overflow
@@ -277,7 +313,7 @@ class Process(object):
                                 area_cell = 'U{}'.format(9 + idx)
                                 mukey_cell = 'S{}'.format(9 + idx)
                                 ws[soil_cell] = row[0]
-                                ws[mukey_cell] = row[1]
+                                ws[mukey_cell] = int(row[1])
                                 ws[area_cell] = round(float(row[2]), 2)
                             idx += 1
                 elif "nonag" in tbl.lower():
