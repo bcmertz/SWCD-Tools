@@ -229,7 +229,7 @@ class Process(object):
                 # Get soils layer attribute table and export / extract needed fields for layout
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer.name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
-                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".soils_mukey], "KEEP_FIELDS")
+                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".format(soils_mukey)], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
                 soils_table = arcpy.mp.Table(table_path)
