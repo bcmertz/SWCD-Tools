@@ -68,7 +68,7 @@ class StreamElevation(object):
         return license([])
 
     def updateMessages(self, parameters):
-        ".sa""Modify the messages created by internal validation for each tool parameter."""
+        "Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
         return
 
