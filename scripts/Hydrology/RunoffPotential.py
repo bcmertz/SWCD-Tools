@@ -130,7 +130,6 @@ class RunoffPotential:
                 parameters[3].filter.list = fields
             else:
                 parameters[3].enabled = False
-                parameters[3].value = None
 
         # get rcn fields
         if not parameters[4].hasBeenValidated:
@@ -181,7 +180,6 @@ class RunoffPotential:
         land_use_raster_clip = "{}\\land_use_raster_clip".format(arcpy.env.workspace)
         scratch_land_use_polygon = arcpy.CreateScratchName("scratch_land_use_polygon", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_joined_land_use_polygon = arcpy.CreateScratchName("scratch_joined_land_use_polygon", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_pairwise_intersection = arcpy.CreateScratchName("scratch_pairwise_intersection", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
 
         # clip soils
         log("clipping soils to watershed")
@@ -205,7 +203,7 @@ class RunoffPotential:
         log("intersect land uses and soils")
         arcpy.analysis.PairwiseIntersect(
             in_features=[scratch_joined_land_use_polygon, soils_scratch],
-            out_feature_class=scratch_pairwise_intersection,
+            out_feature_class=output_fc,
             join_attributes="ALL",
             cluster_tolerance=None,
             output_type="INPUT"
@@ -214,7 +212,7 @@ class RunoffPotential:
         # calculate RCN from HSG
         log("calculate RCN from HSG")
         arcpy.management.CalculateField(
-            in_table=scratch_pairwise_intersection,
+            in_table=output_fc,
             field="RCN",
             expression="calculate_value(!{}!, !{}!,!{}!,!{}!,!{}!)".format(hsg_field, rcn_field_a,rcn_field_b,rcn_field_c,rcn_field_d),
             expression_type="PYTHON3",
@@ -229,17 +227,6 @@ class RunoffPotential:
                     return rcnd""",
             field_type="DOUBLE",
             enforce_domains="NO_ENFORCE_DOMAINS"
-        )
-
-        # dissolve RCN boundaries
-        log("dissolve RCN boundaries")
-        arcpy.analysis.PairwiseDissolve(
-            in_features=scratch_pairwise_intersection,
-            out_feature_class=output_fc,
-            dissolve_field="RCN",
-            statistics_fields=None,
-            multi_part="MULTI_PART",
-            concatenation_separator=""
         )
 
         # add runoff layer to map
@@ -261,7 +248,7 @@ class RunoffPotential:
 
         # delete not needed scratch layers
         log("delete unused layers")
-        arcpy.management.Delete([soils_scratch, land_use_raster_clip, scratch_land_use_polygon, scratch_joined_land_use_polygon, scratch_pairwise_intersection])
+        arcpy.management.Delete([soils_scratch, land_use_raster_clip, scratch_land_use_polygon, scratch_joined_land_use_polygon])
 
         # save project
         log("saving project")
