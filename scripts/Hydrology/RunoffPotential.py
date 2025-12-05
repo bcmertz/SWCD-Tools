@@ -128,6 +128,8 @@ class RunoffPotential:
                 parameters[3].enabled = True
                 fields = [f.name for f in arcpy.ListFields(parameters[2].value)]
                 parameters[3].filter.list = fields
+                if "hydgrpdcd" in fields:
+                    parameters[3].value = "hydgrpdcd"
             else:
                 parameters[3].enabled = False
 
@@ -143,6 +145,14 @@ class RunoffPotential:
                 parameters[6].filter.list = fields2
                 parameters[7].filter.list = fields2
                 parameters[8].filter.list = fields2
+                if "RCNA" in fields:
+                    parameters[5].value = "RCNA"
+                if "RCNB" in fields:
+                    parameters[6].value = "RCNB"
+                if "RCNC" in fields:
+                    parameters[7].value = "RCNC"
+                if "RCND" in fields:
+                    parameters[8].value = "RCND"                
             else:
                 parameters[5].enabled = False
                 parameters[6].enabled = False
@@ -168,11 +178,6 @@ class RunoffPotential:
         rcn_field_b = parameters[6].value
         rcn_field_c = parameters[7].value
         rcn_field_d = parameters[8].value
-
-        #colorramps = project.listColorRamps()
-        #for i in colorramps:
-        #    log(i.name)
-        #return
 
         # scratch layers
         log("creating scratch layers")
