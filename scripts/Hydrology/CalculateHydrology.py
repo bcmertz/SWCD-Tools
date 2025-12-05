@@ -27,29 +27,31 @@ class CalculateHydrology:
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
+            displayName="DEM",
+            name="dem",
+            datatype="GPRasterLayer",
+            parameterType="Required",
+            direction="Input")
+        
+        param1 = arcpy.Parameter(
             displayName="Runoff Curve Number Layer",
             name="rcns",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
 
-        param1 = arcpy.Parameter(
-            displayName="DEM",
-            name="dem",
-            datatype="GPRasterLayer",
-            parameterType="Required",
-            direction="Input")
-
         param2 = arcpy.Parameter(
-            displayName="Output Folder",
-            name="output_location",
-            datatype="DEFolder",
-            parameterType="Required",
-            direction="Input")
-
-        param3 = arcpy.Parameter(
             displayName="HSG Field",
             name="hsg_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param2.filter.type = "ValueList"
+        param2.filter.list = []
+
+        param3 = arcpy.Parameter(
+            displayName="RCN Field",
+            name="rcn_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -57,8 +59,8 @@ class CalculateHydrology:
         param3.filter.list = []
 
         param4 = arcpy.Parameter(
-            displayName="RCN Field",
-            name="rcn_field",
+            displayName="Acres Field",
+            name="acres_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -66,8 +68,8 @@ class CalculateHydrology:
         param4.filter.list = []
 
         param5 = arcpy.Parameter(
-            displayName="Acres Field",
-            name="acres_field",
+            displayName="Land Use Field",
+            name="land_use_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -75,43 +77,41 @@ class CalculateHydrology:
         param5.filter.list = []
 
         param6 = arcpy.Parameter(
-            displayName="Land Use Field",
-            name="land_use_field",
-            datatype="GPString",
+            displayName="Output Folder",
+            name="output_location",
+            datatype="DEFolder",
             parameterType="Required",
             direction="Input")
-        param6.filter.type = "ValueList"
-        param6.filter.list = []
-
+        
         params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateParameters(self, parameters):
         # get RCN fields
-        if not parameters[0].hasBeenValidated:
-            if parameters[0].value:
+        if not parameters[1].hasBeenValidated:
+            if parameters[1].value:
+                parameters[2].enabled = True
                 parameters[3].enabled = True
                 parameters[4].enabled = True
                 parameters[5].enabled = True
-                parameters[6].enabled = True
-                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+                fields = [f.name for f in arcpy.ListFields(parameters[1].value)]
+                parameters[2].filter.list = fields
                 parameters[3].filter.list = fields
                 parameters[4].filter.list = fields
                 parameters[5].filter.list = fields
-                parameters[6].filter.list = fields
                 if "hydgrpdcd" in fields:
-                    parameters[3].value = "hydgrpdcd"
+                    parameters[2].value = "hydgrpdcd"
                 if "RCN" in fields:
-                    parameters[4].value = "RCN"
+                    parameters[3].value = "RCN"
                 if "Acres" in fields:
-                    parameters[5].value = "Acres"
+                    parameters[4].value = "Acres"
                 if "LandUse" in fields:
-                    parameters[6].value = "LandUse"
+                    parameters[5].value = "LandUse"
             else:
+                parameters[2].enabled = False
                 parameters[3].enabled = False
                 parameters[4].enabled = False
                 parameters[5].enabled = False
-                parameters[6].enabled = False
 
         return
 
@@ -132,13 +132,13 @@ class CalculateHydrology:
 
         # read in parameters
         log("reading in parameters")
-        rcn_layer = parameters[0].value
-        raster_layer = parameters[1].value
-        output_folder_path = parameters[2].valueAsText
-        hsg_field = parameters[3].value
-        rcn_field = parameters[4].value
-        acres_field = parameters[5].value
-        land_use_field = parameters[6].value
+        raster_layer = parameters[0].value
+        rcn_layer = parameters[1].value
+        hsg_field = parameters[2].value
+        rcn_field = parameters[3].value
+        acres_field = parameters[4].value
+        land_use_field = parameters[5].value
+        output_folder_path = parameters[6].valueAsText
 
         # utils
         watershed_layer_id = arcpy.ValidateTableName(rcn_layer.name)
