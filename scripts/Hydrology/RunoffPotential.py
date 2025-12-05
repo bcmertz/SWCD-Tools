@@ -145,13 +145,13 @@ class RunoffPotential:
                 parameters[6].filter.list = fields2
                 parameters[7].filter.list = fields2
                 parameters[8].filter.list = fields2
-                if "RCNA" in fields:
+                if "RCNA" in fields2:
                     parameters[5].value = "RCNA"
-                if "RCNB" in fields:
+                if "RCNB" in fields2:
                     parameters[6].value = "RCNB"
-                if "RCNC" in fields:
+                if "RCNC" in fields2:
                     parameters[7].value = "RCNC"
-                if "RCND" in fields:
+                if "RCND" in fields2:
                     parameters[8].value = "RCND"                
             else:
                 parameters[5].enabled = False
