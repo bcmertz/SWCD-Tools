@@ -223,6 +223,8 @@ class CalculateHydrology:
 
         hydrology_worksheet.save(output_worksheet_path)
         hydrology_worksheet.close()
+        del hydrology_worksheet
+        del ws_calculations
 
         # cleanup
         log("deleting unneeded data")

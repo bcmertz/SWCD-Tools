@@ -330,6 +330,8 @@ class Process(object):
                     ws['L24'] = tot
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
+            del sgw_workbook
+            del ws
 
         # open layouts
         log("opening layouts")

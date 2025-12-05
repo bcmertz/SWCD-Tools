@@ -342,6 +342,8 @@ class Delineate(object):
             ws['K15'] = zip_code
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
+            del sgw_workbook
+            del ws
 
             # zoom to layer in map object
             log("zooming map to {}".format(tax_id_num))
