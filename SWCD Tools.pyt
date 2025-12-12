@@ -9,7 +9,7 @@ sys.path.append(scripts)
 
 from BufferTools import PointPlots, ShrubClusters
 from AnalyzeArea import ContourArea, SlopeArea
-from Misc import CollectRasters, ExportLayouts
+from Misc import CollectRasters, ExportLayouts, GeocodeAddress
 from LineAnalysis import LocalMinimums
 from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, CalculateStreamline, LeastAction, TopographicWetness
 from Wetlands import PotentialWetlands, BermAnalysis, DamRemoval
@@ -41,6 +41,7 @@ tools = [SlopeArea,
          Delineate,
          Agland,
          NonAg,
+         GeocodeAddress,
          Forest,
          Process,
          Export]
