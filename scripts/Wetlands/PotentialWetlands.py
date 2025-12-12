@@ -111,14 +111,14 @@ class PotentialWetlands(object):
         param9.filter.list = []
 
         param10 = arcpy.Parameter(
-            displayName="Exclude Mapped Wetlands?",
+            displayName="Exclude Mapped Wetlands, Floodplains, etc?",
             name="exclude_wetlands",
             datatype="GPBoolean",
             parameterType="Optional",
            direction="Input")
 
         param11 = arcpy.Parameter(
-            displayName="Wetland Layers",
+            displayName="Excluded Areas",
             name="wetland_layers",
             datatype="GPFeatureLayer",
             multiValue=True,
@@ -324,13 +324,13 @@ class PotentialWetlands(object):
 
         # erase NWI / DEC wetlands if selected
         if calculate_wetlands:
-            log("erasing mapped wetlands from output")
+            log("erasing excluded areas from output")
             for wetland_layer in wetland_layers:
                 # erase wetlands
                 try:
                     arcpy.analysis.Erase(potential_wetland_locations, wetland_layer, scratch_reduced_potential_wetland)
                 except arcpy.ExecuteError:
-                    log("failed to erase existing wetlands, please see error below:")
+                    log("failed to erase excluded areas, please see error below:")
                     log(arcpy.GetMessages())
                     sys.exit()
                 # copy reduced wetland area to potential wetland locations
