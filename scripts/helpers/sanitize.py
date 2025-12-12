@@ -10,4 +10,4 @@ import string
 
 def sanitize(text):
     """return a sanitized file path string"""
-    return str(text).translate(str.maketrans('', '', string.punctuation))
+    return str(text).translate(str.maketrans('', '', string.punctuation)).replace(" ", "")
