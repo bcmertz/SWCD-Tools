@@ -12,3 +12,4 @@ from .printmessages import print_messages
 from .sanitize import sanitize
 from .setupenvironment import setup_environment
 from .validatespatialreference import validate_spatial_reference
+from .getoid import get_oid
