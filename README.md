@@ -274,13 +274,13 @@ Create shapefile of potential riparian forest buffer planting areas.
 
 This example shows a stream and it's potential riparian forest buffer areas within 200' of stream
 
-[TODO] This tool uses the following procedure:
-1. Find slopes <= user specified slope threshold
-2. Find all user specified hydric soils
-3. Extract all user-specified valid land uses
-4. Intersect all of these layers
-5. Optional: erase all user-specified mapped wetlands or floodlpains from analysis
-6. Optional: find mean value of topographic wetness index (TWI) raster in each output polygon and discard those < the user-specified minimum topographic wetness index
+This tool uses the following procedure:
+1. Clip streamlines to analysis area and create buffer around it
+2. Clip land use raster to buffer area
+3. Erase non-valid land use areas
+4. [Optional] Exclude specified areas
+5. Calculate acreage of planting areas
+6. Exclude planting areas smaller than specified size
 
 ## Automated Agricultural Assessment
 
