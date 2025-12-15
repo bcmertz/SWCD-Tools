@@ -7,7 +7,7 @@ from importlib import reload, import_module
 scripts = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.append(scripts)
 
-from BufferTools import PointPlots, ShrubClusters
+from BufferTools import PointPlots, ShrubClusters, BufferPotential
 from AnalyzeArea import ContourArea, SlopeArea
 from Misc import CollectRasters, ExportLayouts, GeocodeAddress
 from LineAnalysis import LocalMinimums
@@ -28,6 +28,7 @@ tools = [SlopeArea,
          RelativeElevationModel,
          PointPlots,
          ShrubClusters,
+         BufferPotential,
          LeastAction,
          RunoffPotential,
          CalculateHydrology,

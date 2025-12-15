@@ -8,3 +8,4 @@
 
 from .ShrubClusters import ShrubClusters
 from .PointPlots import PointPlots
+from .BufferPotential import BufferPotential
