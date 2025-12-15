@@ -50,7 +50,7 @@ class PotentialWetlands(object):
         param2.schema.clone = True
 
         param3 = arcpy.Parameter(
-            displayName="Maximum Slope (percent)",
+            displayName="Maximum Slope (%)",
             name="max_slope",
             datatype="GPDouble",
             parameterType="Optional",
@@ -369,30 +369,30 @@ class PotentialWetlands(object):
             # drop < min_twi
             twi_sql_query = "MEAN >= {}".format(min_twi)
             arcpy.analysis.Select(scratch_dissolve, output_file, twi_sql_query)
-
-            # symbology based off average TWI
-            log("setting output layer symbology")
-            if output_file.isFeatureLayer:
-                sym = output_file.symbology
-                if hasattr(sym, 'renderer'):
-                  if sym.renderer.type == 'SimpleRenderer':
-                    sym.updateRenderer('GraduatedColorsRenderer')
-                    sym.renderer.breakCount = 3
-                    sym.renderer.classificationMethod = 'NaturalBreaks'
-                    sym.renderer.classificationField = 'MEAN'
-                    sym.renderer.colorRamp = project.listColorRamps('Blue (3 Classes)')[0]
-                    output_file.symbology = sym
         else:
             log("copying potential wetland features to output feature class")
             arcpy.management.CopyFeatures(scratch_dissolve, output_file)
 
+        # add output to map
+        log("adding output to map")
+        lyr = active_map.addDataFromPath(output_file)
+
+        # set symbology based off of average TWI
+        if twi_raster and lyr.isFeatureLayer:
+            log("setting output layer symbology")
+            sym = lyr.symbology
+            if hasattr(sym, 'renderer'):
+              if sym.renderer.type == 'SimpleRenderer':
+                sym.updateRenderer('GraduatedColorsRenderer')
+                sym.renderer.breakCount = 3
+                sym.renderer.classificationMethod = 'NaturalBreaks'
+                sym.renderer.classificationField = 'MEAN'
+                sym.renderer.colorRamp = project.listColorRamps('Blue (3 Classes)')[0]
+                lyr.symbology = sym
+
         # delete not needed scratch layers
         log("delete unused layers")
-        arcpy.management.Delete([scratch_dem,scratch_slope_polygon,scratch_slope_dissolve_polygon,scratch_soils_area,scratch_hsg_soils,scratch_land_use_polygon,scratch_reduced_potential_wetland, scratch_zonal_stats])
-
-        # finish up
-        log("finishing up")
-        active_map.addDataFromPath(output_file)
+        arcpy.management.Delete([scratch_dem,scratch_slope_polygon,scratch_slope_dissolve_polygon,scratch_soils_area,scratch_hsg_soils,land_use_raster_clip,scratch_land_use_polygon,scratch_reduced_potential_wetland,scratch_zonal_stats,scratch_erase,scratch_output,scratch_dissolve])
 
         # save project
         log("saving project")
