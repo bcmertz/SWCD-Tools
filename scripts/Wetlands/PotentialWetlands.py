@@ -391,7 +391,7 @@ class PotentialWetlands(object):
                 fields = arcpy.ListFields(lyr)
                 field_name = ""
                 for field in fields:
-                    if field.aliasName == "Mean":
+                    if field.aliasName == "MEAN":
                         field_name = field.baseName
                 sym.renderer.classificationField = field_name
 
