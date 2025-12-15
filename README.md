@@ -265,14 +265,14 @@ This example shows a potential planting area and shrub clusters at a specified s
 
 ### 3. Riparian Forest Buffer Potential
 
-Create shapefile of shrub clusters in a given planting area.
+Create shapefile of potential riparian forest buffer planting areas.
 
 <span>
-<img src="/assets/readme_examples/shrub_clusters_before.png" alt="image showing a planting area polygon in blue" height="250" />
-<img src="/assets/readme_examples/shrub_clusters_after.png" alt="image showing a planting area polygon in blue and square shrub cluster polygons overtop of it" height="250" />
+<img src="/assets/readme_examples/riparian_potential_before.png" alt="aerial image showing a large stream and surrounding area" height="250" />
+<img src="/assets/readme_examples/riparian_potential_after.png" alt="aerial image showing a large stream and surrounding area with green hatched lines indicating potential riparian forest buffer potential planting areas." height="250" />
 </span>
 
-This example shows a potential planting area and shrub clusters at a specified size and density within it.
+This example shows a stream and it's potential riparian forest buffer areas within 200' of stream
 
 [TODO] This tool uses the following procedure:
 1. Find slopes <= user specified slope threshold
