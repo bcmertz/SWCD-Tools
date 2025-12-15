@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, get_oid
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -126,7 +126,7 @@ class WatershedDelineation(object):
 
         # adjust pour points
         log("adjusting pour point data")
-        pour_points_oid = arcpy.Describe(pour_points).OIDFieldName
+        pour_points_oid = get_oid(pour_points)
         pour_points_adjusted = arcpy.sa.SnapPourPoint(pour_points, flow_accumulation_scratch, snap_adjustment, pour_points_oid)
         pour_points_adjusted.save(pour_points_adjusted_scratch)
 

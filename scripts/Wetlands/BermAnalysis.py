@@ -11,7 +11,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, get_oid
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -227,7 +227,7 @@ class BermAnalysis(object):
             arcpy.management.AddField(berms, "berm_height", "FLOAT", field_precision=255, field_scale=2)
 
         # get OID field name for berm fc
-        oidfield = arcpy.Describe(berms).OIDFieldName
+        oidfield = get_oid(berms)
 
         # get selected features in layer
         selection_set = berms.getSelectionSet()

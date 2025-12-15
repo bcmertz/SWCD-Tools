@@ -12,7 +12,7 @@ import pathlib
 import openpyxl
 import datetime
 
-from helpers import license
+from helpers import license, get_oid
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -162,7 +162,7 @@ class CalculateHydrology:
 
         # zonal statistics
         log("finding average slope")
-        field_name = arcpy.Describe(scratch_watershed).OIDFieldName
+        field_name = get_oid(scratch_watershed)
         arcpy.sa.ZonalStatisticsAsTable(scratch_watershed, field_name, slope_raster, scrath_table, "", "MEAN")
         mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(scrath_table, "MEAN")][0]),2)
 

@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, get_oid
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 
@@ -42,7 +42,7 @@ class CollectRasters:
                 log("Grabbing rasters for ", lyr.name)
                 # get year from key feature class
                 year = lyr.name.replace(" Key", "")
-                oidfield = arcpy.Describe(lyr).OIDFieldName
+                oidfield = get_oid(lyr)
 
                 # get selected features in layer
                 selection_tuple = tuple(lyr.getSelectionSet())
