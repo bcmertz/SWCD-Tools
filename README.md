@@ -268,8 +268,8 @@ This example shows a potential planting area and shrub clusters at a specified s
 Create shapefile of potential riparian forest buffer planting areas.
 
 <span>
-<img src="/assets/readme_examples/riparian_potential_before.png" alt="aerial image showing a large stream and surrounding area" height="250" />
-<img src="/assets/readme_examples/riparian_potential_after.png" alt="aerial image showing a large stream and surrounding area with green hatched lines indicating potential riparian forest buffer potential planting areas." height="250" />
+<img src="/assets/readme_examples/riparian_potential_before.png" alt="aerial image showing a large stream and surrounding area" width="180" />
+<img src="/assets/readme_examples/riparian_potential_after.png" alt="aerial image showing a large stream and surrounding area with green hatched lines indicating potential riparian forest buffer potential planting areas." width="180" />
 </span>
 
 This example shows a stream and it's potential riparian forest buffer areas within 200' of stream
