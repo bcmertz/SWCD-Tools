@@ -393,9 +393,9 @@ class PotentialWetlands(object):
                 for field in fields:
                     if field.aliasName == "MEAN":
                         field_name = field.baseName
+                        break
                 sym.renderer.classificationField = field_name
-
-                sym.renderer.colorRamp = project.listColorRamps('Blue (3 Classes)')[0]
+                sym.renderer.colorRamp = project.listColorRamps('Blues (3 Classes)')[0]
                 lyr.symbology = sym
             except:
                 log("could not set output symbology properly")
