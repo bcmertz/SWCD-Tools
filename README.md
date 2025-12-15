@@ -43,6 +43,8 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
 ArcGIS Pro v3.3 or greater with access to the following licenses:
 - Spatial Analyst
 
+If you're not sure, each tool will verify you have the proper licenses needed. Not all tools require advanced licenses.
+
 # Installation
 
 1. Download repository
