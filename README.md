@@ -116,7 +116,7 @@ This tool can be used to estimate storage capacity of a dammed area using a DEM.
 
 ### 3. Model Potential Wetlands
 
-This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
+This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, topographic wetness index (optional), and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
 
 <span>
 <img src="./assets/readme_examples/potential_wetlands_after.png" alt="picture showing output of model potential wetlands tool with areas along a stream highlited red to indicate potential wetland areas" height="250"/>
@@ -124,6 +124,16 @@ This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land 
 </span>
 
 Exmaple showing modeled potential wetlands (without existing wetland exclusion) in red on the left and mapped wetlands (NWI) in purple on the right.
+
+This tool uses the following procedure:
+1. Find slopes <= user specified slope threshold
+2. Find all user specified hydric soils
+3. Extract all user-specified valid land uses
+4. Intersect all of these layers
+5. Optional: erase all user-specified mapped wetlands or floodlpains from analysis
+6. Optional: find mean value of topographic wetness index (TWI) raster in each output polygon and discard those < the user-specified minimum topographic wetness index
+
+This provides a reasonable approximation of wetland soils, hydrology, and valid land use. The output of this analysis can be intersected with known agricultural ditches or other wetland manipulating structures to find potential project areas. Consider using the [USGS Hyper-Resolution Hydrology Dataset](https://www.usgs.gov/data/chesapeake-bay-hyper-resolution-hydrography-database) for mapped ag and road ditches.
 
 ## Hydrology
 
