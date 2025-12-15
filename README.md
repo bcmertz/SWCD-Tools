@@ -369,9 +369,7 @@ Only for in-house use since it depends on a very specific file structure and his
 
 ### Geocode address tool
 
-TODO
-
-Take NYS address and geocode it to point
+Uses [NY GIS Address Geocoder](https://gis.ny.gov/address-geocoder) to take an address and return a point on the map.
 
 # Contributing
 
