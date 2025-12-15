@@ -26,6 +26,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
   - [Planting tools](#buffer-tools)
     - [Point Plots](#1-point-plots)
     - [Shrub Clusters](#2-shrub-clusters)
+    - [Riparian Forest Buffer Potential](#3-riparian-forest-buffer-potential)
   - [Agricultural Assessment](#automated-agricultural-assessment)
   - [Linear Analysis](#linear-analysis)
     - [Local Minimums](#1-local-minimums)
@@ -261,6 +262,25 @@ Create shapefile of shrub clusters in a given planting area.
 </span>
 
 This example shows a potential planting area and shrub clusters at a specified size and density within it.
+
+### 3. Riparian Forest Buffer Potential
+
+Create shapefile of shrub clusters in a given planting area.
+
+<span>
+<img src="/assets/readme_examples/shrub_clusters_before.png" alt="image showing a planting area polygon in blue" height="250" />
+<img src="/assets/readme_examples/shrub_clusters_after.png" alt="image showing a planting area polygon in blue and square shrub cluster polygons overtop of it" height="250" />
+</span>
+
+This example shows a potential planting area and shrub clusters at a specified size and density within it.
+
+[TODO] This tool uses the following procedure:
+1. Find slopes <= user specified slope threshold
+2. Find all user specified hydric soils
+3. Extract all user-specified valid land uses
+4. Intersect all of these layers
+5. Optional: erase all user-specified mapped wetlands or floodlpains from analysis
+6. Optional: find mean value of topographic wetness index (TWI) raster in each output polygon and discard those < the user-specified minimum topographic wetness index
 
 ## Automated Agricultural Assessment
 
