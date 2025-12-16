@@ -64,16 +64,7 @@ class BurnCulverts(object):
             parameterType="Required",
             direction="Input")
 
-        param5 = arcpy.Parameter(
-            displayName="Stream Line",
-            name="strean",
-            datatype="GPFeatureLayer",
-            parameterType="Optional",
-            direction="Input")
-        param5.filter.list = ["Polyline"]
-        param5.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
-
-        params = [param0, param1, param2, param3, param4, param5]
+        params = [param0, param1, param2, param3, param4]
         return params
 
     def updateParameters(self, parameters):
@@ -119,7 +110,7 @@ class BurnCulverts(object):
         scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace) # TODO: change
         scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace) # TODO: change
 
-        if parameters[1].value:
+        if extent:
             # clip DEM raster to analysis area
             log("clipping raster to analysis area")
             arcpy.management.Clip(raster_layer, extent, scratch_dem)
@@ -196,13 +187,12 @@ class BurnCulverts(object):
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster)
 
         # mosaic to new raster
-        # TODO: consider setting pixel type, # bands from input raster
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
         arcpy.management.MosaicToNewRaster(
             input_rasters=[raster_layer,scratch_burned_raster],
             output_location=arcpy.env.workspace,
-            pixel_type="32_BIT_FLOAT",
-            number_of_bands=1,
+            pixel_type=raster_layer.pixelType,
+            number_of_bands=raster_layer.bandCount,
             raster_dataset_name_with_extension=mosaic_raster,
             mosaic_method="LAST",
             mosaic_colormap_mode="FIRST"
@@ -216,8 +206,9 @@ class BurnCulverts(object):
         log("adding hydro-conditioned DEM to map")
         dem_layer = active_map.addDataFromPath(output_file)
 
+        # delete scratch layers
         log("cleaning up")
-        arcpy.management.Delete([scratch_dem,scratch_culverts,scratch_culvert_upstream, scratch_culvert_downstream, scratch_points_merge, scratch_streams, scratch_stream_buffer, scratch_burned_raster, scratch_mosaic_raster])
+        arcpy.management.Delete([scratch_dem, scratch_culverts, scratch_culvert_upstream, scratch_culvert_downstream, scratch_points_merge, scratch_streams, scratch_stream_buffer, scratch_burned_raster, cratch_mosaic_raster])
 
         # save and exit program successfully
         log("saving project")
