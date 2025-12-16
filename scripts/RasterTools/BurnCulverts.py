@@ -9,7 +9,7 @@
 import math
 import arcpy
 
-from helpers import license, get_oid
+from helpers import license, get_oid, pixel_type
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -185,13 +185,14 @@ class BurnCulverts(object):
         # polygon to raster
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster)
 
-        # mosaic to new raster
+        # mosaic to new raster 
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
+        log(difference.pixelType, difference.bandCount)
         arcpy.management.MosaicToNewRaster(
             input_rasters=[raster_layer,scratch_burned_raster],
             output_location=arcpy.env.workspace,
-            pixel_type=raster_layer.pixelType,
-            number_of_bands=raster_layer.bandCount,
+            pixel_type=pixel_type[difference.pixelType],
+            number_of_bands=difference.bandCount,
             raster_dataset_name_with_extension=mosaic_raster,
             mosaic_method="LAST",
             mosaic_colormap_mode="FIRST"
