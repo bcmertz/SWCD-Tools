@@ -49,7 +49,7 @@ class BurnCulverts(object):
         param2.schema.clone = True
 
         param3 = arcpy.Parameter(
-            displayName="Culverts / Stream Obstructions",
+            displayName="Culverts",
             name="culverts",
             datatype="GPFeatureLayer",
             parameterType="Required",
