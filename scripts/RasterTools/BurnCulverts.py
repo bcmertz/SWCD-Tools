@@ -101,7 +101,6 @@ class BurnCulverts(object):
         extent = parameters[1].value.polygon
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
-        culverts_oid_field = get_oid(culverts)
         distance = parameters[4].value
         streams = parameters[5].value
 
@@ -116,6 +115,7 @@ class BurnCulverts(object):
         scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace) # TODO: change
         scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace) # TODO: change
+        test = "{}\\test".format(arcpy.env.workspace) # TODO: remove
 
         if parameters[1].value:
             # clip DEM raster to analysis area
@@ -136,24 +136,25 @@ class BurnCulverts(object):
         difference = arcpy.sa.RasterCalculator([fill_raster,raster_layer],["x","y"],"x-y", "FirstOf", "FirstOf")
 
         # snap culvert to max difference
+        culverts_oid_field = get_oid(culverts)
         culvert_raster_upstream = arcpy.sa.SnapPourPoint(culverts, difference, "{} Feet".format(distance), culverts_oid_field)
-        arcpy.conversion.RasterToPoint(culvert_raster_upstream, scratch_culvert_upstream, culverts_oid_field)
+        arcpy.conversion.RasterToPoint(culvert_raster_upstream, scratch_culvert_upstream, "Value") #culverts_oid_field gets set to Value instead of the field name mapped over
         
         # 0 - Fill
         log("finding downstream culvert")
-        negative_elev = arcpy.sa.RasterCalculator([fill_raster],["x"],"0-y", "FirstOf", "FirstOf")
+        negative_elev = arcpy.sa.RasterCalculator([fill_raster],["x"],"0-x", "FirstOf", "FirstOf")
 
         # snap culvert to lowest point
         culvert_raster_downstream = arcpy.sa.SnapPourPoint(culverts, negative_elev, "{} Feet".format(distance), culverts_oid_field)
-        arcpy.conversion.RasterToPoint(culvert_raster_downstream, scratch_culvert_downstream, culverts_oid_field)
+        arcpy.conversion.RasterToPoint(culvert_raster_downstream, scratch_culvert_downstream, "Value")
 
         # points to line
         log("creating local streamline")
-        arcpy.management.Merge([scratch_culvert_downstream,culvert_raster_upstream],scratch_points_merge)
-        arcpy.management.PointsToLine(scratch_points_merge,scratch_streams,Line_Field=culverts_oid_field, Close_Line="NO_CLOSE")
+        arcpy.management.Merge([scratch_culvert_upstream,scratch_culvert_downstream],scratch_points_merge)
+        arcpy.management.PointsToLine(scratch_culvert_upstream,scratch_streams,Line_Field="grid_code", Close_Line="NO_CLOSE")
 
         # buffer line to make streambed
-        log("burning-in crossing
+        log("burning-in crossing")
         arcpy.analysis.PairwiseBuffer(scratch_streams, scratch_stream_buffer, "{} Feet".format(distance))
 
         # Add field elev

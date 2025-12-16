@@ -22,6 +22,7 @@ def my_reloader(name):
 
 tools = [SlopeArea,
          ContourArea,
+         BurnCulverts,
          CollectRasters,
          ExportLayouts,
          LocalMinimums,
