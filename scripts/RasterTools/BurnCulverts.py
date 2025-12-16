@@ -187,7 +187,6 @@ class BurnCulverts(object):
 
         # mosaic to new raster 
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
-        log(difference.pixelType, difference.bandCount)
         arcpy.management.MosaicToNewRaster(
             input_rasters=[raster_layer,scratch_burned_raster],
             output_location=arcpy.env.workspace,
@@ -200,7 +199,7 @@ class BurnCulverts(object):
 
         # fill
         out_surface_raster = arcpy.sa.Fill(scratch_mosaic_raster, z_limit=None)
-        out_surface_raster.save(output_file)            
+        out_surface_raster.save(output_file)
 
         # add raster to map
         log("adding hydro-conditioned DEM to map")
