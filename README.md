@@ -28,11 +28,12 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Shrub Clusters](#2-shrub-clusters)
     - [Riparian Forest Buffer Potential](#3-riparian-forest-buffer-potential)
   - [Agricultural Assessment](#automated-agricultural-assessment)
-  - [Linear Analysis](#linear-analysis)
-    - [Local Minimums](#1-local-minimums)
-  - [Analyze Area](#analyze-area)
+  - [Raster Tools](#raster-tools)
     - [Contour Area](#1-contour-area)
     - [Slope Area](#2-slope-area)
+    - [Burn Culverts into DM](#3-burn-culverts-in-dem)
+  - [Linear Analysis](#linear-analysis)
+    - [Local Minimums](#1-local-minimums)
   - [Miscellaneous](#miscellaneous)
   	- [Export Layouts](#export-layouts)
  	- [Historical Imagery](#historical-imagery)
@@ -282,6 +283,43 @@ This tool uses the following procedure:
 5. Calculate acreage of planting areas
 6. Exclude planting areas smaller than specified size
 
+## Raster Tools
+
+Quality of life tools to improve some out of the box geoprocessing tools
+
+### 1. Contour Area
+
+Contour tool with ability to limit analysis to a given area
+
+<span>
+<img src="./assets/readme_examples/contour_before.png" alt="iamge showing aerial of farm field without contours" height="300"/>
+<img src="./assets/readme_examples/contour_after.png" alt="after image showing same field with 1 foot contours in yellow lines" height="300"/>
+</span>
+
+Example showing a before and after of 1' contours in a sloping field.
+
+### 2. Slope Area
+
+Slope tool with ability to limit analysis to a given area
+
+<span>
+<img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="300"/>
+<img src="./assets/readme_examples/slope_after.png" alt="after image showing green-red slope raster of the same area" height="300"/>
+</span>
+
+Example showing before aerials and output slope raster.
+
+### 3. Burn Culverts in DEM
+
+Slope tool with ability to limit analysis to a given area
+
+<span>
+<img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="300"/>
+<img src="./assets/readme_examples/slope_after.png" alt="after image showing green-red slope raster of the same area" height="300"/>
+</span>
+
+Example showing before aerials and output slope raster.
+
 ## Automated Agricultural Assessment
 
 ### Notes:
@@ -347,32 +385,6 @@ Output of step 3 showing the final layout.
 ### 4. Export Layouts
 
 Export all relevant maps to PDF in the project folder.
-
-## Analyze Area
-
-Quality of life tools to improve some out of the box geoprocessing tools
-
-### 1. Contour Area
-
-Contour tool with ability to limit analysis to a given area
-
-<span>
-<img src="./assets/readme_examples/contour_before.png" alt="iamge showing aerial of farm field without contours" height="300"/>
-<img src="./assets/readme_examples/contour_after.png" alt="after image showing same field with 1 foot contours in yellow lines" height="300"/>
-</span>
-
-Example showing a before and after of 1' contours in a sloping field.
-
-### 2. Slope Area
-
-Slope tool with ability to limit analysis to a given area
-
-<span>
-<img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="300"/>
-<img src="./assets/readme_examples/slope_after.png" alt="after image showing green-red slope raster of the same area" height="300"/>
-</span>
-
-Example showing before aerials and output slope raster.
 
 ## Linear Analysis
 
