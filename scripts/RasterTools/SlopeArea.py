@@ -19,7 +19,7 @@ class SlopeArea(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Slope Area"
         self.description = "Create slope raster for specific area of DEM"
-        self.category = "Analyze Area"
+        self.category = "Raster Tools"
         self.canRunInBackground = True
 
     def getParameterInfo(self):

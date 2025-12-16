@@ -8,7 +8,7 @@ scripts = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.append(scripts)
 
 from BufferTools import PointPlots, ShrubClusters, BufferPotential
-from AnalyzeArea import ContourArea, SlopeArea
+from RasterTools import ContourArea, SlopeArea, BurnCulverts
 from Misc import CollectRasters, ExportLayouts, GeocodeAddress
 from LineAnalysis import LocalMinimums
 from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, CalculateStreamline, LeastAction, TopographicWetness

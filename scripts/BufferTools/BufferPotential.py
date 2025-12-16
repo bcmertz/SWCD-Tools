@@ -165,7 +165,7 @@ class BufferPotential:
         stream = parameters[0].value
         min_width = parameters[1].value
         min_acres = parameters[2].value
-        extent = parameters[3].value.polygon,
+        extent = parameters[3].value.polygon
         output_file = parameters[4].valueAsText
         land_use_raster = parameters[5].value
         land_use_field = parameters[6].value
