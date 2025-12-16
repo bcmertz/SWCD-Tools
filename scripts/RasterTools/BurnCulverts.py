@@ -93,22 +93,21 @@ class BurnCulverts(object):
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
         distance = parameters[4].value
-        streams = parameters[5].value
         desc = arcpy.Describe(parameters[3].value)
         spatial_reference = desc.spatialReference
         env_path = r"{}".format(arcpy.env.workspace)
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dem = "{}\\dem_clip".format(arcpy.env.workspace) # TODO: change
+        scratch_dem = "{}\\dem_clip".format(arcpy.env.workspace)
         scratch_culverts = arcpy.CreateScratchName("culverts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_culvert_upstream = arcpy.CreateScratchName("upstream", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_culvert_downstream = arcpy.CreateScratchName("downstream", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_points_merge = arcpy.CreateScratchName("merge", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_streams = arcpy.management.CreateFeatureclass(env_path, "lines", "POLYLINE", spatial_reference=spatial_reference)
         scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace) # TODO: change
-        scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace) # TODO: change
+        scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace)
+        scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace)
 
         if extent:
             # clip DEM raster to analysis area
