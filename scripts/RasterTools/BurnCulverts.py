@@ -124,7 +124,7 @@ class BurnCulverts(object):
         fill_raster = arcpy.sa.Fill(raster_layer)
 
         # subtract filled - clipped raster
-        difference = arcpy.sa.RasterCalculator([fill_raster,raster_layer],["x","y"],"x-y", "FirstOf", "FirstOf")
+        difference = fill_raster - raster_layer
 
         # snap culvert to max difference
         culverts_oid_field = get_oid(culverts)
@@ -133,7 +133,7 @@ class BurnCulverts(object):
 
         # 0 - Fill
         log("finding point downstream of culvert")
-        negative_elev = arcpy.sa.RasterCalculator([fill_raster],["x"],"0-x", "FirstOf", "FirstOf")
+        negative_elev = -fill_raster
 
         # snap culvert to lowest point
         culvert_raster_downstream = arcpy.sa.SnapPourPoint(culverts, negative_elev, "{} Feet".format(distance), culverts_oid_field)
@@ -185,11 +185,14 @@ class BurnCulverts(object):
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster)
 
         # mosaic to new raster
+        #r = difference.getRasterInfo()
+        #num_bands = r.getBandCount()
+        #pixel_type = pixel_typer.getPixelType() 
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
         arcpy.management.MosaicToNewRaster(
             input_rasters=[raster_layer,scratch_burned_raster],
             output_location=arcpy.env.workspace,
-            pixel_type=pixel_type[difference.pixelType],
+            pixel_type=pixel_type(difference.pixelType),
             number_of_bands=difference.bandCount,
             raster_dataset_name_with_extension=mosaic_raster,
             mosaic_method="LAST",
