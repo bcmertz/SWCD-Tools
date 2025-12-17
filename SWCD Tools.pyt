@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-import arcpy
-from importlib import reload, import_module
+# from importlib import reload, import_module
 
 scripts = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.append(scripts)

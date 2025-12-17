@@ -5,8 +5,7 @@
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
-
-import math
+import sys
 import arcpy
 
 from helpers import license
@@ -32,7 +31,7 @@ class BufferPotential:
             direction="Input")
         param0.filter.list = ["Polyline"]
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
-        
+
         param1 = arcpy.Parameter(
             displayName="Buffer Width (ft)",
             name="width",
@@ -171,7 +170,7 @@ class BufferPotential:
         land_use_field = parameters[6].value
         land_use_values = parameters[7].valueAsText.replace("'","").split(";")
         calculate_wetlands = parameters[8].value
-        wetland_layers = parameters[9].valueAsText.replace("'","").split(";") if calculate_wetlands else [] 
+        wetland_layers = parameters[9].valueAsText.replace("'","").split(";") if calculate_wetlands else []
         scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
@@ -252,7 +251,7 @@ class BufferPotential:
 
         # add output to map
         log("adding output to map")
-        lyr = active_map.addDataFromPath(output_file)
+        active_map.addDataFromPath(output_file)
 
         # cleanup
         log("deleting unneeded data")

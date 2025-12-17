@@ -6,7 +6,6 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import math
 import arcpy
 
 from helpers import license, get_oid, pixel_type
@@ -131,7 +130,7 @@ class BurnCulverts(object):
         culverts_oid_field = get_oid(culverts)
         culvert_raster_upstream = arcpy.sa.SnapPourPoint(culverts, difference, "{} Feet".format(distance), culverts_oid_field)
         arcpy.conversion.RasterToPoint(culvert_raster_upstream, scratch_culvert_upstream, "Value") #culverts_oid_field gets set to Value instead of the field name mapped over
-        
+
         # 0 - Fill
         log("finding point downstream of culvert")
         negative_elev = arcpy.sa.RasterCalculator([fill_raster],["x"],"0-x", "FirstOf", "FirstOf")
@@ -185,7 +184,7 @@ class BurnCulverts(object):
         # polygon to raster
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster)
 
-        # mosaic to new raster 
+        # mosaic to new raster
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
         arcpy.management.MosaicToNewRaster(
             input_rasters=[raster_layer,scratch_burned_raster],
@@ -203,11 +202,11 @@ class BurnCulverts(object):
 
         # add raster to map
         log("adding hydro-conditioned DEM to map")
-        dem_layer = active_map.addDataFromPath(output_file)
+        active_map.addDataFromPath(output_file)
 
         # delete scratch layers
         log("cleaning up")
-        arcpy.management.Delete([scratch_dem, scratch_culverts, scratch_culvert_upstream, scratch_culvert_downstream, scratch_points_merge, scratch_streams, scratch_stream_buffer, scratch_burned_raster, cratch_mosaic_raster])
+        arcpy.management.Delete([scratch_dem, scratch_culverts, scratch_culvert_upstream, scratch_culvert_downstream, scratch_points_merge, scratch_streams, scratch_stream_buffer, scratch_burned_raster, scratch_mosaic_raster])
 
         # save and exit program successfully
         log("saving project")

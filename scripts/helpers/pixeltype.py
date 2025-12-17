@@ -6,8 +6,6 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import arcpy
-
 pixel_types = {
     "U1": "1_BIT",
     "U2": "2_BIT",
@@ -20,7 +18,7 @@ pixel_types = {
     "U32": "32_BIT_SIGNED",
     "F32": "32_BIT_FLOAT",
     "F64": "64_BIT"
-}       
+}
 
 def pixel_type(id):
     """return the object ID of a given layer"""

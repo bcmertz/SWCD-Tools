@@ -7,8 +7,8 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import arcpy
 import os
+import arcpy
 
 # only needed for spatial analyst, but potential image analyst, ddd or others if
 # we end up using them
