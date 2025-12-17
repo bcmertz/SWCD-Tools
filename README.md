@@ -31,7 +31,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
   - [Raster Tools](#raster-tools)
     - [Contour Area](#1-contour-area)
     - [Slope Area](#2-slope-area)
-    - [Burn Culverts into DM](#3-burn-culverts-in-dem)
+    - [Burn Culverts in DEM](#3-burn-culverts-in-dem)
   - [Linear Analysis](#linear-analysis)
     - [Local Minimums](#1-local-minimums)
   - [Miscellaneous](#miscellaneous)
@@ -314,11 +314,11 @@ Example showing before aerials and output slope raster.
 Slope tool with ability to limit analysis to a given area
 
 <span>
-<img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="300"/>
-<img src="./assets/readme_examples/slope_after.png" alt="after image showing green-red slope raster of the same area" height="300"/>
+<img src="./assets/readme_examples/culvert_dem_before.png" alt="before image green to red DEM raster with bridge obstructing river" height="300"/>
+<img src="./assets/readme_examples/culvert_dem_after.png" alt="after image green to red DEM raster with bridge not obstructing river" height="300"/>
 </span>
 
-Example showing before aerials and output slope raster.
+Example showing before and after DEM with culvert removal.
 
 ## Automated Agricultural Assessment
 
