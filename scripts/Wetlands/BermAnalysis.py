@@ -180,8 +180,6 @@ class BermAnalysis(object):
         scratch_zonal_statistics = arcpy.CreateUniqueName("scratch_zonal_statistics")
         scratch_dem_mask = arcpy.CreateUniqueName("scratch_dem_mask")
         scratch_mosaic_raster = arcpy.CreateUniqueName("scratch_mosaic_raster")
-        scratch_fill_mosaic = arcpy.CreateUniqueName("scratch_fill_mosaic")
-        scratch_fill_dem = arcpy.CreateUniqueName("scratch_fill_dem")
         scratch_con = arcpy.CreateUniqueName("scratch_con")
         scratch_contour = arcpy.CreateUniqueName("scratch_contour")
         scratch_effective_berm = arcpy.CreateUniqueName("scratch_effective_berm")
@@ -297,30 +295,29 @@ class BermAnalysis(object):
 
                 # mosaic to new raster
                 log("mosaic to new raster")
+                scratch_dem_raster = arcpy.Raster(scratch_dem)
                 arcpy.management.MosaicToNewRaster(
                     input_rasters=[scratch_dem, scratch_zonal_statistics],
                     output_location=arcpy.env.workspace,
                     raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
-                    pixel_type=pixel_type(scratch_dem.pixelType),
-                    number_of_bands=scratch_dem.bandCount,
+                    pixel_type=pixel_type(scratch_dem_raster.pixelType),
+                    number_of_bands=scratch_dem_raster.bandCount,
                     mosaic_method="LAST",
                     mosaic_colormap_mode="FIRST"
                 )
 
                 # fill mosaic and clipped dem
                 log("fill mosaic")
-                out_mosaic_fill_raster = arcpy.sa.Fill(
+                scratch_fill_mosaic = arcpy.sa.Fill(
                     in_surface_raster=scratch_mosaic_raster,
                     z_limit=None
                 )
-                out_mosaic_fill_raster.save(scratch_fill_mosaic)
 
                 log("fill DEM")
-                out_dem_fill_raster = arcpy.sa.Fill(
+                scratch_fill_dem = arcpy.sa.Fill(
                     in_surface_raster=scratch_dem,
                     z_limit=None
                 )
-                out_dem_fill_raster.save(scratch_fill_dem)
 
                 # raster calculator
                 log("calculate elevation differences")
@@ -390,7 +387,7 @@ class BermAnalysis(object):
 
         # delete not needed scratch layers
         log("delete unused layers")
-        arcpy.management.Delete([scratch_contour, scratch_berm, scratch_output, scratch_dem, scratch_dem_min, scratch_zonal_statistics, scratch_dem_mask, scratch_mosaic_raster, scratch_fill_mosaic, scratch_fill_dem, scratch_con, scratch_effective_berm])
+        arcpy.management.Delete([scratch_contour, scratch_berm, scratch_output, scratch_dem, scratch_dem_min, scratch_zonal_statistics, scratch_dem_mask, scratch_mosaic_raster, scratch_con, scratch_effective_berm])
 
 
         # finish up

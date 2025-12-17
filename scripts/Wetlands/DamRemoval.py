@@ -299,13 +299,14 @@ class DamRemoval(object):
 
         # Mosaic dem_pondless, raster_points
         log("mosaic to new raster")
+        dem_pondless_raster = arcpy.Raster(dem_pondless)
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
         arcpy.management.MosaicToNewRaster(
             input_rasters=[dem_pondless, scratch_point_raster],
             output_location=arcpy.env.workspace,
             raster_dataset_name_with_extension=mosaic_raster,
-            pixel_type=pixel_type(dem_pondless.pixelType),
-            number_of_bands=dem_pondless.bandCount,
+            pixel_type=pixel_type(dem_pondless_raster.pixelType),
+            number_of_bands=dem_pondless_raster.bandCount,
             mosaic_method="LAST",
             mosaic_colormap_mode="FIRST"
         )
