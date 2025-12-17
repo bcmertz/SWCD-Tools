@@ -311,7 +311,7 @@ Example showing before aerials and output slope raster.
 
 ### 3. Burn Culverts in DEM
 
-Slope tool with ability to limit analysis to a given area
+This tool takes a DEM and culvert points shapefile and burns the culverts into the DEM for proper flow direction and accumulation analysis.
 
 <span>
 <img src="./assets/readme_examples/culvert_dem_before.png" alt="before image green to red DEM raster with bridge obstructing river" height="250"/>
