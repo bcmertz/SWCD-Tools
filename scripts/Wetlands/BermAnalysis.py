@@ -182,7 +182,6 @@ class BermAnalysis(object):
         scratch_mosaic_raster = arcpy.CreateUniqueName("scratch_mosaic_raster")
         scratch_fill_mosaic = arcpy.CreateUniqueName("scratch_fill_mosaic")
         scratch_fill_dem = arcpy.CreateUniqueName("scratch_fill_dem")
-        scratch_raster_calculator = arcpy.CreateUniqueName("scratch_raster_calculator")
         scratch_con = arcpy.CreateUniqueName("scratch_con")
         scratch_contour = arcpy.CreateUniqueName("scratch_contour")
         scratch_effective_berm = arcpy.CreateUniqueName("scratch_effective_berm")
@@ -325,12 +324,7 @@ class BermAnalysis(object):
 
                 # raster calculator
                 log("calculate elevation differences")
-                output_raster_calculator = arcpy.sa.RasterCalculator(
-                    rasters = [scratch_fill_mosaic, scratch_fill_dem],
-                    input_names = ["mosaic", "dem"],
-                    expression="mosaic - dem"
-                )
-                output_raster_calculator.save(scratch_raster_calculator)
+                scratch_raster_calculator = scratch_fill_mosaic - scratch_fill_dem
 
                 if contour_bool:
                     log("calculating contours")
@@ -396,7 +390,7 @@ class BermAnalysis(object):
 
         # delete not needed scratch layers
         log("delete unused layers")
-        arcpy.management.Delete([scratch_contour, scratch_berm, scratch_output, scratch_dem, scratch_dem_min, scratch_zonal_statistics, scratch_dem_mask, scratch_mosaic_raster, scratch_fill_mosaic, scratch_fill_dem, scratch_raster_calculator, scratch_con, scratch_effective_berm])
+        arcpy.management.Delete([scratch_contour, scratch_berm, scratch_output, scratch_dem, scratch_dem_min, scratch_zonal_statistics, scratch_dem_mask, scratch_mosaic_raster, scratch_fill_mosaic, scratch_fill_dem, scratch_con, scratch_effective_berm])
 
 
         # finish up
