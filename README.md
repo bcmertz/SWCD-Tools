@@ -314,8 +314,8 @@ Example showing before aerials and output slope raster.
 Slope tool with ability to limit analysis to a given area
 
 <span>
-<img src="./assets/readme_examples/culvert_dem_before.png" alt="before image green to red DEM raster with bridge obstructing river" height="300"/>
-<img src="./assets/readme_examples/culvert_dem_after.png" alt="after image green to red DEM raster with bridge not obstructing river" height="300"/>
+<img src="./assets/readme_examples/culvert_dem_before.png" alt="before image green to red DEM raster with bridge obstructing river" height="250"/>
+<img src="./assets/readme_examples/culvert_dem_after.png" alt="after image green to red DEM raster with bridge not obstructing river" height="250"/>
 </span>
 
 Example showing before and after DEM with culvert removal.
