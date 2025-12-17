@@ -10,7 +10,7 @@
 import arcpy
 from math import atan2, pi
 
-from helpers import license
+from helpers import license, pixel_type
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -304,8 +304,8 @@ class DamRemoval(object):
             input_rasters=[dem_pondless, scratch_point_raster],
             output_location=arcpy.env.workspace,
             raster_dataset_name_with_extension=mosaic_raster,
-            pixel_type="32_BIT_FLOAT",
-            number_of_bands=1,
+            pixel_type=pixel_type(dem_pondless.pixelType),
+            number_of_bands=dem_pondless.bandCount,
             mosaic_method="LAST",
             mosaic_colormap_mode="FIRST"
         )

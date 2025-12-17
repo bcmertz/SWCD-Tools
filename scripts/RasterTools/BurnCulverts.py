@@ -185,9 +185,6 @@ class BurnCulverts(object):
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster)
 
         # mosaic to new raster
-        #r = difference.getRasterInfo()
-        #num_bands = r.getBandCount()
-        #pixel_type = pixel_typer.getPixelType() 
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
         arcpy.management.MosaicToNewRaster(
             input_rasters=[raster_layer,scratch_burned_raster],

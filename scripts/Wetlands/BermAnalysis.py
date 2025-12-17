@@ -11,7 +11,7 @@
 
 import arcpy
 
-from helpers import license, get_oid
+from helpers import license, get_oid, pixel_type
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -301,8 +301,8 @@ class BermAnalysis(object):
                     input_rasters=[scratch_dem, scratch_zonal_statistics],
                     output_location=arcpy.env.workspace,
                     raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
-                    pixel_type="32_BIT_FLOAT",
-                    number_of_bands=1,
+                    pixel_type=pixel_type(scratch_dem.pixelType),
+                    number_of_bands=scratch_dem.bandCount,
                     mosaic_method="LAST",
                     mosaic_colormap_mode="FIRST"
                 )
