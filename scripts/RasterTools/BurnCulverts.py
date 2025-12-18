@@ -69,7 +69,7 @@ class BurnCulverts(object):
     def updateParameters(self, parameters):
         # default search distance
         if parameters[4].value == None:
-            parameters[4].value = 50
+            parameters[4].value = 100
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -90,8 +90,7 @@ class BurnCulverts(object):
         raster_layer = parameters[0].value
         extent = parameters[1].value.polygon
         output_file = parameters[2].valueAsText
-        culverts = parameters[3].value
-        distance = parameters[4].value
+        culverts = parameters[3].value / 3.2808
         desc = arcpy.Describe(parameters[3].value)
         spatial_reference = desc.spatialReference
         env_path = r"{}".format(arcpy.env.workspace)
@@ -128,7 +127,7 @@ class BurnCulverts(object):
 
         # snap culvert to max difference
         culverts_oid_field = get_oid(culverts)
-        culvert_raster_upstream = arcpy.sa.SnapPourPoint(culverts, difference, "{} Feet".format(distance), culverts_oid_field)
+        culvert_raster_upstream = arcpy.sa.SnapPourPoint(culverts, difference, distance, culverts_oid_field)
         arcpy.conversion.RasterToPoint(culvert_raster_upstream, scratch_culvert_upstream, "Value") #culverts_oid_field gets set to Value instead of the field name mapped over
 
         # 0 - Fill
@@ -136,7 +135,7 @@ class BurnCulverts(object):
         negative_elev = -fill_raster
 
         # snap culvert to lowest point
-        culvert_raster_downstream = arcpy.sa.SnapPourPoint(culverts, negative_elev, "{} Feet".format(distance), culverts_oid_field)
+        culvert_raster_downstream = arcpy.sa.SnapPourPoint(culverts, negative_elev, distance, culverts_oid_field)
         arcpy.conversion.RasterToPoint(culvert_raster_downstream, scratch_culvert_downstream, "Value")
 
         log("creating local streamlines")
@@ -169,7 +168,7 @@ class BurnCulverts(object):
 
         # buffer line to make streambed
         log("burning-in crossings")
-        arcpy.analysis.PairwiseBuffer(scratch_streams, scratch_stream_buffer, "10 Feet")
+        arcpy.analysis.PairwiseBuffer(scratch_streams, scratch_stream_buffer, "20 Feet")
 
         # Add field elev
         elevation_field = "elev"
@@ -182,7 +181,7 @@ class BurnCulverts(object):
                 cursor.updateRow(point)
 
         # polygon to raster
-        arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster)
+        arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster, cellsize=1)
 
         # mosaic to new raster
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
