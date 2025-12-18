@@ -10,6 +10,7 @@ from .CalculateHydrology import CalculateHydrology
 from .CalculateStreamline import CalculateStreamline
 from .RunoffPotential import RunoffPotential
 from .StreamElevation import StreamElevation
+from .StreamNetwork import StreamNetwork
 from .SubBasinDelineation import SubBasinDelineation
 from .TopographicWetness import TopographicWetness
 from .WatershedDelineation import WatershedDelineation

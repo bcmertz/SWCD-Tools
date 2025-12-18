@@ -79,7 +79,7 @@ class StreamElevation(object):
         project, active_map = setup()
 
         # read in parameters
-        streamlines = parameters[0].value
+        stream_network = parameters[0].value
         raster_layer = parameters[1].value
         log(parameters[2].value)
         watershed = parameters[2].value
@@ -97,7 +97,7 @@ class StreamElevation(object):
         if parameters[2].value:
             # clip streamlines to the study area
             log("clipping waterbody to analysis area")
-            arcpy.analysis.Clip(streamlines, watershed, streamlines_scratch)
+            arcpy.analysis.Clip(stream_network, watershed, streamlines_scratch)
 
         # TODO: generate points along line
 
@@ -109,7 +109,6 @@ class StreamElevation(object):
 
         # remove temporary variables
         log("cleaning up")
-        # TODO: FIX - ﻿arcgisscripting.ExecuteError: ERROR 000601: Cannot delete G:\GIS\Streamwork\OCCA Unadilla Culvert Sizing\scratch\temp0.  May be locked by another application.
         arcpy.management.Delete([fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
         arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
         return
