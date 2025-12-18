@@ -14,7 +14,7 @@ from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-# TODO: incorporate CalculateStreamlines functionality  into this to make one tool with two separate ways to calculate streamslines
+# TODO: combine with CalculateStreamlines?
 class StreamNetwork(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -41,7 +41,7 @@ class StreamNetwork(object):
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
-            displayName="Stream Feature",
+            displayName="Existing Stream Lines",
             name="stream",
             datatype="GPFeatureLayer",
             parameterType="Required",
@@ -92,18 +92,13 @@ class StreamNetwork(object):
         log("creating scratch layers")
         scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        flow_accumulation = arcpy.CreateScratchName("temp",
-                                               data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)
-        con_accumulation = arcpy.CreateScratchName("temp",
-                                               data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)
 
-        # TODO: fill?
+        # fill - TODO: necessary?
+        fill_raster = arcpy.sa.Fill(dem)
 
         # flow direction
         log("calculating flow direction")
-        flow_direction = arcpy.sa.FlowDirection(dem)
+        flow_direction = arcpy.sa.FlowDirection(fill_raster)
 
         # flow accumulation
         log("calculating flow accumulation")
@@ -111,7 +106,7 @@ class StreamNetwork(object):
         
         # con
         log("converting raster to stream network")
-        accumulation_threshold = 30000 # TODO: find better acc threshold
+        accumulation_threshold = 30000 # TODO: find better acc threshold, wants to be lower than lowest flow accumulation of existing streamlines - how to find this without using an interative approach?
         sql_query = "VALUE > {}".format(accumulation_threshold)
         con_accumulation = arcpy.sa.Con(flow_accumulation, 1, "", sql_query)
 
@@ -134,8 +129,7 @@ class StreamNetwork(object):
             in_destination_data=stream_initiations,
             in_distance_accumulation_raster=flow_accumulation,
             in_back_direction_raster=flow_direction,
-            destination_field=get_oid(stream_initiations),
-            path_type="EACH_ZONE" # TODO: what does this do?
+            destination_field=get_oid(stream_initiations)
         )
 
         # stream to feature
@@ -150,7 +144,8 @@ class StreamNetwork(object):
         log("saving project")
         project.save()
 
-        # TODO: remove temporary variables
+        # remove temporary variables
         log("cleaning up")
-        # arcpy.management.Delete([fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
+        arcpy.management.Delete([scratch_end_points, scratch_streamlines])
+
         return
