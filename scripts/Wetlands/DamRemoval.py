@@ -94,11 +94,11 @@ class DamRemoval(object):
     def updateParameters(self, parameters):
         # default transect spacing
         if parameters[5].value == None:
-            parameters[5].value = 30
+            parameters[5].value = 50
 
         # default transect point spacing
         if parameters[6].value == None:
-            parameters[6].value = 30
+            parameters[6].value = 10
 
         return
 
