@@ -87,7 +87,7 @@ class BurnCulverts(object):
         project, active_map = setup()
 
         # read in parameters
-        raster_layer = parameters[0].value
+        dem = arcpy.Raster(parameters[0].value)
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
@@ -113,10 +113,10 @@ class BurnCulverts(object):
 
         # fill clipped raster
         log("finding point upstream of culvert")
-        fill_raster = arcpy.sa.Fill(raster_layer)
+        fill_raster = arcpy.sa.Fill(dem)
 
         # subtract filled - clipped raster
-        difference = fill_raster - raster_layer
+        difference = fill_raster - dem
 
         # snap culvert to max difference
         culverts_oid_field = get_oid(culverts)
@@ -180,7 +180,7 @@ class BurnCulverts(object):
         log("creating mosaic raster")
         mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
         arcpy.management.MosaicToNewRaster(
-            input_rasters=[raster_layer,scratch_burned_raster],
+            input_rasters=[dem,scratch_burned_raster],
             output_location=arcpy.env.workspace,
             pixel_type=pixel_type(difference.pixelType),
             number_of_bands=difference.bandCount,
