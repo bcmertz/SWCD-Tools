@@ -87,7 +87,7 @@ class BurnCulverts(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = arcpy.Raster(parameters[0].value)
+        dem = arcpy.Raster(parameters[0].valueAsText)
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
