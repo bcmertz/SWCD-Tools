@@ -87,7 +87,9 @@ class BurnCulverts(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = arcpy.Raster(parameters[0].valueAsText)
+        dem_layer = parameters[0].value
+        dem = arcpy.Raster(dem_layer.name)
+        dem_symbology = dem_layer.symbology
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
@@ -196,7 +198,11 @@ class BurnCulverts(object):
 
         # add raster to map
         log("adding hydro-conditioned DEM to map")
-        active_map.addDataFromPath(output_file)
+        out_dem = active_map.addDataFromPath(output_file)
+
+        # match symbology to input DEM
+        log("setting symbology to layer")
+        out_dem.symbology = dem_symbology
 
         # delete scratch layers
         log("cleaning up")
