@@ -67,32 +67,19 @@ class TopographicWetness(object):
         project, active_map = setup()
 
         # read in parameters
-        raster_layer = parameters[0].value
-        XMin = parameters[1].value.XMin if parameters[1].value else 0
-        YMin = parameters[1].value.YMin if parameters[1].value else 0
-        XMax = parameters[1].value.XMax if parameters[1].value else 0
-        YMax = parameters[1].value.YMax if parameters[1].value else 0
-        extent = arcpy.Extent(XMin, YMin, XMax, YMax)
-        if parameters[1].value:
-                extent.spatialReference = parameters[1].value.spatialReference
+        dem_layer = parameters[0].value
+        dem = arcpy.Raster(dem_layer.name)
+        extent = parameters[1].value
         output_file = parameters[2].valueAsText
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        fill_raster_scratch = arcpy.CreateScratchName("tmp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        flow_accumulation_scratch = arcpy.CreateScratchName("tmp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-
-        if parameters[1].value:
-            # clip DEM raster to the study area
-            log("clipping raster to analysis area")
-            rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
-            arcpy.management.Clip(raster_layer, rectangle, scratch_dem)
-            raster_layer = scratch_dem
+        fill_raster_scratch = arcpy.CreateScratchName("fill", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+        flow_accumulation_scratch = arcpy.CreateScratchName("flow", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
 
         # fill raster
         log("filling raster")
-        fill_raster_scratch = arcpy.sa.Fill(raster_layer)
+        fill_raster_scratch = arcpy.sa.Fill(dem)
 
         # flow accumulation
         log("calculating flow accumulation")
@@ -104,7 +91,7 @@ class TopographicWetness(object):
 
         # calculate slope
         log("calculating slope")
-        slope_raster = arcpy.sa.Slope(raster_layer, "DEGREE", "", "GEODESIC", "METER")
+        slope_raster = arcpy.sa.Slope(dem, "DEGREE", "", "GEODESIC", "METER")
         #slope_raster.save(slope_scratch)
 
         # convert slope to radians
@@ -138,7 +125,7 @@ class TopographicWetness(object):
             twi_layer.symbology = sym
 
         log("cleaning up")
-        arcpy.management.Delete([scratch_dem,fill_raster_scratch,flow_accumulation_scratch])
+        arcpy.management.Delete([fill_raster_scratch,flow_accumulation_scratch])
 
         # save and exit program successfully
         log("saving project")

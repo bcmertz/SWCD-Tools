@@ -31,12 +31,11 @@ class LeastAction(object):
             parameterType="Required",
             direction="Input")
 
-        # TODO: remove, not needed?
         param1 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
@@ -166,34 +165,22 @@ class LeastAction(object):
         arcpy.env.parallelProcessingFactor = "75%"
 
         # read in parameters
-        dem_raster = parameters[0].value
+        dem_layer = parameters[0].value
+        dem = arcpy.Raster(dem_layer.name)
+        dem_symbology = dem_layer.symbology
         extent = parameters[1].value
         stream_layer = parameters[2].value
         output_file = parameters[3].valueAsText
         transect_length = 2*parameters[4].value
 
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
+
         # spatial reference
-        dem_desc = arcpy.Describe(dem_raster)
+        dem_desc = arcpy.Describe(dem)
         spatial_reference = dem_desc.spatialReference.name
         arcpy.env.outputCoordinateSystem = arcpy.SpatialReference(spatial_reference)
-
-        # create area to process from extent
-        log("creating area from extent")
-        XMin = extent.XMin
-        YMin = extent.YMin
-        XMax = extent.XMax
-        YMax = extent.YMax
-        pnt1 = arcpy.Point(XMin, YMin)
-        pnt2 = arcpy.Point(XMin, YMax)
-        pnt3 = arcpy.Point(XMax, YMax)
-        pnt4 = arcpy.Point(XMax, YMin)
-        array = arcpy.Array()
-        array.add(pnt1)
-        array.add(pnt2)
-        array.add(pnt3)
-        array.add(pnt4)
-        array.add(pnt1)
-        polygon = arcpy.Polygon(array)
 
         # clip streams to analysis area
         log("clipping stream centerline to analysis area")
@@ -201,7 +188,7 @@ class LeastAction(object):
         new_stream_line_path = output_file
         new_stream_line_name = new_stream_line_path.split("\\")[-1]
         new_stream_line = arcpy.management.CreateFeatureclass(env_path, new_stream_line_name, "POLYLINE", spatial_reference=spatial_reference)
-        arcpy.analysis.Clip(stream_layer, polygon, new_stream_line)
+        arcpy.analysis.Clip(stream_layer, extent, new_stream_line)
 
         ## Debugging
         ## create temporary classes for debugging
@@ -230,7 +217,7 @@ class LeastAction(object):
                     #transects.append(transect)
 
                     # find lowest point in transect
-                    new_point = self.lowestTransectPoint(transect, dem_raster)
+                    new_point = self.lowestTransectPoint(transect, dem)
                     new_stream_line_arr.add(new_point)
                     #lowpoints.append(new_point)
 

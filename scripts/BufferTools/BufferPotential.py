@@ -50,7 +50,7 @@ class BufferPotential:
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param3.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
@@ -164,30 +164,29 @@ class BufferPotential:
         stream = parameters[0].value
         min_width = parameters[1].value
         min_acres = parameters[2].value
-        extent = parameters[3].value.polygon
+        extent = parameters[3].value
         output_file = parameters[4].valueAsText
         land_use_raster = parameters[5].value
         land_use_field = parameters[6].value
         land_use_values = parameters[7].valueAsText.replace("'","").split(";")
         calculate_wetlands = parameters[8].value
         wetland_layers = parameters[9].valueAsText.replace("'","").split(";") if calculate_wetlands else []
-        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_stream_layer = arcpy.CreateScratchName("stream", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_stream_buffer = arcpy.CreateScratchName("stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         land_use_raster_clip = "{}\\land_use_raster_clip".format(arcpy.env.workspace)
-
-        # clip streams to analysis area
-        log("clipping stream centerline to analysis area")
-        arcpy.analysis.Clip(stream, extent, scratch_stream_layer)
-
+        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+    
         # pairwise buffer stream
         log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, "{} Feet".format(min_width), "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, "{} Feet".format(min_width), "ALL", "", "GEODESIC", "")
 
         # clip land uses to buffer
         log("extracting land use data inside buffer area")
@@ -255,8 +254,8 @@ class BufferPotential:
 
         # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_stream_layer,scratch_stream_buffer])
-
+        arcpy.management.Delete([scratch_stream_buffer, land_use_raster_clip, scratch_land_use_polygon, scratch_erase, scratch_dissolve])
+        
         # save
         log("saving project")
         project.save()

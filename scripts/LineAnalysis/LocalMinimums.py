@@ -70,13 +70,6 @@ class LocalMinimums:
             parameterType="Required",
             direction="Input")
 
-        #param5 = arcpy.Parameter(
-        #    displayName="Include endpoints?",
-        #    name="endpoints",
-        #    datatype="GPBoolean",
-        #    parameterType="Optional",
-        #    direction="Input")
-
         param5 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
@@ -114,43 +107,25 @@ class LocalMinimums:
 
         log("reading in parameters")
         line = parameters[0].value
-        dem_raster = parameters[1].value
-        XMin = parameters[2].value.XMin if parameters[2].value else 0
-        YMin = parameters[2].value.YMin if parameters[2].value else 0
-        XMax = parameters[2].value.XMax if parameters[2].value else 0
-        YMax = parameters[2].value.YMax if parameters[2].value else 0
-        extent = arcpy.Extent(XMin, YMin, XMax, YMax)
-        if parameters[2].value:
-                extent.spatialReference = parameters[2].value.spatialReference
+        dem_layer = parameters[1].value
+        dem = arcpy.Raster(dem_layer.name)
+        dem_symbology = dem_layer.symbology
+        extent = parameters[2].value
         search_interval = parameters[3].value
         threshold = parameters[4].value / (3.2808 * 12)
-        # endpoints_bool = parameters[5].value
         output_file = parameters[5].valueAsText
 
-        # create scratch layers
-        log("creating scratch layers")
-        scratch_dem = arcpy.CreateScratchName("temp",
-                                               data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)
-        scratch_line = arcpy.CreateScratchName("temp",
-                                               data_type="DEFeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
-
-        # clip to analysis area
-        if parameters[2].value:
-            # clip line to analysis area
-            log("clipping line to analysis area")
-            arcpy.analysis.Clip(line, extent.polygon, scratch_line)
-        else:
-            scratch_line = line
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
 
         # generate points along line
         log("generate points along line")
-        arcpy.edit.Densify(scratch_line, "DISTANCE", search_interval)
+        arcpy.edit.Densify(line, "DISTANCE", search_interval)
 
         # iterate through lines and points
         log("finding local minimums")
-        with arcpy.da.SearchCursor(scratch_line, ["SHAPE@"]) as cursor:
+        with arcpy.da.SearchCursor(line, ["SHAPE@"]) as cursor:
             # keep track of local minimums
             local_minimums = []
 
@@ -223,7 +198,6 @@ class LocalMinimums:
                     else:
                         pass
 
-
                     # setup for next iteration
                     elev_prev = elev_cur
 
@@ -237,10 +211,6 @@ class LocalMinimums:
                 active_map.addDataFromPath(output_file)
             else:
                 log("no local minimums found")
-
-        # cleanup
-        log("deleting unneeded data")
-        arcpy.management.Delete([scratch_dem])
 
         # save
         log("saving project")

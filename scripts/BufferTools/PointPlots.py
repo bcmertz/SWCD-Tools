@@ -118,7 +118,6 @@ class PointPlots:
         reduce_acreage = parameters[2].value
         coords = parameters[3].value
         output_coords = parameters[4].valueAsText
-        log(type(output_coords))
 
         # create scratch layers
         log("creating scratch layers")

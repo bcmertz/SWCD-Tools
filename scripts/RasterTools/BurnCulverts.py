@@ -97,6 +97,10 @@ class BurnCulverts(object):
         desc = arcpy.Describe(parameters[3].value)
         spatial_reference = desc.spatialReference
 
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
+
         # create scratch layers
         log("creating scratch layers")
         scratch_dem = "{}\\dem_clip".format(arcpy.env.workspace)
@@ -108,10 +112,6 @@ class BurnCulverts(object):
         scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace)
         scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace)
-
-        # set analysis extent
-        if extent:
-            arcpy.env.extent = extent
 
         # fill clipped raster
         log("finding point upstream of culvert")
