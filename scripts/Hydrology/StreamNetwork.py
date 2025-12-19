@@ -95,6 +95,7 @@ class StreamNetwork(object):
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
 
         # fill - TODO: necessary?
+        log("filling raster")
         fill_raster = arcpy.sa.Fill(dem)
 
         # flow direction

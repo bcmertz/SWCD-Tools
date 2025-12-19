@@ -226,6 +226,7 @@ class PotentialWetlands(object):
         log("setting up project")
         project, active_map = setup()
 
+        dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         extent = parameters[1].value
         output_file = parameters[2].valueAsText

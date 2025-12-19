@@ -167,7 +167,6 @@ class LeastAction(object):
         # read in parameters
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
-        dem_symbology = dem_layer.symbology
         extent = parameters[1].value
         stream_layer = parameters[2].value
         output_file = parameters[3].valueAsText
@@ -188,7 +187,7 @@ class LeastAction(object):
         new_stream_line_path = output_file
         new_stream_line_name = new_stream_line_path.split("\\")[-1]
         new_stream_line = arcpy.management.CreateFeatureclass(env_path, new_stream_line_name, "POLYLINE", spatial_reference=spatial_reference)
-        arcpy.analysis.Clip(stream_layer, extent, new_stream_line)
+        arcpy.analysis.Clip(stream_layer, extent.polygon, new_stream_line)
 
         ## Debugging
         ## create temporary classes for debugging

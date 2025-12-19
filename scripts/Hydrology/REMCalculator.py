@@ -109,30 +109,34 @@ class RelativeElevationModel(object):
             arcpy.env.extent = extent
 
         # create scratch layers
+        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", "FeatureClass", arcpy.env.scratchFolder)
         scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", "FeatureClass", arcpy.env.scratchFolder)
         scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", "FeatureClass", arcpy.env.scratchFolder)
         scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", "FeatureClass", arcpy.env.scratchFolder)
         relative_elevation = arcpy.CreateUniqueName(output_file)
 
+        # clip streams to analysis area
+        log("clipping stream centerline to analysis area")
+        arcpy.analysis.Clip(stream_layer, extent.polygon, scratch_stream_layer)
+
         # pairwise buffer stream
         # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
         log("creating buffer around stream")
-        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, "{} Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, "{} Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
 
         # generate points along line
         log("generating points along stream")
-        arcpy.management.GeneratePointsAlongLines(stream, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
 
         # extract values to points
         log("adding elevation data to stream line points")
         arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
 
         # IDW (to buffer extent)
+        log("calculating IDW raster")
         idw_raster = "{}\\idw_raster".format(arcpy.env.workspace)
-        log("setting spatial processing environmental variables")
         arcpy.env.cellSize = dem
         arcpy.env.extent = scratch_stream_buffer
-        log("calculating IDW raster")
         idw_raster = arcpy.sa.Idw(scratch_stream_elev_points, "RASTERVALU", "", "", "", "")
 
         # raster calculator (DEM - IDW_new)
@@ -170,7 +174,7 @@ class RelativeElevationModel(object):
 
         # delete scratch variables
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_stream_buffer,scratch_stream_points,scratch_stream_elev_points])
+        arcpy.management.Delete([scratch_stream_layer,scratch_stream_buffer,scratch_stream_points,scratch_stream_elev_points])
 
         # save project
         log("saving project")

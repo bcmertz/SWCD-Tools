@@ -72,10 +72,13 @@ class TopographicWetness(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
 
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
+
         # create scratch layers
         log("creating scratch layers")
         fill_raster_scratch = arcpy.CreateScratchName("fill", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        flow_accumulation_scratch = arcpy.CreateScratchName("flow", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
 
         # fill raster
         log("filling raster")
@@ -84,15 +87,13 @@ class TopographicWetness(object):
         # flow accumulation
         log("calculating flow accumulation")
         out_accumulation_raster = arcpy.sa.DeriveContinuousFlow(fill_raster_scratch, flow_direction_type="MFD")
-        out_accumulation_raster.save(flow_accumulation_scratch)
 
         # int flow accumulation
-        int_flow_accumulation = arcpy.sa.Float(flow_accumulation_scratch)
+        int_flow_accumulation = arcpy.sa.Float(out_accumulation_raster)
 
         # calculate slope
         log("calculating slope")
         slope_raster = arcpy.sa.Slope(dem, "DEGREE", "", "GEODESIC", "METER")
-        #slope_raster.save(slope_scratch)
 
         # convert slope to radians
         log("converting slope raster to radians")
@@ -125,7 +126,7 @@ class TopographicWetness(object):
             twi_layer.symbology = sym
 
         log("cleaning up")
-        arcpy.management.Delete([fill_raster_scratch,flow_accumulation_scratch])
+        arcpy.management.Delete([fill_raster_scratch])
 
         # save and exit program successfully
         log("saving project")

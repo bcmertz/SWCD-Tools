@@ -109,7 +109,6 @@ class LocalMinimums:
         line = parameters[0].value
         dem_layer = parameters[1].value
         dem = arcpy.Raster(dem_layer.name)
-        dem_symbology = dem_layer.symbology
         extent = parameters[2].value
         search_interval = parameters[3].value
         threshold = parameters[4].value / (3.2808 * 12)
@@ -142,7 +141,7 @@ class LocalMinimums:
                     # get current vertex and elevation
                     vertex = sub_line[0][0][i]
                     coord = "{} {}".format(vertex.X, vertex.Y)
-                    elev_cur = arcpy.management.GetCellValue(dem_raster, coord)
+                    elev_cur = arcpy.management.GetCellValue(dem, coord)
                     elev_cur = float(elev_cur.getOutput(0))
 
                     # first point
