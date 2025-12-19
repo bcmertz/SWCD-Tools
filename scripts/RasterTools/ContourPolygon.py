@@ -67,7 +67,8 @@ class ContourPolygon(object):
         return params
 
     def updateParameters(self, parameters):
-        # find z unit of raster
+        # find z unit of raster based on vertical coordinate system
+        # if there is none, let the user define it
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 desc = arcpy.Describe(parameters[0].value)
@@ -107,9 +108,9 @@ class ContourPolygon(object):
 
         # calculate z_factor
         z_factor = None
-        if z_unit == "Meter":
+        if z_unit == "METER":
             z_factor = 3.2808
-        elif z_unit == "Foot":
+        elif z_unit == "FOOT":
             z_factor = 1
         else:
             raise ValueError("Bad z-unit value")

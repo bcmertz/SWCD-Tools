@@ -72,7 +72,8 @@ class SlopePolygon(object):
         if parameters[3].value == None:
             parameters[3].value = "Percent Slope"
 
-        # find z unit of raster
+        # find z unit of raster based on vertical coordinate system
+        # if there is none, let the user define it
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 desc = arcpy.Describe(parameters[0].value)
