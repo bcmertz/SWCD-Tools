@@ -7,7 +7,7 @@ scripts = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.append(scripts)
 
 from BufferTools import PointPlots, ShrubClusters, BufferPotential
-from RasterTools import ContourArea, SlopeArea, BurnCulverts
+from RasterTools import ContourPolygon, SlopePolygon, BurnCulverts
 from Misc import CollectRasters, ExportLayouts, GeocodeAddress
 from LineAnalysis import LocalMinimums
 from Hydrology import RunoffPotential, CalculateHydrology, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, CalculateStreamline, LeastAction, TopographicWetness, StreamNetwork
@@ -19,8 +19,8 @@ def my_reloader(name):
     del sys.modules [name]
     globals() [name] = __import__(name)
 
-tools = [SlopeArea,
-         ContourArea,
+tools = [SlopePolygon,
+         ContourPolygon,
          BurnCulverts,
          CollectRasters,
          ExportLayouts,

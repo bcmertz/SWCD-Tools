@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Contour Area
-# Purpose:     This tool takes an area of interest and creates the specified
-#              contours in it
+# Name:        Contour Polygon
+# Purpose:     This tool takes a polygon and creates the specified contours in it.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
@@ -14,11 +13,11 @@ from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-class ContourArea(object):
+class ContourPolygon(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Contour Area"
-        self.description = "Contour specific area of DEM"
+        self.label = "Contour Polygon"
+        self.description = "Contour polygon from DEM"
         self.category = "Raster Tools"
         self.canRunInBackground = True
 
@@ -33,11 +32,12 @@ class ContourArea(object):
 
         param1 = arcpy.Parameter(
             displayName="Contour Area",
-            name="contour_area",
-            datatype="GPExtent",
+            name="polygon",
+            datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+        param1.filter.list = ["Polygon"]
+        param1.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         param2 = arcpy.Parameter(
             displayName="Output Features",
@@ -55,18 +55,33 @@ class ContourArea(object):
             parameterType="Required",
             direction="Input")
 
-        # TODO: just ask for DEM units instead
-        #desc = arcpy.Describe(raster_layer)
-        #log(desc.spatialReference.linearUnitName)
         param4 = arcpy.Parameter(
-            displayName="Z Factor",
-            name="z_factor",
-            datatype="GPDouble",
+            displayName="Z Unit",
+            name="z_unit",
+            datatype="GPString",
             parameterType="Required",
             direction="Input")
+        param4.filter.list = ["METER", "FOOT"]
 
         params = [param0, param1, param2, param3, param4]
         return params
+
+    def updateParameters(self, parameters):
+        # find z unit of raster
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                desc = arcpy.Describe(parameters[0].value)
+                if desc.spatialReference.VCS:
+                    if desc.spatialReference.VCS.linearUnitName == "METER":
+                        parameters[4] = "METER"
+                    elif desc.spatialReference.VCS.linearUnitName == "FOOT":
+                        parameters[4] = "FOOT"
+                    else:
+                        parameters[4] = None
+                else:
+                    parameters[4] = None
+
+        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
@@ -79,36 +94,36 @@ class ContourArea(object):
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
-        # Setup
+        # setup
         log("setting up project")
         project, active_map = setup()
 
+        # get parameters
         raster_layer = parameters[0].value
-        extent = arcpy.Extent(XMin = parameters[1].value.XMin,
-                              YMin = parameters[1].value.YMin,
-                              XMax = parameters[1].value.XMax,
-                              YMax = parameters[1].value.YMax)
-        extent.spatialReference = parameters[1].value.spatialReference
+        polygon = parameters[1].value
         output_file = parameters[2].valueAsText
         contour_interval = parameters[3].valueAsText
-        z_factor = parameters[4].valueAsText
+        z_unit = parameters[4].value
 
-        log("clipping raster")
-        scratch_dem = arcpy.CreateScratchName("temp",
-                                               data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)
+        # calculate z_factor
+        z_factor = None
+        if z_unit == "Meter":
+            z_factor = 3.2808
+        elif z_unit == "Foot":
+            z_factor = 1
+        else:
+            raise ValueError("Bad z-unit value")
 
-        rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
-        arcpy.management.Clip(raster_layer, rectangle, scratch_dem)
+        # clip raster to polyon
+        log("clipping raster to polygon")
+        outExtractByMask = arcpy.sa.ExtractByMask(raster_layer, polygon, "INSIDE")
 
+        # create contour in polygon
         log("creating contour")
-        arcpy.sa.Contour(scratch_dem, output_file, contour_interval, z_factor=z_factor)
+        arcpy.sa.Contour(outExtractByMask, output_file, contour_interval, z_factor=z_factor)
 
+        # add contours to map
         log("adding contours to map")
         active_map.addDataFromPath(output_file)
-
-        # Delete scratch dataset
-        log("finishing up")
-        arcpy.management.Delete(scratch_dem)
 
         return

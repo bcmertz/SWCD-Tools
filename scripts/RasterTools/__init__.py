@@ -6,6 +6,6 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-from .ContourArea import ContourArea
-from .SlopeArea import SlopeArea
+from .ContourPolygon import ContourPolygon
+from .SlopePolygon import SlopePolygon
 from .BurnCulverts import BurnCulverts
