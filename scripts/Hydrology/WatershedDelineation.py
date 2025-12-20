@@ -87,8 +87,7 @@ class WatershedDelineation(object):
         project, active_map = setup()
 
         # read in parameters
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem = parameters[0].value
         extent = parameters[1].value
         pour_points = parameters[2].value
         snap_adjustment = parameters[3].value
@@ -97,10 +96,6 @@ class WatershedDelineation(object):
         # set analysis extent
         if extent:
             arcpy.env.extent = extent
-
-        # create scratch layers
-        log("creating scratch layers")
-        clip_flow_accumulation_scratch = arcpy.CreateScratchName("clip_flow_accumulation_scratch", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
 
         # fill raster
         log("filling raster")
@@ -132,10 +127,6 @@ class WatershedDelineation(object):
         sym.updateRenderer('UniqueValueRenderer')
         sym.renderer.fields = ['gridcode']
         watershed_polygon.symbology = sym
-
-        # remove temporary variables
-        log("cleaning up")
-        arcpy.management.Delete([clip_flow_accumulation_scratch])
 
         # save and exit program successfully
         log("saving project")
