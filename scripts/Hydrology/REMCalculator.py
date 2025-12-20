@@ -96,40 +96,21 @@ class RelativeElevationModel(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
-        arcpy.env.parallelProcessingFactor = "75%"
 
         dem_raster = parameters[0].value
-        XMin = parameters[1].value.XMin
-        YMin = parameters[1].value.YMin
-        XMax = parameters[1].value.XMax
-        YMax = parameters[1].value.YMax
-        extent = arcpy.Extent(XMin, YMin, XMax, YMax)
+        extent = parameters[1].value
         extent.spatialReference = parameters[1].value.spatialReference
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
         buffer_radius = int(parameters[4].value)
         sampling_interval = int(parameters[5].value)
 
-        # create area to process from extent
-        log("creating area from extent")
-        pnt1 = arcpy.Point(XMin, YMin)
-        pnt2 = arcpy.Point(XMin, YMax)
-        pnt3 = arcpy.Point(XMax, YMax)
-        pnt4 = arcpy.Point(XMax, YMin)
-        array = arcpy.Array()
-        array.add(pnt1)
-        array.add(pnt2)
-        array.add(pnt3)
-        array.add(pnt4)
-        array.add(pnt1)
-        polygon = arcpy.Polygon(array)
-
         # clip streams to analysis area
         log("clipping stream centerline to analysis area")
         scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer",
                                                data_type="FeatureClass",
                                                workspace=arcpy.env.scratchFolder)
-        arcpy.analysis.Clip(stream_layer, polygon, scratch_stream_layer)
+        arcpy.analysis.Clip(stream_layer, extent.polygon, scratch_stream_layer)
 
         # pairwise buffer stream
         # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
