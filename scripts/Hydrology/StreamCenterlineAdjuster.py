@@ -175,10 +175,9 @@ class LeastAction(object):
         if extent:
             arcpy.env.extent = extent
 
-        # spatial reference
-        dem_desc = arcpy.Describe(dem)
-        spatial_reference = dem_desc.spatialReference.name
-        arcpy.env.outputCoordinateSystem = arcpy.SpatialReference(spatial_reference)
+        # output spatial reference
+        stream_desc = arcpy.Describe(stream_layer)
+        spatial_reference = stream_desc.spatialReference.name
 
         # clip streams to analysis area
         log("creating output sstream feature class")
