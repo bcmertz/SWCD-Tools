@@ -76,10 +76,6 @@ class TopographicWetness(object):
         if extent:
             arcpy.env.extent = extent
 
-        # create scratch layers
-        log("creating scratch layers")
-        fill_raster_scratch = arcpy.CreateScratchName("fill", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-
         # fill raster
         log("filling raster")
         fill_raster_scratch = arcpy.sa.Fill(dem)
@@ -124,9 +120,6 @@ class TopographicWetness(object):
                 sym.updateColorizer("RasterStretchColorizer")
             sym.colorizer.colorRamp = project.listColorRamps('Blue Bright')[0]
             twi_layer.symbology = sym
-
-        log("cleaning up")
-        arcpy.management.Delete([fill_raster_scratch])
 
         # save and exit program successfully
         log("saving project")
