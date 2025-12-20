@@ -180,7 +180,7 @@ class LeastAction(object):
         spatial_reference = stream_desc.spatialReference.name
 
         # clip streams to analysis area
-        log("creating output sstream feature class")
+        log("creating output stream feature class")
         env_path = r"{}".format(arcpy.env.workspace)
         new_stream_line_path = output_file
         new_stream_line_name = new_stream_line_path.split("\\")[-1]
