@@ -104,6 +104,7 @@ class LocalMinimums:
         project, active_map = setup()
         spatial_reference_name = active_map.spatialReference.name
         spatial_reference = arcpy.SpatialReference(spatial_reference_name)
+        arcpy.env.outputCoordinateSystem = spatial_reference
 
         log("reading in parameters")
         line = parameters[0].value
@@ -114,17 +115,24 @@ class LocalMinimums:
         threshold = parameters[4].value / (3.2808 * 12)
         output_file = parameters[5].valueAsText
 
-        # set analysis extent
+        # create scratch layers
+        scratch_line = arcpy.CreateScratchName("line", "DEFeatureClass", arcpy.env.scratchFolder)
+
+        # clip or copy feature class to scratch layer
         if extent:
+            log("clipping line to analysis area")
             arcpy.env.extent = extent
+            arcpy.analysis.Clip(line, extent.polygon, scratch_line)
+        else:
+            arcpy.management.CopyFeatures(line, scratch_line)
 
         # generate points along line
         log("generate points along line")
-        arcpy.edit.Densify(line, "DISTANCE", search_interval)
+        arcpy.edit.Densify(scratch_line, "DISTANCE", search_interval)
 
         # iterate through lines and points
         log("finding local minimums")
-        with arcpy.da.SearchCursor(line, ["SHAPE@"]) as cursor:
+        with arcpy.da.SearchCursor(scratch_line, ["SHAPE@"]) as cursor:
             # keep track of local minimums
             local_minimums = []
 
@@ -204,12 +212,16 @@ class LocalMinimums:
             if len(local_minimums) > 0:
                 log("copying points to feature class")
                 arcpy.management.CopyFeatures(local_minimums, output_file)
-                log("defining spatial reference of feature")
-                arcpy.management.DefineProjection(output_file,spatial_reference)
+                #log("defining spatial reference of feature")
+                #arcpy.management.DefineProjection(output_file,spatial_reference)
                 log("adding minimums to map")
                 active_map.addDataFromPath(output_file)
             else:
                 log("no local minimums found")
+
+        # cleaning up
+        log("deleting scratch layers")
+        arcpy.management.Delete([scratch_line])
 
         # save
         log("saving project")
