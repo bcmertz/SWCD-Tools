@@ -165,8 +165,7 @@ class LeastAction(object):
         arcpy.env.parallelProcessingFactor = "75%"
 
         # read in parameters
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem = parameters[0].value
         extent = parameters[1].value
         stream_layer = parameters[2].value
         output_file = parameters[3].valueAsText
@@ -182,12 +181,15 @@ class LeastAction(object):
         arcpy.env.outputCoordinateSystem = arcpy.SpatialReference(spatial_reference)
 
         # clip streams to analysis area
-        log("clipping stream centerline to analysis area")
+        log("creating output sstream feature class")
         env_path = r"{}".format(arcpy.env.workspace)
         new_stream_line_path = output_file
         new_stream_line_name = new_stream_line_path.split("\\")[-1]
         new_stream_line = arcpy.management.CreateFeatureclass(env_path, new_stream_line_name, "POLYLINE", spatial_reference=spatial_reference)
-        arcpy.analysis.Clip(stream_layer, extent.polygon, new_stream_line)
+        if extent:
+            arcpy.analysis.Clip(stream_layer, extent.polygon, new_stream_line)
+        else:
+            arcpy.management.CopyFeatures(stream_layer, new_stream_line)
 
         ## Debugging
         ## create temporary classes for debugging
