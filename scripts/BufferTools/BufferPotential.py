@@ -126,6 +126,8 @@ class BufferPotential:
                 parameters[6].enabled = True
                 fields2 = [f2.name for f2 in arcpy.ListFields(parameters[5].value)]
                 parameters[6].filter.list = fields2
+                if "GeneralLU" in fields2:
+                    parameters[6].value = "GeneralLU"
             else:
                 parameters[6].enabled = False
 

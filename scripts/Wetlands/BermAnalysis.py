@@ -34,20 +34,20 @@ class BermAnalysis(object):
             direction="Input")
 
         param1 = arcpy.Parameter(
-            displayName="Analysis Area",
-            name="analysis_area",
-            datatype="GPExtent",
-            parameterType="Optional",
-            direction="Input")
-        param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
-
-        param2 = arcpy.Parameter(
             displayName="Z Unit",
             name="z_unit",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param2.filter.list = ["METER", "FOOT"]
+        param1.filter.list = ["METER", "FOOT"]
+
+        param2 = arcpy.Parameter(
+            displayName="Analysis Area",
+            name="analysis_area",
+            datatype="GPExtent",
+            parameterType="Optional",
+            direction="Input")
+        param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param3 = arcpy.Parameter(
             displayName="Output Features",
@@ -119,13 +119,13 @@ class BermAnalysis(object):
                 desc = arcpy.Describe(parameters[0].value)
                 if desc.spatialReference.VCS:
                     if desc.spatialReference.VCS.linearUnitName == "METER":
-                        parameters[2] = "METER"
+                        parameters[1] = "METER"
                     elif desc.spatialReference.VCS.linearUnitName == "FOOT":
-                        parameters[2] = "FOOT"
+                        parameters[1] = "FOOT"
                     else:
-                        parameters[2] = None
+                        parameters[1] = None
                 else:
-                    parameters[2] = None
+                    parameters[1] = None
 
         if not parameters[5].hasBeenValidated:
             if parameters[5].value == True:
@@ -168,8 +168,8 @@ class BermAnalysis(object):
         log("reading in parameters")
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
-        extent = parameters[1].value
-        z_unit = parameters[2].value
+        z_unit = parameters[1].value
+        extent = parameters[2].value
         output_file = parameters[3].valueAsText
         berms = parameters[4].value
         supply_berm_height_bool = parameters[5].value

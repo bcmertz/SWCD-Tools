@@ -168,6 +168,8 @@ class PotentialWetlands(object):
                 parameters[7].enabled = True
                 fields = [f.name for f in arcpy.ListFields(parameters[6].value)]
                 parameters[7].filter.list = fields
+                if "hydgrpdcd" in fields:
+                    parameters[7].value = "hydgrpdcd"
             else:
                 parameters[7].enabled = False
                 parameters[7].value = None
@@ -192,6 +194,8 @@ class PotentialWetlands(object):
                 parameters[10].enabled = True
                 fields2 = [f2.name for f2 in arcpy.ListFields(parameters[9].value)]
                 parameters[10].filter.list = fields2
+                if "GeneralLU" in fields2:
+                    parameters[10].value = "GeneralLU"
             else:
                 parameters[10].enabled = False
 
