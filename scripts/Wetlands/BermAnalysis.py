@@ -247,7 +247,7 @@ class BermAnalysis(object):
             expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oidfield),selection)
 
         # iterate through berms
-        with arcpy.da.UpdateCursor(berms, [oidfield, "berm_height"], expression) as cursor:
+        with arcpy.da.UpdateCursor(berms, [oidfield, "berm_height"], expression, spatial_filter=extent.polygon) as cursor:
             for berm in cursor:
                 # make a temporary feature layer to store the berm for zonal analysis
                 log("creating temporary berm feature for analysis")
