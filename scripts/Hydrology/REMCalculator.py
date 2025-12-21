@@ -35,7 +35,7 @@ class RelativeElevationModel(object):
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
@@ -96,81 +96,55 @@ class RelativeElevationModel(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
-        arcpy.env.parallelProcessingFactor = "75%"
 
+        # read in parameters
         dem_raster = parameters[0].value
-        XMin = parameters[1].value.XMin
-        YMin = parameters[1].value.YMin
-        XMax = parameters[1].value.XMax
-        YMax = parameters[1].value.YMax
-        extent = arcpy.Extent(XMin, YMin, XMax, YMax)
-        extent.spatialReference = parameters[1].value.spatialReference
+        extent = parameters[1].value
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
         buffer_radius = int(parameters[4].value)
         sampling_interval = int(parameters[5].value)
 
-        # create area to process from extent
-        log("creating area from extent")
-        pnt1 = arcpy.Point(XMin, YMin)
-        pnt2 = arcpy.Point(XMin, YMax)
-        pnt3 = arcpy.Point(XMax, YMax)
-        pnt4 = arcpy.Point(XMax, YMin)
-        array = arcpy.Array()
-        array.add(pnt1)
-        array.add(pnt2)
-        array.add(pnt3)
-        array.add(pnt4)
-        array.add(pnt1)
-        polygon = arcpy.Polygon(array)
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
 
-        # clip streams to analysis area
-        log("clipping stream centerline to analysis area")
-        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer",
-                                               data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
-        arcpy.analysis.Clip(stream_layer, polygon, scratch_stream_layer)
+        # create scratch layers
+        log("creating scratch layers")
+        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", "FeatureClass", arcpy.env.scratchFolder)
+        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", "FeatureClass", arcpy.env.scratchFolder)
+        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", "FeatureClass", arcpy.env.scratchFolder)
+        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", "FeatureClass", arcpy.env.scratchFolder)
+
+        if extent:
+            # clip streams to analysis area
+            log("clipping stream centerline to analysis area")
+            arcpy.analysis.Clip(stream_layer, extent.polygon, scratch_stream_layer)
+        else:
+            scratch_stream_layer = stream_layer
 
         # pairwise buffer stream
         # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
         log("creating buffer polygon around stream")
-        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer",
-                                               data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
         arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, "{} Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
 
         # clip dem to buffer
         log("clipping DEM to buffer")
-        dem_raster_clip = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        # OLD CODE - slower (https://www.reddit.com/r/gis/comments/17act1u/comment/k5ddrpx/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
-        out_raster_clip = arcpy.sa.ExtractByMask(dem_raster, scratch_stream_buffer, "INSIDE", "MINOF")
-        out_raster_clip.save(dem_raster_clip)
-        # other method - doesn't restrict raster to shape
-        #arcpy.management.Clip(dem_raster, scratch_stream_buffer, dem_raster_clip)
-
+        dem_raster_clip = arcpy.sa.ExtractByMask(dem_raster, scratch_stream_buffer, "INSIDE", "MINOF")
 
         # generate points along line
         log("generating points along stream")
-        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points",
-                                               data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
         arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
 
         # extract values to points
         log("adding elevation data to stream line points")
-        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points",
-                                               data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
         arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem_raster_clip, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
 
         # IDW (to buffer extent)
-        idw_raster = "{}\\idw_raster".format(arcpy.env.workspace)
-        log("setting spatial processing environmental variables")
+        log("calculating IDW raster")
         arcpy.env.cellSize = dem_raster_clip
         arcpy.env.extent = scratch_stream_buffer
-        log("calculating IDW raster")
-        outIDW = arcpy.sa.Idw(scratch_stream_elev_points, "RASTERVALU", "", "", "", "")
-        outIDW.save(idw_raster)
+        idw_raster = arcpy.sa.Idw(scratch_stream_elev_points, "RASTERVALU", "", "", "", "")
 
         # raster calculator (DEM - IDW_new)
         log("calculating relative elevation difference")
@@ -195,8 +169,6 @@ class RelativeElevationModel(object):
             sym.colorizer.minLabel = "{}".format(min_value)
             sym.colorizer.maxLabel = "{}".format(max_value)
             rem_raster.symbology = sym
-
-        log("setting custom raster statistics for a use minimum and maximum relative elevation")
         cim_layer = rem_raster.getDefinition("V3")
         cim_layer.colorizer.statsType = 'GlobalStats'
         #cim_layer.colorizer.useCustomStretchMinMax = True
@@ -208,8 +180,6 @@ class RelativeElevationModel(object):
 
         # delete scratch variables
         log("deleting unneeded data")
-        arcpy.management.Delete(dem_raster_clip)
-        arcpy.management.Delete(idw_raster)
         arcpy.management.Delete([scratch_stream_layer, scratch_stream_buffer,scratch_stream_points,scratch_stream_elev_points])
 
         # save project

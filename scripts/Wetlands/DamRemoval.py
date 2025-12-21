@@ -36,7 +36,7 @@ class DamRemoval(object):
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
@@ -214,12 +214,10 @@ class DamRemoval(object):
         log("setting up project")
         project, active_map = setup()
 
-        dem_raster = parameters[0].value
-        extent = arcpy.Extent(XMin = parameters[1].value.XMin,
-                              YMin = parameters[1].value.YMin,
-                              XMax = parameters[1].value.XMax,
-                              YMax = parameters[1].value.YMax)
-        extent.spatialReference = parameters[1].value.spatialReference
+        dem_layer = parameters[0].value
+        dem = arcpy.Raster(dem_layer.name)
+        dem_symbology = dem_layer.symbology
+        extent = parameters[1].value
         output_file = parameters[2].valueAsText
         centerline = parameters[3].value
         pond = parameters[4].value
@@ -230,9 +228,13 @@ class DamRemoval(object):
         transect_point_spacing = parameters[6].value / z_unit
         transect_width = parameters[7].value / z_unit
 
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
+
         # create scratch layers
-        scratch_dem = arcpy.CreateScratchName("scratch_dem", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
         dem_pondless = "{}\\dem_pondless".format(arcpy.env.workspace)
+        scratch_centerline = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
@@ -241,19 +243,15 @@ class DamRemoval(object):
         scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         idw_raster = arcpy.CreateScratchName("idw_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
 
-        # clip raster to analysis area
-        log("clipping dem")
-        rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
-        arcpy.management.Clip(dem_raster, rectangle, scratch_dem)
-
         # extract by mask to remove pond from dem
         log("removing ponded area from dem")
-        dem_pondless_output = arcpy.sa.ExtractByMask(scratch_dem, pond, "OUTSIDE", rectangle)
+        dem_pondless_output = arcpy.sa.ExtractByMask(dem, pond, "OUTSIDE")
         dem_pondless_output.save(dem_pondless)
 
         # generate points along line
         log("generating points along centerline")
-        arcpy.management.GeneratePointsAlongLines(centerline, scratch_centerline_points, "DISTANCE", transect_spacing, "", "END_POINTS", "ADD_CHAINAGE")
+        arcpy.analysis.Clip(centerline, extent.poly, scratch_centerline)
+        arcpy.management.GeneratePointsAlongLines(scratch_centerline, scratch_centerline_points, "DISTANCE", transect_spacing, "", "END_POINTS", "ADD_CHAINAGE")
 
         # extract values to points
         log("adding elevation data to centerline points")
@@ -349,7 +347,7 @@ class DamRemoval(object):
 
         # extract by mask
         log("extracting ponded area from IDW raster")
-        raster_output = arcpy.sa.ExtractByMask(idw_raster, pond, "INSIDE", rectangle)
+        raster_output = arcpy.sa.ExtractByMask(idw_raster, pond, "INSIDE")
         raster_output.save(output_file)
 
         # add results to map
@@ -358,18 +356,11 @@ class DamRemoval(object):
 
         # update raster symbology
         log("updating raster symbology")
-        sym = rem_raster.symbology
-        if hasattr(sym, 'colorizer'):
-            if sym.colorizer.type != "RasterStretchColorizer":
-                sym.updateColorizer("RasterStretchColorizer")
-            sym.colorizer.stretchType = "MinimumMaximum"
-            sym.colorizer.colorRamp = project.listColorRamps('Slope')[0]
-            rem_raster.symbology = sym
+        rem_raster.symbology = dem_symbology
 
         # delete scratch variables
         log("deleting unneeded data")
-        # scratch_final_idw_points_path, scratch_mosaic_raster, scratch_centerline_elev_points
-        arcpy.management.Delete([scratch_dem,dem_pondless,scratch_centerline_points,scratch_point_raster,scratch_transect_points,scratch_transect_elev_points,idw_raster])
+        arcpy.management.Delete([scratch_centerline, dem_pondless,scratch_centerline_points,scratch_point_raster,scratch_transect_points,scratch_transect_elev_points,idw_raster])
 
         # save project
         log("saving project")

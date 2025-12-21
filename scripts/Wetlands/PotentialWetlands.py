@@ -36,7 +36,7 @@ class PotentialWetlands(object):
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
@@ -226,12 +226,9 @@ class PotentialWetlands(object):
         log("setting up project")
         project, active_map = setup()
 
-        dem_raster = parameters[0].value
-        extent = arcpy.Extent(XMin = parameters[1].value.XMin,
-                              YMin = parameters[1].value.YMin,
-                              XMax = parameters[1].value.XMax,
-                              YMax = parameters[1].value.YMax)
-        extent.spatialReference = parameters[1].value.spatialReference
+        dem_layer = parameters[0].value
+        dem = arcpy.Raster(dem_layer.name)
+        extent = parameters[1].value
         output_file = parameters[2].valueAsText
         max_slope = parameters[3].value
         twi_raster = parameters[4].value
@@ -245,8 +242,11 @@ class PotentialWetlands(object):
         calculate_wetlands = parameters[12].value
         wetland_layers = parameters[13].valueAsText.replace("'","").split(";") if calculate_wetlands else []
 
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
+
         # create scratch layers
-        scratch_dem = arcpy.CreateScratchName("dem", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
         scratch_slope_polygon = arcpy.CreateScratchName("slope_poly", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_slope_dissolve_polygon  = arcpy.CreateScratchName("dissolve_poly", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
@@ -259,14 +259,9 @@ class PotentialWetlands(object):
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
 
-        # setup DEM area
-        log("clipping DEM")
-        rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
-        arcpy.management.Clip(dem_raster, rectangle, scratch_dem)
-
         # slope raster
         log("creating slope raster from DEM")
-        scratch_slope = arcpy.sa.Slope(scratch_dem, "PERCENT_RISE", "", "GEODESIC", "METER")
+        scratch_slope = arcpy.sa.Slope(dem, "PERCENT_RISE", "", "GEODESIC", "METER")
 
         # slopes < max_slope percent
         log("selecting slopes less than or equal to {}%".format(max_slope))
@@ -402,7 +397,7 @@ class PotentialWetlands(object):
 
         # delete not needed scratch layers
         log("deleting unused layers")
-        arcpy.management.Delete([scratch_dem,scratch_slope_polygon,scratch_slope_dissolve_polygon,scratch_soils_area,scratch_hsg_soils,land_use_raster_clip,scratch_land_use_polygon,scratch_reduced_potential_wetland,scratch_zonal_stats,scratch_erase,scratch_output,scratch_dissolve])
+        arcpy.management.Delete([scratch_slope_polygon,scratch_slope_dissolve_polygon,scratch_soils_area,scratch_hsg_soils,land_use_raster_clip,scratch_land_use_polygon,scratch_reduced_potential_wetland,scratch_zonal_stats,scratch_erase,scratch_output,scratch_dissolve])
 
         # save project
         log("saving project")

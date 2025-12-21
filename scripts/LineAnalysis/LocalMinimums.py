@@ -70,13 +70,6 @@ class LocalMinimums:
             parameterType="Required",
             direction="Input")
 
-        #param5 = arcpy.Parameter(
-        #    displayName="Include endpoints?",
-        #    name="endpoints",
-        #    datatype="GPBoolean",
-        #    parameterType="Optional",
-        #    direction="Input")
-
         param5 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
@@ -111,38 +104,27 @@ class LocalMinimums:
         project, active_map = setup()
         spatial_reference_name = active_map.spatialReference.name
         spatial_reference = arcpy.SpatialReference(spatial_reference_name)
+        arcpy.env.outputCoordinateSystem = spatial_reference
 
         log("reading in parameters")
         line = parameters[0].value
-        dem_raster = parameters[1].value
-        XMin = parameters[2].value.XMin if parameters[2].value else 0
-        YMin = parameters[2].value.YMin if parameters[2].value else 0
-        XMax = parameters[2].value.XMax if parameters[2].value else 0
-        YMax = parameters[2].value.YMax if parameters[2].value else 0
-        extent = arcpy.Extent(XMin, YMin, XMax, YMax)
-        if parameters[2].value:
-                extent.spatialReference = parameters[2].value.spatialReference
+        dem_layer = parameters[1].value
+        dem = arcpy.Raster(dem_layer.name)
+        extent = parameters[2].value
         search_interval = parameters[3].value
         threshold = parameters[4].value / (3.2808 * 12)
-        # endpoints_bool = parameters[5].value
         output_file = parameters[5].valueAsText
 
         # create scratch layers
-        log("creating scratch layers")
-        scratch_dem = arcpy.CreateScratchName("temp",
-                                               data_type="RasterDataset",
-                                               workspace=arcpy.env.scratchFolder)
-        scratch_line = arcpy.CreateScratchName("temp",
-                                               data_type="DEFeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
+        scratch_line = arcpy.CreateScratchName("line", "DEFeatureClass", arcpy.env.scratchFolder)
 
-        # clip to analysis area
-        if parameters[2].value:
-            # clip line to analysis area
+        # clip or copy feature class to scratch layer
+        if extent:
             log("clipping line to analysis area")
+            arcpy.env.extent = extent
             arcpy.analysis.Clip(line, extent.polygon, scratch_line)
         else:
-            scratch_line = line
+            arcpy.management.CopyFeatures(line, scratch_line)
 
         # generate points along line
         log("generate points along line")
@@ -167,7 +149,7 @@ class LocalMinimums:
                     # get current vertex and elevation
                     vertex = sub_line[0][0][i]
                     coord = "{} {}".format(vertex.X, vertex.Y)
-                    elev_cur = arcpy.management.GetCellValue(dem_raster, coord)
+                    elev_cur = arcpy.management.GetCellValue(dem, coord)
                     elev_cur = float(elev_cur.getOutput(0))
 
                     # first point
@@ -223,7 +205,6 @@ class LocalMinimums:
                     else:
                         pass
 
-
                     # setup for next iteration
                     elev_prev = elev_cur
 
@@ -231,16 +212,16 @@ class LocalMinimums:
             if len(local_minimums) > 0:
                 log("copying points to feature class")
                 arcpy.management.CopyFeatures(local_minimums, output_file)
-                log("defining spatial reference of feature")
-                arcpy.management.DefineProjection(output_file,spatial_reference)
+                #log("defining spatial reference of feature")
+                #arcpy.management.DefineProjection(output_file,spatial_reference)
                 log("adding minimums to map")
                 active_map.addDataFromPath(output_file)
             else:
                 log("no local minimums found")
 
-        # cleanup
-        log("deleting unneeded data")
-        arcpy.management.Delete([scratch_dem])
+        # cleaning up
+        log("deleting scratch layers")
+        arcpy.management.Delete([scratch_line])
 
         # save
         log("saving project")

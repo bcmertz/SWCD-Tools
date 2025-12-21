@@ -37,15 +37,15 @@ class BermAnalysis(object):
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
-            displayName="Z-Unit",
+            displayName="Z Unit",
             name="z_unit",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param2.filter.list = ["METER", "FOOT"]
 
@@ -112,11 +112,20 @@ class BermAnalysis(object):
 
     def updateParameters(self, parameters):
         # update parameters before execution if needed
-        # toggle asking for berm height
+        # find z unit of raster based on vertical coordinate system
+        # if there is none, let the user define it
         if not parameters[0].hasBeenValidated:
-            if parameters[0].value != None:
+            if parameters[0].value:
                 desc = arcpy.Describe(parameters[0].value)
-                parameters[2].value = desc.spatialReference.linearUnitName
+                if desc.spatialReference.VCS:
+                    if desc.spatialReference.VCS.linearUnitName == "METER":
+                        parameters[2] = "METER"
+                    elif desc.spatialReference.VCS.linearUnitName == "FOOT":
+                        parameters[2] = "FOOT"
+                    else:
+                        parameters[2] = None
+                else:
+                    parameters[2] = None
 
         if not parameters[5].hasBeenValidated:
             if parameters[5].value == True:
@@ -157,25 +166,33 @@ class BermAnalysis(object):
         project, active_map = setup()
 
         log("reading in parameters")
-        dem_raster = parameters[0].value
-        extent = arcpy.Extent(XMin = parameters[1].value.XMin,
-                              YMin = parameters[1].value.YMin,
-                              XMax = parameters[1].value.XMax,
-                              YMax = parameters[1].value.YMax)
-        extent.spatialReference = parameters[1].value.spatialReference
-        vertical_unit = parameters[2].value
-        z_unit = 3.2808 if "meter" in vertical_unit.lower() else 1
+        dem_layer = parameters[0].value
+        dem = arcpy.Raster(dem_layer.name)
+        extent = parameters[1].value
+        z_unit = parameters[2].value
         output_file = parameters[3].valueAsText
         berms = parameters[4].value
         supply_berm_height_bool = parameters[5].value
-        berm_height = parameters[6].value / z_unit
+        berm_height = parameters[6].value
         contour_bool = parameters[7].value
         contour_interval = parameters[8].value
         contour_output = parameters[9].valueAsText
 
+        # calculate z_factor
+        z_factor = None
+        if z_unit == "METER":
+            z_factor = 3.2808
+        elif z_unit == "FOOT":
+            z_factor = 1
+        else:
+            raise ValueError("Bad z-unit value")
+
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
+
         # setup scratch variables
         log("creating scratch variables")
-        scratch_dem = arcpy.CreateUniqueName("scratch_dem")
         scratch_dem_min = arcpy.CreateUniqueName("scratch_dem_min")
         scratch_zonal_statistics = arcpy.CreateUniqueName("scratch_zonal_statistics")
         scratch_dem_mask = arcpy.CreateUniqueName("scratch_dem_mask")
@@ -214,11 +231,6 @@ class BermAnalysis(object):
             # add contour field
             arcpy.management.AddField(contour_output, "Contour", "DOUBLE")
 
-        # setup DEM area
-        log("clipping DEM")
-        rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
-        arcpy.management.Clip(dem_raster, rectangle, scratch_dem)
-
         # add berm height field to berm fc
         if "berm_height" not in [f.name for f in arcpy.ListFields(berms)]:
             arcpy.management.AddField(berms, "berm_height", "FLOAT", field_precision=255, field_scale=2)
@@ -235,19 +247,13 @@ class BermAnalysis(object):
             expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oidfield),selection)
 
         # iterate through berms
-        with arcpy.da.UpdateCursor(berms, [oidfield, "berm_height"], expression) as cursor:
+        with arcpy.da.UpdateCursor(berms, [oidfield, "berm_height"], expression, spatial_filter=extent.polygon) as cursor:
             for berm in cursor:
                 # make a temporary feature layer to store the berm for zonal analysis
                 log("creating temporary berm feature for analysis")
                 oid_value = berm[0]
                 where_clause = "\"OBJECTID\" = " + str(oid_value)
                 arcpy.analysis.Select(berms, scratch_berm, where_clause)
-
-                # ensure berm is in rectangle, if not skip
-                desc = arcpy.Describe(scratch_berm)
-                if not extent.contains(desc.extent):
-                    log("drawn berm not in analysis area, skipping")
-                    continue
 
                 # if berm height is supplied, add it to the lowest elevation to get the flat berm elevation
                 if supply_berm_height_bool:
@@ -256,16 +262,16 @@ class BermAnalysis(object):
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
                         zone_field=oidfield,
-                        in_value_raster=scratch_dem,
+                        in_value_raster=dem,
                         statistics_type="MINIMUM",
                     )
                     out_raster.save(scratch_dem_mask)
-                    berm_elevation = out_raster.minimum + berm_height
+                    berm_elevation = out_raster.minimum + berm_height / z_factor
 
                     # clip original dem to berm area
                     log("clipping dem to berm")
                     out_raster = arcpy.sa.ExtractByMask(
-                        in_raster=scratch_dem,
+                        in_raster=dem,
                         in_mask_data=scratch_berm,
                         extraction_area="INSIDE",
                     )
@@ -288,20 +294,19 @@ class BermAnalysis(object):
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
                         zone_field=oidfield,
-                        in_value_raster=scratch_dem,
+                        in_value_raster=dem,
                         statistics_type="MAXIMUM",
                     )
                     out_raster.save(scratch_zonal_statistics)
 
                 # mosaic to new raster
                 log("mosaic to new raster")
-                scratch_dem_raster = arcpy.Raster(scratch_dem)
                 arcpy.management.MosaicToNewRaster(
-                    input_rasters=[scratch_dem, scratch_zonal_statistics],
+                    input_rasters=[dem, scratch_zonal_statistics],
                     output_location=arcpy.env.workspace,
                     raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
-                    pixel_type=pixel_type(scratch_dem_raster.pixelType),
-                    number_of_bands=scratch_dem_raster.bandCount,
+                    pixel_type=pixel_type(dem.pixelType),
+                    number_of_bands=dem.bandCount,
                     mosaic_method="LAST",
                     mosaic_colormap_mode="FIRST"
                 )
@@ -315,7 +320,7 @@ class BermAnalysis(object):
 
                 log("fill DEM")
                 scratch_fill_dem = arcpy.sa.Fill(
-                    in_surface_raster=scratch_dem,
+                    in_surface_raster=dem,
                     z_limit=None
                 )
 
@@ -330,7 +335,7 @@ class BermAnalysis(object):
                         out_polyline_features=scratch_contour,
                         contour_interval=contour_interval,
                         base_contour=0,
-                        z_factor=z_unit,
+                        z_factor=z_factor,
                     )
 
                     # append contour outputs contour_output
@@ -374,10 +379,10 @@ class BermAnalysis(object):
                     berm_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_effective_berm,
                         zone_field="OBJECTID",
-                        in_value_raster=scratch_dem,
+                        in_value_raster=dem,
                         statistics_type="RANGE",
                     )
-                    berm_height = berm_raster.maximum * z_unit
+                    berm_height = berm_raster.maximum * z_factor
                     log("berm height: ", berm_height, "ft")
 
                 # add height to berm
@@ -387,8 +392,7 @@ class BermAnalysis(object):
 
         # delete not needed scratch layers
         log("delete unused layers")
-        arcpy.management.Delete([scratch_contour, scratch_berm, scratch_output, scratch_dem, scratch_dem_min, scratch_zonal_statistics, scratch_dem_mask, scratch_mosaic_raster, scratch_con, scratch_effective_berm])
-
+        arcpy.management.Delete([scratch_contour, scratch_berm, scratch_output, scratch_dem_min, scratch_zonal_statistics, scratch_dem_mask, scratch_mosaic_raster, scratch_con, scratch_effective_berm])
 
         # finish up
         log("finishing up")

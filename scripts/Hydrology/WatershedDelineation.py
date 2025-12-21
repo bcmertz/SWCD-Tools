@@ -87,34 +87,19 @@ class WatershedDelineation(object):
         project, active_map = setup()
 
         # read in parameters
-        raster_layer = parameters[0].value
-        XMin = parameters[1].value.XMin if parameters[1].value else 0
-        YMin = parameters[1].value.YMin if parameters[1].value else 0
-        XMax = parameters[1].value.XMax if parameters[1].value else 0
-        YMax = parameters[1].value.YMax if parameters[1].value else 0
-        extent = arcpy.Extent(XMin, YMin, XMax, YMax)
-        if parameters[1].value:
-                extent.spatialReference = parameters[1].value.spatialReference
+        dem = parameters[0].value
+        extent = parameters[1].value
         pour_points = parameters[2].value
         snap_adjustment = parameters[3].value
         output_file = parameters[4].valueAsText
 
-        # create scratch layers
-        log("creating scratch layers")
-        scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        clip_flow_accumulation_scratch = arcpy.CreateScratchName("clip_flow_accumulation_scratch", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        pour_points_adjusted_scratch = "{}\\pour_points_adjusted_scratch".format(arcpy.env.workspace)
-
-        if parameters[1].value:
-            # clip DEM raster to the study area
-            log("clipping raster to analysis area")
-            rectangle = "{} {} {} {}".format(extent.XMin, extent.YMin, extent.XMax, extent.YMax)
-            arcpy.management.Clip(raster_layer, rectangle, scratch_dem)
-            raster_layer = scratch_dem
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
 
         # fill raster
         log("filling raster")
-        fill_raster_scratch = arcpy.sa.Fill(raster_layer)
+        fill_raster_scratch = arcpy.sa.Fill(dem)
 
         # flow direction
         log("calculating flow direction")
@@ -128,11 +113,10 @@ class WatershedDelineation(object):
         log("adjusting pour point data")
         pour_points_oid = get_oid(pour_points)
         pour_points_adjusted = arcpy.sa.SnapPourPoint(pour_points, flow_accumulation_scratch, snap_adjustment, pour_points_oid)
-        pour_points_adjusted.save(pour_points_adjusted_scratch)
 
         # watershed
         log("delineating watershed")
-        watershed = arcpy.sa.Watershed(flow_direction_scratch, pour_points_adjusted_scratch)
+        watershed = arcpy.sa.Watershed(flow_direction_scratch, pour_points_adjusted)
 
         # watershed raster to polyon
         log("converting watershed to polygon")
@@ -143,10 +127,6 @@ class WatershedDelineation(object):
         sym.updateRenderer('UniqueValueRenderer')
         sym.renderer.fields = ['gridcode']
         watershed_polygon.symbology = sym
-
-        # remove temporary variables
-        log("cleaning up")
-        arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
 
         # save and exit program successfully
         log("saving project")

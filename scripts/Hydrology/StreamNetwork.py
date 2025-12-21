@@ -36,7 +36,7 @@ class StreamNetwork(object):
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
@@ -85,8 +85,9 @@ class StreamNetwork(object):
         stream = parameters[2].value
         output_file = parameters[3].valueAsText
 
-        # set extent
-        arcpy.env.extent = extent
+        # set analysis extent
+        if extent:
+            arcpy.env.extent = extent
 
         # create scratch layers
         log("creating scratch layers")
@@ -94,6 +95,7 @@ class StreamNetwork(object):
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
 
         # fill - TODO: necessary?
+        log("filling raster")
         fill_raster = arcpy.sa.Fill(dem)
 
         # flow direction
