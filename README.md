@@ -29,8 +29,8 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Riparian Forest Buffer Potential](#3-riparian-forest-buffer-potential)
   - [Agricultural Assessment](#automated-agricultural-assessment)
   - [Raster Tools](#raster-tools)
-    - [Contour Area](#1-contour-area)
-    - [Slope Area](#2-slope-area)
+    - [Contour Polygon](#1-contour-polygon)
+    - [Slope Polygon](#2-slope-polygon)
     - [Burn Culverts in DEM](#3-burn-culverts-in-dem)
   - [Linear Analysis](#linear-analysis)
     - [Local Minimums](#1-local-minimums)
@@ -67,7 +67,7 @@ SWCD-Tools/
 │   ├── readme_examples/     # contains before and after images of tools for documentation
 ├── scripts/                 # folder containing all python scripts / tools
 │   ├── AgAssessment/        # automated agricultural assessment tools
-│   ├── AnalyzeArea/         # raster geoprocessing tools
+│   ├── RasterTools/         # raster geoprocessing tools
 │   ├── BufferTools/         # tools for riparian forest buffer planning
 │   ├── Hydrology/           # hydrology toolbox
 │   ├── LineAnalysis/        # tools for analysis of lines in 3D
@@ -287,9 +287,9 @@ This tool uses the following procedure:
 
 Quality of life tools to improve some out of the box geoprocessing tools
 
-### 1. Contour Area
+### 1. Contour Polygon
 
-Contour tool with ability to limit analysis to a given area
+Contour tool with ability to limit analysis to inside a given polygon
 
 <span>
 <img src="./assets/readme_examples/contour_before.png" alt="iamge showing aerial of farm field without contours" height="300"/>
@@ -298,9 +298,9 @@ Contour tool with ability to limit analysis to a given area
 
 Example showing a before and after of 1' contours in a sloping field.
 
-### 2. Slope Area
+### 2. Slope Polygon
 
-Slope tool with ability to limit analysis to a given area
+Slope tool with ability to limit analysis to inside a given polygon
 
 <span>
 <img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="300"/>
