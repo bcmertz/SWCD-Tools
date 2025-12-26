@@ -32,6 +32,7 @@ class StreamNetwork(object):
             parameterType="Required",
             direction="Input")
 
+        # TODO: allow watershed shapefile?? is it possible to combine?
         param1 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
@@ -40,6 +41,8 @@ class StreamNetwork(object):
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
+        # TODO: OR if no existing stream lines, use cell size and raster linear unit allow
+        # user to input # acres, sq mi, or similar instead of # cells
         param2 = arcpy.Parameter(
             displayName="Existing Stream Lines",
             name="stream",
@@ -105,7 +108,7 @@ class StreamNetwork(object):
         # flow accumulation
         log("calculating flow accumulation")
         flow_accumulation = arcpy.sa.FlowAccumulation(flow_direction)
-        
+
         # con
         log("converting raster to stream network")
         accumulation_threshold = 30000 # TODO: find better acc threshold, wants to be lower than lowest flow accumulation of existing streamlines - how to find this without using an interative approach?
@@ -137,7 +140,7 @@ class StreamNetwork(object):
         # stream to feature
         log("converting stream raster to output feature class")
         arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, output_file, simplify="SIMPLIFY")
-                                             
+
         # add flow path polyline to map
         log("adding output to map")
         active_map.addDataFromPath(output_file)
