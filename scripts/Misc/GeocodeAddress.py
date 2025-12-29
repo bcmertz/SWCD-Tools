@@ -23,7 +23,7 @@ class GeocodeAddress(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license([])
+        return license()
 
     def getParameterInfo(self):
         """Define parameter definitions"""

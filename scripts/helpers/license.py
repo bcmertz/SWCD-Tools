@@ -9,14 +9,19 @@
 
 import os
 import arcpy
+from packaging.version import Version
 
 # only needed for spatial analyst, but potential image analyst, ddd or others if
 # we end up using them
 # https://pro.arcgis.com/en/pro-app/3.3/arcpy/functions/checkextension.htm
 
-def license(licenses):
+def license(licenses=[], version_required=""):
     """verify the required licenses are installed"""
     try:
+        if version_required:
+            v_installed = arcpy.GetInstallInfo()['Version']
+            if Version(v_installed) < Version(version_required):
+                return False
         for l in licenses:
             if l == "OSWCD_GIS":
                 if not os.path.exists("G:\GIS"):

@@ -150,7 +150,7 @@ class LeastAction(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license([])
+        return license()
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
