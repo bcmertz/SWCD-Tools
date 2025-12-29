@@ -14,15 +14,15 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Dam Removal](#2-dam-removal)
     - [Model Potential Wetlands](#3-model-potential-wetlands)
   - [Hydrology](#hydrology)
-    - [Stream Centerline Adjuster](#1-stream-centerline-adjuster)
-    - [Stream Elevation Profile](#2-stream-elevation-profile)
+    - [Stream Elevation Profile](#1-stream-elevation-profile)
+    - [Calculate Stream Network](#2-calculate-stream-network)
     - [Watershed Delineation](#3-watershed-delineation)
-    - [Calculate Streamlines](#4-calculate-streamlines)
-    - [Sub-Basin Delineation](#5-sub-basin-delineation)
-    - [Runoff Curve Number (RCN)](#6-runoff-curve-number)
-    - [EFH-2](#7-efh-2-calculation)
-    - [Topographic Wetness Index (TWI)](#8-topographic-wetness-index-twi)
-    - [Relative Elevation Model (REM)](#9-relative-elevation-model-rem)
+    - [Sub-Basin Delineation](#4-sub-basin-delineation)
+    - [Runoff Curve Number (RCN)](#5-runoff-curve-number)
+    - [EFH-2](#6-efh-2-calculation)
+    - [Topographic Wetness Index (TWI)](#7-topographic-wetness-index-twi)
+    - [Relative Elevation Model (REM)](#8-relative-elevation-model-rem)
+    - [Stream Centerline Adjuster](#9-stream-centerline-adjuster)
   - [Planting tools](#buffer-tools)
     - [Point Plots](#1-point-plots)
     - [Shrub Clusters](#2-shrub-clusters)
@@ -139,21 +139,18 @@ This provides a reasonable approximation of wetland soils, hydrology, and valid 
 
 ## Hydrology
 
-### 1. Stream Centerline Adjuster
-
-Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
-
-<span>
-<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="600"/>
-</span>
-
-Red line shows before blue line shows after
-
-Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
-
-### 2. Stream Elevation Profile
+### 1. Stream Elevation Profile
 
 TODO
+
+### 2. Calculate Stream Network
+
+Use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold. The output can be restricted to existing streamlines to effectively correct hydrologically correct the input streamlines to match the DEM. For creating hydro-conditioned DEMs, see [Burn Culverts in DEM](#3-burn-culverts-in-dem)
+
+<span>
+<img src="/assets/readme_examples/watershed_delineation_after.png" alt="before image showing delineated watershed polygon over top of topographic map" height="250"/>
+<img src="/assets/readme_examples/calculate_streamlines_after.png" alt="after image showing watershed with delienated stream lines" height="250" />
+</span>
 
 ### 3. Watershed Delineation
 
@@ -166,16 +163,7 @@ Takes a pour point and DEM and delineates the contributing watershed.
 
 Before and after showing study area topographic map and the delineated watershed
 
-### 4. Calculate Streamlines
-
-In a given watershed use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold
-
-<span>
-<img src="/assets/readme_examples/watershed_delineation_after.png" alt="before image showing delineated watershed polygon over top of topographic map" height="250"/>
-<img src="/assets/readme_examples/calculate_streamlines_after.png" alt="after image showing watershed with delienated stream lines" height="250" />
-</span>
-
-### 5. Sub-Basin Delineation
+### 4. Sub-Basin Delineation
 
 Find sub-basins in a given watershed based off of a watershed flow-accumulation threshold.
 
@@ -186,7 +174,7 @@ Find sub-basins in a given watershed based off of a watershed flow-accumulation 
 
 Before and after showing the delineation of 4 sub-watersheds based off of the specified flow accumulation threshold.
 
-### 6. Runoff Curve Number
+### 5. Runoff Curve Number
 
 Calculates the runoff curve numbers for a given area based off of land use and hydrologic soil group.
 
@@ -202,11 +190,11 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 <img src="./assets/readme_examples/runoff_curve_numbers_rcn_table.png" alt="a picture of a raster attribute table showing runoff curve number values for hydrologic soil groups A,B,C,D for " width="800"/>
 </span>
 
-### 7. EFH-2 Calculation
+### 6. EFH-2 Calculation
 
 Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
 
-### 8. Topographic Wetness Index (TWI)
+### 7. Topographic Wetness Index (TWI)
 
 Calculates topographic wetness index (TWI) as a model of wetness due to topography and surface flow.
 
@@ -230,7 +218,7 @@ After images showing output topographic wetness index (TWI) rasters for both low
 
 This shows a TWI output with mapped NWI and DEC wetlands. Notice the  significant overlap with the darkest TWI areas.
 
-### 9. Relative Elevation Model (REM)
+### 8. Relative Elevation Model (REM)
 
 Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and indentifying geomorphic features.
 
@@ -239,6 +227,18 @@ Create a relative elevation model (REM) or height above nearest drainage (HAND) 
 </span>
 
 This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
+
+### 9. Stream Centerline Adjuster
+
+Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
+
+<span>
+<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="600"/>
+</span>
+
+Red line shows before blue line shows after
+
+Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
 
 ## Buffer Tools
 
