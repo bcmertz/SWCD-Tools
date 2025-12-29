@@ -104,7 +104,7 @@ class TopographicWetness(object):
         adjusted_flow_accumulation = int_flow_accumulation + 1
 
         # calculate topographic wetness index (TWI)
-        log("calculating slope tangent")
+        log("calculating topographic wetness index")
         out_TWI = arcpy.sa.Ln(adjusted_flow_accumulation / out_slope_tan)
         out_TWI.save(output_file)
 
