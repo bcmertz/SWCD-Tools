@@ -300,22 +300,20 @@ Quality of life tools to improve some out of the box geoprocessing tools
 Contour tool with ability to limit analysis to inside a given polygon
 
 <span>
-<img src="./assets/readme_examples/contour_before.png" alt="iamge showing aerial of farm field without contours" height="300"/>
-<img src="./assets/readme_examples/contour_after.png" alt="after image showing same field with 1 foot contours in yellow lines" height="300"/>
+<img src="./assets/readme_examples/contour_after.png" alt="after image showing a hillshade and a polygon with red 10' contour lines inside the polygon" height="400"/>
 </span>
 
-Example showing a before and after of 1' contours in a sloping field.
+Example showing output 10' contours in polygon.
 
 ### 2. Slope Polygon
 
 Slope tool with ability to limit analysis to inside a given polygon
 
 <span>
-<img src="./assets/readme_examples/slope_before_aerial.png" alt="before image showing aerial of forest" height="300"/>
-<img src="./assets/readme_examples/slope_after.png" alt="after image showing green-red slope raster of the same area" height="300"/>
+<img src="./assets/readme_examples/slope_after.png" alt="after image showing a green-red slope raster inside a polygon" height="400"/>
 </span>
 
-Example showing before aerials and output slope raster.
+Example showing output slope raster in polygon.
 
 ### 3. Burn Culverts in DEM
 
