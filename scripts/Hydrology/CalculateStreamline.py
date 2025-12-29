@@ -38,6 +38,8 @@ class CalculateStreamline(object):
             direction="Input")
         param1.filter.list = ["Polygon"]
 
+        # TODO: using cell size and raster linear unit allow user
+        # to input # acres, sq mi, or similar instead of # cells
         param2 = arcpy.Parameter(
             displayName="Stream Threshold Value",
             name="threshold",
