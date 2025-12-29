@@ -148,8 +148,8 @@ TODO
 Use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold. The output can be restricted to existing streamlines to effectively correct hydrologically correct the input streamlines to match the DEM. For creating hydro-conditioned DEMs, see [Burn Culverts in DEM](#3-burn-culverts-in-dem)
 
 <span>
-<img src="/assets/readme_examples/stream_network_before.png" alt="before image showing original less accurate streamlines in blue against a grey hillshade background" height="300"/>
-<img src="/assets/readme_examples/stream_network_after.png" alt="after image showing original less accurate streamlines in blue and more accurate new streamlines in green against a grey hillshade background" height="300" />
+<img src="/assets/readme_examples/stream_network_before.png" alt="before image showing original less accurate streamlines in blue against a grey hillshade background" height="350"/>
+<img src="/assets/readme_examples/stream_network_after.png" alt="after image showing original less accurate streamlines in blue and more accurate new streamlines in green against a grey hillshade background" height="350" />
 </span>
 
 ### 3. Watershed Delineation
