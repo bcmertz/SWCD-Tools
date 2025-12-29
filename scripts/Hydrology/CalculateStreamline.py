@@ -69,6 +69,7 @@ class CalculateStreamline(object):
         # Default stream threshold value
         if parameters[2].value == None:
             parameters[2].value = 25000
+        return
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
