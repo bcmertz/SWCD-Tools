@@ -12,6 +12,7 @@ from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
 from .SubBasinDelineation import SubBasinDelineation
 from .TopographicWetness import TopographicWetness
+from .StreamPowerIndex import StreamPowerIndex
 from .WatershedDelineation import WatershedDelineation
 from .REMCalculator import RelativeElevationModel
 from .StreamCenterlineAdjuster import LeastAction
