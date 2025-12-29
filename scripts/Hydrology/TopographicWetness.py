@@ -83,9 +83,7 @@ class TopographicWetness(object):
         # flow accumulation
         log("calculating flow accumulation")
         out_accumulation_raster = arcpy.sa.DeriveContinuousFlow(fill_raster_scratch, flow_direction_type="MFD")
-
-        # int flow accumulation
-        int_flow_accumulation = arcpy.sa.Float(out_accumulation_raster)
+        flow_accumulation = arcpy.sa.Float(out_accumulation_raster)
 
         # calculate slope
         log("calculating slope")
@@ -101,7 +99,7 @@ class TopographicWetness(object):
 
         # adjust flow accumulation
         log("adjusting flow accumulation")
-        adjusted_flow_accumulation = int_flow_accumulation + 1
+        adjusted_flow_accumulation = flow_accumulation + 1
 
         # calculate topographic wetness index (TWI)
         log("calculating topographic wetness index")
