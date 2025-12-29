@@ -7,7 +7,6 @@
 # --------------------------------------------------------------------------------
 
 from .CalculateHydrology import CalculateHydrology
-from .CalculateStreamline import CalculateStreamline
 from .RunoffPotential import RunoffPotential
 from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
