@@ -155,7 +155,7 @@ Use elevation data to find streamlines for flow accumulations larger than the st
 Before and after showing input low-res streamlines in blue and high-res output streamlines in green. It is suggested to apply some form of smoothing on the output lines.
 
 <span>
-<img src="/assets/readme_examples/stream_network_afte_close.png" alt="after image showing original less accurate streamlines in blue against a grey hillshade background and more accurate new streamlines in green against a grey hillshade background closer up than previous example" height="400"/>
+<img src="/assets/readme_examples/stream_network_after_close.png" alt="after image showing original less accurate streamlines in blue against a grey hillshade background and more accurate new streamlines in green against a grey hillshade background closer up than previous example" height="400"/>
 </span>
 
 Close-up showing (with post-processing smoothing - PAEK 10m) derived streamlines in green.
