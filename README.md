@@ -242,7 +242,7 @@ This example outputs show legacy sediment deposits behind a breached 19th centur
 Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on landscape position and erosive potential.
 
 <span>
-<img src="./assets/readme_examples/stream_power_after" alt="after image showing aerial imagery of forest with a green-red raster showing output stream power index" width="300"/>
+<img src="./assets/readme_examples/stream_power_after.png" alt="after image showing aerial imagery of forest with a green-red raster showing output stream power index" width="300"/>
 </span>
 
 This example outputs shows stream power along a small headwater stream in the forest.
