@@ -48,22 +48,15 @@ class StreamPowerIndex(object):
         param2.filter.list = ["Polyline"]
 
         param3 = arcpy.Parameter(
-            displayName="Buffer Width (ft)",
-            name="width",
-            datatype="GPDouble",
-            parameterType="Required",
-            direction="Input")
-
-        param4 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param4.parameterDependencies = [param0.name]
-        param4.schema.clone = True
+        param3.parameterDependencies = [param0.name]
+        param3.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3]
         return params
 
     def isLicensed(self):
@@ -71,17 +64,6 @@ class StreamPowerIndex(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
-        # add buffer width
-        if not parameters[2].hasBeenValidated:
-            if parameters[2].value:
-                parameters[3].enabled = True
-            else:
-                parameters[3].enabled = False
-
-        # set default buffer width
-        if parameters[3].value == None:
-            parameters[3].value = 15
-
         return
 
     def updateMessages(self, parameters):
@@ -100,17 +82,12 @@ class StreamPowerIndex(object):
         dem = arcpy.Raster(dem_layer.name)
         extent = parameters[1].value
         stream = parameters[2].value
-        width = parameters[3].value
-        output_file = parameters[4].valueAsText
+        output_file = parameters[3].valueAsText
 
         # set analysis extent
         if extent:
             arcpy.env.extent = extent
 
-        # create scratch layers
-        log("creating scratch layers")
-        scratch_stream_buffer = arcpy.CreateScratchName("stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        
         # fill raster
         log("filling raster")
         fill_raster_scratch = arcpy.sa.Fill(dem)
@@ -120,35 +97,30 @@ class StreamPowerIndex(object):
         flow_accumulation_raster = arcpy.sa.DeriveContinuousFlow(fill_raster_scratch, flow_direction_type="D8") # MFD doesn't work well for streams with substantial width
         flow_accumulation = arcpy.sa.Float(flow_accumulation_raster)
 
-        # limit analysis to mask
-        if stream:
-            # pairwise buffer stream
-            log("creating buffer around stream to mask output")
-            arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, "{} Feet".format(width), dissolve_option="ALL", dissolve_field="", method="GEODESIC", max_deviation="")
-
-            log("masking analysis area")
-            arcpy.env.cellSize = dem_layer.name
-            arcpy.env.snapRaster = dem_layer.name
-            arcpy.env.mask = scratch_stream_buffer
-
         # calculate slope
         log("calculating slope")
         slope_raster = arcpy.sa.Slope(dem, "PERCENT_RISE", "", "GEODESIC", "METER")
-
-        # convert slope to radians
-        #log("converting slope raster to radians")
-        #slope_radians = arcpy.sa.Float(slope_raster) * (math.pi / 180)
         slope_float = arcpy.sa.Float(slope_raster)
 
-        # calculate slope tangent
+        # calculate slope tangent - alternate calculation method
         #log("calculating slope tangent")
         #out_slope_tan = arcpy.sa.Tan(slope_radians)
+        #out_SPI = arcpy.sa.Ln((flow_accumulation * out_slope_tan) + 0.001) - alternate calculation method
 
         # calculate stream power index (SPI)
         log("calculating stream power index")
-        #out_SPI = arcpy.sa.Ln((flow_accumulation * out_slope_tan) + 0.001)
-        out_SPI = arcpy.sa.Ln((flow_accumulation * slope_float / 100) + 0.001)
-        out_SPI.save(output_file)
+        spi_tmp = arcpy.sa.Ln((flow_accumulation * slope_float) + 0.001)
+
+        # because arcpy.env.mask doesn't like a polyline input >:( 
+        if stream:
+            # mask stream power to study area
+            log("masking analysis to stream line")
+            spi_tmp = arcpy.sa.ExtractByMask(spi_tmp, stream, "INSIDE")
+
+        # set SPI < 0 to NULL
+        log('setting SPI values < 0 to null')
+        spi_output = arcpy.sa.SetNull(spi_tmp, spi_tmp, 'VALUE <= 0.0')
+        spi_output.save(output_file)
 
         # add SPI to map
         log("adding raster to map")
@@ -162,10 +134,6 @@ class StreamPowerIndex(object):
                 sym.updateColorizer("RasterStretchColorizer")
             sym.colorizer.colorRamp = project.listColorRamps('Slope')[0]
             spi_layer.symbology = sym
-
-        # cleanup
-        log("deleting unneeded data")
-        arcpy.management.Delete([scratch_stream_buffer])
 
         # save and exit program successfully
         log("saving project")
