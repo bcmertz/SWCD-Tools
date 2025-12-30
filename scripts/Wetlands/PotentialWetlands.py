@@ -137,7 +137,7 @@ class PotentialWetlands(object):
             multiValue=True,
             parameterType="Optional",
            direction="Input")
-        param11.filter.list = ["Polygon"]
+        param13.filter.list = ["Polygon"]
 
         params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13]
         return params
