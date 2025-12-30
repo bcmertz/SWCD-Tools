@@ -105,9 +105,10 @@ class ShrubClusters:
 
         # create buffer inside the planting area
         log("buffer output area")
+        buffer_width = width
         if geom_type == "ENVELOPE":
-            width = width*math.sqrt(2)
-        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} Feet".format(-int(width)))
+            buffer_width = width*math.sqrt(2)
+        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} Feet".format(-int(buffer_width)))
 
         # create point locations
         log("creating shrub cluster point locations")
