@@ -22,7 +22,15 @@ class CollectRasters:
 
     def getParameterInfo(self):
         """Define the tool parameters."""
-        params = []
+        param0 = arcpy.Parameter(
+            displayName="Analysis Area",
+            name="analysis_area",
+            datatype="GPExtent",
+            parameterType="Required",
+            direction="Input")
+        param0.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+
+        params = [param0]
         return params
 
     def isLicensed(self):
@@ -35,20 +43,19 @@ class CollectRasters:
         log("setting up project")
         project, orig_map = setup()
 
+        # reading in parameters
+        extent = parameters[0].value
+
+        # find key layers
         lyrs = orig_map.listLayers("*Key")
 
         for lyr in lyrs:
             if lyr.visible:
-                log("Grabbing rasters for ", lyr.name)
                 # get year from key feature class
                 year = lyr.name.replace(" Key", "")
-                oidfield = get_oid(lyr)
+                log("Grabbing rasters for ", year)
 
-                # get selected features in layer
-                selection_tuple = tuple(lyr.getSelectionSet())
-                selection = "("+",".join([str(i) for i in selection_tuple])+")"
-                expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(lyr,oidfield),selection)
-                with arcpy.da.SearchCursor(lyr, ("FULLPATH","IMAGENAME"), expression) as cursor:
+                with arcpy.da.SearchCursor(lyr, ("FULLPATH","IMAGENAME"), spatial_filter=extent) as cursor:
                     for row in cursor:
                         # get raster filepath from attributes
                         path = "{}\{}".format(row[0], row[1])
