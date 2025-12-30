@@ -102,11 +102,6 @@ class StreamPowerIndex(object):
         slope_raster = arcpy.sa.Slope(dem, "PERCENT_RISE", "", "GEODESIC", "METER")
         slope_float = arcpy.sa.Float(slope_raster)
 
-        # calculate slope tangent - alternate calculation method
-        #log("calculating slope tangent")
-        #out_slope_tan = arcpy.sa.Tan(slope_radians)
-        #out_SPI = arcpy.sa.Ln((flow_accumulation * out_slope_tan) + 0.001) - alternate calculation method
-
         # calculate stream power index (SPI)
         log("calculating stream power index")
         spi_tmp = arcpy.sa.Ln((flow_accumulation * slope_float) + 0.001)
@@ -119,7 +114,6 @@ class StreamPowerIndex(object):
 
         # set SPI < 0 to zero
         log('setting SPI values < 0 to zero')
-        #spi_output = arcpy.sa.SetNull(spi_tmp, spi_tmp, 'VALUE <= 0.0')
         spi_output = arcpy.sa.Con(spi_tmp, 0, spi_tmp, "Value <= 0")
         spi_output.save(output_file)
 
