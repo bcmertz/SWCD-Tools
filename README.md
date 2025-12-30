@@ -22,7 +22,8 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [EFH-2](#6-efh-2-calculation)
     - [Topographic Wetness Index (TWI)](#7-topographic-wetness-index-twi)
     - [Relative Elevation Model (REM)](#8-relative-elevation-model-rem)
-    - [Stream Centerline Adjuster](#9-stream-centerline-adjuster)
+    - [Stream Power Index (SPI)](#9-stream-power-index-spi)
+    - [Stream Centerline Adjuster](#10-stream-centerline-adjuster)
   - [Planting tools](#buffer-tools)
     - [Point Plots](#1-point-plots)
     - [Shrub Clusters](#2-shrub-clusters)
@@ -236,7 +237,17 @@ Create a relative elevation model (REM) or height above nearest drainage (HAND) 
 
 This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
 
-### 9. Stream Centerline Adjuster
+### 9. Stream Power Index (SPI)
+
+Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on landscape position and erosive potential.
+
+<span>
+<img src="./assets/readme_examples/stream_power_after" alt="after image showing aerial imagery of forest with a green-red raster showing output stream power index" width="300"/>
+</span>
+
+This example outputs shows stream power along a small headwater stream in the forest.
+
+### 10. Stream Centerline Adjuster
 
 Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
 
