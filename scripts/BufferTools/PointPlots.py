@@ -105,6 +105,7 @@ class PointPlots:
                 #    parameters[4].value = "{}\\{}{}".format(file_path, file_name, "_contours")
             else:
                 parameters[4].enabled = False
+        return
 
     def execute(self, parameters, messages):
         """The source code of the tool."""
