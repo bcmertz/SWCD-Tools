@@ -117,9 +117,10 @@ class StreamPowerIndex(object):
             log("masking analysis to stream line")
             spi_tmp = arcpy.sa.ExtractByMask(spi_tmp, stream, "INSIDE")
 
-        # set SPI < 0 to NULL
-        log('setting SPI values < 0 to null')
-        spi_output = arcpy.sa.SetNull(spi_tmp, spi_tmp, 'VALUE <= 0.0')
+        # set SPI < 0 to zero
+        log('setting SPI values < 0 to zero')
+        #spi_output = arcpy.sa.SetNull(spi_tmp, spi_tmp, 'VALUE <= 0.0')
+        spi_output = arcpy.sa.Con(spi_tmp, 0, spi_tmp, "Value <= 0")
         spi_output.save(output_file)
 
         # add SPI to map
