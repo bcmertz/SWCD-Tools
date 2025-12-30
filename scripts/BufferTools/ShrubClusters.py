@@ -56,12 +56,28 @@ class ShrubClusters:
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3]
+        param4 = arcpy.Parameter(
+            displayName="Cluster Shape",
+            name="shape",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param4.filter.type = "ValueList"
+        param4.filter.list = ["Square", "Circle"]
+
+        params = [param0, param1, param2, param3, param4]
         return params
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license()
+
+    def updateParameters(self, parameters):
+        # set default cluster shape
+        if parameters[4].value == None:
+            parameters[4].value = "Square"
+
+        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
@@ -79,17 +95,18 @@ class ShrubClusters:
         output_file = parameters[1].valueAsText
         width = parameters[2].value
         number = parameters[3].value
+        geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
 
         # create scratch layers
         log("creating scratch layers")
         scratch_area = arcpy.CreateScratchName("scratch_area", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_points = arcpy.CreateScratchName("scratch_points", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_bounding = arcpy.CreateScratchName("scratch_bounding", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
 
         # create buffer inside the planting area
         log("buffer output area")
-        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} Feet".format(-int(width*math.sqrt(2))))
+        width = int(width) if geom_type == "CIRCLE" else int(width*math.sqrt(2))
+        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} Feet".format(-width))
 
         # create point locations
         log("creating shrub cluster point locations")
@@ -112,25 +129,19 @@ class ShrubClusters:
         )
 
         # make square around buffer
-        log("creating square shrub cluster")
+        log("creating {} {} shrub clusters".format(number, parameters[4].valueAsText.lower()))
         arcpy.management.MinimumBoundingGeometry(
             in_features=scratch_buffer,
-            out_feature_class=scratch_bounding,
-            geometry_type="ENVELOPE",
-            group_option="NONE",
-        )
-
-        # convert to feature class
-        log("converting output to feature class")
-        arcpy.management.FeatureEnvelopeToPolygon(
-            in_features=scratch_bounding,
             out_feature_class=output_file,
-            single_envelope="SINGLEPART"
+            geometry_type=geom_type,
+            group_option="NONE",
+            group_field=None,
+            mbg_fields_option="NO_MBG_FIELDS"
         )
 
         # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_points, scratch_buffer, scratch_bounding, scratch_area])
+        arcpy.management.Delete([scratch_points, scratch_buffer, scratch_area])
 
         # save
         log("saving project")
