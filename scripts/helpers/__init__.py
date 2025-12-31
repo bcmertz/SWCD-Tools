@@ -14,3 +14,4 @@ from .setupenvironment import setup_environment
 from .validatespatialreference import validate_spatial_reference
 from .getoid import get_oid
 from .pixeltype import pixel_type
+from .emptyworkspace import empty_workspace
