@@ -2,14 +2,13 @@
 # Name:        Empty Geodatabase
 # Purpose:     This helper clears the entire geodatabase while keeping specified files
 #
-# License:     Derivate work of NRCS Engineering Tools 2.0
-#              GNU Affero General Public License v3.
+# License:     Modification of work in NRCS Engineering Tools 2.0 (no license present)
+#              Assumed to fall under this projects license: GNU Affero General Public
+#              License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # ------------------------------------------------------------------------------------
 
 import os
-from typing import List
-
 import arcpy
 
 def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
