@@ -118,14 +118,14 @@ class BermAnalysis(object):
             if parameters[0].value:
                 desc = arcpy.Describe(parameters[0].value)
                 if desc.spatialReference.VCS:
-                    if desc.spatialReference.VCS.linearUnitName == "METER":
-                        parameters[1] = "METER"
-                    elif desc.spatialReference.VCS.linearUnitName == "FOOT":
-                        parameters[1] = "FOOT"
+                    if desc.spatialReference.VCS.linearUnitName == "Meter":
+                        parameters[1].value = "METER"
+                    elif desc.spatialReference.VCS.linearUnitName == "Foot" or desc.spatialReference.VCS.linearUnitName == "Foot_US":
+                        parameters[1].value = "FOOT"
                     else:
-                        parameters[1] = None
+                        parameters[1].value = None
                 else:
-                    parameters[1] = None
+                    parameters[1].value = None
 
         if not parameters[5].hasBeenValidated:
             if parameters[5].value == True:
