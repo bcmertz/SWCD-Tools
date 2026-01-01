@@ -32,31 +32,39 @@ class StreamPowerIndex(object):
             direction="Input")
 
         param1 = arcpy.Parameter(
+            displayName="Z Unit",
+            name="z_unit",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param1.filter.list = ["METER", "FOOT"]
+
+        param2 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Optional",
             direction="Input")
-        param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+        param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        param2 = arcpy.Parameter(
+        param3 = arcpy.Parameter(
             displayName="Stream Line Mask",
             name="stream",
             datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-        param2.filter.list = ["Polyline"]
+        param3.filter.list = ["Polyline"]
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param3.parameterDependencies = [param0.name]
-        param3.schema.clone = True
+        param4.parameterDependencies = [param0.name]
+        param4.schema.clone = True
 
-        params = [param0, param1, param2, param3]
+        params = [param0, param1, param2, param3, param4]
         return params
 
     def isLicensed(self):
@@ -64,6 +72,21 @@ class StreamPowerIndex(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
+        # find z unit of raster based on vertical coordinate system
+        # if there is none, let the user define it
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                desc = arcpy.Describe(parameters[0].value)
+                if desc.spatialReference.VCS:
+                    if desc.spatialReference.VCS.linearUnitName == "Meter":
+                        parameters[1].value = "METER"
+                    elif desc.spatialReference.VCS.linearUnitName == "Foot" or desc.spatialReference.VCS.linearUnitName == "Foot_US":
+                        parameters[1].value = "FOOT"
+                    else:
+                        parameters[1].value = None
+                else:
+                    parameters[1].value = None
+
         return
 
     def updateMessages(self, parameters):
@@ -80,9 +103,10 @@ class StreamPowerIndex(object):
         # read in parameters
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
-        extent = parameters[1].value
-        stream = parameters[2].value
-        output_file = parameters[3].valueAsText
+        z_unit = parameters[1].value
+        extent = parameters[2].value
+        stream = parameters[3].value
+        output_file = parameters[4].valueAsText
 
         # set analysis extent
         if extent:
@@ -99,12 +123,16 @@ class StreamPowerIndex(object):
 
         # calculate slope
         log("calculating slope")
-        slope_raster = arcpy.sa.Slope(dem, "PERCENT_RISE", "", "GEODESIC", "METER")
+        slope_raster = arcpy.sa.Slope(dem, "PERCENT_RISE", "", "GEODESIC", z_unit)
         slope_float = arcpy.sa.Float(slope_raster)
 
         # calculate stream power index (SPI)
         log("calculating stream power index")
-        spi_tmp = arcpy.sa.Ln((flow_accumulation * slope_float) + 0.001)
+        spi_tmp = arcpy.sa.Ln((flow_accumulation + 0.001) * ((slope_float / 100) + 0.001))
+
+        # set SPI < 0 to null
+        log('setting SPI values < 0 to null')
+        spi_tmp = arcpy.sa.SetNull(spi_tmp, spi_tmp, 'VALUE <= 0.0')
 
         # because arcpy.env.mask doesn't like a polyline input >:( 
         if stream:
@@ -112,13 +140,9 @@ class StreamPowerIndex(object):
             log("masking analysis to stream line")
             spi_tmp = arcpy.sa.ExtractByMask(spi_tmp, stream, "INSIDE")
 
-        # set SPI < 0 to zero
-        log('setting SPI values < 0 to zero')
-        spi_output = arcpy.sa.Con(spi_tmp, 0, spi_tmp, "Value <= 0")
-        spi_output.save(output_file)
-
         # add SPI to map
         log("adding raster to map")
+        spi_tmp.save(output_file)
         spi_layer = active_map.addDataFromPath(output_file)
 
         # update raster symbology
