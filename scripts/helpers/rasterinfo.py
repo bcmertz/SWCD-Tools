@@ -9,7 +9,7 @@
 import arcpy
 from typing import Literal
 
-def z_unit(raster) -> str | None:
+def get_z_unit(raster) -> str | None:
     """Find z-unit of raster"""
     # find z unit of raster based on vertical coordinate system
     desc = arcpy.Describe(raster)
@@ -21,6 +21,16 @@ def z_unit(raster) -> str | None:
 
     return None
 
+def get_linear_unit(fc) -> str | None:
+    """Find linear unit from spatial reference"""
+    # find linear unit from spatial reference
+    desc = arcpy.Describe(fc)
+    if desc.spatialReference.linearUnitName == "Meter":
+        return "METER"
+    elif desc.spatialReference.linearUnitName == "Foot" or desc.spatialReference.linearUnitName == "Foot_US":
+        return "FOOT"
+
+    return None
 
 UNITS = {
     "METER": 1.0,
@@ -29,7 +39,7 @@ UNITS = {
     "CENTIMETER": 100 
 }
 
-def z_factor(in_unit: Literal[UNITS.keys()], out_unit: Literal[UNITS.keys()], num: float) -> float:
+def convert_units(in_unit: Literal[UNITS.keys()], out_unit: Literal[UNITS.keys()], num: float) -> float:
     """Find z-factor of raster"""
     return num * UNITS[out_unit] / UNITS[in_unit]
 
@@ -48,6 +58,6 @@ PIXEL_TYPES = {
     "F64": "64_BIT"
 }
 
-def pixel_type(id):
+def pixel_type(raster):
     """return the the string representation of the raster pixel type"""
-    return PIXEL_TYPES[id]
+    return PIXEL_TYPES[raster.pixelType]
