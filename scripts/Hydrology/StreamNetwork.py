@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, get_oid
+from helpers import license, get_oid, convert_units, get_linear_unit
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -104,17 +104,12 @@ class StreamNetwork(object):
             arcpy.env.extent = extent
 
         # find threshold in # cells
+        linear_unit = get_linear_unit(dem)
         try:
             desc = arcpy.Describe(dem)
-            cellsize_y = desc.meanCellHeight  # Cell size in the Y axis
-            cellsize_x = desc.meanCellWidth   # Cell size in the X axis
-            linear_unit = desc.spatialReference.linearUnitName
-            if linear_unit == "Meter":
-                cellsize_y = cellsize_y * 3.2808
-                cellsize_x = cellsize_x * 3.2808
-            elif linear_unit == "Foot":
-                pass
-            else:
+            cellsize_y = convert_units(desc.meanCellHeight, linear_unit, "FOOT")  # Cell size in the Y axis
+            cellsize_x = convert_units(desc.meanCellWidth, linear_unit, "FOOT")   # Cell size in the X axis
+            if linear_unit == None:
                 log("unknown linear unit for DEM, stream initiation theshold may be calculated incorrectly")
             cell_area_ft2 = cellsize_x * cellsize_y
             threshold = int(theshold * (43560 / cell_area_ft2))
@@ -127,7 +122,7 @@ class StreamNetwork(object):
         scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
 
-        # fill - TODO: necessary?
+        # fill DEM
         log("filling raster")
         fill_raster = arcpy.sa.Fill(dem)
 

@@ -93,7 +93,7 @@ class BurnCulverts(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
-        distance = parameters[4].value / 3.2808
+        distance = convert_units(parameters[4].value, "FOOT", "METER")
         desc = arcpy.Describe(parameters[3].value)
         spatial_reference = desc.spatialReference
 
@@ -184,7 +184,7 @@ class BurnCulverts(object):
         arcpy.management.MosaicToNewRaster(
             input_rasters=[dem,scratch_burned_raster],
             output_location=arcpy.env.workspace,
-            pixel_type=pixel_type(difference.pixelType),
+            pixel_type=pixel_type(difference),
             number_of_bands=difference.bandCount,
             raster_dataset_name_with_extension=mosaic_raster,
             mosaic_method="LAST",

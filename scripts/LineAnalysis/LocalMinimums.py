@@ -49,47 +49,70 @@ class LocalMinimums:
             direction="Input")
 
         param2 = arcpy.Parameter(
+            displayName="Z Unit",
+            name="z_unit",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param2.filter.list = ["METER", "FOOT"]
+
+        param3 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Optional",
             direction="Input")
-        param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+        param3.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="Search Interval (m)",
             name="search_distance",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="Minimum Elevation Difference Threshold (in)",
             name="threshold",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
 
-        param5 = arcpy.Parameter(
+        param6 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param5.parameterDependencies = [param0.name]
-        param5.schema.clone = True
+        param6.parameterDependencies = [param0.name]
+        param6.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4, param5]
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateParameters(self, parameters):
         # default search interval
-        if parameters[3].value == None:
-            parameters[3].value = 1
+        if parameters[4].value == None:
+            parameters[4].value = 1
 
         # default threshold value
-        if parameters[4].value == None:
-            parameters[4].value = 2
+        if parameters[5].value == None:
+            parameters[5].value = 2
+
+        # find z unit of raster based on vertical coordinate system if there is none, let the user define it
+        if not parameters[1].hasBeenValidated:
+            if parameters[1].value:
+                z_unit = get_z_unit(parameters[1].value)
+                if z_unit:
+                    parameters[2].enabled = False
+                    parameters[2].value = z_unit
+                else:
+                    parameters[2].enabled = True
+                    parameters[2].value = None
+            else:
+                parameters[2].enabled = False
+                parameters[2].value = None  
+
         return
 
     def updateMessages(self, parameters):
@@ -110,10 +133,11 @@ class LocalMinimums:
         line = parameters[0].value
         dem_layer = parameters[1].value
         dem = arcpy.Raster(dem_layer.name)
-        extent = parameters[2].value
-        search_interval = parameters[3].value
-        threshold = parameters[4].value / (3.2808 * 12)
-        output_file = parameters[5].valueAsText
+        z_unit = parameters[2].value
+        extent = parameters[3].value
+        search_interval = parameters[4].value
+        threshold = convert_units(parameters[5].value,"INCH",z_units)
+        output_file = parameters[6].valueAsText
 
         # create scratch layers
         scratch_line = arcpy.CreateScratchName("line", "DEFeatureClass", arcpy.env.scratchFolder)
@@ -128,7 +152,7 @@ class LocalMinimums:
 
         # generate points along line
         log("generate points along line")
-        arcpy.edit.Densify(scratch_line, "DISTANCE", search_interval)
+        arcpy.edit.Densify(scratch_line, "DISTANCE", "{} meters".format(search_interval))
 
         # iterate through lines and points
         log("finding local minimums")
