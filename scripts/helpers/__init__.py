@@ -14,4 +14,5 @@ from .setupenvironment import setup_environment
 from .validatespatialreference import validate_spatial_reference
 from .getoid import get_oid
 from .emptyworkspace import empty_workspace
-from .rasterinfo import get_z_unit, get_linear_unit, pixel_type, convert_units
+from .rasterinfo import pixel_type
+from .units import get_z_unit, get_linear_unit, convert_units
