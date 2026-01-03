@@ -10,7 +10,7 @@
 import arcpy
 from math import atan2, pi
 
-from helpers import license, pixel_type
+from helpers import license, pixel_type, get_linear_unit
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -111,11 +111,11 @@ class DamRemoval(object):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
 
-    def transectLine(self, stream_line, stream_vertex, transect_length):
-        '''returns a transect to stream_line of length transect_length at stream_vertex point
+    def transectLine(self, stream_line, stream_vertex, transect_width):
+        '''returns a transect to stream_line of length transect_width at stream_vertex point
         stream_line - arcpy.PolyLine() object
         stream_vertex - arcpy.Point() object
-        transect_length - distance in meters of transect
+        transect_width - distance in meters of transect
         '''
         # epsilon
         e = 1e-5
@@ -136,8 +136,8 @@ class DamRemoval(object):
         # angle of the midpoint segment
         angle = atan2(dX,dY) * 180 / pi
 
-        first_tran_point = geom.pointFromAngleAndDistance(angle - 90, transect_length/2)
-        last_tran_point = geom.pointFromAngleAndDistance(angle + 90, transect_length/2)
+        first_tran_point = geom.pointFromAngleAndDistance(angle - 90, transect_width/2)
+        last_tran_point = geom.pointFromAngleAndDistance(angle + 90, transect_width/2)
         dX = first_tran_point.firstPoint.X - last_tran_point.firstPoint.X
         dY = first_tran_point.firstPoint.Y - last_tran_point.firstPoint.Y
 
@@ -155,7 +155,7 @@ class DamRemoval(object):
         scratch_transect_points - scratch layer for transect points
         scratch_transect_elev_points - scratch layer for transect points with elevations
         '''
-        arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", transect_point_spacing, "", "END_POINTS", "ADD_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", "{} feet".format(transect_point_spacing), "", "END_POINTS", "ADD_CHAINAGE")
         arcpy.sa.ExtractValuesToPoints(scratch_transect_points, dem_raster, scratch_transect_elev_points, "NONE", "VALUE_ONLY")
 
         # iterate through transect points
@@ -221,12 +221,11 @@ class DamRemoval(object):
         output_file = parameters[2].valueAsText
         centerline = parameters[3].value
         pond = parameters[4].value
-        desc = arcpy.Describe(parameters[0].value)
-        vertical_unit = desc.spatialReference.linearUnitName
-        z_unit = 3.2808 if "meter" in vertical_unit.lower() else 1
-        transect_spacing = parameters[5].value / z_unit
-        transect_point_spacing = parameters[6].value / z_unit
-        transect_width = parameters[7].value / z_unit
+        linear_unit = get_linear_unit(centerline)
+        z_factor = convert_units(1, linear_unit, "FOOT")
+        transect_spacing = parameters[5].value
+        transect_point_spacing = parameters[6].value
+        transect_width = parameters[7].value / z_factor
 
         # set analysis extent
         if extent:
@@ -251,7 +250,7 @@ class DamRemoval(object):
         # generate points along line
         log("generating points along centerline")
         arcpy.analysis.Clip(centerline, extent.poly, scratch_centerline)
-        arcpy.management.GeneratePointsAlongLines(scratch_centerline, scratch_centerline_points, "DISTANCE", transect_spacing, "", "END_POINTS", "ADD_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(scratch_centerline, scratch_centerline_points, "DISTANCE", "{} feet".format(transect_spacing), "", "END_POINTS", "ADD_CHAINAGE")
 
         # extract values to points
         log("adding elevation data to centerline points")
@@ -303,7 +302,7 @@ class DamRemoval(object):
             input_rasters=[dem_pondless, scratch_point_raster],
             output_location=arcpy.env.workspace,
             raster_dataset_name_with_extension=mosaic_raster,
-            pixel_type=pixel_type(dem_pondless_raster.pixelType),
+            pixel_type=pixel_type(dem_pondless_raster),
             number_of_bands=dem_pondless_raster.bandCount,
             mosaic_method="LAST",
             mosaic_colormap_mode="FIRST"
@@ -314,8 +313,7 @@ class DamRemoval(object):
         log("getting stream centerline")
         centerline_polyline = None
         with arcpy.da.SearchCursor(centerline, ["SHAPE@"]) as cursor:
-            for line in cursor:
-                centerline_polyline = line[0]
+            centerline_polyline = cursor[0][0]
 
         # iterate through each point
         # impove point density with transects using the new mosaic

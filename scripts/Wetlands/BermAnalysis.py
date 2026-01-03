@@ -11,7 +11,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type
+from helpers import license, get_oid, pixel_type, get_z_unit, convert_units
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -111,21 +111,19 @@ class BermAnalysis(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
-        # update parameters before execution if needed
-        # find z unit of raster based on vertical coordinate system
-        # if there is none, let the user define it
+        # find z unit of raster based on vertical coordinate system if there is none, let the user define it
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                desc = arcpy.Describe(parameters[0].value)
-                if desc.spatialReference.VCS:
-                    if desc.spatialReference.VCS.linearUnitName == "Meter":
-                        parameters[1].value = "METER"
-                    elif desc.spatialReference.VCS.linearUnitName == "Foot" or desc.spatialReference.VCS.linearUnitName == "Foot_US":
-                        parameters[1].value = "FOOT"
-                    else:
-                        parameters[1].value = None
+                z_unit = get_z_unit(parameters[0].value)
+                if z_unit:
+                    parameters[1].enabled = False
+                    parameters[1].value = z_unit
                 else:
+                    parameters[1].enabled = True
                     parameters[1].value = None
+            else:
+                parameters[1].enabled = False
+                parameters[1].value = None
 
         if not parameters[5].hasBeenValidated:
             if parameters[5].value == True:
@@ -169,6 +167,7 @@ class BermAnalysis(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         z_unit = parameters[1].value
+        z_factor = convert_units(z_unit, "FOOT", 1)
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         berms = parameters[4].value
@@ -177,15 +176,6 @@ class BermAnalysis(object):
         contour_bool = parameters[7].value
         contour_interval = parameters[8].value
         contour_output = parameters[9].valueAsText
-
-        # calculate z_factor
-        z_factor = None
-        if z_unit == "METER":
-            z_factor = 3.2808
-        elif z_unit == "FOOT":
-            z_factor = 1
-        else:
-            raise ValueError("Bad z-unit value")
 
         # set analysis extent
         if extent:
@@ -266,7 +256,7 @@ class BermAnalysis(object):
                         statistics_type="MINIMUM",
                     )
                     out_raster.save(scratch_dem_mask)
-                    berm_elevation = out_raster.minimum + berm_height / z_factor
+                    berm_elevation = out_raster.minimum + berm_height / z_factor #in meters
 
                     # clip original dem to berm area
                     log("clipping dem to berm")
@@ -305,7 +295,7 @@ class BermAnalysis(object):
                     input_rasters=[dem, scratch_zonal_statistics],
                     output_location=arcpy.env.workspace,
                     raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
-                    pixel_type=pixel_type(dem.pixelType),
+                    pixel_type=pixel_type(dem),
                     number_of_bands=dem.bandCount,
                     mosaic_method="LAST",
                     mosaic_colormap_mode="FIRST"
@@ -329,7 +319,7 @@ class BermAnalysis(object):
                 scratch_raster_calculator = scratch_fill_mosaic - scratch_fill_dem
 
                 if contour_bool:
-                    log("calculating contours")
+                    log("calculating contours") # in feet
                     arcpy.sa.Contour(
                         in_raster=scratch_raster_calculator,
                         out_polyline_features=scratch_contour,
@@ -382,7 +372,7 @@ class BermAnalysis(object):
                         in_value_raster=dem,
                         statistics_type="RANGE",
                     )
-                    berm_height = berm_raster.maximum * z_factor
+                    berm_height = berm_raster.maximum * z_factor # in feet
                     log("berm height: ", berm_height, "ft")
 
                 # add height to berm
