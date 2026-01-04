@@ -13,7 +13,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, get_z_linear_unit, z_linear_units
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -54,7 +54,7 @@ class LocalMinimums:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param2.filter.list = ["METER", "FOOT"]
+        param2.filter.list = z_linear_units
 
         param3 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -102,7 +102,7 @@ class LocalMinimums:
         # find z unit of raster based on vertical coordinate system if there is none, let the user define it
         if not parameters[1].hasBeenValidated:
             if parameters[1].value:
-                z_unit = get_z_unit(parameters[1].value)
+                z_unit = get_z_linear_unit(parameters[1].value)
                 if z_unit:
                     parameters[2].enabled = False
                     parameters[2].value = z_unit
@@ -133,10 +133,10 @@ class LocalMinimums:
         line = parameters[0].value
         dem_layer = parameters[1].value
         dem = arcpy.Raster(dem_layer.name)
-        z_unit = parameters[2].value
+        z_linear_unit = parameters[2].value
         extent = parameters[3].value
         search_interval = parameters[4].value
-        threshold = convert_units(parameters[5].value,"INCH",z_units)
+        threshold = parameters[5].value * arcpy.LinearUnitConversionFactor("InchesUS", z_linear_unit)
         output_file = parameters[6].valueAsText
 
         # create scratch layers

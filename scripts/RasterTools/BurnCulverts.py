@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type
+from helpers import license, get_oid, pixel_type, get_linear_unit
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -93,7 +93,8 @@ class BurnCulverts(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
-        distance = convert_units(parameters[4].value, "FOOT", "METER")
+        linear_unit = get_linear_unit(dem)
+        distance = parameters[4].value * arcpy.LinearUnitConversionFactor("FeetUS", linear_unit)
         desc = arcpy.Describe(parameters[3].value)
         spatial_reference = desc.spatialReference
 

@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, convert_units, get_linear_unit
+from helpers import license, get_oid, get_linear_unit
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -107,8 +107,8 @@ class StreamNetwork(object):
         linear_unit = get_linear_unit(dem)
         try:
             desc = arcpy.Describe(dem)
-            cellsize_y = convert_units(desc.meanCellHeight, linear_unit, "FOOT")  # Cell size in the Y axis
-            cellsize_x = convert_units(desc.meanCellWidth, linear_unit, "FOOT")   # Cell size in the X axis
+            cellsize_y = desc.meanCellHeight * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS")  # Cell size in the Y axis
+            cellsize_x = desc.meanCellWidth * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS")   # Cell size in the X axis
             if linear_unit == None:
                 log("unknown linear unit for DEM, stream initiation theshold may be calculated incorrectly")
             cell_area_ft2 = cellsize_x * cellsize_y

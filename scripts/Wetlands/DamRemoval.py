@@ -221,11 +221,10 @@ class DamRemoval(object):
         output_file = parameters[2].valueAsText
         centerline = parameters[3].value
         pond = parameters[4].value
-        linear_unit = get_linear_unit(centerline)
-        z_factor = convert_units(1, linear_unit, "FOOT")
         transect_spacing = parameters[5].value
         transect_point_spacing = parameters[6].value
-        transect_width = parameters[7].value / z_factor
+        linear_unit = get_linear_unit(centerline)
+        transect_width = parameters[7].value * arcpy.LinearUnitConversionFactor("FeetUS", linear_unit)
 
         # set analysis extent
         if extent:

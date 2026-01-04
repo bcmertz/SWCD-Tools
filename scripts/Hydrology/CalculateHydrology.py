@@ -12,7 +12,7 @@ import pathlib
 import openpyxl
 import datetime
 
-from helpers import license, get_oid, get_z_unit, get_linear_unit, convert_units
+from helpers import license, get_oid, get_z_linear_unit, get_linear_unit, z_linear_units
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -39,7 +39,7 @@ class CalculateHydrology:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = ["METER", "FOOT"]
+        param1.filter.list = z_linear_units
 
         param2 = arcpy.Parameter(
             displayName="Output Folder",
@@ -98,7 +98,7 @@ class CalculateHydrology:
         # find z unit of raster based on vertical coordinate system if there is none, let the user define it
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                z_unit = get_z_unit(parameters[0].value)
+                z_unit = get_z_linear_unit(parameters[0].value)
                 if z_unit:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
@@ -204,8 +204,8 @@ class CalculateHydrology:
         # find maximum flow length
         log("finding max flow length")
         linear_unit = get_linear_unit(flow_length_raster)
-        x_factor = convert_units(1, linear_unit, "FOOT")
-        flow_length_maximum = int(float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))*x_factor)
+        flow_length_maximum = float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))
+        flow_length_maximum = int(flow_length_maximum * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS"))
 
         # add acres field and calculate
         log("calculating rcn acres")

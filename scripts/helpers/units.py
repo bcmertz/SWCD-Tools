@@ -10,36 +10,47 @@
 import arcpy
 from typing import Literal
 
-def get_z_unit(fc) -> str | None:
-    """Get z unit from spatial reference"""
-    # find z unit of spatial reference vertical coordinate system
+def get_z_linear_unit(fc) -> str | None:
+    """Get z linear unit from spatial reference."""
+    # find z linear unit of spatial reference vertical coordinate system
     desc = arcpy.Describe(fc)
     if desc.spatialReference.VCS:
-        if desc.spatialReference.VCS.linearUnitName == "Meter":
-            return "METER"
-        elif desc.spatialReference.VCS.linearUnitName == "Foot" or desc.spatialReference.VCS.linearUnitName == "Foot_US":
-            return "FOOT"
+        unit = desc.spatialReference.VCS.linearUnitName
+        return unit
 
     return None
+
 
 def get_linear_unit(fc) -> str | None:
-    """Find linear unit from spatial reference"""
+    """Find linear unit from spatial reference."""
     # find linear unit from spatial reference
     desc = arcpy.Describe(fc)
-    if desc.spatialReference.linearUnitName == "Meter":
-        return "METER"
-    elif desc.spatialReference.linearUnitName == "Foot" or desc.spatialReference.linearUnitName == "Foot_US":
-        return "FOOT"
+    unit = desc.spatialReference.linearUnitName
+    return unit
 
-    return None
 
+# mapping of linear unit to z unit for use in spatial analyst tools
 UNITS = {
-    "METER": 1.0,
-    "FOOT": 3.2808,
-    "INCH": 39.3696,
-    "CENTIMETER": 100 
+    "Kilometers": "KILOMETER",
+    "Meters": "METER",
+    "Decimeters": "DECIMETER",
+    "Millimeters": "MILLIMETER",
+    "Centimeters": "CENTIMETER",
+    "NauticalMilesInt": "NAUTICAL_MILE",
+    "MilesInt": "MILE_US",
+    "YardsInt": "YARD",
+    "FeetInt": "FOOT",
+    "InchesInt": "INCH",
+    "NauticalMilesUS": "NAUTICAL_MILE",
+    "MilesUS": "MILES_US",
+    "YardsUS": "YARD",
+    "FeetUS": "FOOT",
+    "InchesUS": "INCH",
 }
 
-def convert_units(in_unit: Literal[UNITS.keys()], out_unit: Literal[UNITS.keys()], num: float) -> float:
-    """Find z-factor of raster"""
-    return num * UNITS[out_unit] / UNITS[in_unit]
+z_linear_units = list(UNITS.keys())
+z_units = list(UNITS.values())
+
+def linear_unit_to_z_unit(in_unit: Literal[z_linear_units]) -> Literal[z_units] | None:
+    """Convert linear unit to z unit format."""
+    return UNITS.get(in_unit, None)

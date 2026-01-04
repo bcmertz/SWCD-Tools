@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, convert_units, get_z_unit
+from helpers import license, get_z_linear_unit, z_linear_units
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -36,7 +36,7 @@ class ContourPolygon(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = ["METER", "FOOT"]        
+        param1.filter.list = z_linear_units
 
         param2 = arcpy.Parameter(
             displayName="Contour Area",
@@ -58,7 +58,7 @@ class ContourPolygon(object):
         param4 = arcpy.Parameter(
             displayName="Contour Interval (ft)",
             name="contour_interval",
-            datatype="GPLong",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -69,7 +69,7 @@ class ContourPolygon(object):
         # find z unit of raster based on vertical coordinate system if there is none, let the user define it
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                z_unit = get_z_unit(parameters[0].value)
+                z_unit = get_z_linear_unit(parameters[0].value)
                 if z_unit:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
@@ -79,6 +79,9 @@ class ContourPolygon(object):
             else:
                 parameters[1].enabled = False
                 parameters[1].value = None
+
+        if not parameters[4].value:
+            parameters[4].value = "10 Feet"
 
         return
 
@@ -100,10 +103,10 @@ class ContourPolygon(object):
         # get parameters
         raster_layer = parameters[0].value
         z_unit = parameters[1].value
-        z_factor = convert_units(z_unit, "FOOT", 1)
         polygon = parameters[2].value
         output_file = parameters[3].valueAsText
-        contour_interval = parameters[4].valueAsText
+        contour_interval, contour_unit = parameters[4].valueAsText.split(" ")
+        z_factor = arcpy.LinearUnitConversionFactor(contour_unit, z_unit)
 
         # clip raster to polyon
         log("clipping raster to polygon")

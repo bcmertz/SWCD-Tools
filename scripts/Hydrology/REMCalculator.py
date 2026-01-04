@@ -134,7 +134,7 @@ class RelativeElevationModel(object):
 
         # generate points along line
         log("generating points along stream")
-        arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", "{} feet".format(sampling_interval), "", "END_POINTS", "NO_CHAINAGE")
 
         # extract values to points
         log("adding elevation data to stream line points")
