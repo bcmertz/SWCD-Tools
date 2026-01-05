@@ -33,16 +33,16 @@ class BufferPotential:
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param1 = arcpy.Parameter(
-            displayName="Buffer Width (ft)",
+            displayName="Buffer Width",
             name="width",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
         param2 = arcpy.Parameter(
-            displayName="Minimum planting size (acres)",
+            displayName="Minimum planting size",
             name="size",
-            datatype="GPDouble",
+            datatype="GPArealUnit",
             parameterType="Required",
             direction="Input")
 
@@ -114,11 +114,11 @@ class BufferPotential:
     def updateParameters(self, parameters):
         # default buffer width
         if parameters[1].value == None:
-            parameters[1].value = 100
+            parameters[1].value = "100 FeetUS"
 
         # set default minimum planting size
         if parameters[2].value == None:
-            parameters[2].value = .25
+            parameters[2].value = ".25 AcresUS"
 
         # get land use field
         if not parameters[5].hasBeenValidated:
@@ -164,8 +164,9 @@ class BufferPotential:
 
         log("reading in parameters")
         stream = parameters[0].value
-        min_width = parameters[1].value
-        min_acres = parameters[2].value
+        min_width = parameters[1].valueAsText
+        min_acres, min_acres_unit = parameters[2].valueAsText.split(" ")
+        min_acres = min_acres * arcpy.ArealUnitConversionFactor(min_acres_unit, "AcresUS")
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         land_use_raster = parameters[5].value
@@ -188,7 +189,7 @@ class BufferPotential:
     
         # pairwise buffer stream
         log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, "{} Feet".format(min_width), "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, min_width, "ALL", "", "GEODESIC", "")
 
         # clip land uses to buffer
         log("extracting land use data inside buffer area")
