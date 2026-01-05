@@ -43,9 +43,9 @@ class StreamNetwork(object):
         # once supported consider combining threshold and stream lines
         # into one parameter with a toggle
         param2 = arcpy.Parameter(
-            displayName="Stream Initiation Threshold (acres)",
+            displayName="Stream Initiation Threshold",
             name="threshold",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -73,7 +73,7 @@ class StreamNetwork(object):
     def updateParameters(self, parameters):
         # Default stream threshold value
         if parameters[2].value == None:
-            parameters[2].value = 8
+            parameters[2].value = "8 Acres"
 
         return
 
@@ -93,9 +93,9 @@ class StreamNetwork(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = parameters[0].value
+        dem = parameters[0].value        
         extent = parameters[1].value
-        theshold = parameters[2].value
+        theshold, theshold_unit = parameters[2].valueAsText.split(" ")
         stream = parameters[3].value
         output_file = parameters[4].valueAsText
 
@@ -103,7 +103,7 @@ class StreamNetwork(object):
         if extent:
             arcpy.env.extent = extent
 
-        # find threshold in # cells
+        # find threshold in nunmber cells
         linear_unit = get_linear_unit(dem)
         try:
             desc = arcpy.Describe(dem)
@@ -112,10 +112,10 @@ class StreamNetwork(object):
             if linear_unit == None:
                 log("unknown linear unit for DEM, stream initiation theshold may be calculated incorrectly")
             cell_area_ft2 = cellsize_x * cellsize_y
-            threshold = int(theshold * (43560 / cell_area_ft2))
+            threshold = int(threshold * arcpy.ArealUnitConversionFactor(threshold_unit, "SquareFeetUS") / cell_area_ft2) # number of cells
         except:
             log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
-            threshold = 32000 # default to 1m^2 cell, threshold ~8 acres
+            threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
 
         # create scratch layers
         log("creating scratch layers")
