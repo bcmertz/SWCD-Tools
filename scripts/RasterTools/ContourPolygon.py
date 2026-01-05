@@ -56,7 +56,7 @@ class ContourPolygon(object):
         param3.schema.clone = True
 
         param4 = arcpy.Parameter(
-            displayName="Contour Interval (ft)",
+            displayName="Contour Interval",
             name="contour_interval",
             datatype="GPLinearUnit",
             parameterType="Required",

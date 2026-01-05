@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_z_linear_unit, z_linear_units
+from helpers import license, get_z_linear_unit, z_linear_units, linear_unit_to_z_unit
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate

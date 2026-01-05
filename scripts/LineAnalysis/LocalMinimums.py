@@ -65,16 +65,16 @@ class LocalMinimums:
         param3.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param4 = arcpy.Parameter(
-            displayName="Search Interval (m)",
+            displayName="Search Interval",
             name="search_distance",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
         param5 = arcpy.Parameter(
-            displayName="Minimum Elevation Difference Threshold (in)",
+            displayName="Minimum Elevation Difference Threshold",
             name="threshold",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -93,11 +93,11 @@ class LocalMinimums:
     def updateParameters(self, parameters):
         # default search interval
         if parameters[4].value == None:
-            parameters[4].value = 1
+            parameters[4].value = "1 Meters"
 
         # default threshold value
         if parameters[5].value == None:
-            parameters[5].value = 2
+            parameters[5].value = "2 InchesUS"
 
         # find z unit of raster based on vertical coordinate system if there is none, let the user define it
         if not parameters[1].hasBeenValidated:
@@ -135,8 +135,9 @@ class LocalMinimums:
         dem = arcpy.Raster(dem_layer.name)
         z_linear_unit = parameters[2].value
         extent = parameters[3].value
-        search_interval = parameters[4].value
-        threshold = parameters[5].value * arcpy.LinearUnitConversionFactor("InchesUS", z_linear_unit)
+        search_interval = parameters[4].valueAsText
+        threshold, threshold_unit = parameters[5].valueAsText.split(" ")
+        theshold = threshold * arcpy.LinearUnitConversionFactor(threshold_unit, z_linear_unit)
         output_file = parameters[6].valueAsText
 
         # create scratch layers
@@ -152,7 +153,7 @@ class LocalMinimums:
 
         # generate points along line
         log("generate points along line")
-        arcpy.edit.Densify(scratch_line, "DISTANCE", "{} meters".format(search_interval))
+        arcpy.edit.Densify(scratch_line, "DISTANCE", search_interval)
 
         # iterate through lines and points
         log("finding local minimums")

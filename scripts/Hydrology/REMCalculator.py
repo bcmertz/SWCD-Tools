@@ -57,16 +57,16 @@ class RelativeElevationModel(object):
         param3.filter.list = ["Polyline"]
 
         param4 = arcpy.Parameter(
-            displayName="Buffer Radius (ft)",
+            displayName="Buffer Radius",
             name="buffer_radius",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
         param5 = arcpy.Parameter(
-            displayName="Sampling Interval (ft)",
+            displayName="Sampling Interval",
             name="sampling_interval",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
@@ -85,10 +85,10 @@ class RelativeElevationModel(object):
     def updateParameters(self, parameters):
         # default buffer radius
         if parameters[4].value == None:
-            parameters[4].value = 100
+            parameters[4].value = "100 Feet"
         # default simpling interval
         if parameters[5].value == None:
-            parameters[5].value = 25
+            parameters[5].value = "25 Feet"
         return
 
     def execute(self, parameters, messages):
@@ -102,8 +102,8 @@ class RelativeElevationModel(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
-        buffer_radius = int(parameters[4].value)
-        sampling_interval = int(parameters[5].value)
+        buffer_radius = parameters[4].valueAsText
+        sampling_interval = parameters[4].valueAsText
 
         # set analysis extent
         if extent:
@@ -126,7 +126,7 @@ class RelativeElevationModel(object):
         # pairwise buffer stream
         # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
         log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, "{} Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, buffer_radius, "ALL", "", "GEODESIC", "")
 
         # clip dem to buffer
         log("clipping DEM to buffer")
@@ -134,7 +134,7 @@ class RelativeElevationModel(object):
 
         # generate points along line
         log("generating points along stream")
-        arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", "{} feet".format(sampling_interval), "", "END_POINTS", "NO_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
 
         # extract values to points
         log("adding elevation data to stream line points")

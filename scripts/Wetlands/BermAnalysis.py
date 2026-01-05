@@ -74,9 +74,9 @@ class BermAnalysis(object):
             direction="Input")
 
         param6 = arcpy.Parameter(
-            displayName="Max Berm Height (ft)",
+            displayName="Max Berm Height",
             name="berm_height",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
@@ -88,9 +88,9 @@ class BermAnalysis(object):
             direction="Input")
 
         param8 = arcpy.Parameter(
-            displayName="Contour interval (ft)",
+            displayName="Contour interval",
             name="contour_interval",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
@@ -133,11 +133,11 @@ class BermAnalysis(object):
 
         # default berm height
         if parameters[6].value == None:
-            parameters[6].value = 5
+            parameters[6].value = "6 FeetUS"
 
         # default contour interval
         if parameters[8].value == None:
-            parameters[8].value = 1
+            parameters[8].value = "1 FeetUS"
 
         # toggle asking for default contour interval and output
         if not parameters[7].hasBeenValidated:
@@ -145,7 +145,7 @@ class BermAnalysis(object):
                 parameters[8].enabled = True
                 parameters[9].enabled = True
                 if parameters[3].value:
-                    parameters[9].value = str(parameters[3].value) + "_contours_" + str(int(parameters[8].value)) + "ft"
+                    parameters[9].value = str(parameters[3].value) + "_contours_" + str(int(parameters[8].value))
             else:
                 parameters[8].enabled = False
                 parameters[9].enabled = False
@@ -167,14 +167,15 @@ class BermAnalysis(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         z_unit = parameters[1].value
-        z_factor = arcpy.LinearUnitConversionFactor(z_unit, "FeetUS")
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         berms = parameters[4].value
         supply_berm_height_bool = parameters[5].value
-        berm_height = parameters[6].value
+        berm_height, berm_unit = parameters[6].valueAsText.split(" ")
+        berm_z_factor = arcpy.LinearUnitConversionFactor(z_unit, berm_unit)
         contour_bool = parameters[7].value
-        contour_interval = parameters[8].value
+        contour_interval, contour_unit = parameters[8].valueAsText.split(" ")
+        contour_z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
         contour_output = parameters[9].valueAsText
 
         # set analysis extent
@@ -256,7 +257,7 @@ class BermAnalysis(object):
                         statistics_type="MINIMUM",
                     )
                     out_raster.save(scratch_dem_mask)
-                    berm_elevation = out_raster.minimum + berm_height / z_factor #in meters
+                    berm_elevation = out_raster.minimum + berm_height / berm_z_factor
 
                     # clip original dem to berm area
                     log("clipping dem to berm")
@@ -319,13 +320,13 @@ class BermAnalysis(object):
                 scratch_raster_calculator = scratch_fill_mosaic - scratch_fill_dem
 
                 if contour_bool:
-                    log("calculating contours") # in feet
+                    log("calculating contours")
                     arcpy.sa.Contour(
                         in_raster=scratch_raster_calculator,
                         out_polyline_features=scratch_contour,
                         contour_interval=contour_interval,
                         base_contour=0,
-                        z_factor=z_factor,
+                        z_factor=contour_z_factor,
                     )
 
                     # append contour outputs contour_output
@@ -372,8 +373,8 @@ class BermAnalysis(object):
                         in_value_raster=dem,
                         statistics_type="RANGE",
                     )
-                    berm_height = berm_raster.maximum * z_factor # in feet
-                    log("berm height: ", berm_height, "ft")
+                    berm_height = berm_raster.maximum * berm_z_factor
+                    log("berm height: ", berm_height, berm_unit)
 
                 # add height to berm
                 log("adding berm height to berm feature attribute table")

@@ -68,23 +68,23 @@ class DamRemoval(object):
         param4.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         param5 = arcpy.Parameter(
-            displayName="Transect Spacing (ft)",
+            displayName="Transect Spacing",
             name="transect_spacing",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
         param6 = arcpy.Parameter(
-            displayName="Transect Point Spacing (ft)",
+            displayName="Transect Point Spacing",
             name="transect_point_spacing",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
         param7 = arcpy.Parameter(
-            displayName="Transect Width (ft)",
+            displayName="Transect Width",
             name="transect_width",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -94,11 +94,11 @@ class DamRemoval(object):
     def updateParameters(self, parameters):
         # default transect spacing
         if parameters[5].value == None:
-            parameters[5].value = 50
+            parameters[5].value = "50 FeetUS"
 
         # default transect point spacing
         if parameters[6].value == None:
-            parameters[6].value = 10
+            parameters[6].value = "10 FeetUS"
 
         return
 
@@ -145,17 +145,18 @@ class DamRemoval(object):
         return transect
 
 
-    def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points):
+    def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width, transect_point_spacing, transect_point_spacing_unit, scratch_transect_points, scratch_transect_elev_points):
         '''return points along transect with elevations
         transect - arcpy.PolyLine() object
         dem_raster - elevation raster
         lowpoint_elev - elevation of streamline, considered lowpoint of constructed surface
         transect_width - width of transect
         transect_point_spacing - spacing between points on transect
+        transect_point_spacing_unit - unit of transect point spacing
         scratch_transect_points - scratch layer for transect points
         scratch_transect_elev_points - scratch layer for transect points with elevations
         '''
-        arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", "{} feet".format(transect_point_spacing), "", "END_POINTS", "ADD_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", "{} {}".format(transect_point_spacing, transect_point_spacing_unit), "", "END_POINTS", "ADD_CHAINAGE")
         arcpy.sa.ExtractValuesToPoints(scratch_transect_points, dem_raster, scratch_transect_elev_points, "NONE", "VALUE_ONLY")
 
         # iterate through transect points
@@ -220,11 +221,13 @@ class DamRemoval(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         centerline = parameters[3].value
-        pond = parameters[4].value
-        transect_spacing = parameters[5].value
-        transect_point_spacing = parameters[6].value
         linear_unit = get_linear_unit(centerline)
-        transect_width = parameters[7].value * arcpy.LinearUnitConversionFactor("FeetUS", linear_unit)
+        pond = parameters[4].value
+        transect_spacing = parameters[5].valueAsText
+        transect_point_spacing, transect_point_spacing_unit = parameters[6].valueAsText.split(" ")
+        transect_point_spacing = transect_point_spacing * arcpy.LinearUnitConversionFactor(transect_point_spacing_unit, linear_unit)
+        transect_width, transect_width_unit = parameters[7].valueAsText.split(" ")
+        transect_width = transect_width * arcpy.LinearUnitConversionFactor(transect_width_unit, linear_unit)
 
         # set analysis extent
         if extent:
@@ -249,7 +252,7 @@ class DamRemoval(object):
         # generate points along line
         log("generating points along centerline")
         arcpy.analysis.Clip(centerline, extent.poly, scratch_centerline)
-        arcpy.management.GeneratePointsAlongLines(scratch_centerline, scratch_centerline_points, "DISTANCE", "{} feet".format(transect_spacing), "", "END_POINTS", "ADD_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(scratch_centerline, scratch_centerline_points, "DISTANCE", transect_spacing, "", "END_POINTS", "ADD_CHAINAGE")
 
         # extract values to points
         log("adding elevation data to centerline points")
@@ -325,7 +328,7 @@ class DamRemoval(object):
                 # create transect
                 transect = self.transectLine(centerline_polyline, shape, transect_width)
                 # interpolate elevations
-                tmp_points = self.interpolateElevations(transect, mosaic_raster, elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points)
+                tmp_points = self.interpolateElevations(transect, mosaic_raster, elev, transect_width, transect_point_spacing, transect_point_spacing_unit, scratch_transect_points, scratch_transect_elev_points)
                 # add points to list of new points
                 new_points = new_points + tmp_points
 

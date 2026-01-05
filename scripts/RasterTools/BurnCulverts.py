@@ -57,9 +57,9 @@ class BurnCulverts(object):
         param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows point creation
 
         param4 = arcpy.Parameter(
-            displayName="Search Distance (ft)",
+            displayName="Search Distance",
             name="distance",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -69,7 +69,7 @@ class BurnCulverts(object):
     def updateParameters(self, parameters):
         # default search distance
         if parameters[4].value == None:
-            parameters[4].value = 100
+            parameters[4].value = "100 FeetUS"
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -90,13 +90,14 @@ class BurnCulverts(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         dem_symbology = dem_layer.symbology
+        linear_unit = get_linear_unit(dem)
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
-        linear_unit = get_linear_unit(dem)
-        distance = parameters[4].value * arcpy.LinearUnitConversionFactor("FeetUS", linear_unit)
-        desc = arcpy.Describe(parameters[3].value)
+        desc = arcpy.Describe(culverts)
         spatial_reference = desc.spatialReference
+        distance, distance_unit = parameters[4].valueAsText.split(" ")
+        distance = distance * arcpy.LinearUnitConversionFactor(distance_unit, linear_unit)
 
         # set analysis extent
         if extent:
