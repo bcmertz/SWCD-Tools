@@ -17,7 +17,7 @@ from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-class CalculateHydrology:
+class CalculateEFH2:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "EFH-2 Calculation"

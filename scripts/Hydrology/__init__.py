@@ -6,7 +6,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-from .CalculateHydrology import CalculateHydrology
+from .CalculateEFH2 import CalculateEFH2
 from .RunoffPotential import RunoffPotential
 from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
