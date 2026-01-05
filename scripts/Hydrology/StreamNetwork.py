@@ -45,7 +45,7 @@ class StreamNetwork(object):
         param2 = arcpy.Parameter(
             displayName="Stream Initiation Threshold",
             name="threshold",
-            datatype="GPLinearUnit",
+            datatype="GPArealUnit",
             parameterType="Required",
             direction="Input")
 
@@ -73,7 +73,7 @@ class StreamNetwork(object):
     def updateParameters(self, parameters):
         # Default stream threshold value
         if parameters[2].value == None:
-            parameters[2].value = "8 Acres"
+            parameters[2].value = "8 AcresUS"
 
         return
 
