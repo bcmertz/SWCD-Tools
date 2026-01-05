@@ -76,7 +76,7 @@ class SubBasinDelineation(object):
         threshold = parameters[2].valueAsText
 
         # find threshold in nunmber cells
-        threshold = area_to_num_cells(dem, threshold)
+        threshold = area_to_num_cells(raster_layer, threshold)
         if threshold == None:
             log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
             threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells

@@ -81,7 +81,7 @@ def area_to_num_cells(raster, area: str) -> int | None:
         if linear_unit == None:
             return None
         cell_area_ft2 = cellsize_x * cellsize_y
-        threshold = int(threshold * arcpy.ArealUnitConversionFactor(threshold_unit, "SquareFeetUS") / cell_area_ft2) # number of cells
+        threshold = int(int(threshold) * arcpy.ArealUnitConversionFactor(threshold_unit, "SquareFeetUS") / cell_area_ft2) # number of cells
         return threshold
     except:
         return None
