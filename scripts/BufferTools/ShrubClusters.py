@@ -94,6 +94,7 @@ class ShrubClusters:
         area = parameters[0].value
         output_file = parameters[1].valueAsText
         width, width_unit = parameters[2].valueAsText.split(" ")
+        width = float(width) / 2
         
         number = parameters[3].value
         geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
@@ -106,10 +107,10 @@ class ShrubClusters:
 
         # create buffer inside the planting area
         log("buffer output area")
-        buffer_width = width
+        buffer_width = -width
         if geom_type == "ENVELOPE":
-            buffer_width = width*math.sqrt(2)
-        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} {}".format(-int(buffer_width), width_unit))
+            buffer_width = buffer_width*math.sqrt(2)
+        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} {}".format(buffer_width, width_unit))
 
         # create point locations
         log("creating shrub cluster point locations")
@@ -132,7 +133,7 @@ class ShrubClusters:
         )
 
         # make square around buffer
-        log("creating {} {} shrub clusters".format(number, parameters[4].valueAsText.lower()))
+        log("creating {} {} shrub clusters".format(int(number), parameters[4].valueAsText.lower()))
         arcpy.management.MinimumBoundingGeometry(
             in_features=scratch_buffer,
             out_feature_class=output_file,
