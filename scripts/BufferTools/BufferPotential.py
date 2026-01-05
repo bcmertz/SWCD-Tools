@@ -166,7 +166,7 @@ class BufferPotential:
         stream = parameters[0].value
         min_width = parameters[1].valueAsText
         min_acres, min_acres_unit = parameters[2].valueAsText.split(" ")
-        min_acres = min_acres * arcpy.ArealUnitConversionFactor(min_acres_unit, "AcresUS")
+        min_acres = float(min_acres) * arcpy.ArealUnitConversionFactor(min_acres_unit, "AcresUS")
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         land_use_raster = parameters[5].value
@@ -181,18 +181,20 @@ class BufferPotential:
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_stream_buffer = arcpy.CreateScratchName("stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-    
+        scratch_stream_buffer = arcpy.CreateScratchName("stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        land_use_raster_clip = arcpy.CreateScratchName("lu_clip", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+
         # pairwise buffer stream
         log("creating buffer polygon around stream")
         arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, min_width, "ALL", "", "GEODESIC", "")
 
         # clip land uses to buffer
         log("extracting land use data inside buffer area")
-        land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, scratch_stream_buffer, "INSIDE", "MINOF")
+        out_land_use = arcpy.sa.ExtractByMask(land_use_raster, scratch_stream_buffer, "INSIDE", "MINOF")
+        out_land_use.save(land_use_raster_clip)
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
@@ -255,7 +257,7 @@ class BufferPotential:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save
         log("saving project")
