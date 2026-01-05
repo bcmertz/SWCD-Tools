@@ -25,9 +25,8 @@ def validate_spatial_reference(parameters):
     This is used to make sure any parameters passed in which need
     a spatial reference have a valid spatial refernence.
     """
-    warning_message = ""
-
     for param in parameters:
+        warning_message = ""
         valid_sr = True
 
         # ignore unset parameters, output parameters, and parameters which haven't been changed since the last time validation ran
