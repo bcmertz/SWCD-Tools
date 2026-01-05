@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid
+from helpers import license, get_oid, z_units, get_z_unit
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -79,9 +79,24 @@ class WatershedDelineation(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
+        # find z unit of raster based on vertical coordinate system if there is none, let the user define it
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                z_unit = get_z_unit(parameters[0].value)
+                if z_unit:
+                    parameters[1].enabled = False
+                    parameters[1].value = z_unit
+                else:
+                    parameters[1].enabled = True
+                    parameters[1].value = None
+            else:
+                parameters[1].enabled = False
+                parameters[1].value = None
+
         # Default snap pour point adjustment value
         if parameters[4].value == None:
-            parameters[4].value = "10 Feet"
+            parameters[4].value = "10 Meters"
+
         return
 
     def updateMessages(self, parameters):
@@ -101,7 +116,6 @@ class WatershedDelineation(object):
         pour_points = parameters[3].value
         snap_adjustment, snap_adjustment_unit = parameters[4].valueAsText.split(" ")
         snap_adjustment = float(snap_adjustment) * arcpy.LinearUnitConversionFactor(snap_adjustment_unit, z_unit)
-        log(snap_adjustment)
         output_file = parameters[5].valueAsText
 
         # set analysis extent
