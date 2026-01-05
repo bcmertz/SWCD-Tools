@@ -69,3 +69,19 @@ linear_units = list(UNITS.values())
 def z_unit_to_linear_unit(in_unit: Literal[UNITS.keys()]) -> Literal[UNITS.values()] | None:
     """Convert z unit to linear unit format."""
     return UNITS.get(in_unit, None)
+
+def area_to_num_cells(raster, area: str) -> int | None:
+    """Convert GPLinearUnit AREA to the number of cells in the RASTER it is equivalent to."""
+    threshold, threshold_unit = area.split(" ")
+    try:
+        desc = arcpy.Describe(raster)
+        linear_unit = desc.spatialReference.linearUnitName
+        cellsize_y = desc.meanCellHeight * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS")  # Cell size in the Y axis
+        cellsize_x = desc.meanCellWidth * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS")   # Cell size in the X axis
+        if linear_unit == None:
+            return None
+        cell_area_ft2 = cellsize_x * cellsize_y
+        threshold = int(threshold * arcpy.ArealUnitConversionFactor(threshold_unit, "SquareFeetUS") / cell_area_ft2) # number of cells
+    except:
+        return None
+

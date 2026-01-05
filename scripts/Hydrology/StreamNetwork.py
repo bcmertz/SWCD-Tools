@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_linear_unit, empty_workspace
+from helpers import license, get_oid, empty_workspace, area_to_num_cells
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -95,7 +95,7 @@ class StreamNetwork(object):
         # read in parameters
         dem = parameters[0].value
         extent = parameters[1].value
-        theshold, theshold_unit = parameters[2].valueAsText.split(" ")
+        theshold = parameters[2].valueAsText
         stream = parameters[3].value
         output_file = parameters[4].valueAsText
 
@@ -104,16 +104,8 @@ class StreamNetwork(object):
             arcpy.env.extent = extent
 
         # find threshold in nunmber cells
-        linear_unit = get_linear_unit(dem)
-        try:
-            desc = arcpy.Describe(dem)
-            cellsize_y = desc.meanCellHeight * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS")  # Cell size in the Y axis
-            cellsize_x = desc.meanCellWidth * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS")   # Cell size in the X axis
-            if linear_unit == None:
-                log("unknown linear unit for DEM, stream initiation theshold may be calculated incorrectly")
-            cell_area_ft2 = cellsize_x * cellsize_y
-            threshold = int(threshold * arcpy.ArealUnitConversionFactor(threshold_unit, "SquareFeetUS") / cell_area_ft2) # number of cells
-        except:
+        threshold = area_to_num_cells(dem, threshold)
+        if threshold == None:
             log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
             threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
 

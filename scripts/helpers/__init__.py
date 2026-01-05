@@ -15,4 +15,4 @@ from .validatespatialreference import validate_spatial_reference
 from .getoid import get_oid
 from .pixeltype import pixel_type
 from .emptyworkspace import empty_workspace
-from .units import get_z_unit, get_linear_unit, z_units, linear_units, z_unit_to_linear_unit
+from .units import get_z_unit, get_linear_unit, z_units, linear_units, z_unit_to_linear_unit, area_to_num_cells
