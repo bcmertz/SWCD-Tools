@@ -168,7 +168,7 @@ class CalculateHydrology:
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_watershed = arcpy.CreateScratchName("scratch_watershed", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_watershed = arcpy.CreateScratchName("scratch_watershed", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_table =arcpy.CreateUniqueName("zonalstatistics_{}".format(watershed_layer_id))
 
         # dissolve RCN boundaries to find watershed boundary
@@ -253,7 +253,7 @@ class CalculateHydrology:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
         arcpy.management.Delete([scratch_table])
 
         # save program successfully

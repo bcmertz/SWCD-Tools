@@ -76,11 +76,11 @@ class SubBasinDelineation(object):
         con_threshold = parameters[2].value if parameters[2].value else 25000
 
         # create scratch layers
-        clip_raster_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        fill_raster_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        flow_direction_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        flow_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        con_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+        clip_raster_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        fill_raster_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        flow_direction_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        flow_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        con_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # clip DEM raster to the watershed
         log("clipping raster to watershed")
@@ -135,6 +135,6 @@ class SubBasinDelineation(object):
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         return

@@ -181,9 +181,9 @@ class RunoffPotential:
 
         # scratch layers
         log("creating scratch layers")
-        soils_scratch = arcpy.CreateScratchName("soils_scratch", "FeatureClass", arcpy.env.scratchFolder)
-        scratch_land_use_polygon = arcpy.CreateScratchName("scratch_land_use_polygon", "FeatureClass", arcpy.env.scratchFolder)
-        scratch_joined_land_use_polygon = arcpy.CreateScratchName("scratch_joined_land_use_polygon", "FeatureClass", arcpy.env.scratchFolder)
+        soils_scratch = arcpy.CreateScratchName("soils_scratch", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_land_use_polygon = arcpy.CreateScratchName("scratch_land_use_polygon", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_joined_land_use_polygon = arcpy.CreateScratchName("scratch_joined_land_use_polygon", "FeatureClass", arcpy.env.scratchGDB)
 
         # clip soils
         log("clipping soils to watershed")
@@ -251,7 +251,7 @@ class RunoffPotential:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save project
         log("saving project")

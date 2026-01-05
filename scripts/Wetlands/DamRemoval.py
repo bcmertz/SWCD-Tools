@@ -234,14 +234,13 @@ class DamRemoval(object):
             arcpy.env.extent = extent
 
         # create scratch layers
-        scratch_centerline = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        scratch_mosaic_raster = arcpy.CreateUniqueName("scratch_mosaic_raster")
-        scratch_transect_points = arcpy.CreateScratchName("scratch_transect_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        idw_raster = arcpy.CreateScratchName("idw_raster", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+        scratch_centerline = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_transect_points = arcpy.CreateScratchName("scratch_transect_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_mosaic_raster = arcpy.CreateScratchName("mosaic_ras", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # extract by mask to remove pond from dem
         log("removing ponded area from dem")
@@ -332,7 +331,7 @@ class DamRemoval(object):
 
         # add points to final point fc
         log("adding interpolated points to fc")
-        scratch_final_idw_points = arcpy.management.CreateFeatureclass(arcpy.env.scratchFolder, "scratch_final_idw_points", "POINT", scratch_centerline_elev_points)
+        scratch_final_idw_points = arcpy.management.CreateFeatureclass(arcpy.env.scratchGDB, "scratch_final_idw_points", "POINT", scratch_centerline_elev_points)
         with arcpy.da.InsertCursor(scratch_final_idw_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
             for point in new_points:
                 cursor.insertRow(point)
@@ -340,8 +339,7 @@ class DamRemoval(object):
         # IDW or Global Polynomial Interpolation
         ## depends whether we want to IDW points (must include all points then) or want to fill in DEM and interpolate voids
         log("performing IDW analysis on interpolated points")
-        out_idw = arcpy.sa.Idw(scratch_final_idw_points, "RASTERVALU")
-        out_idw.save(idw_raster)
+        idw_raster = arcpy.sa.Idw(scratch_final_idw_points, "RASTERVALU")
 
         # extract by mask
         log("extracting ponded area from IDW raster")
@@ -358,7 +356,7 @@ class DamRemoval(object):
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save project
         log("saving project")

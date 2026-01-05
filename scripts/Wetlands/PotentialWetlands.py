@@ -270,15 +270,15 @@ class PotentialWetlands(object):
             arcpy.env.extent = extent
 
         # create scratch layers
-        scratch_slope_polygon = arcpy.CreateScratchName("slope_poly", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_slope_dissolve_polygon  = arcpy.CreateScratchName("dissolve_poly", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_hsg_soils = arcpy.CreateScratchName("hsg", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_reduced_potential_wetland = arcpy.CreateScratchName("reduced_pot", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_slope_polygon = arcpy.CreateScratchName("slope_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_slope_dissolve_polygon  = arcpy.CreateScratchName("dissolve_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_hsg_soils = arcpy.CreateScratchName("hsg", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_reduced_potential_wetland = arcpy.CreateScratchName("reduced_pot", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_zonal_stats = arcpy.CreateUniqueName("zonal_stats")
 
         # slope raster
@@ -418,7 +418,7 @@ class PotentialWetlands(object):
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
         arcpy.management.Delete([scratch_zonal_stats])
 
         # save project

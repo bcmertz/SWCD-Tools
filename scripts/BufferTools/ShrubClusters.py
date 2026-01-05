@@ -100,9 +100,9 @@ class ShrubClusters:
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_area = arcpy.CreateScratchName("scratch_area", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_points = arcpy.CreateScratchName("scratch_points", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_area = arcpy.CreateScratchName("scratch_area", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_points = arcpy.CreateScratchName("scratch_points", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
 
         # create buffer inside the planting area
         log("buffer output area")
@@ -144,7 +144,7 @@ class ShrubClusters:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save
         log("saving project")

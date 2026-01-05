@@ -89,8 +89,8 @@ class StreamElevation(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines", "FeatureClass", arcpy.env.scratchFolder)
+        scratch_dem = arcpy.CreateScratchName("dem", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines", "FeatureClass", arcpy.env.scratchGDB)
 
         if parameters[2].value:
             # clip streamlines to the study area
@@ -107,6 +107,6 @@ class StreamElevation(object):
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         return

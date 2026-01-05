@@ -141,7 +141,7 @@ class LocalMinimums:
         output_file = parameters[6].valueAsText
 
         # create scratch layers
-        scratch_line = arcpy.CreateScratchName("line", "DEFeatureClass", arcpy.env.scratchFolder)
+        scratch_line = arcpy.CreateScratchName("line", "DEFeatureClass", arcpy.env.scratchGDB)
 
         # clip or copy feature class to scratch layer
         if extent:
@@ -246,7 +246,7 @@ class LocalMinimums:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save
         log("saving project")
