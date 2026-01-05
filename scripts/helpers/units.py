@@ -45,6 +45,24 @@ UNITS = {
     "INCH": "InchesUS",
 }
 
+##UNITS = {
+##    "Kilometers": "KILOMETER",
+##    "Meters": "METER",
+##    "Decimeters": "DECIMETER",
+##    "Millimeters": "MILLIMETER",
+##    "Centimeters": "CENTIMETER",
+##    "NauticalMilesInt": "NAUTICAL_MILE",
+##    "MilesInt": "MILE_US",
+##    "YardsInt": "YARD",
+##    "FeetInt": "FOOT",
+##    "InchesInt": "INCH",
+##    "NauticalMilesUS": "NAUTICAL_MILE",
+##    "MilesUS": "MILES_US",
+##    "YardsUS": "YARD",
+##    "FeetUS": "FOOT",
+##    "InchesUS": "INCH",
+##}
+
 z_units = list(UNITS.keys())
 z_linear_units = list(UNITS.values())
 
