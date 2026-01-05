@@ -274,13 +274,12 @@ class PotentialWetlands(object):
         scratch_slope_dissolve_polygon  = arcpy.CreateScratchName("dissolve_poly", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_hsg_soils = arcpy.CreateScratchName("hsg", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        land_use_raster_clip = "{}\\land_use_raster_clip".format(arcpy.env.workspace)
         scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_reduced_potential_wetland = arcpy.CreateScratchName("reduced_pot", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_zonal_stats = arcpy.CreateUniqueName("zonal_stats")
         scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_zonal_stats = arcpy.CreateUniqueName("zonal_stats")
 
         # slope raster
         log("creating slope raster from DEM")
@@ -320,8 +319,7 @@ class PotentialWetlands(object):
 
         # clip land use raster
         log("clipping land use raster to valid soils area and slope less than or equal to {}%".format(max_slope))
-        out_land_use = arcpy.sa.ExtractByMask(land_use_raster, scratch_hsg_soils, "INSIDE", "MINOF")
-        out_land_use.save(land_use_raster_clip)
+        land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, scratch_hsg_soils, "INSIDE", "MINOF")
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
@@ -421,6 +419,7 @@ class PotentialWetlands(object):
         # cleanup
         log("deleting unneeded data")
         empty_workspace(arcpy.env.scratchFolder, keep=[])
+        arcpy.management.Delete([scratch_zonal_stats])
 
         # save project
         log("saving project")

@@ -169,7 +169,7 @@ class CalculateHydrology:
         # create scratch layers
         log("creating scratch layers")
         scratch_watershed = arcpy.CreateScratchName("scratch_watershed", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        scrath_table =arcpy.CreateUniqueName("zonalstatistics_{}".format(watershed_layer_id))
+        scratch_table =arcpy.CreateUniqueName("zonalstatistics_{}".format(watershed_layer_id))
 
         # dissolve RCN boundaries to find watershed boundary
         log("dissolve RCN boundaries")
@@ -186,8 +186,8 @@ class CalculateHydrology:
         # zonal statistics
         log("finding average slope")
         field_name = get_oid(scratch_watershed)
-        arcpy.sa.ZonalStatisticsAsTable(scratch_watershed, field_name, slope_raster, scrath_table, "", "MEAN")
-        mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(scrath_table, "MEAN")][0]),2)
+        arcpy.sa.ZonalStatisticsAsTable(scratch_watershed, field_name, slope_raster, scratch_table, "", "MEAN")
+        mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(scratch_table, "MEAN")][0]),2)
 
         # fill DEM to eventually find flow length of watershed
         log("filling DEM for flow direction calculation")
@@ -254,6 +254,7 @@ class CalculateHydrology:
         # cleanup
         log("deleting unneeded data")
         empty_workspace(arcpy.env.scratchFolder, keep=[])
+        arcpy.management.Delete([scratch_table])
 
         # save program successfully
         log("saving project")

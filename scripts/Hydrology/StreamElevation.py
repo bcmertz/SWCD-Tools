@@ -90,9 +90,7 @@ class StreamElevation(object):
         # create scratch layers
         log("creating scratch layers")
         scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines",
-                                               data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
+        streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines", "FeatureClass", arcpy.env.scratchFolder)
 
         if parameters[2].value:
             # clip streamlines to the study area

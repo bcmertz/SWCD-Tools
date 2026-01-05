@@ -105,15 +105,14 @@ class BurnCulverts(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dem = "{}\\dem_clip".format(arcpy.env.workspace)
         scratch_culverts = arcpy.CreateScratchName("culverts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_culvert_upstream = arcpy.CreateScratchName("upstream", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_culvert_downstream = arcpy.CreateScratchName("downstream", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_points_merge = arcpy.CreateScratchName("merge", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_streams = arcpy.management.CreateFeatureclass(arcpy.env.workspace, "lines", "POLYLINE", spatial_reference=spatial_reference)
         scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace)
-        scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace)
+        scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace) # TODO: use scratch layer and remove delete
+        scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace) # TODO: use scratch layer and remove delete
 
         # fill clipped raster
         log("finding point upstream of culvert")
@@ -209,6 +208,7 @@ class BurnCulverts(object):
         # cleanup
         log("deleting unneeded data")
         empty_workspace(arcpy.env.scratchFolder, keep=[])
+        arcpy.management.Delete([scratch_burned_raster, scratch_mosaic_raster])
 
         # save and exit program successfully
         log("saving project")

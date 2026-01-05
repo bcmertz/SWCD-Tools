@@ -181,10 +181,9 @@ class RunoffPotential:
 
         # scratch layers
         log("creating scratch layers")
-        soils_scratch = arcpy.CreateScratchName("soils_scratch", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        land_use_raster_clip = "{}\\land_use_raster_clip".format(arcpy.env.workspace)
-        scratch_land_use_polygon = arcpy.CreateScratchName("scratch_land_use_polygon", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_joined_land_use_polygon = arcpy.CreateScratchName("scratch_joined_land_use_polygon", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        soils_scratch = arcpy.CreateScratchName("soils_scratch", "FeatureClass", arcpy.env.scratchFolder)
+        scratch_land_use_polygon = arcpy.CreateScratchName("scratch_land_use_polygon", "FeatureClass", arcpy.env.scratchFolder)
+        scratch_joined_land_use_polygon = arcpy.CreateScratchName("scratch_joined_land_use_polygon", "FeatureClass", arcpy.env.scratchFolder)
 
         # clip soils
         log("clipping soils to watershed")
@@ -192,8 +191,7 @@ class RunoffPotential:
 
         # clip land use raster
         log("clipping land use raster to watershed")
-        out_land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, watershed, "INSIDE")
-        out_land_use_raster_clip.save(land_use_raster_clip)
+        land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, watershed, "INSIDE")
 
         # convert land usage output to polygon
         log("converting land use areas to polygon")

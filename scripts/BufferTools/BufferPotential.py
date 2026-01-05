@@ -182,7 +182,6 @@ class BufferPotential:
         # create scratch layers
         log("creating scratch layers")
         scratch_stream_buffer = arcpy.CreateScratchName("stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        land_use_raster_clip = "{}\\land_use_raster_clip".format(arcpy.env.workspace)
         scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
@@ -193,8 +192,7 @@ class BufferPotential:
 
         # clip land uses to buffer
         log("extracting land use data inside buffer area")
-        out_land_use = arcpy.sa.ExtractByMask(land_use_raster, scratch_stream_buffer, "INSIDE", "MINOF")
-        out_land_use.save(land_use_raster_clip)
+        land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, scratch_stream_buffer, "INSIDE", "MINOF")
 
         # select viable land uses from land use raster
         log("extracting desired land uses")

@@ -234,7 +234,6 @@ class DamRemoval(object):
             arcpy.env.extent = extent
 
         # create scratch layers
-        dem_pondless = "{}\\dem_pondless".format(arcpy.env.workspace)
         scratch_centerline = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
         scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
@@ -246,8 +245,7 @@ class DamRemoval(object):
 
         # extract by mask to remove pond from dem
         log("removing ponded area from dem")
-        dem_pondless_output = arcpy.sa.ExtractByMask(dem, pond, "OUTSIDE")
-        dem_pondless_output.save(dem_pondless)
+        dem_pondless = arcpy.sa.ExtractByMask(dem, pond, "OUTSIDE")
 
         # generate points along line
         log("generating points along centerline")
