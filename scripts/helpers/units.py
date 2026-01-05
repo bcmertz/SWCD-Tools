@@ -9,9 +9,9 @@
 import arcpy
 from typing import Literal
 
-def get_z_linear_unit(fc) -> str | None:
-    """Get z linear unit from spatial reference."""
-    # find z linear unit of spatial reference vertical coordinate system
+def get_z_unit(fc) -> str | None:
+    """Get z unit from spatial reference."""
+    # find z unit of spatial reference vertical coordinate system
     desc = arcpy.Describe(fc)
     if desc.spatialReference.VCS:
         return desc.spatialReference.VCS.linearUnitName
@@ -64,7 +64,7 @@ UNITS = {
 ##}
 
 z_units = list(UNITS.keys())
-z_linear_units = list(UNITS.values())
+linear_units = list(UNITS.values())
 
 def z_unit_to_linear_unit(in_unit: Literal[UNITS.keys()]) -> Literal[UNITS.values()] | None:
     """Convert z unit to linear unit format."""

@@ -11,7 +11,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type, get_z_linear_unit, z_linear_units, empty_workspace
+from helpers import license, get_oid, pixel_type, get_z_unit, z_units, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -39,7 +39,7 @@ class BermAnalysis(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = z_linear_units
+        param1.filter.list = z_units
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -114,7 +114,7 @@ class BermAnalysis(object):
         # find z unit of raster based on vertical coordinate system if there is none, let the user define it
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                z_unit = get_z_linear_unit(parameters[0].value)
+                z_unit = get_z_unit(parameters[0].value)
                 if z_unit:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
