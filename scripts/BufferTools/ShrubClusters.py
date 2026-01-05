@@ -43,9 +43,9 @@ class ShrubClusters:
         param1.parameterDependencies = [param0.name]
 
         param2 = arcpy.Parameter(
-            displayName="Cluster Width (ft)",
+            displayName="Cluster Width",
             name="width",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -93,7 +93,8 @@ class ShrubClusters:
         log("reading in parameters")
         area = parameters[0].value
         output_file = parameters[1].valueAsText
-        width = parameters[2].value
+        width, width_unit = parameters[2].valueAsText.split(" ")
+        
         number = parameters[3].value
         geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
 
@@ -108,7 +109,7 @@ class ShrubClusters:
         buffer_width = width
         if geom_type == "ENVELOPE":
             buffer_width = width*math.sqrt(2)
-        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} Feet".format(-int(buffer_width)))
+        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} {}".format(-int(buffer_width), width_unit))
 
         # create point locations
         log("creating shrub cluster point locations")
@@ -127,7 +128,7 @@ class ShrubClusters:
         arcpy.analysis.Buffer(
             in_features=scratch_points,
             out_feature_class=scratch_buffer,
-            buffer_distance_or_field="{} Feet".format(width),
+            buffer_distance_or_field="{} {}".format(width, width_unit),
         )
 
         # make square around buffer
