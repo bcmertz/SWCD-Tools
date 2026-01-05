@@ -26,28 +26,28 @@ def get_linear_unit(fc) -> str | None:
     return desc.spatialReference.linearUnitName
 
 
-# mapping of linear unit to z unit for use in spatial analyst tools
+# mapping of z unit to linear unit names
 UNITS = {
-    "Kilometers": "KILOMETER",
-    "Meters": "METER",
-    "Decimeters": "DECIMETER",
-    "Millimeters": "MILLIMETER",
-    "Centimeters": "CENTIMETER",
-    "NauticalMilesInt": "NAUTICAL_MILE",
-    "MilesInt": "MILE_US",
-    "YardsInt": "YARD",
-    "FeetInt": "FOOT",
-    "InchesInt": "INCH",
-    "NauticalMilesUS": "NAUTICAL_MILE",
-    "MilesUS": "MILES_US",
-    "YardsUS": "YARD",
-    "FeetUS": "FOOT",
-    "InchesUS": "INCH",
+    "KILOMETER": "Kilometers",
+    "METER": "Meters",
+    "DECIMETER": "Decimeters",
+    "MILLIMETER": "Millimeters",
+    "CENTIMETER": "Centimeters",
+    "NAUTICAL_MILE": "NauticalMilesInt",
+    "MILE_US": "MilesInt",
+    "YARD": "YardsInt",
+    "FOOT": "FeetInt",
+    "INCH": "InchesInt",
+    "NAUTICAL_MILE": "NauticalMilesUS",
+    "MILES_US": "MilesUS",
+    "YARD": "YardsUS",
+    "FOOT": "FeetUS",
+    "INCH": "InchesUS",
 }
 
-z_linear_units = list(UNITS.keys())
-z_units = list(UNITS.values())
+z_units = list(UNITS.keys())
+z_linear_units = list(UNITS.values())
 
-def linear_unit_to_z_unit(in_unit: Literal[UNITS.keys()]) -> Literal[UNITS.values()] | None:
-    """Convert linear unit to z unit format."""
+def z_unit_to_linear_unit(in_unit: Literal[UNITS.keys()]) -> Literal[UNITS.values()] | None:
+    """Convert z unit to linear unit format."""
     return UNITS.get(in_unit, None)
