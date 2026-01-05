@@ -11,7 +11,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type, get_z_linear_unit, z_linear_units
+from helpers import license, get_oid, pixel_type, get_z_linear_unit, z_linear_units, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -381,9 +381,9 @@ class BermAnalysis(object):
                 berm[1] = berm_height
                 cursor.updateRow(berm)
 
-        # delete not needed scratch layers
-        log("delete unused layers")
-        arcpy.management.Delete([scratch_contour, scratch_berm, scratch_output, scratch_dem_min, scratch_zonal_statistics, scratch_dem_mask, scratch_mosaic_raster, scratch_con, scratch_effective_berm])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # finish up
         log("finishing up")

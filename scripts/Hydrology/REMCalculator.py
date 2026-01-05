@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -55,7 +55,8 @@ class RelativeElevationModel(object):
             parameterType="Required",
             direction="Input")
         param3.filter.list = ["Polyline"]
-
+        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
+ 
         param4 = arcpy.Parameter(
             displayName="Buffer Radius",
             name="buffer_radius",
@@ -178,9 +179,9 @@ class RelativeElevationModel(object):
         cim_layer.colorizer.stretchStats.min = min_value
         rem_raster.setDefinition(cim_layer)
 
-        # delete scratch variables
+        # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_stream_layer, scratch_stream_buffer,scratch_stream_points,scratch_stream_elev_points])
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # save project
         log("saving project")

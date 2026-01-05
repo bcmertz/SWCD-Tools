@@ -8,7 +8,7 @@
 import sys
 import arcpy
 
-from helpers import license
+from helpers import license, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -257,8 +257,8 @@ class BufferPotential:
 
         # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_stream_buffer, land_use_raster_clip, scratch_land_use_polygon, scratch_erase, scratch_dissolve])
-        
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
+
         # save
         log("saving project")
         project.save()

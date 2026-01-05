@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -107,8 +107,8 @@ class StreamElevation(object):
         log("saving project")
         project.save()
 
-        # remove temporary variables
-        log("cleaning up")
-        arcpy.management.Delete([fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
-        arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
+
         return

@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type, get_linear_unit
+from helpers import license, get_oid, pixel_type, get_linear_unit, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -206,9 +206,9 @@ class BurnCulverts(object):
         log("setting symbology to layer")
         out_dem.symbology = dem_symbology
 
-        # delete scratch layers
-        log("cleaning up")
-        arcpy.management.Delete([scratch_dem, scratch_culverts, scratch_culvert_upstream, scratch_culvert_downstream, scratch_points_merge, scratch_streams, scratch_stream_buffer, scratch_burned_raster, scratch_mosaic_raster])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # save and exit program successfully
         log("saving project")

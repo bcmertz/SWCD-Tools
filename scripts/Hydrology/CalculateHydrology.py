@@ -12,7 +12,7 @@ import pathlib
 import openpyxl
 import datetime
 
-from helpers import license, get_oid, get_z_linear_unit, get_linear_unit, z_linear_units
+from helpers import license, get_oid, get_z_linear_unit, get_linear_unit, z_linear_units, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -253,7 +253,7 @@ class CalculateHydrology:
 
         # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_watershed, scrath_table])
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # save program successfully
         log("saving project")

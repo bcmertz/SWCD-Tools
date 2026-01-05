@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -251,9 +251,9 @@ class RunoffPotential:
                 sym.renderer.colorRamp = project.listColorRamps('Orange-Red (5 Classes)')[0]
                 lyr.symbology = sym
 
-        # delete not needed scratch layers
-        log("delete unused layers")
-        arcpy.management.Delete([soils_scratch, land_use_raster_clip, scratch_land_use_polygon, scratch_joined_land_use_polygon])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # save project
         log("saving project")

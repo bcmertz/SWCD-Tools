@@ -10,7 +10,7 @@
 import sys
 import arcpy
 
-from helpers import license, get_oid, get_z_linear_unit, z_linear_units
+from helpers import license, get_oid, get_z_linear_unit, z_linear_units, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -418,9 +418,9 @@ class PotentialWetlands(object):
             except:
                 log("could not set output symbology properly")
 
-        # delete not needed scratch layers
-        log("deleting unused layers")
-        arcpy.management.Delete([scratch_slope_polygon,scratch_slope_dissolve_polygon,scratch_soils_area,scratch_hsg_soils,land_use_raster_clip,scratch_land_use_polygon,scratch_reduced_potential_wetland,scratch_zonal_stats,scratch_erase,scratch_output,scratch_dissolve])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # save project
         log("saving project")

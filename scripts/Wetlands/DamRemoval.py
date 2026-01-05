@@ -10,7 +10,7 @@
 import arcpy
 from math import atan2, pi
 
-from helpers import license, pixel_type, get_linear_unit
+from helpers import license, pixel_type, get_linear_unit, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -358,9 +358,9 @@ class DamRemoval(object):
         log("updating raster symbology")
         rem_raster.symbology = dem_symbology
 
-        # delete scratch variables
+        # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_centerline, dem_pondless,scratch_centerline_points,scratch_point_raster,scratch_transect_points,scratch_transect_elev_points,idw_raster])
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # save project
         log("saving project")

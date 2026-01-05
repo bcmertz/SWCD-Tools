@@ -185,7 +185,7 @@ class PointPlots:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[scratch_buffer])
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         # open coordinates folder
         if coords:

@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_linear_unit
+from helpers import license, get_oid, get_linear_unit, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -178,8 +178,8 @@ class StreamNetwork(object):
         log("saving project")
         project.save()
 
-        # remove temporary variables
-        log("cleaning up")
-        arcpy.management.Delete([scratch_end_points, scratch_streamlines])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchFolder, keep=[])
 
         return
