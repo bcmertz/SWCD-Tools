@@ -97,12 +97,6 @@ class PointPlots:
         if not parameters[3].hasBeenValidated:
             if parameters[3].value == True:
                 parameters[4].enabled = True
-                #if parameters[1].value and not parameters[4].value:
-                #    point_path = str(parameters[1].value)
-                #    project_path = arcpy.mp.ArcGISProject("Current").filePath
-                #    file_path = os.path.dirname(project_path)
-                #    file_name = os.path.basename(point_path)
-                #    parameters[4].value = "{}\\{}{}".format(file_path, file_name, "_contours")
             else:
                 parameters[4].enabled = False
         return
@@ -122,8 +116,8 @@ class PointPlots:
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_dissolve = arcpy.CreateScratchName("scratch_dissolve", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dissolve = arcpy.CreateScratchName("scratch_dissolve", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
 
         # dissolve
         log("dissolve polygons")
@@ -185,7 +179,7 @@ class PointPlots:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # open coordinates folder
         if coords:
