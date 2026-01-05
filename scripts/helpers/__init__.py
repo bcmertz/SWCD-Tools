@@ -13,6 +13,6 @@ from .sanitize import sanitize
 from .setupenvironment import setup_environment
 from .validatespatialreference import validate_spatial_reference
 from .getoid import get_oid
-from .emptyworkspace import empty_workspace
 from .pixeltype import pixel_type
+from .emptyworkspace import empty_workspace
 from .units import get_z_linear_unit, get_linear_unit, z_linear_units, z_units, linear_unit_to_z_unit

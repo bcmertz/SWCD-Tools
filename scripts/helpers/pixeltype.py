@@ -1,10 +1,10 @@
-# -----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 # Name:        Pixel Type
 # Purpose:     This helper returns the string representation of the raster pixel type
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
-# -----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 
 PIXEL_TYPES = {
     "U1": "1_BIT",
