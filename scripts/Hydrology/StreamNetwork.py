@@ -93,7 +93,7 @@ class StreamNetwork(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = parameters[0].value        
+        dem = parameters[0].value
         extent = parameters[1].value
         theshold, theshold_unit = parameters[2].valueAsText.split(" ")
         stream = parameters[3].value
