@@ -230,7 +230,7 @@ class DamRemoval(object):
         transect_width = float(transect_width) * arcpy.LinearUnitConversionFactor(transect_width_unit, linear_unit)
 
         # create scratch layers
-        scratch_centerline = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_centerline = arcpy.CreateScratchName("scratch_centerline", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
