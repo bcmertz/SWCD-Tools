@@ -268,6 +268,8 @@ class DamRemoval(object):
                 if elev_high != None and elev_low != None:
                     break
                 elev, distance = point[0], point[1]
+                if elev == None:
+                    elev = -9999
                 if elev_prev != None:
                     if elev == -9999 and elev_prev != -9999:
                         # elev low
