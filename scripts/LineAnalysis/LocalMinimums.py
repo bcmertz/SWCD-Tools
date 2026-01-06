@@ -114,7 +114,7 @@ class LocalMinimums:
                     parameters[2].value = None
             else:
                 parameters[2].enabled = False
-                parameters[2].value = None  
+                parameters[2].value = None
 
         return
 

@@ -19,7 +19,7 @@ def setup_environment():
     arcpy.env.overwriteOutput = True
     arcpy.env.scratchWorkspace = arcpy.env.scratchGDB
     if arcpy.env.outputCoordinateSystem == None:
-        spatial_reference_name = active_map.spatialReference.name        
+        spatial_reference_name = active_map.spatialReference.name
         arcpy.env.outputCoordinateSystem = arcpy.SpatialReference(spatial_reference_name)
 
     return project, active_map

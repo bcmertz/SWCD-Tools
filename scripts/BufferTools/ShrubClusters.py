@@ -95,7 +95,7 @@ class ShrubClusters:
         output_file = parameters[1].valueAsText
         width, width_unit = parameters[2].valueAsText.split(" ")
         width = float(width) / 2
-        
+
         number = parameters[3].value
         geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
 

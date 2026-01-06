@@ -56,7 +56,7 @@ class RelativeElevationModel(object):
             direction="Input")
         param3.filter.list = ["Polyline"]
         param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
- 
+
         param4 = arcpy.Parameter(
             displayName="Buffer Radius",
             name="buffer_radius",
