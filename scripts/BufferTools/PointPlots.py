@@ -17,7 +17,7 @@ import os
 import math
 import arcpy
 
-from helpers import license, empty_workspace
+from helpers import license, empty_workspace, toggle_required_parameter
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -79,15 +79,8 @@ class PointPlots:
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
-        # make newly toggled on parameter required
-        if not parameters[3].hasBeenValidated:
-            if parameters[3].value == True:
-                if not parameters[4].value:
-                    parameters[4].setIDMessage("ERROR", 530)
-
-        # handle deleted parameter value
-        if not parameters[4].hasBeenValidated and not parameters[4].value:
-            parameters[4].setIDMessage("ERROR", 530)
+        # make optional parameters[4] required based off of parameters[3]
+        toggle_required_parameter(parameters[3], parameters[4])
 
         validate(parameters)
         return
@@ -97,12 +90,6 @@ class PointPlots:
         if not parameters[3].hasBeenValidated:
             if parameters[3].value == True:
                 parameters[4].enabled = True
-                #if parameters[1].value and not parameters[4].value:
-                #    point_path = str(parameters[1].value)
-                #    project_path = arcpy.mp.ArcGISProject("Current").filePath
-                #    file_path = os.path.dirname(project_path)
-                #    file_name = os.path.basename(point_path)
-                #    parameters[4].value = "{}\\{}{}".format(file_path, file_name, "_contours")
             else:
                 parameters[4].enabled = False
         return
@@ -122,8 +109,8 @@ class PointPlots:
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_dissolve = arcpy.CreateScratchName("scratch_dissolve", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_buffer = arcpy.CreateScratchName("scratch_buffer", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dissolve = arcpy.CreateScratchName("scratch_dissolve", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
 
         # dissolve
         log("dissolve polygons")
@@ -185,7 +172,7 @@ class PointPlots:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[scratch_buffer])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # open coordinates folder
         if coords:

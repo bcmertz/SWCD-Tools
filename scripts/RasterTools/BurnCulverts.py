@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type
+from helpers import license, get_oid, pixel_type, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -39,8 +39,8 @@ class BurnCulverts(object):
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
-            displayName="Output Features",
-            name="out_features",
+            displayName="Output DEM",
+            name="out_dem",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
@@ -53,13 +53,13 @@ class BurnCulverts(object):
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param3.filter.list = ["Points"]
+        param3.filter.list = ["Point"]
         param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows point creation
 
         param4 = arcpy.Parameter(
-            displayName="Search Distance (ft)",
+            displayName="Search Distance",
             name="distance",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -69,7 +69,7 @@ class BurnCulverts(object):
     def updateParameters(self, parameters):
         # default search distance
         if parameters[4].value == None:
-            parameters[4].value = 100
+            parameters[4].value = "100 FeetUS"
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -93,9 +93,11 @@ class BurnCulverts(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         culverts = parameters[3].value
-        distance = parameters[4].value / 3.2808
-        desc = arcpy.Describe(parameters[3].value)
+        desc = arcpy.Describe(culverts)
         spatial_reference = desc.spatialReference
+        distance, distance_unit = parameters[4].valueAsText.split(" ")
+        linear_unit = active_map.spatialReference.linearUnitName
+        distance = float(distance) * arcpy.LinearUnitConversionFactor(distance_unit, linear_unit)
 
         # set analysis extent
         if extent:
@@ -103,15 +105,14 @@ class BurnCulverts(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dem = "{}\\dem_clip".format(arcpy.env.workspace)
-        scratch_culverts = arcpy.CreateScratchName("culverts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_culvert_upstream = arcpy.CreateScratchName("upstream", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_culvert_downstream = arcpy.CreateScratchName("downstream", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_points_merge = arcpy.CreateScratchName("merge", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_streams = arcpy.management.CreateFeatureclass(arcpy.env.workspace, "lines", "POLYLINE", spatial_reference=spatial_reference)
-        scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_burned_raster = "{}\\burned".format(arcpy.env.workspace)
-        scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace)
+        scratch_culverts = arcpy.CreateScratchName("culverts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_culvert_upstream = arcpy.CreateScratchName("upstream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_culvert_downstream = arcpy.CreateScratchName("downstream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_points_merge = arcpy.CreateScratchName("merge", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_streams = arcpy.management.CreateFeatureclass(arcpy.env.scratchGDB, "lines", "POLYLINE", spatial_reference=spatial_reference)
+        scratch_burned_raster = arcpy.CreateScratchName("burned", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_mosaic_raster = arcpy.CreateScratchName("mos_ras", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # fill clipped raster
         log("finding point upstream of culvert")
@@ -163,7 +164,7 @@ class BurnCulverts(object):
 
         # buffer line to make streambed
         log("burning-in crossings")
-        arcpy.analysis.PairwiseBuffer(scratch_streams, scratch_stream_buffer, "20 Feet")
+        arcpy.analysis.PairwiseBuffer(scratch_streams, scratch_stream_buffer, "5 Feet")
 
         # Add field elev
         elevation_field = "elev"
@@ -180,13 +181,12 @@ class BurnCulverts(object):
 
         # mosaic to new raster
         log("creating mosaic raster")
-        mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
-        arcpy.management.MosaicToNewRaster(
+        scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
             input_rasters=[dem,scratch_burned_raster],
-            output_location=arcpy.env.workspace,
-            pixel_type=pixel_type(difference.pixelType),
+            output_location=arcpy.env.scratchGDB,
+            pixel_type=pixel_type(difference),
             number_of_bands=difference.bandCount,
-            raster_dataset_name_with_extension=mosaic_raster,
+            raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
             mosaic_method="LAST",
             mosaic_colormap_mode="FIRST"
         )
@@ -204,9 +204,9 @@ class BurnCulverts(object):
         log("setting symbology to layer")
         out_dem.symbology = dem_symbology
 
-        # delete scratch layers
-        log("cleaning up")
-        arcpy.management.Delete([scratch_dem, scratch_culverts, scratch_culvert_upstream, scratch_culvert_downstream, scratch_points_merge, scratch_streams, scratch_stream_buffer, scratch_burned_raster, scratch_mosaic_raster])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save and exit program successfully
         log("saving project")

@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -55,18 +55,19 @@ class RelativeElevationModel(object):
             parameterType="Required",
             direction="Input")
         param3.filter.list = ["Polyline"]
+        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param4 = arcpy.Parameter(
-            displayName="Buffer Radius (ft)",
+            displayName="Buffer Radius",
             name="buffer_radius",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
         param5 = arcpy.Parameter(
-            displayName="Sampling Interval (ft)",
+            displayName="Sampling Interval",
             name="sampling_interval",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
@@ -85,10 +86,10 @@ class RelativeElevationModel(object):
     def updateParameters(self, parameters):
         # default buffer radius
         if parameters[4].value == None:
-            parameters[4].value = 100
+            parameters[4].value = "100 Feet"
         # default simpling interval
         if parameters[5].value == None:
-            parameters[5].value = 25
+            parameters[5].value = "25 Feet"
         return
 
     def execute(self, parameters, messages):
@@ -102,8 +103,8 @@ class RelativeElevationModel(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
-        buffer_radius = int(parameters[4].value)
-        sampling_interval = int(parameters[5].value)
+        buffer_radius = parameters[4].valueAsText
+        sampling_interval = parameters[4].valueAsText
 
         # set analysis extent
         if extent:
@@ -111,10 +112,10 @@ class RelativeElevationModel(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", "FeatureClass", arcpy.env.scratchFolder)
-        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", "FeatureClass", arcpy.env.scratchFolder)
-        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", "FeatureClass", arcpy.env.scratchFolder)
-        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", "FeatureClass", arcpy.env.scratchFolder)
+        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", "FeatureClass", arcpy.env.scratchGDB)
 
         if extent:
             # clip streams to analysis area
@@ -126,7 +127,7 @@ class RelativeElevationModel(object):
         # pairwise buffer stream
         # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
         log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, "{} Feet".format(buffer_radius), "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, buffer_radius, "ALL", "", "GEODESIC", "")
 
         # clip dem to buffer
         log("clipping DEM to buffer")
@@ -178,9 +179,9 @@ class RelativeElevationModel(object):
         cim_layer.colorizer.stretchStats.min = min_value
         rem_raster.setDefinition(cim_layer)
 
-        # delete scratch variables
+        # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_stream_layer, scratch_stream_buffer,scratch_stream_points,scratch_stream_elev_points])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save project
         log("saving project")

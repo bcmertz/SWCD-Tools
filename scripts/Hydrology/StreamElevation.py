@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -89,10 +89,8 @@ class StreamElevation(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dem = "{}\\dem_raster_clip".format(arcpy.env.workspace)
-        streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines",
-                                               data_type="FeatureClass",
-                                               workspace=arcpy.env.scratchFolder)
+        scratch_dem = arcpy.CreateScratchName("dem", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines", "FeatureClass", arcpy.env.scratchGDB)
 
         if parameters[2].value:
             # clip streamlines to the study area
@@ -107,8 +105,8 @@ class StreamElevation(object):
         log("saving project")
         project.save()
 
-        # remove temporary variables
-        log("cleaning up")
-        arcpy.management.Delete([fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
-        arcpy.management.Delete([scratch_dem, clip_flow_accumulation_scratch, pour_points_adjusted_scratch])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
+
         return

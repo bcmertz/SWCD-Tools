@@ -12,12 +12,12 @@ import pathlib
 import openpyxl
 import datetime
 
-from helpers import license, get_oid
+from helpers import license, get_oid, get_z_unit, get_linear_unit, z_units, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-class CalculateHydrology:
+class CalculateEFH2:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "EFH-2 Calculation"
@@ -34,31 +34,30 @@ class CalculateHydrology:
             direction="Input")
 
         param1 = arcpy.Parameter(
+            displayName="Z Unit",
+            name="z_unit",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param1.filter.list = z_units
+
+        param2 = arcpy.Parameter(
             displayName="Output Folder",
             name="output_location",
             datatype="DEFolder",
             parameterType="Required",
             direction="Input")
 
-        param2 = arcpy.Parameter(
+        param3 = arcpy.Parameter(
             displayName="Runoff Curve Number Layer",
             name="rcns",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="HSG Field",
             name="hsg_field",
-            datatype="GPString",
-            parameterType="Required",
-            direction="Input")
-        param3.filter.type = "ValueList"
-        param3.filter.list = []
-
-        param4 = arcpy.Parameter(
-            displayName="RCN Field",
-            name="rcn_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -66,8 +65,8 @@ class CalculateHydrology:
         param4.filter.list = []
 
         param5 = arcpy.Parameter(
-            displayName="Acres Field",
-            name="acres_field",
+            displayName="RCN Field",
+            name="rcn_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -75,43 +74,69 @@ class CalculateHydrology:
         param5.filter.list = []
 
         param6 = arcpy.Parameter(
-            displayName="Land Use Field",
-            name="land_use_field",
+            displayName="Acres Field",
+            name="acres_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
         param6.filter.type = "ValueList"
         param6.filter.list = []
+
+        param7 = arcpy.Parameter(
+            displayName="Land Use Field",
+            name="land_use_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param7.filter.type = "ValueList"
+        param7.filter.list = []
         
-        params = [param0, param1, param2, param3, param4, param5, param6]
+        params = [param0, param1, param2, param3, param4, param5, param6, param7]
         return params
 
     def updateParameters(self, parameters):
+        # find z unit of raster based on vertical coordinate system
+        #  - if there is none, let the user define it
+        #  - if it exists, set the value and hide the parameter
+        #  - if it doesn't exist show the parameter and set the value to None
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                z_unit = get_z_unit(parameters[0].value)
+                if z_unit:
+                    parameters[1].enabled = False
+                    parameters[1].value = z_unit
+                else:
+                    parameters[1].enabled = True
+                    parameters[1].value = None
+            else:
+                parameters[1].enabled = False
+                parameters[1].value = None
+
         # get RCN fields
-        if not parameters[2].hasBeenValidated:
-            if parameters[2].value:
-                parameters[3].enabled = True
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].value:
                 parameters[4].enabled = True
                 parameters[5].enabled = True
                 parameters[6].enabled = True
-                fields = [f.name for f in arcpy.ListFields(parameters[2].value)]
-                parameters[3].filter.list = fields
+                parameters[7].enabled = True
+                fields = [f.name for f in arcpy.ListFields(parameters[3].value)]
                 parameters[4].filter.list = fields
                 parameters[5].filter.list = fields
                 parameters[6].filter.list = fields
+                parameters[7].filter.list = fields
                 if "hydgrpdcd" in fields:
-                    parameters[3].value = "hydgrpdcd"
+                    parameters[4].value = "hydgrpdcd"
                 if "RCN" in fields:
-                    parameters[4].value = "RCN"
+                    parameters[5].value = "RCN"
                 if "Acres" in fields:
-                    parameters[5].value = "Acres"
+                    parameters[6].value = "Acres"
                 if "LandUse" in fields:
-                    parameters[6].value = "LandUse"
+                    parameters[7].value = "LandUse"
             else:
-                parameters[3].enabled = False
                 parameters[4].enabled = False
                 parameters[5].enabled = False
                 parameters[6].enabled = False
+                parameters[7].enabled = False
 
         return
 
@@ -133,20 +158,21 @@ class CalculateHydrology:
         # read in parameters
         log("reading in parameters")
         raster_layer = parameters[0].value
-        output_folder_path = parameters[1].valueAsText
-        rcn_layer = parameters[2].value
-        hsg_field = parameters[3].value
-        rcn_field = parameters[4].value
-        acres_field = parameters[5].value
-        land_use_field = parameters[6].value
+        z_unit = parameters[1].value
+        output_folder_path = parameters[2].valueAsText
+        rcn_layer = parameters[3].value
+        hsg_field = parameters[4].value
+        rcn_field = parameters[5].value
+        acres_field = parameters[6].value
+        land_use_field = parameters[7].value
 
         # utils
         watershed_layer_id = arcpy.ValidateTableName(rcn_layer.name)
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_watershed = arcpy.CreateScratchName("scratch_watershed", data_type="DEFeatureClass", workspace=arcpy.env.scratchFolder)
-        scrath_table =arcpy.CreateUniqueName("zonalstatistics_{}".format(watershed_layer_id))
+        scratch_watershed = arcpy.CreateScratchName("scratch_watershed", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_table =arcpy.CreateUniqueName("zonalstatistics_{}".format(watershed_layer_id))
 
         # dissolve RCN boundaries to find watershed boundary
         log("dissolve RCN boundaries")
@@ -158,13 +184,13 @@ class CalculateHydrology:
 
         # slope map
         log("creating slope map")
-        slope_raster = arcpy.sa.Slope(out_dem_watershed_clip, "PERCENT_RISE", "", "GEODESIC", "METER")
+        slope_raster = arcpy.sa.Slope(out_dem_watershed_clip, "PERCENT_RISE", "", "GEODESIC", z_unit)
 
         # zonal statistics
         log("finding average slope")
         field_name = get_oid(scratch_watershed)
-        arcpy.sa.ZonalStatisticsAsTable(scratch_watershed, field_name, slope_raster, scrath_table, "", "MEAN")
-        mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(scrath_table, "MEAN")][0]),2)
+        arcpy.sa.ZonalStatisticsAsTable(scratch_watershed, field_name, slope_raster, scratch_table, "", "MEAN")
+        mean_slope = round(float([row[0] for row in arcpy.da.SearchCursor(scratch_table, "MEAN")][0]),2)
 
         # fill DEM to eventually find flow length of watershed
         log("filling DEM for flow direction calculation")
@@ -180,7 +206,9 @@ class CalculateHydrology:
 
         # find maximum flow length
         log("finding max flow length")
-        flow_length_maximum = int(float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))*3.2808)
+        linear_unit = get_linear_unit(flow_length_raster)
+        flow_length_maximum = float(arcpy.management.GetRasterProperties(flow_length_raster, "MAXIMUM").getOutput(0))
+        flow_length_maximum = int(flow_length_maximum * arcpy.LinearUnitConversionFactor(linear_unit, "FeetUS"))
 
         # add acres field and calculate
         log("calculating rcn acres")
@@ -228,7 +256,8 @@ class CalculateHydrology:
 
         # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_watershed, scrath_table])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
+        arcpy.management.Delete([scratch_table])
 
         # save program successfully
         log("saving project")

@@ -13,7 +13,7 @@ import shutil
 import pathlib
 import openpyxl
 
-from helpers import license, sanitize
+from helpers import license, sanitize, toggle_required_parameter
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -178,31 +178,15 @@ class Delineate(object):
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
-        # make newly toggled on parameter required
-        if not parameters[0].hasBeenValidated:
-            if parameters[0].value:
-                if not parameters[1].value:
-                    parameters[1].setIDMessage("ERROR", 530)
-                if not parameters[2].value:
-                    parameters[2].setIDMessage("ERROR", 530)
-                if not parameters[3].value:
-                    parameters[3].setIDMessage("ERROR", 530)
-                if not parameters[4].value:
-                    parameters[4].setIDMessage("ERROR", 530)
-                if not parameters[5].value:
-                    parameters[5].setIDMessage("ERROR", 530)
-
-        # handle deleted parameter value
-        if not parameters[1].hasBeenValidated and not parameters[1].value:
-            parameters[1].setIDMessage("ERROR", 530)
-        if not parameters[2].hasBeenValidated and not parameters[2].value:
-            parameters[2].setIDMessage("ERROR", 530)
-        if not parameters[3].hasBeenValidated and not parameters[3].value:
-            parameters[3].setIDMessage("ERROR", 530)
-        if not parameters[4].hasBeenValidated and not parameters[4].value:
-            parameters[4].setIDMessage("ERROR", 530)
+        # make optional parameters required based off of parameters[0]
+        toggle_required_parameter(parameters[0], parameters[1])
+        toggle_required_parameter(parameters[0], parameters[2])
+        toggle_required_parameter(parameters[0], parameters[3])
+        toggle_required_parameter(parameters[0], parameters[4])
+        toggle_required_parameter(parameters[0], parameters[5])
 
         validate(parameters)
+
         return
 
     def isLicensed(self):

@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, get_oid
+from helpers import license, get_oid, empty_workspace, area_to_num_cells
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -43,9 +43,9 @@ class StreamNetwork(object):
         # once supported consider combining threshold and stream lines
         # into one parameter with a toggle
         param2 = arcpy.Parameter(
-            displayName="Stream Initiation Threshold (acres)",
+            displayName="Stream Initiation Threshold",
             name="threshold",
-            datatype="GPDouble",
+            datatype="GPArealUnit",
             parameterType="Required",
             direction="Input")
 
@@ -73,7 +73,7 @@ class StreamNetwork(object):
     def updateParameters(self, parameters):
         # Default stream threshold value
         if parameters[2].value == None:
-            parameters[2].value = 8
+            parameters[2].value = "8 AcresUS"
 
         return
 
@@ -95,7 +95,7 @@ class StreamNetwork(object):
         # read in parameters
         dem = parameters[0].value
         extent = parameters[1].value
-        theshold = parameters[2].value
+        threshold = parameters[2].valueAsText
         stream = parameters[3].value
         output_file = parameters[4].valueAsText
 
@@ -103,31 +103,18 @@ class StreamNetwork(object):
         if extent:
             arcpy.env.extent = extent
 
-        # find threshold in # cells
-        try:
-            desc = arcpy.Describe(dem)
-            cellsize_y = desc.meanCellHeight  # Cell size in the Y axis
-            cellsize_x = desc.meanCellWidth   # Cell size in the X axis
-            linear_unit = desc.spatialReference.linearUnitName
-            if linear_unit == "Meter":
-                cellsize_y = cellsize_y * 3.2808
-                cellsize_x = cellsize_x * 3.2808
-            elif linear_unit == "Foot":
-                pass
-            else:
-                log("unknown linear unit for DEM, stream initiation theshold may be calculated incorrectly")
-            cell_area_ft2 = cellsize_x * cellsize_y
-            threshold = int(theshold * (43560 / cell_area_ft2))
-        except:
+        # find threshold in nunmber cells
+        threshold = area_to_num_cells(dem, threshold)
+        if threshold == None:
             log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
-            threshold = 32000 # default to 1m^2 cell, threshold ~8 acres
+            threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
+        scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
-        # fill - TODO: necessary?
+        # fill DEM
         log("filling raster")
         fill_raster = arcpy.sa.Fill(dem)
 
@@ -183,8 +170,8 @@ class StreamNetwork(object):
         log("saving project")
         project.save()
 
-        # remove temporary variables
-        log("cleaning up")
-        arcpy.management.Delete([scratch_end_points, scratch_streamlines])
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         return

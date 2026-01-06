@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, get_z_unit, z_units
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -36,7 +36,7 @@ class SlopePolygon(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = ["METER", "FOOT"]
+        param1.filter.list = z_units
 
         param2 = arcpy.Parameter(
             displayName="Slope Area",
@@ -72,19 +72,21 @@ class SlopePolygon(object):
             parameters[4].value = "Percent Slope"
 
         # find z unit of raster based on vertical coordinate system
-        # if there is none, let the user define it
+        #  - if there is none, let the user define it
+        #  - if it exists, set the value and hide the parameter
+        #  - if it doesn't exist show the parameter and set the value to None
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                desc = arcpy.Describe(parameters[0].value)
-                if desc.spatialReference.VCS:
-                    if desc.spatialReference.VCS.linearUnitName == "Meter":
-                        parameters[1].value = "METER"
-                    elif desc.spatialReference.VCS.linearUnitName == "Foot" or desc.spatialReference.VCS.linearUnitName == "Foot_US":
-                        parameters[1].value = "FOOT"
-                    else:
-                        parameters[1].value = None
+                z_unit = get_z_unit(parameters[0].value)
+                if z_unit:
+                    parameters[1].enabled = False
+                    parameters[1].value = z_unit
                 else:
+                    parameters[1].enabled = True
                     parameters[1].value = None
+            else:
+                parameters[1].enabled = False
+                parameters[1].value = None
 
         return
 

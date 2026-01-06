@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, area_to_num_cells
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -40,10 +40,10 @@ class SubBasinDelineation(object):
         param1.filter.list = ["Polygon"]
 
         param2 = arcpy.Parameter(
-            displayName="Stream Threshold Value",
+            displayName="Stream Initiation Threshold",
             name="threshold",
-            datatype="GPDouble",
-            parameterType="Optional",
+            datatype="GPArealUnit",
+            parameterType="Required",
             direction="Input")
 
         params = [param0, param1, param2]
@@ -52,7 +52,7 @@ class SubBasinDelineation(object):
     def updateParameters(self, parameters):
         # Default stream threshold value
         if parameters[2].value == None:
-            parameters[2].value = 25000
+            parameters[2].value = "8 AcresUS"
         return
 
     def updateMessages(self, parameters):
@@ -73,18 +73,17 @@ class SubBasinDelineation(object):
         # read in parameters
         raster_layer = parameters[0].value
         watershed = parameters[1].value
-        con_threshold = parameters[2].value if parameters[2].value else 25000
+        threshold = parameters[2].valueAsText
 
-        # create scratch layers
-        clip_raster_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        fill_raster_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        flow_direction_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        flow_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
-        con_accumulation_scratch = arcpy.CreateScratchName("temp", data_type="RasterDataset", workspace=arcpy.env.scratchFolder)
+        # find threshold in nunmber cells
+        threshold = area_to_num_cells(raster_layer, threshold)
+        if threshold == None:
+            log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
+            threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
 
         # clip DEM raster to the watershed
         log("clipping raster to watershed")
-        arcpy.management.Clip(raster_layer, "", clip_raster_scratch, watershed, "#", "ClippingGeometry")
+        clip_raster_scratch = arcpy.sa.ExtractByMask(raster_layer, watershed, "INSIDE")
 
         # fill raster
         log("filling raster")
@@ -100,7 +99,7 @@ class SubBasinDelineation(object):
 
         # con
         log("converting raster to stream network")
-        sql_query = "VALUE > {}".format(con_threshold)
+        sql_query = "VALUE > {}".format(threshold)
         con_accumulation_scratch = arcpy.sa.Con(flow_accumulation_scratch, 1, "", sql_query)
 
         # stream link
@@ -133,8 +132,8 @@ class SubBasinDelineation(object):
         watershed_polygon.symbology = sym
         watershed_polygon.visible = True
 
-        # remove temporary variables
-        log("cleaning up")
-        arcpy.management.Delete([clip_raster_scratch, fill_raster_scratch, flow_direction_scratch, flow_accumulation_scratch, con_accumulation_scratch])
+        # save and exit program successfully
+        log("saving project")
+        project.save()
 
         return

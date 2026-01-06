@@ -16,9 +16,10 @@ def setup_environment():
     active_map = project.activeMap
 
     # setup arcpy environmental variables
-    # TODO: consider setting output coordinate system to map coordinate system
     arcpy.env.overwriteOutput = True
+    arcpy.env.scratchWorkspace = arcpy.env.scratchGDB
     if arcpy.env.outputCoordinateSystem == None:
-        arcpy.env.outputCoordinateSystem = arcpy.SpatialReference("WGS 1984 UTM Zone 18N")
+        spatial_reference_name = active_map.spatialReference.name
+        arcpy.env.outputCoordinateSystem = arcpy.SpatialReference(spatial_reference_name)
 
     return project, active_map

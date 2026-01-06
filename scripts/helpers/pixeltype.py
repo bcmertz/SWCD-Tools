@@ -1,12 +1,12 @@
-# --------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 # Name:        Pixel Type
 # Purpose:     This helper returns the string representation of the raster pixel type
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
-# --------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 
-pixel_types = {
+PIXEL_TYPES = {
     "U1": "1_BIT",
     "U2": "2_BIT",
     "U4": "4_BIT",
@@ -20,6 +20,6 @@ pixel_types = {
     "F64": "64_BIT"
 }
 
-def pixel_type(id):
-    """return the object ID of a given layer"""
-    return pixel_types[id]
+def pixel_type(raster):
+    """return the the string representation of the raster pixel type"""
+    return PIXEL_TYPES[raster.pixelType]

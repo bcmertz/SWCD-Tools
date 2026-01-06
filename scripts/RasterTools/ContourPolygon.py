@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, get_z_unit, z_units
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -36,7 +36,7 @@ class ContourPolygon(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = ["METER", "FOOT"]        
+        param1.filter.list = z_units
 
         param2 = arcpy.Parameter(
             displayName="Contour Area",
@@ -56,9 +56,9 @@ class ContourPolygon(object):
         param3.schema.clone = True
 
         param4 = arcpy.Parameter(
-            displayName="Contour Interval (ft)",
+            displayName="Contour Interval",
             name="contour_interval",
-            datatype="GPLong",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
@@ -67,19 +67,24 @@ class ContourPolygon(object):
 
     def updateParameters(self, parameters):
         # find z unit of raster based on vertical coordinate system
-        # if there is none, let the user define it
+        #  - if there is none, let the user define it
+        #  - if it exists, set the value and hide the parameter
+        #  - if it doesn't exist show the parameter and set the value to None
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                desc = arcpy.Describe(parameters[0].value)
-                if desc.spatialReference.VCS:
-                    if desc.spatialReference.VCS.linearUnitName == "Meter":
-                        parameters[1].value = "METER"
-                    elif desc.spatialReference.VCS.linearUnitName == "Foot" or desc.spatialReference.VCS.linearUnitName == "Foot_US":
-                        parameters[1].value = "FOOT"
-                    else:
-                        parameters[1].value = None
+                z_unit = get_z_unit(parameters[0].value)
+                if z_unit:
+                    parameters[1].enabled = False
+                    parameters[1].value = z_unit
                 else:
+                    parameters[1].enabled = True
                     parameters[1].value = None
+            else:
+                parameters[1].enabled = False
+                parameters[1].value = None
+
+        if not parameters[4].value:
+            parameters[4].value = "10 Feet"
 
         return
 
@@ -103,16 +108,8 @@ class ContourPolygon(object):
         z_unit = parameters[1].value
         polygon = parameters[2].value
         output_file = parameters[3].valueAsText
-        contour_interval = parameters[4].valueAsText
-
-        # calculate z_factor
-        z_factor = None
-        if z_unit == "METER":
-            z_factor = 3.2808
-        elif z_unit == "FOOT":
-            z_factor = 1
-        else:
-            raise ValueError("Bad z-unit value")
+        contour_interval, contour_unit = parameters[4].valueAsText.split(" ")
+        z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
 
         # clip raster to polyon
         log("clipping raster to polygon")
@@ -120,7 +117,13 @@ class ContourPolygon(object):
 
         # create contour in polygon
         log("creating contour")
-        arcpy.sa.Contour(outExtractByMask, output_file, contour_interval, z_factor=z_factor)
+        arcpy.sa.Contour(
+            in_raster=outExtractByMask,
+            out_polyline_features=output_file,
+            contour_interval=contour_interval,
+            base_contour=0,
+            z_factor=z_factor
+        )
 
         # add contours to map
         log("adding contours to map")

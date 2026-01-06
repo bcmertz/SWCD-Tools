@@ -8,7 +8,7 @@
 import sys
 import arcpy
 
-from helpers import license
+from helpers import license, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -33,16 +33,16 @@ class BufferPotential:
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param1 = arcpy.Parameter(
-            displayName="Buffer Width (ft)",
+            displayName="Buffer Width",
             name="width",
-            datatype="GPDouble",
+            datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
         param2 = arcpy.Parameter(
-            displayName="Minimum planting size (acres)",
+            displayName="Minimum planting size",
             name="size",
-            datatype="GPDouble",
+            datatype="GPArealUnit",
             parameterType="Required",
             direction="Input")
 
@@ -114,11 +114,11 @@ class BufferPotential:
     def updateParameters(self, parameters):
         # default buffer width
         if parameters[1].value == None:
-            parameters[1].value = 100
+            parameters[1].value = "100 FeetUS"
 
         # set default minimum planting size
         if parameters[2].value == None:
-            parameters[2].value = .25
+            parameters[2].value = ".25 AcresUS"
 
         # get land use field
         if not parameters[5].hasBeenValidated:
@@ -164,8 +164,9 @@ class BufferPotential:
 
         log("reading in parameters")
         stream = parameters[0].value
-        min_width = parameters[1].value
-        min_acres = parameters[2].value
+        min_width = parameters[1].valueAsText
+        min_acres, min_acres_unit = parameters[2].valueAsText.split(" ")
+        min_acres = float(min_acres) * arcpy.ArealUnitConversionFactor(min_acres_unit, "AcresUS")
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         land_use_raster = parameters[5].value
@@ -180,15 +181,15 @@ class BufferPotential:
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_stream_buffer = arcpy.CreateScratchName("stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        land_use_raster_clip = "{}\\land_use_raster_clip".format(arcpy.env.workspace)
-        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchFolder)
-    
+        scratch_stream_buffer = arcpy.CreateScratchName("stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        land_use_raster_clip = arcpy.CreateScratchName("lu_clip", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+
         # pairwise buffer stream
         log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, "{} Feet".format(min_width), "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, min_width, "ALL", "", "GEODESIC", "")
 
         # clip land uses to buffer
         log("extracting land use data inside buffer area")
@@ -256,8 +257,8 @@ class BufferPotential:
 
         # cleanup
         log("deleting unneeded data")
-        arcpy.management.Delete([scratch_stream_buffer, land_use_raster_clip, scratch_land_use_polygon, scratch_erase, scratch_dissolve])
-        
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
+
         # save
         log("saving project")
         project.save()
