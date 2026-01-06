@@ -95,7 +95,7 @@ class StreamNetwork(object):
         # read in parameters
         dem = parameters[0].value
         extent = parameters[1].value
-        theshold = parameters[2].valueAsText
+        threshold = parameters[2].valueAsText
         stream = parameters[3].value
         output_file = parameters[4].valueAsText
 
