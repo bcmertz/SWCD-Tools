@@ -225,13 +225,9 @@ class DamRemoval(object):
         pond = parameters[4].value
         transect_spacing = parameters[5].valueAsText
         transect_point_spacing, transect_point_spacing_unit = parameters[6].valueAsText.split(" ")
-        transect_point_spacing = transect_point_spacing * arcpy.LinearUnitConversionFactor(transect_point_spacing_unit, linear_unit)
+        transect_point_spacing = float(transect_point_spacing) * arcpy.LinearUnitConversionFactor(transect_point_spacing_unit, linear_unit)
         transect_width, transect_width_unit = parameters[7].valueAsText.split(" ")
-        transect_width = transect_width * arcpy.LinearUnitConversionFactor(transect_width_unit, linear_unit)
-
-        # set analysis extent
-        if extent:
-            arcpy.env.extent = extent
+        transect_width = float(transect_width) * arcpy.LinearUnitConversionFactor(transect_width_unit, linear_unit)
 
         # create scratch layers
         scratch_centerline = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
@@ -242,13 +238,22 @@ class DamRemoval(object):
         scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_mosaic_raster = arcpy.CreateScratchName("mosaic_ras", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
+        if extent:
+            # set analysis extent
+            arcpy.env.extent = extent
+
+            # clip streams to analysis area
+            log("clipping stream centerline to analysis area")
+            arcpy.analysis.Clip(centerline, extent.polygon, scratch_centerline)
+        else:
+            scratch_centerline = centerline
+
         # extract by mask to remove pond from dem
         log("removing ponded area from dem")
         dem_pondless = arcpy.sa.ExtractByMask(dem, pond, "OUTSIDE")
 
         # generate points along line
         log("generating points along centerline")
-        arcpy.analysis.Clip(centerline, extent.poly, scratch_centerline)
         arcpy.management.GeneratePointsAlongLines(scratch_centerline, scratch_centerline_points, "DISTANCE", transect_spacing, "", "END_POINTS", "ADD_CHAINAGE")
 
         # extract values to points
