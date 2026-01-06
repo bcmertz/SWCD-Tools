@@ -282,6 +282,7 @@ class PotentialWetlands(object):
         scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        land_use_raster_clip = arcpy.CreateScratchName("lu_clip", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
         scratch_zonal_stats = arcpy.CreateUniqueName("zonal_stats")
 
         # slope raster
@@ -322,7 +323,8 @@ class PotentialWetlands(object):
 
         # clip land use raster
         log("clipping land use raster to valid soils area and slope less than or equal to {}%".format(max_slope))
-        land_use_raster_clip = arcpy.sa.ExtractByMask(land_use_raster, scratch_hsg_soils, "INSIDE", "MINOF")
+        out_land_use = arcpy.sa.ExtractByMask(land_use_raster, scratch_hsg_soils, "INSIDE", "MINOF")
+        out_land_use.save(land_use_raster_clip)
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
