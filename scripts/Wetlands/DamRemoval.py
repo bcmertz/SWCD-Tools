@@ -319,7 +319,8 @@ class DamRemoval(object):
         log("getting stream centerline")
         centerline_polyline = None
         with arcpy.da.SearchCursor(scratch_centerline, ["SHAPE@"]) as cursor:
-            centerline_polyline = cursor[0][0]
+            for line in cursor:
+                centerline_polyline = line[0]
 
         # iterate through each point
         # impove point density with transects using the new mosaic
