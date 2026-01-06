@@ -11,7 +11,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type, get_z_unit, z_units, empty_workspace
+from helpers import license, get_oid, pixel_type, get_z_unit, z_units, empty_workspace, sanitize, toggle_required_parameter
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -45,7 +45,7 @@ class BermAnalysis(object):
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
@@ -97,11 +97,9 @@ class BermAnalysis(object):
         param9 = arcpy.Parameter(
             displayName="Output Contour Feature",
             name="contour_output",
-            parameterType="Required",
+            parameterType="Optional",
             datatype="DEFeatureClass",
             direction="Output")
-        param9.parameterDependencies = [param0.name]
-        param9.schema.clone = True
 
         params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9]
         return params
@@ -111,7 +109,10 @@ class BermAnalysis(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
-        # find z unit of raster based on vertical coordinate system if there is none, let the user define it
+        # find z unit of raster based on vertical coordinate system
+        #  - if there is none, let the user define it
+        #  - if it exists, set the value and hide the parameter
+        #  - if it doesn't exist show the parameter and set the value to None
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
@@ -145,15 +146,20 @@ class BermAnalysis(object):
                 parameters[8].enabled = True
                 parameters[9].enabled = True
                 if parameters[3].value:
-                    parameters[9].value = str(parameters[3].value) + "_contours_" + str(int(parameters[8].value))
+                    parameters[9].value = parameters[3].valueAsText + "_contours_" + sanitize(parameters[8].valueAsText)
             else:
                 parameters[8].enabled = False
                 parameters[9].enabled = False
+                parameters[9].value = None # clear its value so we don't overwrite existing features while disabled
 
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
+        # make optional parameters[8,9] required based off of parameters[7]
+        toggle_required_parameter(parameters[7], parameters[8])
+        toggle_required_parameter(parameters[7], parameters[9])
+
         validate(parameters)
         return
 
@@ -170,29 +176,36 @@ class BermAnalysis(object):
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         berms = parameters[4].value
+        # optionally specify berm height
         supply_berm_height_bool = parameters[5].value
-        berm_height, berm_unit = parameters[6].valueAsText.split(" ")
+        berm_height, berm_unit, berm_z_factor = "", "", ""
+        if supply_berm_height_bool:
+            berm_height, berm_unit = parameters[6].valueAsText.split(" ")
+            berm_height = float(berm_height)
+        else:
+            berm_unit = "FeetUS"
         berm_z_factor = arcpy.LinearUnitConversionFactor(z_unit, berm_unit)
+        # optionally specify contour interval
         contour_bool = parameters[7].value
-        contour_interval, contour_unit = parameters[8].valueAsText.split(" ")
-        contour_z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
-        contour_output = parameters[9].valueAsText
+        contour_interval, contour_unit, contour_output = "", "", ""
+        if contour_bool:
+            contour_interval, contour_unit = parameters[8].valueAsText.split(" ")
+            contour_interval = float(contour_interval)
+            contour_z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
+            contour_output = parameters[9].valueAsText
 
         # set analysis extent
-        if extent:
-            arcpy.env.extent = extent
+        arcpy.env.extent = extent
 
         # setup scratch variables
         log("creating scratch variables")
-        scratch_dem_min = arcpy.CreateUniqueName("scratch_dem_min")
-        scratch_zonal_statistics = arcpy.CreateUniqueName("scratch_zonal_statistics")
-        scratch_dem_mask = arcpy.CreateUniqueName("scratch_dem_mask")
-        scratch_mosaic_raster = arcpy.CreateUniqueName("scratch_mosaic_raster")
-        scratch_con = arcpy.CreateUniqueName("scratch_con")
-        scratch_contour = arcpy.CreateUniqueName("scratch_contour")
-        scratch_effective_berm = arcpy.CreateUniqueName("scratch_effective_berm")
-        scratch_output = arcpy.CreateUniqueName("scratch_output")
-        scratch_berm = arcpy.CreateUniqueName("scratch_berm")
+        scratch_zonal_statistics = arcpy.CreateScratchName("zon_stat", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_dem_mask = arcpy.CreateScratchName("dem_mask", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_mosaic_raster = arcpy.CreateScratchName("mos_ras", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_contour = arcpy.CreateScratchName("contour", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_effective_berm = arcpy.CreateScratchName("effective_berm", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_berm = arcpy.CreateScratchName("berm", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # get spatial reference
         log("finding spatial reference")
@@ -292,9 +305,9 @@ class BermAnalysis(object):
 
                 # mosaic to new raster
                 log("mosaic to new raster")
-                arcpy.management.MosaicToNewRaster(
+                scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
                     input_rasters=[dem, scratch_zonal_statistics],
-                    output_location=arcpy.env.workspace,
+                    output_location=arcpy.env.scratchGDB,
                     raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
                     pixel_type=pixel_type(dem),
                     number_of_bands=dem.bandCount,
@@ -335,13 +348,12 @@ class BermAnalysis(object):
 
                 # con
                 log("find all positive values")
-                out_con = arcpy.sa.Con(
+                scratch_con = arcpy.sa.Con(
                     in_conditional_raster=scratch_raster_calculator,
                     in_true_raster_or_constant=1,
                     in_false_raster_or_constant=None,
                     where_clause="VALUE <> 0"
                 )
-                out_con.save(scratch_con)
 
                 # raster to polygon
                 log("raster to polygon")
@@ -383,7 +395,7 @@ class BermAnalysis(object):
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchFolder, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # finish up
         log("finishing up")
