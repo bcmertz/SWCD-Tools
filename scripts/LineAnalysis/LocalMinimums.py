@@ -137,7 +137,7 @@ class LocalMinimums:
         extent = parameters[3].value
         search_interval = parameters[4].valueAsText
         threshold, threshold_unit = parameters[5].valueAsText.split(" ")
-        threshold = threshold * arcpy.LinearUnitConversionFactor(threshold_unit, z_linear_unit)
+        threshold = float(threshold) * arcpy.LinearUnitConversionFactor(threshold_unit, z_linear_unit)
         output_file = parameters[6].valueAsText
 
         # create scratch layers
