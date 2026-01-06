@@ -318,7 +318,7 @@ class DamRemoval(object):
         # note - doesn't support multiple centerlines in fc
         log("getting stream centerline")
         centerline_polyline = None
-        with arcpy.da.SearchCursor(centerline, ["SHAPE@"]) as cursor:
+        with arcpy.da.SearchCursor(scratch_centerline, ["SHAPE@"]) as cursor:
             centerline_polyline = cursor[0][0]
 
         # iterate through each point
