@@ -17,7 +17,7 @@ import os
 import math
 import arcpy
 
-from helpers import license, empty_workspace
+from helpers import license, empty_workspace, toggle_required_parameter
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -79,15 +79,8 @@ class PointPlots:
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
-        # make newly toggled on parameter required
-        if not parameters[3].hasBeenValidated:
-            if parameters[3].value == True:
-                if not parameters[4].value:
-                    parameters[4].setIDMessage("ERROR", 530)
-
-        # handle deleted parameter value
-        if not parameters[4].hasBeenValidated and not parameters[4].value:
-            parameters[4].setIDMessage("ERROR", 530)
+        # make optional parameters[4] required based off of parameters[3]
+        toggle_required_parameter(parameters[3], parameters[4])
 
         validate(parameters)
         return

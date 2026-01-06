@@ -12,6 +12,7 @@ from .printmessages import print_messages
 from .sanitize import sanitize
 from .setupenvironment import setup_environment
 from .validatespatialreference import validate_spatial_reference
+from .togglerequiredparameter import toggle_required_parameter
 from .getoid import get_oid
 from .pixeltype import pixel_type
 from .emptyworkspace import empty_workspace
