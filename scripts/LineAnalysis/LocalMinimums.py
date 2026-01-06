@@ -99,7 +99,10 @@ class LocalMinimums:
         if parameters[5].value == None:
             parameters[5].value = "2 InchesUS"
 
-        # find z unit of raster based on vertical coordinate system if there is none, let the user define it
+        # find z unit of raster based on vertical coordinate system
+        #  - if there is none, let the user define it
+        #  - if it exists, set the value and hide the parameter
+        #  - if it doesn't exist show the parameter and set the value to None
         if not parameters[1].hasBeenValidated:
             if parameters[1].value:
                 z_unit = get_z_unit(parameters[1].value)

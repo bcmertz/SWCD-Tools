@@ -71,7 +71,10 @@ class SlopePolygon(object):
         if parameters[4].value == None:
             parameters[4].value = "Percent Slope"
 
-        # find z unit of raster based on vertical coordinate system if there is none, let the user define it
+        # find z unit of raster based on vertical coordinate system
+        #  - if there is none, let the user define it
+        #  - if it exists, set the value and hide the parameter
+        #  - if it doesn't exist show the parameter and set the value to None
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
