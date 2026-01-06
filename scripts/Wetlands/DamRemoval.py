@@ -303,11 +303,10 @@ class DamRemoval(object):
         # Mosaic dem_pondless, raster_points
         log("mosaic to new raster")
         dem_pondless_raster = arcpy.Raster(dem_pondless)
-        mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
-        arcpy.management.MosaicToNewRaster(
+        scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
             input_rasters=[dem_pondless, scratch_point_raster],
-            output_location=arcpy.env.workspace,
-            raster_dataset_name_with_extension=mosaic_raster,
+            output_location=arcpy.env.scratchGDB,
+            raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
             pixel_type=pixel_type(dem_pondless_raster),
             number_of_bands=dem_pondless_raster.bandCount,
             mosaic_method="LAST",
@@ -333,7 +332,7 @@ class DamRemoval(object):
                 # create transect
                 transect = self.transectLine(centerline_polyline, shape, transect_width)
                 # interpolate elevations
-                tmp_points = self.interpolateElevations(transect, mosaic_raster, elev, transect_width, transect_point_spacing, transect_point_spacing_unit, scratch_transect_points, scratch_transect_elev_points)
+                tmp_points = self.interpolateElevations(transect, scratch_mosaic_raster, elev, transect_width, transect_point_spacing, transect_point_spacing_unit, scratch_transect_points, scratch_transect_elev_points)
                 # add points to list of new points
                 new_points = new_points + tmp_points
 

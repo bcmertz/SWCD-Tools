@@ -112,7 +112,7 @@ class BurnCulverts(object):
         scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_streams = arcpy.management.CreateFeatureclass(arcpy.env.scratchGDB, "lines", "POLYLINE", spatial_reference=spatial_reference)
         scratch_burned_raster = arcpy.CreateScratchName("burned", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
-        scratch_mosaic_raster = "{}\\mosaic".format(arcpy.env.workspace)
+        scratch_mosaic_raster = arcpy.CreateScratchName("mos_ras", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # fill clipped raster
         log("finding point upstream of culvert")
@@ -181,13 +181,12 @@ class BurnCulverts(object):
 
         # mosaic to new raster
         log("creating mosaic raster")
-        mosaic_raster = scratch_mosaic_raster.split("\\")[-1]
-        arcpy.management.MosaicToNewRaster(
+        scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
             input_rasters=[dem,scratch_burned_raster],
-            output_location=arcpy.env.workspace,
+            output_location=arcpy.env.scratchGDB,
             pixel_type=pixel_type(difference),
             number_of_bands=difference.bandCount,
-            raster_dataset_name_with_extension=mosaic_raster,
+            raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
             mosaic_method="LAST",
             mosaic_colormap_mode="FIRST"
         )
@@ -208,7 +207,6 @@ class BurnCulverts(object):
         # cleanup
         log("deleting unneeded data")
         empty_workspace(arcpy.env.scratchGDB, keep=[])
-        arcpy.Delete(scratch_mosaic_raster)
 
         # save and exit program successfully
         log("saving project")
