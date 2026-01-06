@@ -94,8 +94,8 @@ class TopographicWetness(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         z_unit = parameters[1].value
-        extent = parameters[1].value
-        output_file = parameters[2].valueAsText
+        extent = parameters[2].value
+        output_file = parameters[3].valueAsText
 
         # set analysis extent
         if extent:
