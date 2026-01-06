@@ -45,30 +45,9 @@ UNITS = {
     "INCH": "InchesUS",
 }
 
-##UNITS = {
-##    "Kilometers": "KILOMETER",
-##    "Meters": "METER",
-##    "Decimeters": "DECIMETER",
-##    "Millimeters": "MILLIMETER",
-##    "Centimeters": "CENTIMETER",
-##    "NauticalMilesInt": "NAUTICAL_MILE",
-##    "MilesInt": "MILE_US",
-##    "YardsInt": "YARD",
-##    "FeetInt": "FOOT",
-##    "InchesInt": "INCH",
-##    "NauticalMilesUS": "NAUTICAL_MILE",
-##    "MilesUS": "MILES_US",
-##    "YardsUS": "YARD",
-##    "FeetUS": "FOOT",
-##    "InchesUS": "INCH",
-##}
-
 z_units = list(UNITS.keys())
 linear_units = list(UNITS.values())
 
-def z_unit_to_linear_unit(in_unit: Literal[UNITS.keys()]) -> Literal[UNITS.values()] | None:
-    """Convert z unit to linear unit format."""
-    return UNITS.get(in_unit, None)
 
 def area_to_num_cells(raster, area: str) -> int | None:
     """Convert GPLinearUnit AREA to the number of cells in the RASTER it is equivalent to."""
