@@ -74,7 +74,7 @@ class PotentialWetlands(object):
             displayName="Minimum TWI Value",
             name="min_twi",
             datatype="GPDouble",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Output")
 
         param7 = arcpy.Parameter(
@@ -158,11 +158,12 @@ class PotentialWetlands(object):
         if parameters[4].value == None:
             parameters[4].value = 5
 
-        # enable minimum twi value if there is a twi raster
+        # enable minimum twi if there is a twi raster
         if not parameters[5].hasBeenValidated:
             if parameters[5].value:
                 parameters[6].enabled = True
-                parameters[6].value = 5
+                if not parameters[6].value:
+                    parameters[6].value = 5
             else:
                 parameters[6].enabled = False
 
@@ -242,6 +243,9 @@ class PotentialWetlands(object):
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
+        # make optional parameters[5] required based off of parameters[6]
+        toggle_required_parameter(parameters[5], parameters[6])
+
         validate(parameters)
         return
 
