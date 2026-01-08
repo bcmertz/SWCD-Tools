@@ -141,29 +141,43 @@ class PointPlots:
                 log("create sampling locations")
                 arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance="{} Feet".format(radius*2))
 
-                # add data to map
-                log("add data to map")
-                points_lyr = active_map.addDataFromPath(output_points)
-
-                if coords:
-                    log("calculating point x y coordinates")
-                    # add coordinate fields
-                    arcpy.management.AddField(points_lyr, "x_coord", "FLOAT", 6, 6, field_alias="X Coordinate")
-                    arcpy.management.AddField(points_lyr, "y_coord", "FLOAT", 6, 6, field_alias="X Coordinate")
-
-                    # calculate geometry - coordinates
-                    arcpy.management.CalculateGeometryAttributes(in_features=points_lyr.name, geometry_property=[["x_coord", "POINT_X"]],coordinate_format="DD")
-                    arcpy.management.CalculateGeometryAttributes(in_features=points_lyr.name, geometry_property=[["y_coord", "POINT_Y"]],coordinate_format="DD")
-
-                    # export attribute table to csv at path
-                    log("exporting point plot coordinates")
-                    arcpy.conversion.ExportTable(output_points, r"{}/point_plots.csv".format(output_coords))
-
-                    # open coordinates folder
-                    log("opening folder with coordinates")
-                    os.startfile(output_coords)
             except:
-                log("Failed to create {} with a radius of {} feet. It is likely because the buffer is too narrow to fit all of the point plots".format(num, radius))
+                log("Failed to create {} point plots with a radius of {} feet. It is likely because the buffer is too narrow to fit all of the point plots.".format(num, radius))
+
+                radius = 11.8
+                num = int(math.ceil(acreage * 10))
+
+                log("Trying again to make {} point plots with a radius of {} feet.".format(num, radius))
+
+                # create buffer inside the planting area
+                log("buffer output area")
+                arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, "{} Feet".format(-radius))
+
+                # create random plot centers
+                log("create sampling locations")
+                arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance="{} Feet".format(radius*2))
+
+            # add data to map
+            log("add data to map")
+            points_lyr = active_map.addDataFromPath(output_points)
+
+            if coords:
+                log("calculating point x y coordinates")
+                # add coordinate fields
+                arcpy.management.AddField(points_lyr, "x_coord", "FLOAT", 6, 6, field_alias="X Coordinate")
+                arcpy.management.AddField(points_lyr, "y_coord", "FLOAT", 6, 6, field_alias="X Coordinate")
+
+                # calculate geometry - coordinates
+                arcpy.management.CalculateGeometryAttributes(in_features=points_lyr.name, geometry_property=[["x_coord", "POINT_X"]],coordinate_format="DD")
+                arcpy.management.CalculateGeometryAttributes(in_features=points_lyr.name, geometry_property=[["y_coord", "POINT_Y"]],coordinate_format="DD")
+
+                # export attribute table to csv at path
+                log("exporting point plot coordinates")
+                arcpy.conversion.ExportTable(output_points, r"{}/point_plots.csv".format(output_coords))
+
+                # open coordinates folder
+                log("opening folder with coordinates")
+                os.startfile(output_coords)
 
         # cleanup
         log("deleting unneeded data")
