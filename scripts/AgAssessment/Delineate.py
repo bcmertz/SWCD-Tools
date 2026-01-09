@@ -355,7 +355,7 @@ class Delineate(object):
         log("saving project")
         project.save()
         del project
-        
+
         # open folder to print out maps
         log("opening project folder")
         os.startfile(output_folder)

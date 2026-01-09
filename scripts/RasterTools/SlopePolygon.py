@@ -98,7 +98,7 @@ class SlopePolygon(object):
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
-    
+
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # setup

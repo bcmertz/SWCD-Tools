@@ -90,7 +90,7 @@ class CalculateEFH2:
             direction="Input")
         param7.filter.type = "ValueList"
         param7.filter.list = []
-        
+
         params = [param0, param1, param2, param3, param4, param5, param6, param7]
         return params
 

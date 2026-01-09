@@ -136,7 +136,7 @@ class StreamPowerIndex(object):
         log('setting SPI values < 0 to null')
         spi_tmp = arcpy.sa.SetNull(spi_tmp, spi_tmp, 'VALUE <= 0.0')
 
-        # because arcpy.env.mask doesn't like a polyline input >:( 
+        # because arcpy.env.mask doesn't like a polyline input >:(
         if stream:
             # mask stream power to study area
             log("masking analysis to stream line")
