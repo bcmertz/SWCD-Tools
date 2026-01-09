@@ -134,7 +134,7 @@ class StreamNetwork(object):
         if stream:
             # stream to feature
             log("creating stream feature")
-            stream_feature = arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_streamlines, True)
+            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_streamlines, True)
 
             # get end points of existing lines
             log("finding existing streamline endpoints")

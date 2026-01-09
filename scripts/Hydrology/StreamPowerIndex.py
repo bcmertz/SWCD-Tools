@@ -6,7 +6,6 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import math
 import arcpy
 
 from helpers import license, get_z_unit, z_units
