@@ -196,6 +196,7 @@ class DecisionTree(object):
         # create scratch layers
         scratch_land_use_polygon = arcpy.CreateScratchName("lu_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_intersect = arcpy.CreateScratchName("intersect", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_joined = arcpy.CreateScratchName("scratch_joined", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         zonal_stats = arcpy.CreateScratchName("zonal_stats", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
@@ -226,13 +227,17 @@ class DecisionTree(object):
 
         # clip soils layer to ag fields
         log("clipping soils to ag fields")
-        arcpy.analysis.PairwiseIntersect([scratch_land_use_polygon, soils], scratch_soils_area, join_attributes="ALL")
+        arcpy.analysis.PairwiseIntersect([scratch_land_use_polygon, soils], scratch_intersect, join_attributes="ALL")
 
         # add acres field and calculate
         log("calculating acreage")
-        if "Acres" not in [f.name for f in arcpy.ListFields(scratch_soils_area)]:    
-            arcpy.management.AddField(scratch_soils_area, "Acres", "FLOAT", 2, 2)
-        arcpy.management.CalculateGeometryAttributes(scratch_soils_area, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        if "Acres" not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
+            arcpy.management.AddField(scratch_intersect, "Acres", "FLOAT", 2, 2)
+        arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+
+        # remove small features
+        sql_query = "Acres >= 1.0"
+        arcpy.analysis.Select(scratch_intersect, scratch_soils_area, sql_query)
 
         # calculate drainage class
         log("calculating drainage classes")
