@@ -136,8 +136,8 @@ class DecisionTree(object):
                 parameters[5].enabled = True
                 fields = [f.name for f in arcpy.ListFields(parameters[4].value)]
                 parameters[5].filter.list = fields
-                if "hydgrpdcd" in fields:
-                    parameters[5].value = "hydgrpdcd"
+                if "drclassdcd" in fields:
+                    parameters[5].value = "drclassdcd"
             else:
                 parameters[5].enabled = False
                 parameters[5].value = None
@@ -197,8 +197,9 @@ class DecisionTree(object):
         scratch_land_use_polygon = arcpy.CreateScratchName("lu_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_slope_joined = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_joined = arcpy.CreateScratchName("scratch_joined", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         zonal_stats = arcpy.CreateScratchName("zonal_stats", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        zonal_stats_poly = arcpy.CreateScratchName("zonal_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
@@ -235,9 +236,10 @@ class DecisionTree(object):
 
         # calculate drainage class
         log("calculating drainage classes")
+        output_drainage_field = "drainage"        
         arcpy.management.CalculateField(
             in_table=scratch_soils_area,
-            field="drainage",
+            field=output_drainage_field,
             expression="calculate_value(!{}!)".format(soils_drainage_field),
             expression_type="PYTHON3",
             code_block="""def calculate_value(drainage):
@@ -267,17 +269,27 @@ class DecisionTree(object):
 
         # slope zonal statistics
         outZonalStats = arcpy.sa.ZonalStatistics(scratch_soils_area, get_oid(scratch_soils_area), scratch_slope, "MEAN")
+        outZonalStats = arcpy.sa.Int(outZonalStats)
         outZonalStats.save(zonal_stats) # output field - Value
+        arcpy.conversion.RasterToPolygon(zonal_stats, zonal_stats_poly, "SIMPLIFY", "Value") # output field - gridcode
+
+        # rename slope value field from 'gridcode' to 'slope'
+        output_slope_field = "slope"
+        grid_field = ""
+        arcpy.management.CalculateField(
+            in_table=zonal_stats_poly,
+            field=output_slope_field,
+            expression="$feature.gridcode",
+            expression_type="ARCADE",
+            field_type="FLOAT"
+        )
 
         ## join average slope to ag field polygons
         log("join slope and soil drainage into polygon")
-        output_drainage_field = "drainage"
-        output_slope_field = "slope"
-        field_mapping = [[output_drainage_field, "drainage"],["Value", output_slope_field]]
-        arcpy.analysis.SpatialJoin(scratch_soils_area, zonal_stats, scratch_slope_joined, "JOIN_ONE_TO_ONE", "KEEP_ALL", match_option="INTERSECT", match_fields=field_mapping)
+        arcpy.analysis.SpatialJoin(scratch_soils_area, zonal_stats_poly, scratch_joined, "JOIN_ONE_TO_ONE", "KEEP_ALL", match_option="INTERSECT")
 
-        drainage = 7
-        slope = 1
+        drainage = 1
+        slope = 0
         output_acres = 0
         if num_acres:
             # if we know the number of tiled acres in the analysis area then iterate to find the combination
@@ -285,20 +297,24 @@ class DecisionTree(object):
             while output_acres < num_acres:
                 # select output features
                 sql_query = "{} <= {} And {} <= {}".format(output_slope_field, slope, output_drainage_field, drainage)
-                arcpy.analysis.Select(scratch_slope_joined, scratch_output, where_clause=sql_query)
+                arcpy.analysis.Select(scratch_joined, scratch_output, where_clause=sql_query)
 
                 # find sum of acreage
                 sum_acres = round(sum([float(row[0]) for row in arcpy.da.SearchCursor(scratch_output, "Acres")]),2)
                 output_acres = sum_acres
+
+                slope += 1
+                drainage += 1
+                log(sum_acres, drainage, slope)
         else:
             # default to 2 and poorly - somewhat poorly drained
-            drainage = 5
+            drainage = 2
             slope = 2
 
             # select output features
             log("create output")
             sql_query = "{} <= {} And {} <= {}".format(output_slope_field, slope, output_drainage_field, drainage)
-            arcpy.analysis.Select(scratch_slope_joined, scratch_output, where_clause=sql_query)
+            arcpy.analysis.Select(scratch_joined, scratch_output, where_clause=sql_query)
 
         # create output feature class
         log("creating output feature class")
