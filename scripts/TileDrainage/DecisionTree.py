@@ -294,6 +294,8 @@ class DecisionTree(object):
         log("join slope and soil drainage into polygon")
         arcpy.analysis.SpatialJoin(scratch_soils_area, zonal_stats_poly, scratch_joined, "JOIN_ONE_TO_ONE", "KEEP_ALL", match_option="INTERSECT")
 
+        # find output polygons
+        log("finding output polygons")
         drainage = 1
         slope = 0
         output_acres = 0
@@ -309,13 +311,13 @@ class DecisionTree(object):
                 sum_acres = round(sum([float(row[0]) for row in arcpy.da.SearchCursor(scratch_output, "Acres")]),2)
                 output_acres = sum_acres
 
-                # assume there is no tile in drainage classes drier than "Somewhat poorly drained"
-                # TODO: is this a reasonable assumption?
-                if drainage == 3:
+                # core AgTile methodology
+                # prefers poor drainage to shallow slopes
+                if slope < 20:
                     slope += 1
                 else:
-                    slope += 1
                     drainage += 1
+                    slope = 0
         else:
             # default to 2 and poorly - somewhat poorly drained
             drainage = 2
