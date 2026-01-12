@@ -10,7 +10,7 @@ from BufferTools import PointPlots, ShrubClusters, BufferPotential
 from RasterTools import ContourPolygon, SlopePolygon, BurnCulverts
 from Misc import CollectRasters, ExportLayouts, GeocodeAddress
 from LineAnalysis import LocalMinimums
-from Hydrology import RunoffPotential, CalculateEFH2, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, LeastAction, TopographicWetness, StreamNetwork, StreamPowerIndex
+from Hydrology import RunoffCurveNumber, CalculateEFH2, WatershedDelineation, RelativeElevationModel, SubBasinDelineation, LeastAction, TopographicWetness, StreamNetwork, StreamPowerIndex
 from Wetlands import PotentialWetlands, BermAnalysis, DamRemoval
 from AgAssessment import Delineate, Agland, NonAg, Forest, Process, Export
 
@@ -32,7 +32,7 @@ tools = [SlopePolygon,
          BufferPotential,
          StreamPowerIndex,
          LeastAction,
-         RunoffPotential,
+         RunoffCurveNumber,
          CalculateEFH2,
          WatershedDelineation,
          SubBasinDelineation,

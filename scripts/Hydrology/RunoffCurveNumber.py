@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------
-# Name:        Runoff Potential
+# Name:        Runoff Curve Number
 # Purpose:     This tool calculates runoff curve numbers (RCNs) for a given study
 #              area.
 #
@@ -14,7 +14,7 @@ from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-class RunoffPotential:
+class RunoffCurveNumber:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Calculate Runoff Curve Numbers"

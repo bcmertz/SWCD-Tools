@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 
 from .CalculateEFH2 import CalculateEFH2
-from .RunoffPotential import RunoffPotential
+from .RunoffCurveNumber import RunoffCurveNumber
 from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
 from .SubBasinDelineation import SubBasinDelineation
