@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid
+from helpers import license
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 

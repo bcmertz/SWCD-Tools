@@ -10,7 +10,7 @@
 import sys
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, z_units, empty_workspace
+from helpers import license, get_oid, get_z_unit, z_units, empty_workspace, toggle_required_parameter
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -282,9 +282,7 @@ class PotentialWetlands(object):
         scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_hsg_soils = arcpy.CreateScratchName("hsg", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_reduced_potential_wetland = arcpy.CreateScratchName("reduced_pot", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         land_use_raster_clip = arcpy.CreateScratchName("lu_clip", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
         scratch_zonal_stats = arcpy.CreateUniqueName("zonal_stats")

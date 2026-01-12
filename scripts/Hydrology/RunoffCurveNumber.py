@@ -152,7 +152,7 @@ class RunoffCurveNumber:
                 if "RCNC" in fields2:
                     parameters[7].value = "RCNC"
                 if "RCND" in fields2:
-                    parameters[8].value = "RCND"                
+                    parameters[8].value = "RCND"
             else:
                 parameters[5].enabled = False
                 parameters[6].enabled = False

@@ -174,7 +174,7 @@ class BufferPotential:
         land_use_values = parameters[7].valueAsText.replace("'","").split(";")
         calculate_wetlands = parameters[8].value
         wetland_layers = parameters[9].valueAsText.replace("'","").split(";") if calculate_wetlands else []
-        
+
         # set analysis extent
         if extent:
             arcpy.env.extent = extent

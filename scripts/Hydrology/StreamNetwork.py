@@ -125,7 +125,7 @@ class StreamNetwork(object):
         # flow accumulation
         log("calculating flow accumulation")
         flow_accumulation = arcpy.sa.FlowAccumulation(flow_direction)
-        
+
         # con
         log("converting raster to stream network")
         sql_query = "VALUE > {}".format(threshold)
@@ -134,7 +134,7 @@ class StreamNetwork(object):
         if stream:
             # stream to feature
             log("creating stream feature")
-            stream_feature = arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_streamlines, True)
+            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_streamlines, True)
 
             # get end points of existing lines
             log("finding existing streamline endpoints")
@@ -161,7 +161,7 @@ class StreamNetwork(object):
             # stream to feature
             log("creating stream feature")
             arcpy.sa.StreamToFeature(con_accumulation, flow_direction, output_file, True)
-                                             
+
         # add flow path polyline to map
         log("adding output to map")
         active_map.addDataFromPath(output_file)

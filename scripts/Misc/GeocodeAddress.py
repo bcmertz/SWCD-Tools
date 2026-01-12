@@ -54,7 +54,7 @@ class GeocodeAddress(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        
+
         params = [param0, param1, param2, param3]
         return params
 

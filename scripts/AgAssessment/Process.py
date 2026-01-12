@@ -332,5 +332,5 @@ class Process(object):
         log("saving project")
         project.save()
         del project
-        
+
         return

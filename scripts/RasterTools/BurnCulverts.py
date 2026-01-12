@@ -105,7 +105,6 @@ class BurnCulverts(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_culverts = arcpy.CreateScratchName("culverts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_culvert_upstream = arcpy.CreateScratchName("upstream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_culvert_downstream = arcpy.CreateScratchName("downstream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_points_merge = arcpy.CreateScratchName("merge", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
