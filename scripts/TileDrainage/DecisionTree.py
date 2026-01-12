@@ -311,7 +311,6 @@ class DecisionTree(object):
 
                 slope += 1
                 drainage += 1
-                log(sum_acres, drainage, slope)
         else:
             # default to 2 and poorly - somewhat poorly drained
             drainage = 2
