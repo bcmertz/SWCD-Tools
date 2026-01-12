@@ -197,6 +197,7 @@ class DecisionTree(object):
         scratch_land_use_polygon = arcpy.CreateScratchName("lu_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_soils_area = arcpy.CreateScratchName("soils", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_slope_joined = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         zonal_stats = arcpy.CreateScratchName("zonal_stats", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # select viable land uses from land use raster
@@ -272,7 +273,7 @@ class DecisionTree(object):
         log("join slope and soil drainage into polygon")
         output_drainage_field = "drainage"
         output_slope_field = "slope"
-        field_mapping = [[output_drainage_field, "drainage"],[output_slope_field, "slope"]]
+        field_mapping = [[output_drainage_field, "drainage"],["Value", output_slope_field]]
         arcpy.analysis.SpatialJoin(scratch_soils_area, zonal_stats, scratch_slope_joined, "JOIN_ONE_TO_ONE", "KEEP_ALL", match_option="INTERSECT", match_fields=field_mapping)
 
         drainage = 7
@@ -309,7 +310,7 @@ class DecisionTree(object):
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchGDB, keep=[])
+        #empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save project
         log("saving project")
