@@ -309,8 +309,13 @@ class DecisionTree(object):
                 sum_acres = round(sum([float(row[0]) for row in arcpy.da.SearchCursor(scratch_output, "Acres")]),2)
                 output_acres = sum_acres
 
-                slope += 1
-                drainage += 1
+                # assume there is no tile in drainage classes drier than "Somewhat poorly drained"
+                # TODO: is this a reasonable assumption?
+                if drainage == 3:
+                    slope += 1
+                else:
+                    slope += 1
+                    drainage += 1
         else:
             # default to 2 and poorly - somewhat poorly drained
             drainage = 2
