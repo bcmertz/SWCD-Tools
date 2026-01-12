@@ -9,7 +9,7 @@
 import sys
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, z_units, empty_workspace, toggle_required_parameter
+from helpers import license, get_oid, get_z_unit, z_units, empty_workspace
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -99,9 +99,9 @@ class DecisionTree(object):
         param8.filter.list = []
 
         param9 = arcpy.Parameter(
-            displayName="Number of tile acres in analysis area",
+            displayName="Area of drainage tile in analysis area",
             name="num_acres",
-            datatype="GPDouble",
+            datatype="GPArealUnit",
             parameterType="Optional",
             direction="Input")
 
@@ -187,7 +187,8 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        num_acres = parameters[9].value
+        num_acres, num_acres_unit = parameters[9].valueAsText.split(" ")
+        num_acres = float(num_acres) * arcpy.ArealUnitConversionFactor(num_acres_unit, "AcresUS")
 
         # set analysis extent
         if extent:
@@ -331,7 +332,7 @@ class DecisionTree(object):
 
         # cleanup
         log("deleting unneeded data")
-        #empty_workspace(arcpy.env.scratchGDB, keep=[])
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
 
         # save project
         log("saving project")
