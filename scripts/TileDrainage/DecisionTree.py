@@ -317,7 +317,7 @@ class DecisionTree(object):
                     slope += 1
                 else:
                     if drainage == 7:
-                        log("failed to find {} {} of potential tile drained field in the study area".format(num_acres, num_acres_unit))
+                        log("failed to find {} acres of potential tile drained field in the study area".format(num_acres))
                         break
                     else:
                         drainage += 1
