@@ -187,8 +187,10 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        num_acres, num_acres_unit = parameters[9].valueAsText.split(" ")
-        num_acres = float(num_acres) * arcpy.ArealUnitConversionFactor(num_acres_unit, "AcresUS")
+        num_acres, num_acres_unit = "", ""
+        if parameters[9].value:
+            num_acres, num_acres_unit = parameters[9].valueAsText.split(" ")
+            num_acres = float(num_acres) * arcpy.ArealUnitConversionFactor(num_acres_unit, "AcresUS")
 
         # set analysis extent
         if extent:
