@@ -316,11 +316,15 @@ class DecisionTree(object):
                 if slope < 20:
                     slope += 1
                 else:
-                    drainage += 1
-                    slope = 0
+                    if drainage == 7:
+                        log("failed to find {} {} of potential tile drained field in the study area".format(num_acres, num_acres_unit))
+                        break
+                    else:
+                        drainage += 1
+                        slope = 0
         else:
             # default to 2 and poorly - somewhat poorly drained
-            drainage = 2
+            drainage = 3
             slope = 2
 
             # select output features
