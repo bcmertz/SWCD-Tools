@@ -24,6 +24,8 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Relative Elevation Model (REM)](#8-relative-elevation-model-rem)
     - [Stream Power Index (SPI)](#9-stream-power-index-spi)
     - [Stream Centerline Adjuster](#10-stream-centerline-adjuster)
+  - [Tile Drainage](#tile-drainage)
+    - [Decision Tree Classification](#1-decision-tree-classification-dtc)
   - [Planting tools](#buffer-tools)
     - [Point Plots](#1-point-plots)
     - [Shrub Clusters](#2-shrub-clusters)
@@ -71,6 +73,7 @@ SWCD-Tools/
 │   ├── RasterTools/         # raster geoprocessing tools
 │   ├── BufferTools/         # tools for riparian forest buffer planning
 │   ├── Hydrology/           # hydrology toolbox
+│   ├── TileDrainage/        # tile drainage toolbox
 │   ├── LineAnalysis/        # tools for analysis of lines in 3D
 │   ├── Misc/                # misc quality of life tools
 │   ├── Wetlands/            # wetland tools
@@ -258,6 +261,18 @@ Takes a streamline and optimizes each point along it's path to the lowest perpen
 Red line shows before blue line shows after
 
 Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
+
+## Tile Drainage
+
+### 1. Decision Tree Classification (DTC)
+
+This tool evaluates likely areas where drainage tile has been installed based off of land usage, slope, and soil drainage. The analysis follows the AgTile protocol developed by Gökkaya et al 2017.
+
+<span>
+<img src="/assets/readme_examples/agtile_after.png" alt="image showing red hatch filled polygon over ag fields representing likely drainage tile areas" height="250" />
+</span>
+
+This example shows an example of output tiled areas.
 
 ## Buffer Tools
 
