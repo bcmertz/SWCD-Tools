@@ -17,3 +17,4 @@ from .getoid import get_oid
 from .pixeltype import pixel_type
 from .emptyworkspace import empty_workspace
 from .units import get_z_unit, get_linear_unit, z_units, linear_units, area_to_num_cells
+from .reload import reload_module

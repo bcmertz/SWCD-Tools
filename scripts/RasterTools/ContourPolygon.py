@@ -97,6 +97,7 @@ class ContourPolygon(object):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
 
+    @reload_module(__name__)
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # setup
