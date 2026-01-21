@@ -196,13 +196,6 @@ class Delineate(object):
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
-        # make optional parameters required based off of parameters[0]
-        toggle_required_parameter(parameters[0], parameters[1])
-        toggle_required_parameter(parameters[0], parameters[2])
-        toggle_required_parameter(parameters[0], parameters[3])
-        toggle_required_parameter(parameters[0], parameters[4])
-        toggle_required_parameter(parameters[0], parameters[5])
-
         validate(parameters)
 
         return
