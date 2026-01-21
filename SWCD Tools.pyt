@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-# from importlib import reload, import_module
 
 scripts = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.append(scripts)
@@ -14,11 +13,6 @@ from Hydrology import RunoffCurveNumber, CalculateEFH2, WatershedDelineation, Re
 from TileDrainage import DecisionTree
 from Wetlands import PotentialWetlands, BermAnalysis, DamRemoval
 from AgAssessment import Delineate, Agland, NonAg, Forest, Process, Export
-
-def my_reloader(name):
-    del globals() [name]
-    del sys.modules [name]
-    globals() [name] = __import__(name)
 
 tools = [SlopePolygon,
          ContourPolygon,
@@ -56,23 +50,6 @@ class Toolbox(object):
         .pyt file)."""
         self.label = "SWCD Tools"
         self.alias = "SWCD Tools"
-
-        #ls = []
-        #for i,j in sys.modules.items():
-        #    r,v=i,j
-        #    ls.append((r,v))
-        #for i in ls:
-        #    if i[0] == "AnalyzeArea.SlopeArea":
-        #        #raise ValueError(i[1])
-        #        reload(i[1])
-        #        my_reloader(i[1])
-        #import_module(ExportLayouts)
-        #reload(ExportLayouts)
-
-        #import_module(SlopeArea)
-        ##for t in tools:
-         #   import_module(t)
-         #   reload(t)
 
         # List of tool classes associated with this toolbox
         self.tools = tools
