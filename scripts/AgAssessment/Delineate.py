@@ -174,6 +174,9 @@ class Delineate(object):
                 parameters[4].enabled = False
                 parameters[5].enabled = False
 
+        if parameters[11].value == None:
+             parameters[11].value = "NY"
+
         return
 
     def updateMessages(self, parameters):
