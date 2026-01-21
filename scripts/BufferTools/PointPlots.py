@@ -17,10 +17,10 @@ import os
 import math
 import arcpy
 
-from helpers import license, empty_workspace, toggle_required_parameter, reload_module
-from helpers import print_messages as log
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from ..helpers import license, empty_workspace, toggle_required_parameter, reload_module
+from ..helpers import print_messages as log
+from ..helpers import setup_environment as setup
+from ..helpers import validate_spatial_reference as validate
 
 class PointPlots:
     def __init__(self):

@@ -10,10 +10,10 @@
 import json
 import arcpy
 
-from helpers import sanitize, license, reload_module
-from helpers import print_messages as log
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from ..helpers import sanitize, license, reload_module
+from ..helpers import print_messages as log
+from ..helpers import setup_environment as setup
+from ..helpers import validate_spatial_reference as validate
 
 class Agland(object):
     def __init__(self):

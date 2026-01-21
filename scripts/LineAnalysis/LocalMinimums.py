@@ -13,10 +13,10 @@
 
 import arcpy
 
-from helpers import license, get_z_unit, z_units, empty_workspace, reload_module
-from helpers import print_messages as log
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from ..helpers import license, get_z_unit, z_units, empty_workspace, reload_module
+from ..helpers import print_messages as log
+from ..helpers import setup_environment as setup
+from ..helpers import validate_spatial_reference as validate
 
 class LocalMinimums:
     def __init__(self):
