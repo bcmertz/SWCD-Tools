@@ -16,7 +16,7 @@ def toggle_required_parameter(toggle, parameter) -> None:
     """
     # make newly toggled on parameter required
     if not toggle.hasBeenValidated:
-        if toggle.value == True:
+        if toggle.value:
             if not parameter.value:
                 parameter.setIDMessage("ERROR", 530)
 

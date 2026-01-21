@@ -249,7 +249,7 @@ class Process(object):
             log("removing unused tables for {}".format(parcel))
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
-                if not i in lyr_types:
+                if i not in lyr_types:
                     tbl_remove = lyt.listElements("MAPSURROUND_ELEMENT", i)[0]
                     lyt.deleteElement(tbl_remove)
 

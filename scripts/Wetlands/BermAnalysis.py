@@ -127,7 +127,7 @@ class BermAnalysis(object):
                 parameters[1].value = None
 
         if not parameters[5].hasBeenValidated:
-            if parameters[5].value == True:
+            if parameters[5].value:
                 parameters[6].enabled = True
             else:
                 parameters[6].enabled = False
@@ -142,7 +142,7 @@ class BermAnalysis(object):
 
         # toggle asking for default contour interval and output
         if not parameters[7].hasBeenValidated:
-            if parameters[7].value == True:
+            if parameters[7].value:
                 parameters[8].enabled = True
                 parameters[9].enabled = True
                 if parameters[3].value:

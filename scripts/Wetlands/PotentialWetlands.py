@@ -217,7 +217,7 @@ class PotentialWetlands(object):
 
         # toggle asking for wetland layers
         if not parameters[13].hasBeenValidated:
-            if parameters[13].value == True:
+            if parameters[13].value:
                 parameters[14].enabled = True
             else:
                 parameters[14].enabled = False

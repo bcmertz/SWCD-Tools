@@ -7,7 +7,6 @@
 # -----------------------------------------------------------------------------------------
 
 import arcpy
-from typing import Literal
 
 def get_z_unit(fc) -> str | None:
     """Get z unit from spatial reference."""

@@ -81,7 +81,7 @@ class PointPlots:
     def updateParameters(self, parameters):
         # toggle asking for coordinate output path
         if not parameters[2].hasBeenValidated:
-            if parameters[2].value == True:
+            if parameters[2].value:
                 parameters[3].enabled = True
             else:
                 parameters[3].enabled = False

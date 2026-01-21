@@ -283,7 +283,6 @@ class DecisionTree(object):
 
         # rename slope value field from 'gridcode' to 'slope'
         output_slope_field = "slope"
-        grid_field = ""
         arcpy.management.CalculateField(
             in_table=zonal_stats_poly,
             field=output_slope_field,

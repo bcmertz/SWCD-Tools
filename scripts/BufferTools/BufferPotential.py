@@ -144,7 +144,7 @@ class BufferPotential:
 
         # toggle asking for exclusion layers
         if not parameters[8].hasBeenValidated:
-            if parameters[8].value == True:
+            if parameters[8].value:
                 parameters[9].enabled = True
             else:
                 parameters[9].enabled = False
