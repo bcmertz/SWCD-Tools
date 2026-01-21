@@ -6,10 +6,9 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------------------------
 
-import sys
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, z_units, empty_workspace
+from helpers import license, get_oid, get_z_unit, z_units, empty_workspace, reload_module
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -171,6 +170,7 @@ class DecisionTree(object):
         validate(parameters)
         return
 
+    @reload_module(__name__)
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
@@ -244,7 +244,7 @@ class DecisionTree(object):
 
         # calculate drainage class
         log("calculating drainage classes")
-        output_drainage_field = "drainage"        
+        output_drainage_field = "drainage"
         arcpy.management.CalculateField(
             in_table=scratch_soils_area,
             field=output_drainage_field,

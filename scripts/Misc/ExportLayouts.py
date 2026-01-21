@@ -9,7 +9,7 @@
 import os
 import arcpy
 
-from helpers import license
+from helpers import license, reload_module
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 
@@ -50,6 +50,7 @@ class ExportLayouts(object):
         params = [param0, param1]
         return params
 
+    @reload_module(__name__)
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup

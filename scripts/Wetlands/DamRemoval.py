@@ -10,7 +10,7 @@
 import arcpy
 from math import atan2, pi
 
-from helpers import license, pixel_type, get_linear_unit, empty_workspace
+from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -209,6 +209,7 @@ class DamRemoval(object):
                 idx += 1
         return new_points
 
+    @reload_module(__name__)
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup

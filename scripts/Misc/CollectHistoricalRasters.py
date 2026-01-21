@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license
+from helpers import license, reload_module
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 
@@ -37,6 +37,7 @@ class CollectRasters:
         """Set whether the tool is licensed to execute."""
         return license(['OSWCD_GIS'])
 
+    @reload_module(__name__)
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup

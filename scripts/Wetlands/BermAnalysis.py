@@ -11,7 +11,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type, get_z_unit, z_units, empty_workspace, sanitize, toggle_required_parameter
+from helpers import license, get_oid, pixel_type, get_z_unit, z_units, empty_workspace, sanitize, toggle_required_parameter, reload_module
 from helpers import print_messages as log
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
@@ -163,6 +163,7 @@ class BermAnalysis(object):
         validate(parameters)
         return
 
+    @reload_module(__name__)
     def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
