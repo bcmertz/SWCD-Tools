@@ -20,9 +20,10 @@ def reload_module(name, force=False):
     FORCE boolean is passed to it."""
 
     def reload_module(func):
-        # this provides __wrapped__ on the underlying decorated function
-        # we use this later to call our origin function without the decorator
-        # to avoid infinite recursion
+        """this provides __wrapped__ on the underlying decorated function
+        we use this later to call our origin function without the decorator
+        to avoid infinite recursion"""
+
         @wraps(func)
         def wrapper(self, parameters, messages):
             if os.environ.get('swcdtools_dev') or force:
