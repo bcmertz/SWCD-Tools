@@ -55,22 +55,36 @@ class Process(object):
         params = [param0, param1, param2]
         return params
 
+    def set_dependent_layers(self, parameters):
+        fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+        parameters[1].enabled = True
+        parameters[2].enabled = True
+        parameters[1].filter.list = fields
+        parameters[2].filter.list = fields
+        if "MUSYM" in fields:
+            parameters[1].value = "MUSYM"
+        if "MUKEY" in fields:
+            parameters[2].value = "MUKEY"
+        return
+
     def updateParameters(self, parameters):
         # get soils MUSYM nad MUKEY field
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
-                parameters[1].enabled = True
-                parameters[2].enabled = True
-                parameters[1].filter.list = fields
-                parameters[2].filter.list = fields
-                if "MUSYM" in fields:
-                    parameters[1].value = "MUSYM"
-                if "MUKEY" in fields:
-                    parameters[2].value = "MUKEY"
+                self.set_dependent_layers(parameters)
             else:
                 parameters[1].enabled = False
                 parameters[2].enabled = False
+
+                # check if we have a default layer
+                project = arcpy.mp.ArcGISProject("Current")
+                active_map = project.activeMap
+                lyrs = active_map.listLayers()
+                for lyr in lyrs:
+                    if "soil" in lyr.name.lower():
+                        parameters[0].value = lyr.longName
+                        self.set_dependent_layers(parameters)
+                        break
 
         return
 

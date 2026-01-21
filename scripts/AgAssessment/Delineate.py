@@ -141,38 +141,53 @@ class Delineate(object):
         params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13]
         return params
 
+    def set_dependent_layers(self, parameters):
+        fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+        parameters[1].enabled = True
+        parameters[2].enabled = True
+        parameters[3].enabled = True
+        parameters[4].enabled = True
+        parameters[5].enabled = True
+        parameters[1].filter.list = fields
+        parameters[2].filter.list = fields
+        parameters[3].filter.list = fields
+        parameters[4].filter.list = fields
+        parameters[5].filter.list = fields
+        if "PRINT_KEY" in fields:
+            parameters[1].value = "PRINT_KEY"
+        if "SWIS" in fields:
+            parameters[2].value = "SWIS"
+        if "TOWN" in fields:
+            parameters[3].value = "TOWN"
+        if "LOCATION" in fields:
+            parameters[4].value = "LOCATION"
+        if "AGDIST" in fields:
+            parameters[5].value = "AGDIST"
+        return
+
     def updateParameters(self, parameters):
         # get Parcel Id, SWIS, Municipality, Address, and Ag District fields
         # set value if default field exists
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
-                parameters[1].enabled = True
-                parameters[2].enabled = True
-                parameters[3].enabled = True
-                parameters[4].enabled = True
-                parameters[5].enabled = True
-                parameters[1].filter.list = fields
-                parameters[2].filter.list = fields
-                parameters[3].filter.list = fields
-                parameters[4].filter.list = fields
-                parameters[5].filter.list = fields
-                if "PRINT_KEY" in fields:
-                    parameters[1].value = "PRINT_KEY"
-                if "SWIS" in fields:
-                    parameters[2].value = "SWIS"
-                if "TOWN" in fields:
-                    parameters[3].value = "TOWN"
-                if "LOCATION" in fields:
-                    parameters[4].value = "LOCATION"
-                if "AGDIST" in fields:
-                    parameters[5].value = "AGDIST"
+                self.set_dependent_layers(parameters)
             else:
+                # turn off dependent layers
                 parameters[1].enabled = False
                 parameters[2].enabled = False
                 parameters[3].enabled = False
                 parameters[4].enabled = False
                 parameters[5].enabled = False
+
+                # check if we have a default layer
+                project = arcpy.mp.ArcGISProject("Current")
+                active_map = project.activeMap
+                lyrs = active_map.listLayers()
+                for lyr in lyrs:
+                    if "parcel" in lyr.name.lower():
+                        parameters[0].value = lyr.longName
+                        self.set_dependent_layers(parameters)
+                        break
 
         if parameters[11].value == None:
              parameters[11].value = "NY"
