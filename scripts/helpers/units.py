@@ -49,7 +49,7 @@ linear_units = list(UNITS.values())
 
 
 def area_to_num_cells(raster, area: str) -> int | None:
-    """Convert GPLinearUnit AREA to the number of cells in the RASTER it is equivalent to."""
+    """Convert GPArealUnit AREA to the number of cells in the RASTER it is equivalent to."""
     threshold, threshold_unit = area.split(" ")
     try:
         desc = arcpy.Describe(raster)
@@ -63,4 +63,3 @@ def area_to_num_cells(raster, area: str) -> int | None:
         return threshold
     except:
         return None
-
