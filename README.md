@@ -449,7 +449,7 @@ Uses [NY GIS Address Geocoder](https://gis.ny.gov/address-geocoder) to take an a
 
 # Contributing
 
-Contributions welcome, please open issues for feature requests and bugs, and pull requests for code changes.
+Contributions welcome, please open issues for feature requests and bugs, and pull requests for code changes. This project uses the [Gentoo LLM policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy) and kindly asks contributors to refrain from submitting LLM generated code.
 
 # License
 
