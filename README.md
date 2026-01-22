@@ -281,7 +281,7 @@ This example shows an example of output tiled areas, and how the AgTile protocol
 
 This tool finds the best rasters for Image Differencing analysis, as described by Valayamkunnath et al, 2020.
 
-TODO: add more documentation about good SWIR and precip data sources 
+For detailed information on finding and downloading appropriate data sources for this analysis please see [Image Differencing Documentation](Image Differencing Data Sources.md).
 
 <span>
 <img src="/assets/readme_examples/image_differencing_setup_dry.png" alt="image of SWIR raster in dry conditions" height="250" />
