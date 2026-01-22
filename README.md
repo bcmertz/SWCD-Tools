@@ -279,7 +279,7 @@ This example shows an example of output tiled areas, and how the AgTile protocol
 
 ### 2. Image Differencing - Setup
 
-This tool finds the best rasters for Image Differencing analysis, as described by Valayamkunnath et al, 2020.
+This tool finds optimal rasters for Image Differencing analysis based off of historic precipitation data.
 
 For detailed information on finding and downloading appropriate data sources for this analysis please see [Image Differencing Documentation](<./Image Differencing Data Sources.md>).
 
@@ -292,8 +292,7 @@ This example shows short-wave infrared radiation rasters from dry (left) and wet
 
 ### 3. Image Differencing
 
-TODO: add description of how this works
-as described by Valayamkunnath et al, 2020.
+Image Differencing uses short-wave infrared data (SWIR) from landast 8/9 satellites taken during wet and dry conditions, to visualize the effects of drainage tile on soil moisture. This procedure is based off of research by Valayamkunnath et al, 2020.
 
 <span>
 <img src="/assets/readme_examples/image_differencing_after.png" alt="image showing red hatch filled polygon over ag fields representing likely drainage tile areas" height="250" />
