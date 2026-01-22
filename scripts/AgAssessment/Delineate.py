@@ -221,7 +221,7 @@ class Delineate(object):
         municipality_field = parameters[3].value
         address_field = parameters[4].value
         ag_dist_field = parameters[5].value
-        tax_id_nums = parameters[6].valueAsText.split(";")
+        tax_id_nums = set(parameters[6].valueAsText.split(";"))
         last_name = parameters[7].valueAsText
         first_name = parameters[8].valueAsText
         street_name_num = parameters[9].valueAsText
