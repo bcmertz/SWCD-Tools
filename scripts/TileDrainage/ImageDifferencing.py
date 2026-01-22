@@ -154,7 +154,8 @@ class ImageDifferencing(object):
 
         # intersect potential tile and ag areas
         log("intersecting ag and potential tile areas")
-        arcpy.analysis.Intersect([ag, tile], output_file)
+        out = ag - tile
+        out.save(output_file)
 
         # add output to map
         log("adding output to map")
