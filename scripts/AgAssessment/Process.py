@@ -12,8 +12,7 @@ import arcpy
 import pathlib
 import openpyxl
 
-from ..helpers import sanitize, license, toggle_required_parameter, reload_module
-from ..helpers import print_messages as log
+from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 

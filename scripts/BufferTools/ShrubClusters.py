@@ -10,8 +10,7 @@
 import math
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module
-from ..helpers import print_messages as log
+from ..helpers import license, empty_workspace, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 

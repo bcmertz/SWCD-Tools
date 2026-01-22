@@ -8,8 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, reload_module
-from ..helpers import print_messages as log
+from ..helpers import license, reload_module, log
 from ..helpers import setup_environment as setup
 
 class CollectRasters:

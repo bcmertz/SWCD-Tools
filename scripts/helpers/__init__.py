@@ -8,7 +8,7 @@
 
 from .addlayertogroup import add_layer_to_group
 from .license import license
-from .printmessages import print_messages
+from .printmessages import log, warn, error
 from .sanitize import sanitize
 from .setupenvironment import setup_environment
 from .validatespatialreference import validate_spatial_reference
