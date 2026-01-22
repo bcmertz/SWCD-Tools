@@ -270,6 +270,31 @@ This tool evaluates likely areas where drainage tile has been installed based of
 
 <span>
 <img src="/assets/readme_examples/agtile_after.png" alt="image showing red hatch filled polygon over ag fields representing likely drainage tile areas" height="250" />
+<img src="/assets/readme_examples/agtile_method.png" alt="flow-chart showing the ag-tile methodology" height="250" />
+</span>
+
+This example shows an example of output tiled areas, and how the AgTile protocol works.
+
+### 2. Image Differencing - Setup
+
+This tool finds the best rasters for Image Differencing analysis, as described by Valayamkunnath et al, 2020.
+
+TODO: add more documentation about good SWIR and precip data sources 
+
+<span>
+<img src="/assets/readme_examples/image_differencing_setup_dry.png" alt="image of SWIR raster in dry conditions" height="250" />
+<img src="/assets/readme_examples/image_differencing_setup_wet.png" alt="image of SWIR raster in wet conditions" height="250" />
+</span>
+
+This example shows short-wave infrared radiation rasters from dry (left) and wet (right) conditions and the effect that soil moisture has on reflectance.
+
+### 3. Image Differencing
+
+TODO: add description of how this works
+as described by Valayamkunnath et al, 2020.
+
+<span>
+<img src="/assets/readme_examples/image_differencing_after.png" alt="image showing red hatch filled polygon over ag fields representing likely drainage tile areas" height="250" />
 </span>
 
 This example shows an example of output tiled areas.
