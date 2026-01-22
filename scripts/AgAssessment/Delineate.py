@@ -232,7 +232,7 @@ class Delineate(object):
         # setup cache
         log("setting up cache")
         cache_json = {
-            "parcels": tax_id_nums,
+            "parcels": list(tax_id_nums),
             "output_folder": output_folder,
         }
         with open(cache_file_path, "w") as file:
