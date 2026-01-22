@@ -26,7 +26,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Stream Centerline Adjuster](#10-stream-centerline-adjuster)
   - [Tile Drainage](#tile-drainage)
     - [Decision Tree Classification](#1-decision-tree-classification-dtc)
-    - [Image Differencing - Setup](#2-image-differencing-setup)
+    - [Image Differencing - Setup](#2-image-differencing---setup)
     - [Image Differencing](#3-image-differencing)
   - [Planting tools](#buffer-tools)
     - [Point Plots](#1-point-plots)
