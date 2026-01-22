@@ -1,6 +1,7 @@
 # --------------------------------------------------------------------------------------------------
 # Name:        Image Differencing - Setup
-# Purpose:     This tool TODO
+# Purpose:     This tool uses precipitation data to select the optimal SWIR rasters for image
+#              differencing analysis to detect agricultural drainage tile.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>

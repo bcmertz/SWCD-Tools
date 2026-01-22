@@ -17,7 +17,7 @@ class ImageDifferencing(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Image Differencing"
-        self.description = "TODO"
+        self.description = "This tool finds agricultural areas where short-wave infrared radiation reflectance in dry and post-storm conditions are similar, indicating potential drainage tile."
         self.category = "Hydrology\\Drainage Tile"
         self.canRunInBackground = False
 
@@ -145,7 +145,7 @@ class ImageDifferencing(object):
                 else:
                     sql_query += " Or {} = '{}'".format(land_use_field, value)
         else:
-            log("no valid land uses found in area, TODO")
+            log("no valid land uses, please rerun")
             return
 
         # find agricultural areas
