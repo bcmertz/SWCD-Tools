@@ -155,7 +155,10 @@ class ImageDifferencing(object):
         # intersect potential tile and ag areas
         log("intersecting ag and potential tile areas")
         out = ag - tile
-        out.save(output_file)
+
+        # converting output to polygon
+        log("converting output to polygon")
+        arcpy.conversion.RasterToPolygon(out, output_file, "SIMPLIFY")
 
         # add output to map
         log("adding output to map")
