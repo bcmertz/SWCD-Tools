@@ -28,6 +28,7 @@ class Toolbox(object):
             WatershedDelineation,
             SubBasinDelineation,
             DecisionTree,
+            ImageDifferencingSetup,
             TopographicWetness,
             PotentialWetlands,
             BermAnalysis,
