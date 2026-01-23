@@ -76,7 +76,7 @@ class ImageDifferencing(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license()
+        return license(['Spatial']
 
     def updateParameters(self, parameters):
         # get land use field
