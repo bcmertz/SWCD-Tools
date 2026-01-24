@@ -10,14 +10,13 @@
 # -----------------------------------------------------------------------------------------
 
 import sys
-import os
 from importlib import import_module
 from functools import wraps
 
 def reload_module(name, force=True):
-    """reload_module reads in the NAME and FORCE arguments and returns the 
+    """reload_module reads in the NAME and FORCE arguments and returns the
     actual reload_module function decorator."""
-    
+
     def reload_module(func):
         """reload_module takes the original execute FUNC and returns a wrapper
         function with additional logic to run prior to either executing FUNC or
