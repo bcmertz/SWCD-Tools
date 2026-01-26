@@ -115,6 +115,7 @@ class ImageDifferencing(object):
         log("setting up project")
         project, active_map = setup()
 
+        log("reading in parameters")
         wet_raster = arcpy.Raster(parameters[0].valueAsText)
         dry_raster = arcpy.Raster(parameters[1].valueAsText)
         land_use_raster = parameters[2].value

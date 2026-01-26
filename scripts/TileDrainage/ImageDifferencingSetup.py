@@ -107,6 +107,7 @@ class ImageDifferencingSetup(object):
         log("setting up project")
         project, active_map = setup()
 
+        log("reading in parameters")
         precip = parameters[0].valueAsText
         precip_field_date = parameters[1].valueAsText
         precip_field_in = parameters[2].valueAsText
@@ -127,6 +128,7 @@ class ImageDifferencingSetup(object):
         # yyyymmdd - Processing date of the image
         # CC - Collection number (e.g., 02)
         # TX - Collection category: "T1" for Tier 1 (highest quality), "T2" for Tier 2
+        log("collecting all unique SWIR dataset dates")
         swir_files = glob.glob("{}/*_SR_B6.tif".format(swir_folder))
         # find SWIR image collection dates
         swir_dates = set()
@@ -146,6 +148,7 @@ class ImageDifferencingSetup(object):
                 precip_data[row[0]] = row[1]
 
         # find relevant precip data and calculate antecedent moisture conditions
+        log("calculating precipitation metrics")
         dryness = {} # low is better
         wetness = {} # high is better
         for date in swir_dates:
@@ -158,11 +161,14 @@ class ImageDifferencingSetup(object):
                 dryness[date] = day_0 + day_1 + day_2 + day_3
                 wetness[date] = 0 if day_0 > 0.05 else day_1 + day_2 + day_3
 
+        log("sorting precipitation data")
         sorted_dry = sorted(dryness, key=lambda x: dryness[x])
         sorted_wet = sorted(wetness, key=lambda x: wetness[x], reverse=True)
 
+        log("creating output group layer")
         wet_group = active_map.createGroupLayer("Wet SWIR Rasters")
         dry_group = active_map.createGroupLayer("Dry SWIR Rasters")
+        log("adding SWIR rasters to map")
         for i in range(num, 0, -1):
             wet_day = sorted_wet[i]
             wet_day_formatted = wet_day.strftime("%Y%m%d")
