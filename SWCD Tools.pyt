@@ -30,6 +30,7 @@ class Toolbox(object):
             DecisionTree,
             ImageDifferencingSetup,
             ImageDifferencing,
+            ImageDifferencingClouds,
             TopographicWetness,
             PotentialWetlands,
             BermAnalysis,

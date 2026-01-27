@@ -1,3 +1,4 @@
 from .DecisionTree import DecisionTree
 from .ImageDifferencingSetup import ImageDifferencingSetup
 from .ImageDifferencing import ImageDifferencing
+from .ImageDifferencingClouds import ImageDifferencingClouds
