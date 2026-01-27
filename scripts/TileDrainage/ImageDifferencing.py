@@ -257,8 +257,6 @@ class ImageDifferencing(object):
                 log("finding {} and dry Landsat QA PIXEL layers".format(prefix))
                 qa_raster = arcpy.Raster(raster.catalogPath[:-9]+"QA_PIXEL.tif")
 
-                # TODO: extract both by mask with output polygon
-
                 log("extracting non-land QA attributes")
                 qa_query = "Value <> 22080 And Value <> 21824" # from landsat_qa_map for valid land
                 extract_qa = arcpy.sa.ExtractByAttributes(qa_raster, qa_query)
