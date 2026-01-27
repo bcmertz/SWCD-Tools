@@ -22,7 +22,7 @@ Download [USGS Landsat 8/9 SWIR Data](https://www.usgs.gov/faqs/what-are-best-la
             3.  Area: &lt;County Nate&gt;
         2.  Date Range: I suggest setting the data range to be quite
             long to allow yourself to find adequate data (for example:
-            01/01/2024 to 12/31/2025) but it’s up to you. Each imagery
+            01/01/2019 to 01/01/2026) but it’s up to you. Each imagery
             tile is about 1 GB of data so you may wish to download a
             smaller range of data and be careful about where you
             download to. The important thing is that there is data with
@@ -34,7 +34,7 @@ Download [USGS Landsat 8/9 SWIR Data](https://www.usgs.gov/faqs/what-are-best-la
         4.  Cloud Cover: 0-5% or something similar (high cloud cover
             reduces the accuracy of the analysis)
     2.  Data Sets:
-        1.  Select “Landsat -&gt; Landsat Collection 2 Level-2”
+        1.  Select “Landsat -&gt; Landsat Collection 2 Level-2 -&gt; Landsat 8-9 OLI/TIRS C2 L2"  
             1.  Overview of dataset
                 [here](https://www.usgs.gov/landsat-missions/landsat-collection-2-level-2-science-products)
     3.  Additional Criteria
