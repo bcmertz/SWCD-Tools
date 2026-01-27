@@ -306,7 +306,7 @@ This example shows an example of output tiled areas.
 This tool uses the optional output cloud and shadow mask from the `Image Differencing` step to remove obscured areas from the output potential drainage tile feature/
 
 <span>
-<img src="/assets/readme_examples/image_differencing_after.png" alt="image showing red hatch filled polygon over ag fields representing likely drainage tile areas" height="250" />
+<img src="/assets/readme_examples/cloud_shadow_after.png" alt="image showing green hatched polygon representing potentially tiled fields and a cloud shaped polygon clipping it representing a cloud and it's shadow." height="250" />
 </span>
 
 This example shows the potential drainage area clipped to outside of a passing cloud and it's shadow.
