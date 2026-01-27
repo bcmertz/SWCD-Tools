@@ -112,7 +112,7 @@ class ImageDifferencingSetup(object):
         precip_field_date = parameters[1].valueAsText
         precip_field_in = parameters[2].valueAsText
         swir_folder = parameters[3].valueAsText
-        num = parameters[4].value
+        user_num = parameters[4].value
 
         # collect all short-wave infrared files (Band 6 - B6)
         #
@@ -128,16 +128,9 @@ class ImageDifferencingSetup(object):
         # yyyymmdd - Processing date of the image
         # CC - Collection number (e.g., 02)
         # TX - Collection category: "T1" for Tier 1 (highest quality), "T2" for Tier 2
+        # * band or product identifier
         log("collecting all unique SWIR dataset dates")
         swir_files = glob.glob("{}/*_SR_B6.tif".format(swir_folder))
-        # find SWIR image collection dates
-        swir_dates = set()
-        for i in swir_files:
-            date = i.split("_")[-6]
-            year = int(date[:4])
-            month = int(date[4:6])
-            day = int(date[6:8])
-            swir_dates.add(datetime(year, month, day))
 
         # read in all precip data to dictionary
         log("reading in precipitation data")
@@ -147,42 +140,68 @@ class ImageDifferencingSetup(object):
             for row in cursor:
                 precip_data[row[0]] = row[1]
 
-        # find relevant precip data and calculate antecedent moisture conditions
-        log("calculating precipitation metrics")
-        dryness = {} # low is better
-        wetness = {} # high is better
-        for date in swir_dates:
+        # find SWIR image collection paths and dates
+        log("collecting SWIR rasters and calculating precipitation stats")
+        swir_data = dict()
+        for i in swir_files:
+            path = i.split("_")[-7]
+            date = i.split("_")[-6]
+            year = int(date[:4])
+            month = int(date[4:6])
+            day = int(date[6:8])
+            date = datetime(year, month, day)
+            data = {"date": date, "dry": None, "wet": None}
+
+            # find relevant precip data and calculate antecedent moisture conditions
             if date in precip_data:
                 day_0 = precip_data[date]
                 day_1 = precip_data[date - timedelta(days=1)]
                 day_2 = precip_data[date - timedelta(days=2)]
                 day_3 = precip_data[date - timedelta(days=3)]
+                data["dry"] = round(day_0 + day_1 + day_2 + day_3, 2)
+                data["wet"] = round(0 if day_0 > 0.05 else day_1 + day_2 + day_3, 2)
+            else:
+                log("{} raster not in precipitation data, discarding".format(date.strftime("%m/%d/%Y")))
+                continue
 
-                dryness[date] = day_0 + day_1 + day_2 + day_3
-                wetness[date] = 0 if day_0 > 0.05 else day_1 + day_2 + day_3
+            if path in swir_data.keys():
+                swir_data[path].append(data)
+            else:
+                swir_data[path] = [data]
 
-        log("sorting precipitation data")
-        sorted_dry = sorted(dryness, key=lambda x: dryness[x])
-        sorted_wet = sorted(wetness, key=lambda x: wetness[x], reverse=True)
+        # sort precipitation data for each path and moisture conditions
+        log("{} unique satellite paths detected".format(len(swir_data.keys())))
+        for key in swir_data.keys():
+            # create group layers for each landsat path
+            raster_group = active_map.createGroupLayer("SWIR Data - path: {}".format(key))
 
-        log("creating output group layer")
-        wet_group = active_map.createGroupLayer("Wet SWIR Rasters")
-        dry_group = active_map.createGroupLayer("Dry SWIR Rasters")
-        log("adding SWIR rasters to map")
-        for i in range(num, 0, -1):
-            wet_day = sorted_wet[i]
-            wet_day_formatted = wet_day.strftime("%Y%m%d")
-            wet_raster = glob.glob("{}/*{}*SR_B6.tif".format(swir_folder, wet_day_formatted))[0]
-            dry_day = sorted_dry[i]
-            dry_day_formatted = dry_day.strftime("%Y%m%d")
-            dry_raster = glob.glob("{}/*{}*SR_B6.tif".format(swir_folder, dry_day_formatted))[0]
+            # sort dry and wet dates for each path
+            sorted_wet = sorted(swir_data[key], key=lambda x: x["wet"], reverse=True)
+            sorted_dry = sorted(swir_data[key], key=lambda x: x["dry"])
 
-            wet_fc = active_map.addDataFromPath(wet_raster)
-            dry_fc = active_map.addDataFromPath(dry_raster)
-            wet_fc.name = "wet_raster #{} - {} in. ({})".format(i, wetness[wet_day], wet_day_formatted)
-            dry_fc.name = "dry_raster #{} - {} in. ({})".format(i, dryness[dry_day], dry_day_formatted)
-            add_layer_to_group(active_map, wet_group, wet_fc, hide=True)
-            add_layer_to_group(active_map, dry_group, dry_fc, hide=True)
+            # figure out how many to add based off parameter
+            num = user_num
+            if num > len(sorted_wet):
+                num = len(sorted_wet)
+                log("not enough rasters with precipitation data for landsat path '{}' to output {} requested rasters".format(path, num))
+
+            log("adding path {} SWIR rasters to map".format(key))
+            for i in range(num, 0, -1):
+                wet_day = sorted_wet[i-1]["date"]
+                wet_day_formatted = wet_day.strftime("%Y%m%d")
+                wet_raster = glob.glob("{}/*{}_{}*SR_B6.tif".format(swir_folder, key, wet_day_formatted))[0]
+
+                dry_day = sorted_dry[i-1]["date"]
+                dry_day_formatted = dry_day.strftime("%Y%m%d")
+                dry_raster = glob.glob("{}/*{}_{}*SR_B6.tif".format(swir_folder, key, dry_day_formatted))[0]
+
+                wet_fc = active_map.addDataFromPath(wet_raster)
+                dry_fc = active_map.addDataFromPath(dry_raster)
+                wet_fc.name = "wet_raster #{} - {} in. ({})".format(i, sorted_wet[i-1]["wet"], wet_day.strftime("%m/%d/%Y"))
+                dry_fc.name = "dry_raster #{} - {} in. ({})".format(i, sorted_dry[i-1]["dry"], dry_day.strftime("%m/%d/%Y"))
+
+                add_layer_to_group(active_map, raster_group, wet_fc, hide=True)
+                add_layer_to_group(active_map, raster_group, dry_fc, hide=True)
 
         # save project
         log("saving project")
