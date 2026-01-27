@@ -269,7 +269,7 @@ Note: this tool can perform poorly on highly sinuous streams and often picks up 
 
 ### 1. Decision Tree Classification (DTC)
 
-This tool evaluates likely areas where drainage tile has been installed based off of land usage, slope, and soil drainage. The analysis follows the AgTile protocol developed by Gökkaya et al 2017.
+This tool evaluates likely areas where drainage tile has been installed based off of land usage, slope, and soil drainage. The analysis follows the AgTile protocol developed by [Gökkaya et al 2017](https://doi.org/10.1016/j.ecoleng.2017.06.048).
 
 <span>
 <img src="/assets/readme_examples/agtile_after.png" alt="image showing red hatch filled polygon over ag fields representing likely drainage tile areas" height="250" />
