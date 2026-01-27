@@ -10,7 +10,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
 - [Project Structure](#project-structure)
 - [Overview of tools](#overview-of-tools)
   - [Wetland tools](#wetland-tools)
-    - [Berm Analysis](#1-berm-analysis)
+    - [Berm Analysis](#1-berm-analysis-)
     - [Dam Removal](#2-dam-removal)
     - [Model Potential Wetlands](#3-model-potential-wetlands)
   - [Hydrology](#hydrology)
