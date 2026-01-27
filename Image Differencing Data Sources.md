@@ -8,7 +8,7 @@ Download NOAA historic rainfall data:
 6.  Once complete, Download
 
 Download [USGS Landsat 8/9 SWIR Data](https://www.usgs.gov/faqs/what-are-best-landsat-spectral-bands-use-my-research):
-1.  Ensure you have Microsoft Edge installed and [7-zip](https://www.7-zip.org/) installed.
+1.  Ensure you have [Microsoft Edge](https://www.microsoft.com/en-us/edge/download) and [7-zip](https://www.7-zip.org/) installed.
     1. Edge is the only browser I was able to get to work for this download, Chrome may also work but I couldn’t get it too. Unfortunately, Firefox is unsupported by USGS and won’t work
 3.  Go to [EarthExplorer](https://earthexplorer.usgs.gov/) and click
     Login in the top right to either login or create an account
