@@ -283,6 +283,7 @@ class PotentialWetlands(object):
         scratch_hsg_soils = arcpy.CreateScratchName("hsg", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_land_use_polygon = arcpy.CreateScratchName("land_use", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_erase = arcpy.CreateScratchName("erase", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_union = arcpy.CreateScratchName("union", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         land_use_raster_clip = arcpy.CreateScratchName("lu_clip", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
         scratch_zonal_stats = arcpy.CreateUniqueName("zonal_stats")
@@ -354,13 +355,11 @@ class PotentialWetlands(object):
         # erase NWI / DEC wetlands if selected
         if calculate_wetlands:
             log("erasing excluded areas from output")
-            for wetland_layer in wetland_layers:
-                try:
-                    arcpy.analysis.Erase(scratch_land_use_polygon, wetland_layer, scratch_erase)
-                except arcpy.ExecuteError:
-                    log("failed to erase excluded areas, please see error below:")
-                    log(arcpy.GetMessages())
-                    sys.exit()
+            # combine mask layers into one layer
+            arcpy.analysis.Union(wetland_layers, scratch_union)
+
+            # erase combined mask layer from output
+            arcpy.analysis.Erase(scratch_land_use_polygon, scratch_union, scratch_erase)
         else:
             scratch_erase = scratch_land_use_polygon
 
