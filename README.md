@@ -88,8 +88,8 @@ SWCD-Tools/
 ```
 
 # Overview of tools
-## Wetland Tools
-### 1. Berm Analysis [↑](#table-of-contents)
+## Wetland Tools [↑](#table-of-contents)
+### 1. Berm Analysis [↑](#wetland-tools)
 
 Analyze the backwater effects of a proposed berm. Optionally: calculate the lowest effective height of the berm, create contours of ponded area
 
@@ -108,7 +108,7 @@ Example above shows a ditch plug backwatering a substantial area of a field
 
 Example above shows a berm on a shallowly sloped hill, the GIS analysis of the backwatered area along with 1' depth contours, and aerials of the as-built conditions of the berm.
 
-### 2. Dam Removal
+### 2. Dam Removal [↑](#wetland-tools)
 
 Remove a dam from a DEM. Takes a ponded area and a proposed stream line through the area, calculates the estimated thalweg elevations through the ponded area and linearly interpolates the walls of the valley to the thalway to produce a DEM with the ponded area removed.
 
@@ -123,7 +123,7 @@ Example above shows the tool removing a dam and pond from a digital elevation mo
 
 This tool can be used to estimate storage capacity of a dammed area using a DEM.
 
-### 3. Model Potential Wetlands
+### 3. Model Potential Wetlands [↑](#wetland-tools)
 
 This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, topographic wetness index (optional), and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
 
@@ -144,13 +144,13 @@ This tool uses the following procedure:
 
 This provides a reasonable approximation of wetland soils, hydrology, and valid land use. The output of this analysis can be intersected with known agricultural ditches or other wetland manipulating structures to find potential project areas. Consider using the [USGS Hyper-Resolution Hydrology Dataset](https://www.usgs.gov/data/chesapeake-bay-hyper-resolution-hydrography-database) for mapped ag and road ditches.
 
-## Hydrology
+## Hydrology [↑](#table-of-contents)
 
-### 1. Stream Elevation Profile
+### 1. Stream Elevation Profile [↑](#hydrology-)
 
 TODO
 
-### 2. Calculate Stream Network
+### 2. Calculate Stream Network [↑](#hydrology-)
 
 Use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold. The output can be restricted to existing streamlines to effectively correct hydrologically correct the input streamlines to match the DEM. For creating hydro-conditioned DEMs, see [Burn Culverts in DEM](#3-burn-culverts-in-dem)
 
@@ -167,7 +167,7 @@ Before and after showing input low-res streamlines in blue and high-res output s
 
 Close-up showing (with post-processing smoothing - PAEK 10m) derived streamlines in green.
 
-### 3. Watershed Delineation
+### 3. Watershed Delineation [↑](#hydrology-)
 
 Takes a pour point and DEM and delineates the contributing watershed.
 
@@ -178,7 +178,7 @@ Takes a pour point and DEM and delineates the contributing watershed.
 
 Before and after showing study area topographic map and the delineated watershed
 
-### 4. Sub-Basin Delineation
+### 4. Sub-Basin Delineation [↑](#hydrology-)
 
 Find sub-basins in a given watershed based off of a watershed flow-accumulation threshold.
 
@@ -189,7 +189,7 @@ Find sub-basins in a given watershed based off of a watershed flow-accumulation 
 
 Before and after showing the delineation of 4 sub-watersheds based off of the specified flow accumulation threshold.
 
-### 5. Runoff Curve Number
+### 5. Runoff Curve Number [↑](#hydrology-)
 
 Calculates the runoff curve numbers for a given area based off of land use and hydrologic soil group.
 
@@ -205,11 +205,11 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 <img src="./assets/readme_examples/runoff_curve_numbers_rcn_table.png" alt="a picture of a raster attribute table showing runoff curve number values for hydrologic soil groups A,B,C,D for " width="800"/>
 </span>
 
-### 6. EFH-2 Calculation
+### 6. EFH-2 Calculation [↑](#hydrology-)
 
 Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
 
-### 7. Topographic Wetness Index (TWI)
+### 7. Topographic Wetness Index (TWI) [↑](#hydrology-)
 
 Calculates topographic wetness index (TWI) as a model of wetness due to topography and surface flow.
 
@@ -233,7 +233,7 @@ After images showing output topographic wetness index (TWI) rasters for both low
 
 This shows a TWI output with mapped NWI and DEC wetlands. Notice the  significant overlap with the darkest TWI areas.
 
-### 8. Relative Elevation Model (REM)
+### 8. Relative Elevation Model (REM) [↑](#hydrology-)
 
 Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and indentifying geomorphic features.
 
@@ -243,7 +243,7 @@ Create a relative elevation model (REM) or height above nearest drainage (HAND) 
 
 This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
 
-### 9. Stream Power Index (SPI)
+### 9. Stream Power Index (SPI) [↑](#hydrology-)
 
 Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on landscape position and erosive potential.
 
@@ -253,7 +253,7 @@ Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on 
 
 This example outputs shows stream power along a small headwater stream in the forest.
 
-### 10. Stream Centerline Adjuster
+### 10. Stream Centerline Adjuster [↑](#hydrology-)
 
 Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
 
@@ -265,9 +265,9 @@ Red line shows before blue line shows after
 
 Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
 
-## Tile Drainage
+## Tile Drainage [↑](#table-of-contents)
 
-### 1. Decision Tree Classification (DTC)
+### 1. Decision Tree Classification (DTC) [↑](#tile-drainage-)
 
 This tool evaluates likely areas where drainage tile has been installed based off of land usage, slope, and soil drainage. The analysis follows the AgTile protocol developed by [Gökkaya et al 2017](https://doi.org/10.1016/j.ecoleng.2017.06.048).
 
@@ -278,7 +278,7 @@ This tool evaluates likely areas where drainage tile has been installed based of
 
 This example shows an example of output tiled areas, and how the AgTile protocol works.
 
-### 2. Image Differencing - Setup
+### 2. Image Differencing - Setup [↑](#tile-drainage-)
 
 This tool finds optimal rasters for Image Differencing analysis based off of historic precipitation data.
 
@@ -291,7 +291,7 @@ For detailed information on finding and downloading appropriate data sources for
 
 This example shows short-wave infrared radiation rasters from dry (left) and wet (right) conditions and the effect that soil moisture has on reflectance.
 
-### 3. Image Differencing
+### 3. Image Differencing [↑](#tile-drainage-)
 
 Image Differencing uses short-wave infrared data (SWIR) from landast 8/9 satellites taken during wet and dry conditions, to visualize the effects of drainage tile on soil moisture. This procedure is based off of research by [Valayamkunnath et al, 2020](https://doi.org/10.1038/s41597-020-00596-x).
 
@@ -301,7 +301,7 @@ Image Differencing uses short-wave infrared data (SWIR) from landast 8/9 satelli
 
 This example shows an example of output tiled areas.
 
-### 4. Image Differencing - Cloud and Shadow Removal
+### 4. Image Differencing - Cloud and Shadow Removal [↑](#tile-drainage-)
 
 This tool uses the optional output cloud and shadow mask from the `Image Differencing` step to remove obscured areas from the output potential drainage tile feature/
 
@@ -311,9 +311,9 @@ This tool uses the optional output cloud and shadow mask from the `Image Differe
 
 This example shows the potential drainage area clipped to outside of a passing cloud and it's shadow.
 
-## Buffer Tools
+## Buffer Tools [↑](#table-of-contents)
 
-### 1. Point Plots
+### 1. Point Plots [↑](#buffer-tools-)
 
 Uses Upper Susquehanna Coalition (USC) point plot monitoring methodology and creates the appropriate number of randomized plots for a given riparian forest buffer.
 
@@ -324,7 +324,7 @@ Uses Upper Susquehanna Coalition (USC) point plot monitoring methodology and cre
 
 This example shows a potential planting area and randomized point plots within it.
 
-### 2. Shrub Clusters
+### 2. Shrub Clusters [↑](#buffer-tools-)
 
 Create shapefile of shrub clusters in a given planting area.
 
@@ -335,7 +335,7 @@ Create shapefile of shrub clusters in a given planting area.
 
 This example shows a potential planting area and shrub clusters at a specified size and density within it.
 
-### 3. Riparian Forest Buffer Potential
+### 3. Riparian Forest Buffer Potential [↑](#buffer-tools-)
 
 Create shapefile of potential riparian forest buffer planting areas.
 
@@ -354,11 +354,11 @@ This tool uses the following procedure:
 5. Calculate acreage of planting areas
 6. Exclude planting areas smaller than specified size
 
-## Raster Tools
+## Raster Tools [↑](#table-of-contents)
 
 Quality of life tools to improve some out of the box geoprocessing tools
 
-### 1. Contour Polygon
+### 1. Contour Polygon [↑](#raster-tools-)
 
 Contour tool with ability to limit analysis to inside a given polygon
 
@@ -368,7 +368,7 @@ Contour tool with ability to limit analysis to inside a given polygon
 
 Example showing output 10' contours in polygon.
 
-### 2. Slope Polygon
+### 2. Slope Polygon [↑](#raster-tools-)
 
 Slope tool with ability to limit analysis to inside a given polygon
 
@@ -378,7 +378,7 @@ Slope tool with ability to limit analysis to inside a given polygon
 
 Example showing output slope raster in polygon.
 
-### 3. Burn Culverts in DEM
+### 3. Burn Culverts in DEM [↑](#raster-tools-)
 
 This tool takes a DEM and culvert points shapefile and burns the culverts into the DEM for proper flow direction and accumulation analysis.
 
@@ -389,14 +389,14 @@ This tool takes a DEM and culvert points shapefile and burns the culverts into t
 
 Example showing before and after DEM with culvert removal.
 
-## Automated Agricultural Assessment
+## Automated Agricultural Assessment [↑](#table-of-contents)
 
 ### Notes:
 This tool tries to assume nothing about your layer files or folder structure. This means you have to specify layers and fields in those layers to use for processing. This means you need a soils layer with a MUSYM attribute, as well as a parcel layer with parcel ID, municipality, ag district, and a street name/no (123 Apple St) field. You are able to manually specify to the program the name of these fields.
 
 Additionally, you may want to edit the default Soil Group Worksheet template to have your County name or other data.
 
-### 1. Delineate Parcels
+### 1. Delineate Parcels [↑](#automated-agricultural-assessment-)
 
 Sets up ag assessment project folder and selects all relevant parcels for later analysis.
 
@@ -409,7 +409,7 @@ Once the tool is done, you must manually split each land use (ag, nonag, forest)
 
 Output of step one, and the same parcel after manually splitting and saving the three land uses - ag, nonag, and forest.
 
-### 2a. Delineate Agland
+### 2a. Delineate Agland [↑](#automated-agricultural-assessment-)
 
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as agricultural land.
 
@@ -419,7 +419,7 @@ After splitting each parcel up into its agricultural, non-agricultural, and fore
 
 Output of step 2a showing agricultural land delineated.
 
-### 2b. Delineate NonAg
+### 2b. Delineate NonAg [↑](#automated-agricultural-assessment-)
 
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as non-agricultural land.
 
@@ -429,7 +429,7 @@ After splitting each parcel up into its agricultural, non-agricultural, and fore
 
 Output of step 2b showing non-agricultural land delineated.
 
-### 2c. Delineate Forest
+### 2c. Delineate Forest [↑](#automated-agricultural-assessment-)
 
 After splitting each parcel up into its agricultural, non-agricultural, and forested land areas, use this tool to classify the selected features across all maps as forest land.
 
@@ -439,7 +439,7 @@ After splitting each parcel up into its agricultural, non-agricultural, and fore
 
 Output of step 2c showing forest land delineated.
 
-### 3. Process
+### 3. Process [↑](#automated-agricultural-assessment-)
 
 Calculate acreage and soil types across each land use and fill out the soil group worksheet.
 
@@ -451,15 +451,15 @@ Note: you must manually add `MUSYM` and `ACRES` to the tables via the contents p
 
 Output of step 3 showing the final layout.
 
-### 4. Export Layouts
+### 4. Export Layouts [↑](#automated-agricultural-assessment-)
 
 Export all relevant maps to PDF in the project folder.
 
-## Linear Analysis
+## Linear Analysis [↑](#table-of-contents)
 
 Tools to analyze linear features with respect to elevation.
 
-### 1. Local Minimums
+### 1. Local Minimums [↑](#linear-analysis-)
 
 Find all of the local elevation minimums along a line. Uses a minimum elevation threshold to ignore small deviations in the underlying DEM data.
 
@@ -470,24 +470,24 @@ Find all of the local elevation minimums along a line. Uses a minimum elevation 
 
 Example showing a water line in a field and all of the local minimums along it. Lines represent 1' contours, and the local minimum threshold was 2".
 
-## Miscellaneous
+## Miscellaneous [↑](#table-of-contents)
 
-### Export Layouts
+### Export Layouts [↑](#miscellaneous-)
 
 Quality of life tool to select which layouts to export and to where
 
-### Historical Imagery
+### Historical Imagery [↑](#miscellaneous-)
 
 Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
 
-### Geocode address tool
+### Geocode address tool [↑](#miscellaneous-)
 
 Uses [NY GIS Address Geocoder](https://gis.ny.gov/address-geocoder) to take an address and return a point on the map.
 
-# Contributing
+# Contributing [↑](#table-of-contents)
 
 Contributions welcome, please open issues for feature requests and bugs, and pull requests for code changes. This project uses the [Gentoo LLM policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy) and kindly asks contributors to refrain from submitting LLM generated code.
 
-# License
+# License [↑](#table-of-contents)
 
 Please refer to the [LICENSE](LICENSE) file.
