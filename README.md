@@ -47,13 +47,13 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
 - [Contributing](#contributing)
 - [License](#license)
 
-# Requirements
+# Requirements [↑](#table-of-contents)
 ArcGIS Pro v3.3 or greater with access to the following licenses:
 - Spatial Analyst
 
 If you're not sure, each tool will verify you have the proper licenses needed. Not all tools require advanced licenses.
 
-# Installation
+# Installation [↑](#table-of-contents)
 
 1. Download repository
 	- [Option 1] Using git - Note: this has the benefit of allowing you to pull updates easily any time but is more complicated for non-developers
@@ -66,7 +66,7 @@ If you're not sure, each tool will verify you have the proper licenses needed. N
     - ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
     	- select `SWCD Tools.pyt` from cloned repository
 
-# Project Structure
+# Project Structure [↑](#table-of-contents)
 ```
 SWCD-Tools/
 ├── assets/                  # various static assets for use by tools
@@ -87,9 +87,9 @@ SWCD-Tools/
 └── SWCD Tools.pyt           # main entry-point to project
 ```
 
-# Overview of tools
+# Overview of tools [↑](#table-of-contents)
 ## Wetland Tools [↑](#table-of-contents)
-### 1. Berm Analysis [↑](#wetland-tools)
+### 1. Berm Analysis [↑](#wetland-tools-)
 
 Analyze the backwater effects of a proposed berm. Optionally: calculate the lowest effective height of the berm, create contours of ponded area
 
@@ -108,7 +108,7 @@ Example above shows a ditch plug backwatering a substantial area of a field
 
 Example above shows a berm on a shallowly sloped hill, the GIS analysis of the backwatered area along with 1' depth contours, and aerials of the as-built conditions of the berm.
 
-### 2. Dam Removal [↑](#wetland-tools)
+### 2. Dam Removal [↑](#wetland-tools-)
 
 Remove a dam from a DEM. Takes a ponded area and a proposed stream line through the area, calculates the estimated thalweg elevations through the ponded area and linearly interpolates the walls of the valley to the thalway to produce a DEM with the ponded area removed.
 
@@ -123,7 +123,7 @@ Example above shows the tool removing a dam and pond from a digital elevation mo
 
 This tool can be used to estimate storage capacity of a dammed area using a DEM.
 
-### 3. Model Potential Wetlands [↑](#wetland-tools)
+### 3. Model Potential Wetlands [↑](#wetland-tools-)
 
 This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, topographic wetness index (optional), and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
 
