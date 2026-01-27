@@ -17,7 +17,7 @@ class ImageDifferencingClouds(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Image Differencing - Cloud and Shadow Removal"
-        self.description = "This tool TODO"
+        self.description = "This tool removes potential tiled areas based off of a cloud/shadow mask create in the Image Differencing tool."
         self.category = "Hydrology\\Drainage Tile"
         self.canRunInBackground = False
 
