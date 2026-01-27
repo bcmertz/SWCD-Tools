@@ -11,9 +11,7 @@ Download [USGS Landsat 8/9 SWIR Data](https://www.usgs.gov/faqs/what-are-best-la
 1.  Ensure you have Microsoft Edge installed (it’s the only browser I
     was able to get to work for this download, Chrome may also work but
     I couldn’t get it too. Unfortunately, Firefox is unsupported by USGS
-    and won’t work) – complete everything below requiring a web browser
-    in Microsoft Edge (unfortunately). You also need
-    [7-zip](https://www.7-zip.org/) installed.
+    and won’t work). You also need [7-zip](https://www.7-zip.org/) installed.
 2.  Go to [EarthExplorer](https://earthexplorer.usgs.gov/) and click
     Login in the top right to either login or create an account
 3.  After logging in select the data you need in
