@@ -28,7 +28,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Decision Tree Classification](#1-decision-tree-classification-dtc)
     - [Image Differencing - Setup](#2-image-differencing---setup)
     - [Image Differencing](#3-image-differencing)
-    - [Image Differencing - Cloud and Shadow Removal](#2-image-differencing---cloud-and-shadow-removal)
+    - [Image Differencing - Cloud and Shadow Removal](#4-image-differencing---cloud-and-shadow-removal)
   - [Planting tools](#buffer-tools)
     - [Point Plots](#1-point-plots)
     - [Shrub Clusters](#2-shrub-clusters)
@@ -301,7 +301,7 @@ Image Differencing uses short-wave infrared data (SWIR) from landast 8/9 satelli
 
 This example shows an example of output tiled areas.
 
-### 3. Image Differencing - Cloud and Shadow Removal
+### 4. Image Differencing - Cloud and Shadow Removal
 
 This tool uses the optional output cloud and shadow mask from the `Image Differencing` step to remove obscured areas from the output potential drainage tile feature/
 
