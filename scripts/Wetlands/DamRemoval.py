@@ -92,11 +92,11 @@ class DamRemoval(object):
 
     def updateParameters(self, parameters):
         # default transect spacing
-        if parameters[5].value == None:
+        if parameters[5].value is None:
             parameters[5].value = "50 FeetUS"
 
         # default transect point spacing
-        if parameters[6].value == None:
+        if parameters[6].value is None:
             parameters[6].value = "10 FeetUS"
 
         return
@@ -188,7 +188,7 @@ class DamRemoval(object):
                         distance_end = distance
 
                     # add interpolated points to list of points to be added to DEM
-                    if elev_start != None and elev_end != None:
+                    if elev_start is not None and elev_end is not None:
                         slope = (elev_end - elev_start)/(distance_end - distance_start)
                         for i in update_points:
                             i[1] = slope * (i[2] - distance_start) + elev_start
@@ -265,12 +265,12 @@ class DamRemoval(object):
         slope = elev_high = elev_low = distance_high = distance_low = elev_prev = distance_prev = None
         with arcpy.da.SearchCursor(scratch_centerline_elev_points, ["RASTERVALU", "ORIG_LEN"]) as cursor:
             for point in cursor:
-                if elev_high != None and elev_low != None:
+                if elev_high is not None and elev_low is not None:
                     break
                 elev, distance = point[0], point[1]
-                if elev == None:
+                if elev is None:
                     elev = -9999
-                if elev_prev != None:
+                if elev_prev is not None:
                     if elev == -9999 and elev_prev != -9999:
                         # elev low
                         elev_low = elev_prev

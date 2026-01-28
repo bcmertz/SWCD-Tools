@@ -96,7 +96,7 @@ class WatershedDelineation(object):
                 parameters[1].value = None
 
         # Default snap pour point adjustment value
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = "10 Meters"
 
         return

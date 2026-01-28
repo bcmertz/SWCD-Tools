@@ -67,7 +67,7 @@ class BurnCulverts(object):
 
     def updateParameters(self, parameters):
         # default search distance
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = "100 FeetUS"
 
     def isLicensed(self):

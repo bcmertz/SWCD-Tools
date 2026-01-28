@@ -59,7 +59,7 @@ class GeocodeAddress(object):
 
     def updateParameters(self, parameters):
         # default state
-        if parameters[2].value == None:
+        if parameters[2].value is None:
             parameters[2].value = "NY"
 
         return

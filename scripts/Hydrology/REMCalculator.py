@@ -84,10 +84,10 @@ class RelativeElevationModel(object):
 
     def updateParameters(self, parameters):
         # default buffer radius
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = "100 Feet"
         # default simpling interval
-        if parameters[5].value == None:
+        if parameters[5].value is None:
             parameters[5].value = "25 Feet"
         return
 

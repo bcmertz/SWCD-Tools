@@ -5,7 +5,6 @@
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
-import sys
 import arcpy
 
 from ..helpers import license, empty_workspace, reload_module, log
@@ -112,11 +111,11 @@ class BufferPotential:
 
     def updateParameters(self, parameters):
         # default buffer width
-        if parameters[1].value == None:
+        if parameters[1].value is None:
             parameters[1].value = "100 FeetUS"
 
         # set default minimum planting size
-        if parameters[2].value == None:
+        if parameters[2].value is None:
             parameters[2].value = ".25 AcresUS"
 
         # get land use field

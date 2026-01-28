@@ -90,7 +90,7 @@ class ImageDifferencingSetup(object):
                 parameters[1].value = None
                 parameters[2].value = None
 
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = 3
 
         return

@@ -73,7 +73,7 @@ class ShrubClusters:
 
     def updateParameters(self, parameters):
         # set default cluster shape
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = "Square"
 
         return

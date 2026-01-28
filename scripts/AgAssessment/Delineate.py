@@ -188,7 +188,7 @@ class Delineate(object):
                         self.set_dependent_layers(parameters)
                         break
 
-        if parameters[11].value == None:
+        if parameters[11].value is None:
              parameters[11].value = "NY"
 
         return

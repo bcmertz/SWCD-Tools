@@ -7,7 +7,6 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
-import sys
 import arcpy
 
 from ..helpers import license, get_oid, get_z_unit, z_units, empty_workspace, toggle_required_parameter, reload_module, log
@@ -154,7 +153,7 @@ class PotentialWetlands(object):
 
     def updateParameters(self, parameters):
         # default maximum slope value
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = 5
 
         # enable minimum twi if there is a twi raster
@@ -185,7 +184,7 @@ class PotentialWetlands(object):
                 values = set()
                 with arcpy.da.SearchCursor(parameters[7].value, parameters[8].value) as cursor:
                     for row in cursor:
-                        if row[0] != None:
+                        if row[0] is not None:
                             values.add(row[0])
                 values = sorted(list(values))
                 parameters[9].filter.list = values

@@ -50,7 +50,7 @@ class SubBasinDelineation(object):
 
     def updateParameters(self, parameters):
         # Default stream threshold value
-        if parameters[2].value == None:
+        if parameters[2].value is None:
             parameters[2].value = "8 AcresUS"
         return
 
@@ -77,7 +77,7 @@ class SubBasinDelineation(object):
 
         # find threshold in nunmber cells
         threshold = area_to_num_cells(raster_layer, threshold)
-        if threshold == None:
+        if threshold is None:
             log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
             threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
 

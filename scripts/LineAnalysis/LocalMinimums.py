@@ -91,11 +91,11 @@ class LocalMinimums:
 
     def updateParameters(self, parameters):
         # default search interval
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = "1 Meters"
 
         # default threshold value
-        if parameters[5].value == None:
+        if parameters[5].value is None:
             parameters[5].value = "2 InchesUS"
 
         # find z unit of raster based on vertical coordinate system

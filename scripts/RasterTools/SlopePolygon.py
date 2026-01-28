@@ -67,7 +67,7 @@ class SlopePolygon(object):
 
     def updateParameters(self, parameters):
         # Default stream threshold value
-        if parameters[4].value == None:
+        if parameters[4].value is None:
             parameters[4].value = "Percent Slope"
 
         # find z unit of raster based on vertical coordinate system

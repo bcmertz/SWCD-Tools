@@ -71,7 +71,7 @@ class Agland(object):
 
             # check how many pieces are selected
             sel_set = fc.getSelectionSet()
-            if sel_set == None:
+            if sel_set is None:
                 continue
 
             # construct layer names and paths

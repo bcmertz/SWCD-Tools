@@ -132,11 +132,11 @@ class BermAnalysis(object):
                 parameters[6].enabled = False
 
         # default berm height
-        if parameters[6].value == None:
+        if parameters[6].value is None:
             parameters[6].value = "6 FeetUS"
 
         # default contour interval
-        if parameters[8].value == None:
+        if parameters[8].value is None:
             parameters[8].value = "1 FeetUS"
 
         # toggle asking for default contour interval and output
