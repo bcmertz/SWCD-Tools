@@ -1,11 +1,12 @@
 Download NOAA historic rainfall data:
 
 1.  Go to [NOAA Climate Data Online Search](https://www.ncdc.noaa.gov/cdo-web/search)
-2.  Search for county level data over a long time (5 years recommended)
-3.  Add County data to cart and go to cart
-4.  Output format: Custom GHCN-Daily CSV
-5.  Select custom output: Precipitation -&gt; PRCP
-6.  Once complete, Download
+2.  Select Weather Observation Type/Dataset: "Daily Summaries"
+3.  Search for county level data over a long time (5 years recommended)
+4.  Add County data to cart and go to cart
+5.  Output format: Custom GHCN-Daily CSV
+6.  Select custom output: Precipitation -&gt; PRCP
+7.  Once complete, Download
 
 Download [USGS Landsat 8/9 SWIR Data](https://www.usgs.gov/faqs/what-are-best-landsat-spectral-bands-use-my-research):
 1.  Ensure you have [Microsoft Edge](https://www.microsoft.com/en-us/edge/download) and [7-zip](https://www.7-zip.org/) installed.
