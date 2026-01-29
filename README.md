@@ -296,8 +296,8 @@ This example shows short-wave infrared radiation rasters from dry (left) and wet
 Image Differencing uses short-wave infrared data (SWIR) from landast 8/9 satellites taken during wet and dry conditions, to visualize the effects of drainage tile on soil moisture. This procedure is based off of research by [Valayamkunnath et al, 2020](https://doi.org/10.1038/s41597-020-00596-x).
 
 <span>
-<img src="/assets/readme_examples/image_differencing_before.png" alt="image showing ag fields before processing, some are water stained" height="350" />
-<img src="/assets/readme_examples/image_differencing_after.png" alt="image showing green hatch filled polygon over ag fields representing likely drainage tile areas" height="350" />
+<img src="/assets/readme_examples/image_differencing_before.png" alt="image showing ag fields before processing, some are water stained" height="310" />
+<img src="/assets/readme_examples/image_differencing_after.png" alt="image showing green hatch filled polygon over ag fields representing likely drainage tile areas" height="310" />
 </span>
 
 This example shows an example of output tiled areas.
