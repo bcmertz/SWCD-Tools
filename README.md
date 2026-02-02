@@ -148,7 +148,13 @@ This provides a reasonable approximation of wetland soils, hydrology, and valid 
 
 ### 1. Stream Elevation Profile [↑](#table-of-contents)
 
-TODO
+This tool uses a directed acyclic graph (DAG) to output stream elevation data throughout a watershed.
+
+<span>
+<img src="/assets/readme_examples/stream_elevation_after.png" alt="output color coded excel graph of tributary elevations" height="350"/>
+</span>
+
+Example output showing graph of tributary elevations.
 
 ### 2. Calculate Stream Network [↑](#table-of-contents)
 
