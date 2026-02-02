@@ -258,7 +258,8 @@ class StreamElevation(object):
 
         # delete unnecessary fields
         log("deleting unnecessary fields")
-        arcpy.management.DeleteField(scratch_points_elev, ["ORIG_LEN", "RASTERVALU"], method="KEEP_FIELDS")
+        keep_fields = keep_fields + ["ORIG_LEN", "RASTERVALU"]
+        arcpy.management.DeleteField(scratch_points_elev, keep_fields, method="KEEP_FIELDS")
 
         # export table to csv
         log("exporting elevation data to table")
