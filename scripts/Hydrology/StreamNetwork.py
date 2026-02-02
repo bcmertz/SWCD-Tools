@@ -185,7 +185,7 @@ class StreamNetwork(object):
                 arcpy.analysis.SpatialJoin(
                     target_features=scratch_output,
                     join_features=stream,
-                    output_feature_class=output_file,
+                    out_feature_class=output_file,
                     join_operation="JOIN_ONE_TO_ONE",
                     join_type="KEEP_ALL",
                     match_option="CLOSEST",
