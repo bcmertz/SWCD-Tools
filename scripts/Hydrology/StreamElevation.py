@@ -1,11 +1,10 @@
-# --------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 # Name:        Stream Elevation
-# Purpose:     This tool is a work-in-progress tool which will collect elevation
-#              data along a drainage network for visualization.
+# Purpose:     This tool collects elevation data along a drainage network for visualization.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
-# --------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 
 import os
 import arcpy
@@ -95,7 +94,7 @@ class StreamElevation(object):
         return params
 
     def updateParameters(self, parameters):
-        # get soils field
+        # get stream line fields
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 parameters[1].enabled = True
@@ -217,13 +216,11 @@ class StreamElevation(object):
                         "downstream_length": 0,
                     }
 
-
         # find end nodes (furthest downstream) and start nodes (headwaters)
         log("finding start and end nodes")
         end_nodes = list(from_nodes - to_nodes)
 
-
-        # for each end node, add accumulated length info to all upstream nodes
+        # for each end node, add downstream length info to all upstream nodes
         log("calculating accumulated segment lengths")
         def process_lengths(end_node_id, downstream_length):
             """Recursively traverse DAG and find all downstream lengths."""
