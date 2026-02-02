@@ -58,18 +58,38 @@ class StreamNetwork(object):
         param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param4 = arcpy.Parameter(
+            displayName="Fields to keep",
+            name="keep",
+            datatype="GPString",
+            parameterType="Optional",
+            multiValue="True",
+            direction="Input")
+        param4.filter.type = "ValueList"
+        param4.filter.list = []
+
+        param5 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param4.parameterDependencies = [param0.name]
-        param4.schema.clone = True
+        param5.parameterDependencies = [param0.name]
+        param5.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3, param4, param5]
         return params
 
     def updateParameters(self, parameters):
+        # get stream line fields
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].value:
+                fields = [f.name for f in arcpy.ListFields(parameters[3].value)]
+                parameters[4].enabled = True
+                parameters[4].filter.list = fields
+            else:
+                parameters[4].enabled = False
+                parameters[4].value = None
+
         # Default stream threshold value
         if parameters[2].value is None:
             parameters[2].value = "8 AcresUS"
@@ -97,7 +117,8 @@ class StreamNetwork(object):
         extent = parameters[1].value
         threshold = parameters[2].valueAsText
         stream = parameters[3].value
-        output_file = parameters[4].valueAsText
+        keep_fields = parameters[4].valueAsText.split(";") if parameters[3].value else None
+        output_file = parameters[5].valueAsText
 
         # set analysis extent
         if extent:
@@ -113,6 +134,7 @@ class StreamNetwork(object):
         log("creating scratch layers")
         scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # fill DEM
         log("filling raster")
@@ -154,9 +176,25 @@ class StreamNetwork(object):
                 destination_field=get_oid(stream_initiations)
             )
 
-            # stream to feature
-            log("converting stream raster to output feature class")
-            arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, output_file, True)
+            if keep_fields:
+                # stream to feature
+                log("converting stream raster to output feature class")
+                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_output, True)
+
+                log("joining keep fields to output feature class")
+                arcpy.analysis.SpatialJoin(
+                    target_features=scratch_output,
+                    join_features=stream,
+                    output_feature_class=output_file,
+                    join_operation="JOIN_ONE_TO_ONE",
+                    join_type="KEEP_ALL",
+                    match_option="CLOSEST",
+                    search_radius="25 Meters",
+                )
+            else:
+                # stream to feature
+                log("converting stream raster to output feature class")
+                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, output_file, True)
         else:
             # stream to feature
             log("creating stream feature")
