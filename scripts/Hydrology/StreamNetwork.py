@@ -199,7 +199,7 @@ class StreamNetwork(object):
                     join_type="KEEP_ALL",
                     field_mapping=field_mapping,
                     match_option="CLOSEST",
-                    search_radius="25 Meters",
+                    search_radius="25 Meters", # consider non-hardcoded alternative
                 )
 
                 # remove `Join_Count` and `TARGET_FID` fields
