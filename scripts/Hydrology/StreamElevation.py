@@ -157,7 +157,6 @@ class StreamElevation(object):
         scratch_points_elev = arcpy.CreateScratchName("points_elev", "FeatureClass", arcpy.env.scratchGDB)
 
         # copy streamlines to a scratch feature to avoid altering the input lines
-        # TODO: fix clip
         log("setting watershed boundaries")
         if watershed:
             arcpy.analysis.Clip(streams, watershed, scratch_streams)
