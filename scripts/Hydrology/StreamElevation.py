@@ -164,9 +164,11 @@ class StreamElevation(object):
         else:
             arcpy.management.CopyFeatures(streams, scratch_streams)
 
-        # set line direction
+        # set line and segment direction
+        #
+        # reverse direction since we accumulate downstream length
         log("setting topographic drainage directions")
-        arcpy.topographic.SetLineDirection(scratch_streams, dem, "DOWNHILL")
+        arcpy.topographic.SetLineDirection(scratch_streams, dem, line_direction="DOWNHILL", reverse_direction="REVERSE_DIRECTION")
 
         # calculate geometry lengths
         log("calculate segment lengths")
@@ -180,19 +182,20 @@ class StreamElevation(object):
             coordinate_format="SAME_AS_INPUT"
         )
 
-        # construct DAG
+        # construct DAG in reverse order - looking downstream to upstream
         # dag: {
         #     from_node: {
-        #                    to_node: #
-        #                    length:  #
-        #                    upstream_length: #
+        #                    to_nodes: {
+        #                        ID: length_to_node,
+        #                    }
+        #                    total_length: #
         #                }
         # }
-        log("finding segment start points")
+        log("finding segment end points")
         arcpy.management.FeatureVerticesToPoints(
             in_features=scratch_streams,
             out_feature_class=scratch_nodes,
-            point_location="START"
+            point_location="END"
         )
         log("constructing directed acyclic graph")
         dag = {}
@@ -200,39 +203,42 @@ class StreamElevation(object):
         from_nodes = set()
         with arcpy.da.SearchCursor(scratch_nodes, ["from_node", "to_node", "length"]) as cursor:
             for row in cursor:
-                from_node = row[0]
-                to_node = row[1]
+                to_node = row[0]    # reversed since our dag "flows" upstream
+                from_node = row[1]  # reversed since out dag "flows" upstream
                 length = row[2]
                 to_nodes.add(to_node)
                 from_nodes.add(from_node)
-                dag[from_node] = {
-                    "to_node": to_node,
-                    "length": length,
-                    "upstream_length": None,
-                }
+                if from_node in dag:
+                    dag[from_node]["to_nodes"][to_node] = length
+                else:
+                    dag[from_node] = {
+                        "to_nodes": {to_node: length},
+                        "downstream_length": 0,
+                    }
 
-        # find start nodes with nothing flowing into them
+
+        # find end nodes (furthest downstream) and start nodes (headwaters)
         log("finding start and end nodes")
-        start_nodes = list(from_nodes - to_nodes)
-        # end_nodes = list(to_nodes - from_nodes)
+        end_nodes = list(from_nodes - to_nodes)
 
-        # go through each start node
-        log("calculating upstream segment lengths")
-        for start_node in start_nodes:
-            node_id = start_node
-            prev_total = 0
-            # accumulate upstream length on each downstream node
-            while node_id in dag:
-                node = dag[node_id]
-                to_node = node["to_node"]
-                length = node["length"]
-                upstream_length = node["upstream_length"]
-                if upstream_length is None or upstream_length < prev_total:
-                    node["upstream_length"] = prev_total
-                prev_total += length
-                node_id = to_node
 
-        # TODO: fix issue with all headwaters starting at 0
+        # for each end node, add accumulated length info to all upstream nodes
+        log("calculating accumulated segment lengths")
+        def process_lengths(end_node_id, downstream_length):
+            """Recursively traverse DAG and find all downstream lengths."""
+            node = dag[end_node_id]
+            to_nodes = node["to_nodes"]
+            node["downstream_length"] = downstream_length
+            for to_node in to_nodes:
+                if to_node in dag:
+                    length = to_nodes[to_node]
+                    downstream_length = downstream_length + length
+                    return process_lengths(to_node, downstream_length)
+                else:
+                    return
+        for end_node in end_nodes:
+            process_lengths(end_node_id=end_node, downstream_length=0)
+
         # generate points along line
         log("generate data points along lines")
         arcpy.management.GeneratePointsAlongLines(scratch_streams, scratch_points, "DISTANCE", point_spacing, Include_End_Points="END_POINTS", Add_Chainage_Fields="ADD_CHAINAGE")
@@ -242,13 +248,12 @@ class StreamElevation(object):
         arcpy.sa.ExtractValuesToPoints(scratch_points, dem, scratch_points_elev)
 
         # update lengths to include upstream length
-        # ['ORIG_LEN', 'from_node', 'to_node', 'length', 'RASTERVALU', ...]
-        log("add upstream length to data points")
-        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", "from_node"]) as cursor:
+        log("add downstream length to data points")
+        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", "to_node"]) as cursor:
             for row in cursor:
                 orig_len = row[0] * arcpy.LinearUnitConversionFactor(linear_unit, point_spacing_unit)
-                from_node = row[1]
-                row[0] = orig_len + dag[from_node]["upstream_length"]
+                to_node = row[1]
+                row[0] = orig_len + dag[to_node]["downstream_length"]
                 cursor.updateRow(row)
 
         # delete unnecessary fields
