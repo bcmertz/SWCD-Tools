@@ -52,36 +52,46 @@ class StreamElevation(object):
         param2.filter.list = []
 
         param3 = arcpy.Parameter(
+            displayName="Fields to keep",
+            name="keep",
+            datatype="GPString",
+            parameterType="Optional",
+            multiValue="True",
+            direction="Input")
+        param3.filter.type = "ValueList"
+        param3.filter.list = []
+
+        param4 = arcpy.Parameter(
             displayName="DEM",
             name="dem",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="Watershed",
             name="analysis_area",
             datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-        param4.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
+        param5.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
-        param5 = arcpy.Parameter(
+        param6 = arcpy.Parameter(
             displayName="Point Spacing",
             name="point_spacing",
             datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
-        param6 = arcpy.Parameter(
+        param7 = arcpy.Parameter(
             displayName="Output Table",
             name="out_table",
             datatype="DEFile",
             parameterType="Required",
             direction="Output")
-        param6.filter.list = ['csv']
+        param7.filter.list = ['csv']
 
-        params = [param0, param1, param2, param3, param4, param5, param6]
+        params = [param0, param1, param2, param3, param4, param5, param6, param7]
         return params
 
     def updateParameters(self, parameters):
@@ -90,9 +100,11 @@ class StreamElevation(object):
             if parameters[0].value:
                 parameters[1].enabled = True
                 parameters[2].enabled = True
+                parameters[3].enabled = True
                 fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
                 parameters[1].filter.list = fields
                 parameters[2].filter.list = fields
+                parameters[3].filter.list = fields
                 if "from_node" in fields:
                     parameters[1].value = "from_node"
                 if "to_node" in fields:
@@ -102,10 +114,12 @@ class StreamElevation(object):
                 parameters[1].value = None
                 parameters[2].enabled = False
                 parameters[2].value = None
+                parameters[3].enabled = False
+                parameters[3].value = None
 
         # default point spacing
-        if parameters[5].value is None:
-            parameters[5].value = "50 FeetUS"
+        if parameters[6].value is None:
+            parameters[6].value = "50 FeetUS"
         return
 
     def isLicensed(self):
@@ -128,12 +142,13 @@ class StreamElevation(object):
         streams = parameters[0].value
         from_node = parameters[1].value
         to_node = parameters[2].value
-        dem = parameters[3].value
-        watershed = parameters[4].value
+        keep_fields = parameters[3].value or []
+        dem = parameters[4].value
+        watershed = parameters[5].value
         linear_unit = get_linear_unit(streams)
-        point_spacing = parameters[5].valueAsText
+        point_spacing = parameters[6].valueAsText
         point_spacing_unit = point_spacing.split(" ")[1]
-        output_file = parameters[6].valueAsText
+        output_file = parameters[7].valueAsText
 
         # create scratch layers
         log("creating scratch layers")
