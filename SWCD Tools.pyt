@@ -16,6 +16,7 @@ class Toolbox(object):
             CollectRasters,
             ExportLayouts,
             StreamNetwork,
+            StreamElevation,
             LocalMinimums,
             RelativeElevationModel,
             PointPlots,

@@ -7,9 +7,10 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
+import os
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log
+from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -33,38 +34,83 @@ class StreamElevation(object):
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param1 = arcpy.Parameter(
+            displayName="from_node field",
+            name="from",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param1.filter.type = "ValueList"
+        param1.filter.list = []
+
+        param2 = arcpy.Parameter(
+            displayName="to_node field",
+            name="to",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param2.filter.type = "ValueList"
+        param2.filter.list = []
+
+        param3 = arcpy.Parameter(
             displayName="DEM",
             name="dem",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
 
-        param2 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="Watershed",
             name="analysis_area",
             datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-        param2.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
+        param4.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
-        param3 = arcpy.Parameter(
-            displayName="Output Features",
-            name="out_features",
-            datatype="DEFeatureClass",
+        param5 = arcpy.Parameter(
+            displayName="Point Spacing",
+            name="point_spacing",
+            datatype="GPLinearUnit",
+            parameterType="Required",
+            direction="Input")
+
+        param6 = arcpy.Parameter(
+            displayName="Output Table",
+            name="out_table",
+            datatype="DEFile",
             parameterType="Required",
             direction="Output")
-        param3.parameterDependencies = [param0.name]
-        param3.schema.clone = True
+        param6.filter.list = ['csv']
 
-        params = [param0, param1, param2, param3]
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateParameters(self, parameters):
+        # get soils field
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                parameters[1].enabled = True
+                parameters[2].enabled = True
+                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+                parameters[1].filter.list = fields
+                parameters[2].filter.list = fields
+                if "from_node" in fields:
+                    parameters[1].value = "from_node"
+                if "to_node" in fields:
+                    parameters[2].value = "to_node"
+            else:
+                parameters[1].enabled = False
+                parameters[1].value = None
+                parameters[2].enabled = False
+                parameters[2].value = None
+
+        # default point spacing
+        if parameters[5].value is None:
+            parameters[5].value = "50 FeetUS"
         return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license()
+        return license(['Foundation', 'Spatial'])
 
     def updateMessages(self, parameters):
         "Modify the messages created by internal validation for each tool parameter."""
@@ -79,34 +125,135 @@ class StreamElevation(object):
         project, active_map = setup()
 
         # read in parameters
-        stream_network = parameters[0].value
-        raster_layer = parameters[1].value
-        log(parameters[2].value)
-        watershed = parameters[2].value
-        if parameters[2].value:
-                extent.spatialReference = parameters[2].value.spatialReference
-        output_file = parameters[3].valueAsText
+        streams = parameters[0].value
+        from_node = parameters[1].value
+        to_node = parameters[2].value
+        dem = parameters[3].value
+        watershed = parameters[4].value
+        linear_unit = get_linear_unit(streams)
+        point_spacing = parameters[5].valueAsText
+        point_spacing_unit = point_spacing.split(" ")[1]
+        output_file = parameters[6].valueAsText
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_dem = arcpy.CreateScratchName("dem", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
-        streamlines_scratch = arcpy.CreateScratchName("scratch_streamlines", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_streams = arcpy.CreateScratchName("streams", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_nodes = arcpy.CreateScratchName("nodes", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_points = arcpy.CreateScratchName("points", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_points_elev = arcpy.CreateScratchName("points_elev", "FeatureClass", arcpy.env.scratchGDB)
 
-        if parameters[2].value:
-            # clip streamlines to the study area
-            log("clipping waterbody to analysis area")
-            arcpy.analysis.Clip(stream_network, watershed, streamlines_scratch)
+        # copy streamlines to a scratch feature to avoid altering the input lines
+        log("setting watershed boundaries")
+        if watershed:
+            arcpy.analysis.Clip(streams, watershed, scratch_streams)
+        else:
+            arcpy.management.CopyFeatures(streams, scratch_streams)
 
-        # TODO: generate points along line
+        # set line direction
+        log("setting topographic drainage directions")
+        arcpy.topographic.SetLineDirection(scratch_streams, dem, "DOWNHILL")
 
-        # TODO: extract values to points
+        # calculate geometry lengths
+        log("calculate segment lengths")
+        field_name = "length"
+        if field_name not in [f.name for f in arcpy.ListFields(scratch_streams)]:
+            arcpy.management.AddField(scratch_streams, field_name, "DOUBLE")
+        arcpy.management.CalculateGeometryAttributes(
+            in_features=scratch_streams,
+            geometry_property=[[field_name, "LENGTH_GEODESIC"]],
+            length_unit="FEET_US",
+            coordinate_format="SAME_AS_INPUT"
+        )
 
-        # save and exit program successfully
-        log("saving project")
-        project.save()
+        # construct DAG
+        # dag: {
+        #     from_node: {
+        #                    to_node: #
+        #                    length:  #
+        #                    upstream_length: #
+        #                }
+        # }
+        log("finding segment start points")
+        arcpy.management.FeatureVerticesToPoints(
+            in_features=scratch_streams,
+            out_feature_class=scratch_nodes,
+            point_location="START"
+        )
+        log("constructing directed acyclic graph")
+        dag = {}
+        to_nodes = set()
+        from_nodes = set()
+        with arcpy.da.SearchCursor(scratch_nodes, ["from_node", "to_node", "length"]) as cursor:
+            for row in cursor:
+                from_node = row[0]
+                to_node = row[1]
+                length = row[2]
+                to_nodes.add(to_node)
+                from_nodes.add(from_node)
+                dag[from_node] = {
+                    "to_node": to_node,
+                    "length": length,
+                    "upstream_length": None,
+                }
+
+        # find start nodes with nothing flowing into them
+        log("finding start and end nodes")
+        start_nodes = list(from_nodes - to_nodes)
+        # end_nodes = list(to_nodes - from_nodes)
+
+        # go through each start node
+        log("calculating upstream segment lengths")
+        for start_node in start_nodes:
+            node_id = start_node
+            prev_total = 0
+            # accumulate upstream length on each downstream node
+            while node_id in dag:
+                node = dag[node_id]
+                to_node = node["to_node"]
+                length = node["length"]
+                upstream_length = node["upstream_length"]
+                if upstream_length is None or upstream_length < prev_total:
+                    node["upstream_length"] = prev_total
+                prev_total += length
+                node_id = to_node
+
+        # TODO: fix issue with all headwaters starting at 0
+        # generate points along line
+        log("generate data points along lines")
+        arcpy.management.GeneratePointsAlongLines(scratch_streams, scratch_points, "DISTANCE", point_spacing, Include_End_Points="END_POINTS", Add_Chainage_Fields="ADD_CHAINAGE")
+
+        # extract values to points
+        log("extract elevations at data points")
+        arcpy.sa.ExtractValuesToPoints(scratch_points, dem, scratch_points_elev)
+
+        # update lengths to include upstream length
+        # ['ORIG_LEN', 'from_node', 'to_node', 'length', 'RASTERVALU', ...]
+        log("add upstream length to data points")
+        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", "from_node"]) as cursor:
+            for row in cursor:
+                orig_len = row[0] * arcpy.LinearUnitConversionFactor(linear_unit, point_spacing_unit)
+                from_node = row[1]
+                row[0] = orig_len + dag[from_node]["upstream_length"]
+                cursor.updateRow(row)
+
+        # delete unnecessary fields
+        log("deleting unnecessary fields")
+        arcpy.management.DeleteField(scratch_points_elev, ["ORIG_LEN", "RASTERVALU"], method="KEEP_FIELDS")
+
+        # export table to csv
+        log("exporting elevation data to table")
+        arcpy.conversion.ExportTable(scratch_points_elev, output_file)
+
+        # open coordinates folder
+        log("opening folder")
+        os.startfile(output_file)
 
         # cleanup
         log("deleting unneeded data")
         empty_workspace(arcpy.env.scratchGDB, keep=[])
+
+        # save and exit program successfully
+        log("saving project")
+        project.save()
 
         return
