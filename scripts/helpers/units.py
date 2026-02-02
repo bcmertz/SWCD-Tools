@@ -27,25 +27,25 @@ def get_linear_unit(fc) -> str | None:
 
 # mapping of z unit to linear unit names
 UNITS = {
-    "KILOMETER": "Kilometers",
-    "METER": "Meters",
-    "DECIMETER": "Decimeters",
-    "MILLIMETER": "Millimeters",
-    "CENTIMETER": "Centimeters",
-    "NAUTICAL_MILE": "NauticalMilesInt",
-    "MILE_US": "MilesInt",
-    "YARD": "YardsInt",
-    "FOOT": "FeetInt",
-    "INCH": "InchesInt",
-    "NAUTICAL_MILE": "NauticalMilesUS",
-    "MILES_US": "MilesUS",
-    "YARD": "YardsUS",
-    "FOOT": "FeetUS",
-    "INCH": "InchesUS",
+    "Kilometers": "KILOMETER",
+    "Meters": "METER",
+    "Decimeters": "DECIMETER",
+    "Millimeters": "MILLIMETER",
+    "Centimeters": "CENTIMETER",
+    "NauticalMilesInt": "NAUTICAL_MILE",
+    "MilesInt": "MILE_US",
+    "YardsInt": "YARD",
+    "FeetInt": "FOOT",
+    "InchesInt": "INCH",
+    "NauticalMilesUS": "NAUTICAL_MILE",
+    "MilesUS": "MILES_US",
+    "YardsUS": "YARD",
+    "FeetUS": "FOOT",
+    "InchesUS": "INCH",
 }
 
-z_units = list(UNITS.keys())
-linear_units = list(UNITS.values())
+linear_units = list(UNITS.keys())
+z_units = list(UNITS.values())
 
 
 def area_to_num_cells(raster, area: str) -> int | None:
