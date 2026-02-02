@@ -182,15 +182,28 @@ class StreamNetwork(object):
                 arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_output, True)
 
                 log("joining keep fields to output feature class")
+                # create field mapping keeping only join feature fields specified
+                field_mapping = arcpy.FieldMappings()
+                field_mapping.addTable(stream)
+                for field in field_mapping.fields:
+                    if field.name not in keep_fields:
+                        field_mapping.removeFieldMap(field_mapping.findFieldMapIndex(field.name))
+                field_mapping.addTable(scratch_output)
+
+                # perform spatial join
                 arcpy.analysis.SpatialJoin(
                     target_features=scratch_output,
                     join_features=stream,
                     out_feature_class=output_file,
                     join_operation="JOIN_ONE_TO_ONE",
                     join_type="KEEP_ALL",
+                    field_mapping=field_mapping,
                     match_option="CLOSEST",
                     search_radius="25 Meters",
                 )
+
+                # remove `Join_Count` and `TARGET_FID` fields
+                arcpy.management.DeleteField(output_file, ["Join_Count", "TARGET_FID"])
             else:
                 # stream to feature
                 log("converting stream raster to output feature class")
