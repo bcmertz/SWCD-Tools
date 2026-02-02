@@ -24,7 +24,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Relative Elevation Model (REM)](#8-relative-elevation-model-rem-)
     - [Stream Power Index (SPI)](#9-stream-power-index-spi-)
     - [Stream Centerline Adjuster](#10-stream-centerline-adjuster-)
-  - [Tile Drainage](#tile-drainage-)
+  - [Drainage Tile Detection](#drainage-tile-detection-)
     - [Decision Tree Classification](#1-decision-tree-classification-dtc-)
     - [Image Differencing - Setup](#2-image-differencing---setup-)
     - [Image Differencing](#3-image-differencing-)
@@ -271,7 +271,7 @@ Red line shows before blue line shows after
 
 Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
 
-## Tile Drainage [↑](#table-of-contents)
+## Drainage Tile Detection [↑](#table-of-contents)
 
 ### 1. Decision Tree Classification (DTC) [↑](#table-of-contents)
 
