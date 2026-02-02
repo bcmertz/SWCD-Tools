@@ -142,7 +142,7 @@ class StreamElevation(object):
         streams = parameters[0].value
         from_node = parameters[1].value
         to_node = parameters[2].value
-        keep_fields = parameters[3].value or []
+        keep_fields = parameters[3].valueAsText.split(";") if parameters[3].value else []
         dem = parameters[4].value
         watershed = parameters[5].value
         linear_unit = get_linear_unit(streams)
