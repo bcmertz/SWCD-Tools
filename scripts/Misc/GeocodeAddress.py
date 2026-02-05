@@ -79,7 +79,7 @@ class GeocodeAddress(object):
             out_loc = None
             if len(geocoding_candidates) == 0:
                 # return warning
-                arcpy.AddWarning("Warning: Couldn't find any matches for address {}".format(address))
+                arcpy.AddWarning("Warning: Couldn't find any matches for address '{}'".format(address))
                 continue
             else:
                 out_loc = geocoding_candidates[0]
