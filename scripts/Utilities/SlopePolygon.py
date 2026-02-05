@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------------
-# Name:        Contour Polygon
-# Purpose:     This tool takes a polygon and creates the specified contours in it.
+# Name:        Slope Polygon
+# Purpose:     This tool takes a polygon and creates a slope raster inside it.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
@@ -12,12 +12,12 @@ from ..helpers import license, get_z_unit, z_units, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
-class ContourPolygon(object):
+class SlopePolygon(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Contour Polygon"
-        self.description = "Contour polygon from DEM"
-        self.category = "Misc"
+        self.label = "Slope Polygon"
+        self.description = "Create slope raster from a DEM inside a polygon"
+        self.category = "Utilities"
         self.canRunInBackground = True
 
     def getParameterInfo(self):
@@ -38,8 +38,8 @@ class ContourPolygon(object):
         param1.filter.list = z_units
 
         param2 = arcpy.Parameter(
-            displayName="Contour Area",
-            name="polygon",
+            displayName="Slope Area",
+            name="slope",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
@@ -55,16 +55,21 @@ class ContourPolygon(object):
         param3.schema.clone = True
 
         param4 = arcpy.Parameter(
-            displayName="Contour Interval",
-            name="contour_interval",
-            datatype="GPLinearUnit",
-            parameterType="Required",
+            displayName="Output Measurement",
+            name="measurement",
+            datatype="GPString",
+            parameterType="Optional",
             direction="Input")
+        param4.filter.list = ["Degree", "Percent Slope"]
 
         params = [param0, param1, param2, param3, param4]
         return params
 
     def updateParameters(self, parameters):
+        # Default stream threshold value
+        if parameters[4].value is None:
+            parameters[4].value = "Percent Slope"
+
         # find z unit of raster based on vertical coordinate system
         #  - if there is none, let the user define it
         #  - if it exists, set the value and hide the parameter
@@ -81,9 +86,6 @@ class ContourPolygon(object):
             else:
                 parameters[1].enabled = False
                 parameters[1].value = None
-
-        if not parameters[4].value:
-            parameters[4].value = "10 Feet"
 
         return
 
@@ -108,25 +110,26 @@ class ContourPolygon(object):
         z_unit = parameters[1].value
         polygon = parameters[2].value
         output_file = parameters[3].valueAsText
-        contour_interval, contour_unit = parameters[4].valueAsText.split(" ")
-        z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
+        measurement = parameters[4].valueAsText
+
+        if measurement == "Degree":
+            measurement = "DEGREE"
+        elif measurement == "Percent Slope":
+            measurement = "PERCENT_RISE"
+        else:
+            raise ValueError("Bad output measurement value")
 
         # clip raster to polyon
         log("clipping raster to polygon")
         outExtractByMask = arcpy.sa.ExtractByMask(raster_layer, polygon, "INSIDE")
 
-        # create contour in polygon
-        log("creating contour")
-        arcpy.sa.Contour(
-            in_raster=outExtractByMask,
-            out_polyline_features=output_file,
-            contour_interval=contour_interval,
-            base_contour=0,
-            z_factor=z_factor
-        )
+        log("creating slope raster")
+        out_slope = arcpy.sa.Slope(outExtractByMask, measurement, "", "GEODESIC", z_unit)
 
-        # add contours to map
-        log("adding contours to map")
+        log("saving slope raster")
+        out_slope.save(output_file)
+
+        log("adding slope raster")
         active_map.addDataFromPath(output_file)
 
         return
