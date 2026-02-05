@@ -17,7 +17,7 @@ class BurnCulverts(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Burn Culverts into DEM"
         self.description = "Remove obstructions for flow direction"
-        self.category = "Raster Tools"
+        self.category = "Terrain Modification"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

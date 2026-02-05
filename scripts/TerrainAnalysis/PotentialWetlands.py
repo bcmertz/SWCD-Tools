@@ -18,7 +18,7 @@ class PotentialWetlands(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Model Potential Wetlands"
         self.description = "Model potential wetlands from DEM"
-        self.category = "Wetland Tools"
+        self.category = "Terrain Analysis"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

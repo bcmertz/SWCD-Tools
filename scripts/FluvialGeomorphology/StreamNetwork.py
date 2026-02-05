@@ -18,7 +18,7 @@ class StreamNetwork(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Calculate Stream Network"
         self.description = "Create stream network from DEM"
-        self.category = "Hydrology"
+        self.category = "Fluvial Geomorphology"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

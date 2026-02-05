@@ -8,12 +8,5 @@
 
 from .CalculateEFH2 import CalculateEFH2
 from .RunoffCurveNumber import RunoffCurveNumber
-from .StreamElevation import StreamElevation
-from .StreamNetwork import StreamNetwork
 from .SubBasinDelineation import SubBasinDelineation
-from .TopographicWetness import TopographicWetness
-from .StreamPowerIndex import StreamPowerIndex
 from .WatershedDelineation import WatershedDelineation
-from .REMCalculator import RelativeElevationModel
-from .StreamCenterlineAdjuster import LeastAction
-from .StreambankDetection import StreambankDetection

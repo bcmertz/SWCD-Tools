@@ -17,7 +17,7 @@ class GeocodeAddress(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "NY Geocode Address"
         self.description = "Geocode NY address to point"
-        self.category = "Misc"
+        self.category = "Utilities"
         self.canRunInBackground = False
 
     def isLicensed(self):

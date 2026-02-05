@@ -9,21 +9,24 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
 - [Installation](#installation-)
 - [Project Structure](#project-structure-)
 - [Overview of tools](#overview-of-tools-)
-  - [Wetland tools](#wetland-tools-)
+  - [Terrain Modification](#terrain-modification-)
     - [Berm Analysis](#1-berm-analysis-)
     - [Dam Removal](#2-dam-removal-)
-    - [Model Potential Wetlands](#3-model-potential-wetlands-)
-  - [Hydrology](#hydrology-)
+    - [Burn Culverts in DEM](#3-burn-culverts-in-dem-)
+  - [Fluvial Geomorphology](#fluvial-geomorphology-)
     - [Stream Elevation Profile](#1-stream-elevation-profile-)
     - [Calculate Stream Network](#2-calculate-stream-network-)
-    - [Watershed Delineation](#3-watershed-delineation-)
-    - [Sub-Basin Delineation](#4-sub-basin-delineation-)
-    - [Runoff Curve Number (RCN)](#5-runoff-curve-number-)
-    - [EFH-2](#6-efh-2-calculation-)
-    - [Topographic Wetness Index (TWI)](#7-topographic-wetness-index-twi-)
-    - [Relative Elevation Model (REM)](#8-relative-elevation-model-rem-)
-    - [Stream Power Index (SPI)](#9-stream-power-index-spi-)
-    - [Stream Centerline Adjuster](#10-stream-centerline-adjuster-)
+    - [Stream Centerline Adjuster](#3-stream-centerline-adjuster-)
+  - [Hydrology](#hydrology-)
+    - [Watershed Delineation](#1-watershed-delineation-)
+    - [Sub-Basin Delineation](#2-sub-basin-delineation-)
+    - [Runoff Curve Number (RCN)](#3-runoff-curve-number-)
+    - [EFH-2](#4-efh-2-calculation-)
+  - [Terrain Analysis](#terrain-analysis-)
+    - [Model Potential Wetlands](#1-model-potential-wetlands-)
+    - [Topographic Wetness Index (TWI)](#2-topographic-wetness-index-twi-)
+    - [Relative Elevation Model (REM)](#3-relative-elevation-model-rem-)
+    - [Stream Power Index (SPI)](#4-stream-power-index-spi-)
   - [Drainage Tile Detection](#drainage-tile-detection-)
     - [Decision Tree Classification](#1-decision-tree-classification-dtc-)
     - [Image Differencing - Setup](#2-image-differencing---setup-)
@@ -34,16 +37,13 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Shrub Clusters](#2-shrub-clusters-)
     - [Riparian Forest Buffer Potential](#3-riparian-forest-buffer-potential-)
   - [Agricultural Assessment](#automated-agricultural-assessment-)
-  - [Raster Tools](#raster-tools-)
-    - [Contour Polygon](#1-contour-polygon-)
-    - [Slope Polygon](#2-slope-polygon-)
-    - [Burn Culverts in DEM](#3-burn-culverts-in-dem-)
-  - [Linear Analysis](#linear-analysis-)
+  - [Utilities](#utilities-)
     - [Local Minimums](#1-local-minimums-)
-  - [Miscellaneous](#miscellaneous-)
-  	- [Export Layouts](#export-layouts-)
- 	- [Historical Imagery](#historical-imagery-)
- 	- [Geocode Address](#geocode-address-tool-)
+ 	- [Geocode Address](#2-geocode-address-tool-)
+  	- [Export Layouts](#3-export-layouts-)
+    - [Contour Polygon](#4-contour-polygon-)
+    - [Slope Polygon](#5-slope-polygon-)
+ 	- [Historical Imagery](#6-historical-imagery-)
 - [Contributing](#contributing-)
 - [License](#license-)
 
@@ -69,26 +69,26 @@ If you're not sure, each tool will verify you have the proper licenses needed. N
 # Project Structure [↑](#table-of-contents)
 ```
 SWCD-Tools/
-├── assets/                  # various static assets for use by tools
-│   ├── readme_examples/     # contains before and after images of tools for documentation
-├── scripts/                 # folder containing all python scripts / tools
-│   ├── AgAssessment/        # automated agricultural assessment tools
-│   ├── RasterTools/         # raster geoprocessing tools
-│   ├── BufferTools/         # tools for riparian forest buffer planning
-│   ├── Hydrology/           # hydrology toolbox
-│   ├── TileDrainage/        # tile drainage toolbox
-│   ├── LineAnalysis/        # tools for analysis of lines in 3D
-│   ├── Misc/                # misc quality of life tools
-│   ├── Wetlands/            # wetland tools
-│   └── helpers/             # helper tools for use by other tools
-├── LICENSE                  # license
-├── README.md                # readme
-├── SWCD Tools.*.pyt.xml     # tool metadata including parameter descriptions
-└── SWCD Tools.pyt           # main entry-point to project
+├── assets/                      # various static assets for use by tools
+│   ├── readme_examples/         # contains before and after images of tools for documentation
+├── scripts/                     # folder containing all python scripts / tools
+│   ├── AgAssessment/            # automated agricultural value assessment tools
+│   ├── BufferTools/             # riparian forest buffer planting planning
+│   ├── FluvialGeomorphology/    # stream / landscape analysis toolbox
+│   ├── Hydrology/               # hydrology calculation toolbox
+│   ├── TerrainAnalysis/         # modeling of various landscape interactions 
+│   ├── TerrainModification/     # terrain modifying tools for planning and pre-conditionining DEMs
+│   ├── TileDrainage/            # tile drainage detection toolbox
+│   ├── Utilities/               # misc quality of life utilities
+│   └── helpers/                 # helper tools for use by other tools
+├── LICENSE                      # license
+├── README.md                    # readme
+├── SWCD Tools.*.pyt.xml         # tool metadata including parameter descriptions
+└── SWCD Tools.pyt               # main entry-point to project
 ```
 
 # Overview of tools [↑](#table-of-contents)
-## Wetland Tools [↑](#table-of-contents)
+## Terrain Modification [↑](#table-of-contents)
 ### 1. Berm Analysis [↑](#table-of-contents)
 
 Analyze the backwater effects of a proposed berm. Optionally: calculate the lowest effective height of the berm, create contours of ponded area
@@ -123,28 +123,18 @@ Example above shows the tool removing a dam and pond from a digital elevation mo
 
 This tool can be used to estimate storage capacity of a dammed area using a DEM.
 
-### 3. Model Potential Wetlands [↑](#table-of-contents)
+### 3. Burn Culverts in DEM [↑](#table-of-contents)
 
-This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, topographic wetness index (optional), and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
+This tool takes a DEM and culvert points shapefile and burns the culverts into the DEM for proper flow direction and accumulation analysis.
 
 <span>
-<img src="./assets/readme_examples/potential_wetlands_after.png" alt="picture showing output of model potential wetlands tool with areas along a stream highlited red to indicate potential wetland areas" height="250"/>
-<img src="./assets/readme_examples/potential_wetlands_nwi.png" alt="picture showing national wetlands invenotry mapping of the same area in purple. There is considerable overlap between this and the previous photo" height="250"/>
+<img src="./assets/readme_examples/culvert_dem_before.png" alt="before image green to red DEM raster with bridge obstructing river" height="250"/>
+<img src="./assets/readme_examples/culvert_dem_after.png" alt="after image green to red DEM raster with bridge not obstructing river" height="250"/>
 </span>
 
-Exmaple showing modeled potential wetlands (without existing wetland exclusion) in red on the left and mapped wetlands (NWI) in purple on the right.
+Example showing before and after DEM with culvert removal.
 
-This tool uses the following procedure:
-1. Find slopes <= user specified slope threshold
-2. Find all user specified hydric soils
-3. Extract all user-specified valid land uses
-4. Intersect all of these layers
-5. Optional: erase all user-specified mapped wetlands or floodlpains from analysis
-6. Optional: find mean value of topographic wetness index (TWI) raster in each output polygon and discard those < the user-specified minimum topographic wetness index
-
-This provides a reasonable approximation of wetland soils, hydrology, and valid land use. The output of this analysis can be intersected with known agricultural ditches or other wetland manipulating structures to find potential project areas. Consider using the [USGS Hyper-Resolution Hydrology Dataset](https://www.usgs.gov/data/chesapeake-bay-hyper-resolution-hydrography-database) for mapped ag and road ditches.
-
-## Hydrology [↑](#table-of-contents)
+## Fluvial Geomorphology [↑](#table-of-contents)
 
 ### 1. Stream Elevation Profile [↑](#table-of-contents)
 
@@ -173,7 +163,21 @@ Before and after showing input low-res streamlines in blue and high-res output s
 
 Close-up showing (with post-processing smoothing - PAEK 10m) derived streamlines in green.
 
-### 3. Watershed Delineation [↑](#table-of-contents)
+### 3. Stream Centerline Adjuster [↑](#table-of-contents)
+
+Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
+
+<span>
+<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="600"/>
+</span>
+
+Red line shows before blue line shows after
+
+Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel. It is recommended to use [Calculate Stream Network](#2-calculate-stream-network-) on a properly [Hydro-conditioned DEM](#3-burn-culverts-in-dem-).
+
+## Hydrology [↑](#table-of-contents)
+
+### 1. Watershed Delineation [↑](#table-of-contents)
 
 Takes a pour point and DEM and delineates the contributing watershed.
 
@@ -184,7 +188,7 @@ Takes a pour point and DEM and delineates the contributing watershed.
 
 Before and after showing study area topographic map and the delineated watershed
 
-### 4. Sub-Basin Delineation [↑](#table-of-contents)
+### 2. Sub-Basin Delineation [↑](#table-of-contents)
 
 Find sub-basins in a given watershed based off of a watershed flow-accumulation threshold.
 
@@ -195,7 +199,7 @@ Find sub-basins in a given watershed based off of a watershed flow-accumulation 
 
 Before and after showing the delineation of 4 sub-watersheds based off of the specified flow accumulation threshold.
 
-### 5. Runoff Curve Number [↑](#table-of-contents)
+### 3. Runoff Curve Number [↑](#table-of-contents)
 
 Calculates the runoff curve numbers for a given area based off of land use and hydrologic soil group.
 
@@ -211,11 +215,34 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 <img src="./assets/readme_examples/runoff_curve_numbers_rcn_table.png" alt="a picture of a raster attribute table showing runoff curve number values for hydrologic soil groups A,B,C,D for " width="800"/>
 </span>
 
-### 6. EFH-2 Calculation [↑](#table-of-contents)
+### 4. EFH-2 Calculation [↑](#table-of-contents)
 
 Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
 
-### 7. Topographic Wetness Index (TWI) [↑](#table-of-contents)
+## Terrain Analysis [↑](#table-of-contents)
+
+### 1. Model Potential Wetlands [↑](#table-of-contents)
+
+This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, topographic wetness index (optional), and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
+
+<span>
+<img src="./assets/readme_examples/potential_wetlands_after.png" alt="picture showing output of model potential wetlands tool with areas along a stream highlited red to indicate potential wetland areas" height="250"/>
+<img src="./assets/readme_examples/potential_wetlands_nwi.png" alt="picture showing national wetlands invenotry mapping of the same area in purple. There is considerable overlap between this and the previous photo" height="250"/>
+</span>
+
+Exmaple showing modeled potential wetlands (without existing wetland exclusion) in red on the left and mapped wetlands (NWI) in purple on the right.
+
+This tool uses the following procedure:
+1. Find slopes <= user specified slope threshold
+2. Find all user specified hydric soils
+3. Extract all user-specified valid land uses
+4. Intersect all of these layers
+5. Optional: erase all user-specified mapped wetlands or floodlpains from analysis
+6. Optional: find mean value of topographic wetness index (TWI) raster in each output polygon and discard those < the user-specified minimum topographic wetness index
+
+This provides a reasonable approximation of wetland soils, hydrology, and valid land use. The output of this analysis can be intersected with known agricultural ditches or other wetland manipulating structures to find potential project areas. Consider using the [USGS Hyper-Resolution Hydrology Dataset](https://www.usgs.gov/data/chesapeake-bay-hyper-resolution-hydrography-database) for mapped ag and road ditches.
+
+### 2. Topographic Wetness Index (TWI) [↑](#table-of-contents)
 
 Calculates topographic wetness index (TWI) as a model of wetness due to topography and surface flow.
 
@@ -239,7 +266,7 @@ After images showing output topographic wetness index (TWI) rasters for both low
 
 This shows a TWI output with mapped NWI and DEC wetlands. Notice the  significant overlap with the darkest TWI areas.
 
-### 8. Relative Elevation Model (REM) [↑](#table-of-contents)
+### 3. Relative Elevation Model (REM) [↑](#table-of-contents)
 
 Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and indentifying geomorphic features.
 
@@ -249,7 +276,7 @@ Create a relative elevation model (REM) or height above nearest drainage (HAND) 
 
 This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
 
-### 9. Stream Power Index (SPI) [↑](#table-of-contents)
+### 4. Stream Power Index (SPI) [↑](#table-of-contents)
 
 Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on landscape position and erosive potential.
 
@@ -258,18 +285,6 @@ Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on 
 </span>
 
 This example outputs shows stream power along a small headwater stream in the forest.
-
-### 10. Stream Centerline Adjuster [↑](#table-of-contents)
-
-Takes a streamline and optimizes each point along it's path to the lowest perpendicular point in a DEM within a search radius.
-
-<span>
-<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="600"/>
-</span>
-
-Red line shows before blue line shows after
-
-Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel.
 
 ## Drainage Tile Detection [↑](#table-of-contents)
 
@@ -361,11 +376,30 @@ This tool uses the following procedure:
 5. Calculate acreage of planting areas
 6. Exclude planting areas smaller than specified size
 
-## Raster Tools [↑](#table-of-contents)
+## Utilities [↑](#table-of-contents)
 
-Quality of life tools to improve some out of the box geoprocessing tools
+Quality of life tools to improve some out of the box geoprocessing tools and provide some simple common workflows
 
-### 1. Contour Polygon [↑](#table-of-contents)
+### 1. Local Minimums [↑](#table-of-contents)
+
+Find all of the local elevation minimums along a line. Uses a minimum elevation threshold to ignore small deviations in the underlying DEM data.
+
+<span>
+<img src="./assets/readme_examples/local_minimums_before.png" alt="before image showing 1 foot contours, aerial imagery and blue line" height="300"/>
+<img src="./assets/readme_examples/local_minimums_after.png" alt="after image showing 1 foot contours, aerial imagery, blue line, and 3 local minimums along the line as blue dots" height="300"/>
+</span>
+
+Example showing a water line in a field and all of the local minimums along it. Lines represent 1' contours, and the local minimum threshold was 2".
+
+### 2. Geocode address tool [↑](#table-of-contents)
+
+Uses [NY GIS Address Geocoder](https://gis.ny.gov/address-geocoder) to take an address and return a point on the map.
+
+### 3. Export Layouts [↑](#table-of-contents)
+
+Quality of life tool to select which layouts to export and to where
+
+### 4. Contour Polygon [↑](#table-of-contents)
 
 Contour tool with ability to limit analysis to inside a given polygon
 
@@ -375,7 +409,7 @@ Contour tool with ability to limit analysis to inside a given polygon
 
 Example showing output 10' contours in polygon.
 
-### 2. Slope Polygon [↑](#table-of-contents)
+### 5. Slope Polygon [↑](#table-of-contents)
 
 Slope tool with ability to limit analysis to inside a given polygon
 
@@ -385,16 +419,9 @@ Slope tool with ability to limit analysis to inside a given polygon
 
 Example showing output slope raster in polygon.
 
-### 3. Burn Culverts in DEM [↑](#table-of-contents)
+### 6. Historical Imagery [↑](#table-of-contents)
 
-This tool takes a DEM and culvert points shapefile and burns the culverts into the DEM for proper flow direction and accumulation analysis.
-
-<span>
-<img src="./assets/readme_examples/culvert_dem_before.png" alt="before image green to red DEM raster with bridge obstructing river" height="250"/>
-<img src="./assets/readme_examples/culvert_dem_after.png" alt="after image green to red DEM raster with bridge not obstructing river" height="250"/>
-</span>
-
-Example showing before and after DEM with culvert removal.
+Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
 
 ## Automated Agricultural Assessment [↑](#table-of-contents)
 
@@ -461,35 +488,6 @@ Output of step 3 showing the final layout.
 ### 4. Export Layouts [↑](#table-of-contents)
 
 Export all relevant maps to PDF in the project folder.
-
-## Linear Analysis [↑](#table-of-contents)
-
-Tools to analyze linear features with respect to elevation.
-
-### 1. Local Minimums [↑](#table-of-contents)
-
-Find all of the local elevation minimums along a line. Uses a minimum elevation threshold to ignore small deviations in the underlying DEM data.
-
-<span>
-<img src="./assets/readme_examples/local_minimums_before.png" alt="before image showing 1 foot contours, aerial imagery and blue line" height="300"/>
-<img src="./assets/readme_examples/local_minimums_after.png" alt="after image showing 1 foot contours, aerial imagery, blue line, and 3 local minimums along the line as blue dots" height="300"/>
-</span>
-
-Example showing a water line in a field and all of the local minimums along it. Lines represent 1' contours, and the local minimum threshold was 2".
-
-## Miscellaneous [↑](#table-of-contents)
-
-### Export Layouts [↑](#table-of-contents)
-
-Quality of life tool to select which layouts to export and to where
-
-### Historical Imagery [↑](#table-of-contents)
-
-Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
-
-### Geocode address tool [↑](#table-of-contents)
-
-Uses [NY GIS Address Geocoder](https://gis.ny.gov/address-geocoder) to take an address and return a point on the map.
 
 # Contributing [↑](#table-of-contents)
 

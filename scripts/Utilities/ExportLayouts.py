@@ -17,7 +17,7 @@ class ExportLayouts(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Export Layouts"
         self.description = "Run to export layouts"
-        self.category = "Misc"
+        self.category = "Utilities"
         self.canRunInBackground = False
 
     def isLicensed(self):

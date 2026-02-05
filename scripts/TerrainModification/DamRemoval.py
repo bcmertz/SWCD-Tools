@@ -19,7 +19,7 @@ class DamRemoval(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Dam Removal"
         self.description = "Dam Removal"
-        self.category = "Wetland Tools"
+        self.category = "Terrain Modification"
         self.canRunInBackground = False
 
     def getParameterInfo(self):
