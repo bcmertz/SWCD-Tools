@@ -7,5 +7,8 @@
 # --------------------------------------------------------------------------------
 
 from .CollectHistoricalRasters import CollectRasters
+from .ContourPolygon import ContourPolygon
 from .ExportLayouts import ExportLayouts
 from .GeocodeAddress import GeocodeAddress
+from .LocalMinimums import LocalMinimums
+from .SlopePolygon import SlopePolygon

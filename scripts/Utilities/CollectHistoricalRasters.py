@@ -14,9 +14,9 @@ from ..helpers import setup_environment as setup
 class CollectRasters:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Collect historical imagery rasters"
+        self.label = "Collect Historical Imagery Rasters"
         self.description = ""
-        self.category = "Misc"
+        self.category = "Utilities"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

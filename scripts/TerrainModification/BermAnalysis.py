@@ -20,7 +20,7 @@ class BermAnalysis(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Berm Analysis"
         self.description = "Model backwatered area from berm"
-        self.category = "Wetland Tools"
+        self.category = "Terrain Modification"
         self.canRunInBackground = False
 
     def getParameterInfo(self):
