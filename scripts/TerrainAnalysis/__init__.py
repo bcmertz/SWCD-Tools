@@ -7,6 +7,6 @@
 # --------------------------------------------------------------------------------
 
 from .PotentialWetlands import PotentialWetlands
-from .REMCalculator import RelevativeElevationModel
+from .REMCalculator import RelativeElevationModel
 from .StreamPowerIndex import StreamPowerIndex
 from .TopographicWetness import TopographicWetness
