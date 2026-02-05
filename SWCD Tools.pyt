@@ -26,6 +26,7 @@ class Toolbox(object):
             LeastAction,
             RunoffCurveNumber,
             CalculateEFH2,
+            StreambankDetection,
             WatershedDelineation,
             SubBasinDelineation,
             DecisionTree,

@@ -16,3 +16,4 @@ from .StreamPowerIndex import StreamPowerIndex
 from .WatershedDelineation import WatershedDelineation
 from .REMCalculator import RelativeElevationModel
 from .StreamCenterlineAdjuster import LeastAction
+from .StreambankDetection import StreambankDetection
