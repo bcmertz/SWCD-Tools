@@ -18,7 +18,7 @@ class StreamElevation(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Stream Elevation Profile"
         self.description = "Create profile of the stream throughout it's length"
-        self.category = "Hydrology"
+        self.category = "Fluvial Geomorphology"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

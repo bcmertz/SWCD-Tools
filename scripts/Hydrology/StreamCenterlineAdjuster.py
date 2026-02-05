@@ -18,7 +18,7 @@ class LeastAction(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Stream Centerline Adjuster"
         self.description = "Stream Centerline Adjuster"
-        self.category = "Hydrology"
+        self.category = "Fluvial Geomorphology"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

@@ -17,7 +17,7 @@ class ContourPolygon(object):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Contour Polygon"
         self.description = "Contour polygon from DEM"
-        self.category = "Raster Tools"
+        self.category = "Misc"
         self.canRunInBackground = True
 
     def getParameterInfo(self):

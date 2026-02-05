@@ -9,16 +9,16 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, empty_workspace, reload_module, log
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class RelativeElevationModel(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Relative Elevation Model (REM)"
         self.description = "Compute REM"
-        self.category = "Hydrology"
+        self.category = "Terrain Analysis"
         self.canRunInBackground = False
 
     def getParameterInfo(self):

@@ -8,16 +8,16 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, z_units, reload_module, log
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_z_unit, z_units, reload_module, log
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class SlopePolygon(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Slope Polygon"
         self.description = "Create slope raster from a DEM inside a polygon"
-        self.category = "Raster Tools"
+        self.category = "Misc"
         self.canRunInBackground = True
 
     def getParameterInfo(self):

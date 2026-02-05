@@ -9,16 +9,16 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, get_z_unit, z_units, empty_workspace, toggle_required_parameter, reload_module, log
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_oid, get_z_unit, z_units, empty_workspace, toggle_required_parameter, reload_module, log
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class PotentialWetlands(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Model Potential Wetlands"
         self.description = "Model potential wetlands from DEM"
-        self.category = "Wetland Tools"
+        self.category = "Terrain Analysis"
         self.canRunInBackground = False
 
     def getParameterInfo(self):
