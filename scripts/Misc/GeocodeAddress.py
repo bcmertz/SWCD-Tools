@@ -27,41 +27,26 @@ class GeocodeAddress(object):
     def getParameterInfo(self):
         """Define parameter definitions"""
         param0 = arcpy.Parameter(
-            displayName="Street Name and Number",
-            name="street_name_num",
+            displayName="Addresses",
+            name="addresses",
             datatype="GPString",
             parameterType="Required",
+            multiValue="True",
             direction="Input")
 
         param1 = arcpy.Parameter(
-            displayName="City/Town",
-            name="city_town",
-            datatype="GPString",
+            displayName="Output Points Feature",
+            name="out_features",
+            datatype="DEFeatureClass",
             parameterType="Required",
-            direction="Input")
+            direction="Output")
+        param1.parameterDependencies = [param0.name]
+        param1.schema.clone = True
 
-        param2 = arcpy.Parameter(
-            displayName="State (two letter)",
-            name="state",
-            datatype="GPString",
-            parameterType="Required",
-            direction="Input")
-
-        param3 = arcpy.Parameter(
-            displayName="Zip Code",
-            name="zip_code",
-            datatype="GPString",
-            parameterType="Required",
-            direction="Input")
-
-        params = [param0, param1, param2, param3]
+        params = [param0, param1]
         return params
 
     def updateParameters(self, parameters):
-        # default state
-        if parameters[2].value is None:
-            parameters[2].value = "NY"
-
         return
 
     @reload_module(__name__)
@@ -74,11 +59,11 @@ class GeocodeAddress(object):
         spatial_reference = arcpy.SpatialReference(spatial_reference_name)
 
         # read in parameters
-        log("reading in address")
-        address = parameters[0].valueAsText
-        town = parameters[1].valueAsText
-        state = parameters[2].valueAsText
-        zipcode = parameters[3].valueAsText
+        log("reading in addresses")
+        addresses = parameters[0].valueAsText.replace("'","").split(";")
+        output_file = parameters[1].valueAsText
+        out_name = output_file.split("\\")[-1]
+        out_dir = os.path.dirname(output_file)
 
         # Create a new Locator object from the NY Geocoding Service
         log("creating locator")
@@ -86,25 +71,31 @@ class GeocodeAddress(object):
         locator = arcpy.geocoding.Locator(locator_path)
 
         # return candidates
-        log("geolocating address")
-        geocoding_candidates = locator.geocode("{}, {}, {} {}".format(address, town, state, zipcode), False)
+        log("geolocating addresses")
+        points = {}
+        for address in addresses:
+            geocoding_candidates = locator.geocode("{}".format(address), False)
 
-        out_loc = None
-        if len(geocoding_candidates) == 0:
-            # return warning
-            arcpy.AddWarning("Warning: Couldn't find any matches for the address given")
-            return
-        else:
-            out_loc = geocoding_candidates[0]
+            out_loc = None
+            if len(geocoding_candidates) == 0:
+                # return warning
+                arcpy.AddWarning("Warning: Couldn't find any matches for address {}".format(address))
+                continue
+            else:
+                out_loc = geocoding_candidates[0]
+
+            point = out_loc["Shape"]
+            point_geometry = arcpy.PointGeometry(point, spatial_reference)
+            points[address] = point_geometry
 
         # get point and add to map
         log("adding data to map")
-        point = out_loc["Shape"]
-        point_geometry = arcpy.PointGeometry(point, spatial_reference)
-        output_name = arcpy.ValidateTableName(address)
-        output_path = os.path.join(arcpy.env.workspace, output_name)
-        arcpy.management.CopyFeatures(point_geometry, output_path)
-        address_fc = active_map.addDataFromPath(output_path)
+        points_fc = arcpy.management.CreateFeatureclass(out_dir, out_name, "POINT", spatial_reference=spatial_reference)
+        arcpy.management.AddField(points_fc, "Address", "TEXT")
+        with arcpy.da.InsertCursor(points_fc, ["Address", "SHAPE@"]) as points_fc:
+            for address in points:
+                points_fc.insertRow([address, points[address]])
+        address_fc = active_map.addDataFromPath(output_file)
 
         # zoom to layer
         log("zooming to layer")
@@ -115,4 +106,4 @@ class GeocodeAddress(object):
         # save project
         log("saving project")
         project.save()
-        return point_geometry
+        return
