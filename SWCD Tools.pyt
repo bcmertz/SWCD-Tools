@@ -42,7 +42,8 @@ class Toolbox(object):
             GeocodeAddress,
             Forest,
             Process,
-            Export
+            Export,
+            Restart
         ]
 
         # List of tool classes associated with this toolbox
