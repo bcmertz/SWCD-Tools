@@ -9,9 +9,9 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, z_units, empty_workspace, toggle_required_parameter, reload_module, log
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from ..helpers import license, get_oid, get_z_unit, z_units, empty_workspace, toggle_required_parameter, reload_module, log
+from ..helpers import setup_environment as setup
+from ..helpers import validate_spatial_reference as validate
 
 class PotentialWetlands(object):
     def __init__(self):

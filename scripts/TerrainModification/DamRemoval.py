@@ -10,9 +10,9 @@
 import arcpy
 from math import atan2, pi
 
-from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from ..helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log
+from ..helpers import setup_environment as setup
+from ..helpers import validate_spatial_reference as validate
 
 class DamRemoval(object):
     def __init__(self):
