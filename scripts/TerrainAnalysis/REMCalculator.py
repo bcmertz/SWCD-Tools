@@ -149,13 +149,12 @@ class RelativeElevationModel(object):
 
         # raster calculator (DEM - IDW_new)
         log("calculating relative elevation difference")
-        relative_elevation = arcpy.CreateUniqueName(output_file)
         out_rem = arcpy.sa.RasterCalculator([dem_raster_clip,idw_raster],["x","y"],"x-y", "FirstOf", "FirstOf")
-        out_rem.save(relative_elevation)
+        out_rem.save(output_file)
 
         # add results to map
         log("adding results to map")
-        rem_raster = active_map.addDataFromPath(out_rem)
+        rem_raster = active_map.addDataFromPath(output_file)
 
         # update raster symbology
         log("updating raster symbology")
