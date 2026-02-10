@@ -104,7 +104,7 @@ class RelativeElevationModel(object):
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
         buffer_radius = parameters[4].valueAsText
-        sampling_interval = parameters[4].valueAsText
+        sampling_interval = parameters[5].valueAsText
 
         # set analysis extent
         if extent:
