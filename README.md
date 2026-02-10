@@ -56,7 +56,7 @@ If you're not sure, each tool will verify you have the proper licenses needed. N
 # Installation [↑](#table-of-contents)
 
 1. Download repository
-	- [Option 1] Using git - Note: this has the benefit of allowing you to pull updates easily any time but is more complicated for non-developers
+	- [Option 1] Using git - Note: this has the benefit of allowing you to pull updates easily any time but may be more complicated for non-developers
      	1. Clone repo locally: `git clone https://github.com/bcmertz/SWCD-Tools.git`
 	- [Option 2] Download zip - Note: this is the simplest way to get access to these tools
      	1. Download zip file
