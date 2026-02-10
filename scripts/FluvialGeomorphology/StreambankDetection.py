@@ -1,6 +1,7 @@
 # --------------------------------------------------------------------------------
 # Name:        Streambank Detection
-# Purpose:     This tool TODO
+# Purpose:     This tool uses the ratio of HAND and Hydraulic Radius to detect
+#              where breaks in bank grade occur.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
@@ -15,8 +16,8 @@ class StreambankDetection:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Streambank Detection"
-        self.category = "Hydrology"
-        self.description = "TODO"
+        self.category = "Fluvial Geomorphology"
+        self.description = "Detect streambanks from DEM"
 
     def getParameterInfo(self):
         """Define parameter definitions"""
