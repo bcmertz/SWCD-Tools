@@ -9,3 +9,4 @@
 from .StreamCenterlineAdjuster import LeastAction
 from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
+from .StreambankDetection import StreambankDetection
