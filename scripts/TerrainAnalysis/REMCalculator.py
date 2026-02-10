@@ -145,7 +145,13 @@ class RelativeElevationModel(object):
         log("calculating IDW raster")
         arcpy.env.cellSize = dem_raster_clip
         arcpy.env.extent = scratch_stream_buffer
-        idw_raster = arcpy.sa.Idw(scratch_stream_elev_points, "RASTERVALU", "", "", "", "")
+        buffer_radius, buffer_radius_unit = buffer_radius.split(" ")
+        radius_map_units = int(buffer_radius) * arcpy.LinearUnitConversionFactor(buffer_radius_unit, active_map.mapUnits)
+        idw_raster = arcpy.sa.Idw(
+            in_point_features=scratch_stream_elev_points,
+            z_field="RASTERVALU",
+            search_radius=arcpy.sa.RadiusFixed(2 * radius_map_units, 0)
+        )
 
         # raster calculator (DEM - IDW_new)
         log("calculating relative elevation difference")
