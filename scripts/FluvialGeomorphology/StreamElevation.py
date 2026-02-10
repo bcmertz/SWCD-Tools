@@ -151,10 +151,10 @@ class StreamElevation(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_streams = arcpy.CreateScratchName("streams", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_nodes = arcpy.CreateScratchName("nodes", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_points = arcpy.CreateScratchName("points", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_points_elev = arcpy.CreateScratchName("points_elev", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_streams = arcpy.CreateScratchName("streams", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_nodes = arcpy.CreateScratchName("nodes", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_points = arcpy.CreateScratchName("points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_points_elev = arcpy.CreateScratchName("points_elev", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # copy streamlines to a scratch feature to avoid altering the input lines
         log("setting watershed boundaries")
