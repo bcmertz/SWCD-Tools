@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------------
 # Name:        Streambank Detection
-# Purpose:     This tool uses the ratio of HAND and Hydraulic Radius to detect
+# Purpose:     This tool uses the ratio of REM and Hydraulic Radius to detect
 #              where breaks in bank grade occur.
 #
 # License:     GNU Affero General Public License v3.
@@ -17,7 +17,7 @@ class StreambankDetection:
         """Define the tool (tool name is the name of the class)."""
         self.label = "Streambank Detection"
         self.category = "Fluvial Geomorphology"
-        self.description = "Detect streambanks from DEM"
+        self.description = "Detect streambanks from REM"
 
     def getParameterInfo(self):
         """Define parameter definitions"""
@@ -39,29 +39,22 @@ class StreambankDetection:
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
-            displayName="DEM",
-            name="dem",
-            datatype="GPRasterLayer",
-            parameterType="Required",
-            direction="Input")
-
-        param3 = arcpy.Parameter(
             displayName="REM",
             name="rem",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
 
-        param4 = arcpy.Parameter(
+        param3 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param4.parameterDependencies = [param0.name]
-        param4.schema.clone = True
+        param3.parameterDependencies = [param0.name]
+        param3.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3]
         return params
 
     def updateParameters(self, parameters):
@@ -87,11 +80,9 @@ class StreambankDetection:
         log("reading in parameters")
         streams = parameters[0].value
         extent = parameters[1].value
-        dem_layer = parameters[2].value
-        dem = arcpy.Raster(dem_layer.name)
-        rem_layer = parameters[3].value
+        rem_layer = parameters[2].value
         rem = arcpy.Raster(rem_layer.name)
-        output_file = parameters[4].valueAsText
+        output_file = parameters[3].valueAsText
 
         # set cell size
         arcpy.env.cellSize = min_cell_path(parameters)
