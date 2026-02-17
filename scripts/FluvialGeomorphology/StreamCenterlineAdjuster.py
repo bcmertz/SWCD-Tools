@@ -9,7 +9,7 @@
 import math
 import arcpy
 
-import transect_line
+from .GenerateCrossSections import transect_line
 from ..helpers import license, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
