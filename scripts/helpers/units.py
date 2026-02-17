@@ -25,7 +25,7 @@ def get_linear_unit(fc) -> str | None:
         desc = arcpy.Describe(fc)
         return desc.spatialReference.linearUnitName
     except:
-        if "spatial_reference" in fc:
+        if "spatialReference" in fc:
             return fc.spatialReference.linearUnitName
 
 
