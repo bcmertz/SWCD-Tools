@@ -17,6 +17,7 @@ class Toolbox(object):
             ExportLayouts,
             StreamNetwork,
             StreamElevation,
+            GenerateCrossSections,
             LocalMinimums,
             RelativeElevationModel,
             PointPlots,
