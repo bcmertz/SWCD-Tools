@@ -111,13 +111,17 @@ class StreambankDetection:
             distance_method="GEODESIC"
         )
 
-        # create distance cost raster ("hydraulic area")
+        # smooth irregularities in streambed
+        log("smoothing streambed")
+        sql_query = "VALUE < 0.25" # TODO: find something more reasonable
+        con_rem = arcpy.sa.Con(rem, 0, rem, sql_query)
+
+        # create distance cost raster "hydraulic area"
         # not actually hydraulic area since its the area under the curve not the area above the curve
         log("calculating hydraulic area")
         arcpy.sa.DistanceAllocation(
             in_source_data=streams,
-            in_surface_raster=dem,
-            in_cost_raster=rem,
+            in_cost_raster=con_rem,
             out_distance_accumulation_raster=scratch_area,
             source_field=get_oid(streams),
             distance_method="GEODESIC"
@@ -135,7 +139,7 @@ class StreambankDetection:
         # update raster symbology
         log("updating output symbology")
         min_value = 0
-        max_value = 100
+        max_value = 25
         sym = output_layer.symbology
         if hasattr(sym, 'colorizer'):
             if sym.colorizer.type != "RasterStretchColorizer":
@@ -156,7 +160,7 @@ class StreambankDetection:
 
         # cleanup
         log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchGDB, keep=[])
+        empty_workspace(arcpy.env.scratchGDB)
 
         # save program successfully
         log("saving project")
