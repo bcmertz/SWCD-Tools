@@ -18,7 +18,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Calculate Stream Network](#2-calculate-stream-network-)
     - [Stream Centerline Adjuster](#3-stream-centerline-adjuster-)
     - [Streambank Detection](#4-streambank-detection-)
-    - [Generate Cross-Sections](#5-generate-cross---sections-)
+    - [Generate Cross-Sections](#5-generate-cross-sections-)
   - [Hydrology](#hydrology-)
     - [Watershed Delineation](#1-watershed-delineation-)
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
