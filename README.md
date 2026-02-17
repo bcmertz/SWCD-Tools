@@ -182,8 +182,8 @@ Note: this tool can perform poorly on highly sinuous streams and often picks up 
 This tool finds most likely locations of streambanks based off of a DEM using research by [McKean 2005](https://www.researchgate.net/publication/253278581_Mapping_Channel_Morphology_and_Stream_Habitat_With_a_Full_Waveform_Green_Lidar) and [De Rosa et al 2019](https://doi.org/10.3390/ijgi8110480)
 
 <span>
-<img src="./assets/readme_examples/bankfull_detection_before.png" alt="a picture showing aerial imagery of a stream" width="420"/>
-<img src="./assets/readme_examples/bankfull_detection_after.png" alt="tool output black and white raster showing white pixels where streambank is estimated to be from DEM" width="420"/>
+<img src="./assets/readme_examples/bankfull_detection_before.png" alt="a picture showing aerial imagery of a stream" width="400"/>
+<img src="./assets/readme_examples/bankfull_detection_after.png" alt="tool output black and white raster showing white pixels where streambank is estimated to be from DEM" width="400"/>
 </span>
 
 Example above shows an ouput raster of streambank likelihood based off of the DEM, where the closest peak in high raster values (white pixels) represents the likely top of bank.
