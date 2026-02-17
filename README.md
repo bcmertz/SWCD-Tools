@@ -17,6 +17,8 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Stream Elevation Profile](#1-stream-elevation-profile-)
     - [Calculate Stream Network](#2-calculate-stream-network-)
     - [Stream Centerline Adjuster](#3-stream-centerline-adjuster-)
+    - [Streambank Detection](#4-streambank-detection-)
+    - [Generate Cross-Sections](#5-generate-cross---sections-)
   - [Hydrology](#hydrology-)
     - [Watershed Delineation](#1-watershed-delineation-)
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
@@ -174,6 +176,24 @@ Takes a streamline and optimizes each point along it's path to the lowest perpen
 Red line shows before blue line shows after
 
 Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel. It is recommended to use [Calculate Stream Network](#2-calculate-stream-network-) on a properly [Hydro-conditioned DEM](#3-burn-culverts-in-dem-).
+
+### 4. Streambank Detection [↑](#table-of-contents)
+
+TODO
+
+<span>
+<img src="./assets/readme_examples/stream_centerline_after.png" alt="a picture showing aerial imagery of a stream with a red line indicating the before stream line and blue line indicating the after stream line more closely matching the layout of the stream" width="600"/>
+</span>
+
+TODO
+
+### 5. Generate Cross-Sections [↑](#table-of-contents)
+
+Generate cross-sections along a stream line
+
+<span>
+<img src="./assets/readme_examples/cross_section_after.png" alt="image shows a streamline and cross-sections generated along it 100 feet wide every 100 feet" width="600"/>
+</span>
 
 ## Hydrology [↑](#table-of-contents)
 
