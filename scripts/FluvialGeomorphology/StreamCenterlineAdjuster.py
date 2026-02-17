@@ -162,7 +162,6 @@ class LeastAction(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
-        arcpy.env.parallelProcessingFactor = "75%"
 
         # read in parameters
         dem = parameters[0].value
