@@ -14,7 +14,7 @@ from .setupenvironment import setup_environment
 from .validatespatialreference import validate_spatial_reference
 from .togglerequiredparameter import toggle_required_parameter
 from .getoid import get_oid
-from .pixeltype import pixel_type
+from .pixeltype import pixel_type, cell_size, min_cell_path
 from .emptyworkspace import empty_workspace
 from .units import get_z_unit, get_linear_unit, z_units, linear_units, area_to_num_cells
 from .reload import reload_module

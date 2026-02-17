@@ -6,6 +6,9 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # -----------------------------------------------------------------------------------
 
+import math
+import arcpy
+
 PIXEL_TYPES = {
     "U1": "1_BIT",
     "U2": "2_BIT",
@@ -23,3 +26,37 @@ PIXEL_TYPES = {
 def pixel_type(raster):
     """return the the string representation of the raster pixel type"""
     return PIXEL_TYPES[raster.pixelType]
+
+
+def cell_size(raster, output_unit_source=None):
+    """return the cell size of a raster in the linear units of another data source"""
+    #
+    output_unit = "FeetUS"
+    if output_unit_source:
+        output_unit = arcpy.Describe(output_unit_source).spatialReference.linearUnitName
+
+    # Note: throws an error if not a raster, this is desirable and shouldn't be used on
+    # data types other than a raster
+    desc_raster = arcpy.Describe(raster)
+    raster_linear_unit = desc_raster.spatialReference.linearUnitName
+
+    # Cell size in the X and Y axis
+    cellsize_y = desc_raster.meanCellHeight * arcpy.LinearUnitConversionFactor(raster_linear_unit, output_unit)
+    cellsize_x = desc_raster.meanCellWidth * arcpy.LinearUnitConversionFactor(raster_linear_unit, output_unit)
+
+    return math.sqrt(cellsize_x * cellsize_y)
+
+def min_cell_path(parameters):
+    """return the parameter with the smallest cell size"""
+    min_cell_size = None
+    min_cell_path = None
+    for param in parameters:
+        try:
+            size = cell_size(param.value)
+            if min_cell_size is None or size < min_cell_size:
+                min_cell_size = size
+                min_cell_path = param.valueAsText
+        except:
+            pass
+
+    return min_cell_path
