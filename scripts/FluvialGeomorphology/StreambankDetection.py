@@ -103,6 +103,7 @@ class StreambankDetection:
         )
 
         # smooth irregularities in streambed
+        # TODO: low pass filter?
         log("smoothing streambed")
         sql_query = "VALUE < 0.25" # TODO: find something more reasonable
         con_rem = arcpy.sa.Con(rem, 0, rem, sql_query)
