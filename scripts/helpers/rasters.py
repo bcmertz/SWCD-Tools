@@ -1,13 +1,13 @@
 # -----------------------------------------------------------------------------------
-# Name:        Pixel Type
-# Purpose:     This helper returns the string representation of the raster pixel type
+# Name:        Raster Helper
+# Purpose:     This package contains various tools for working with rasters.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # -----------------------------------------------------------------------------------
 
-import math
 import arcpy
+import math
 
 PIXEL_TYPES = {
     "U1": "1_BIT",
@@ -24,13 +24,12 @@ PIXEL_TYPES = {
 }
 
 def pixel_type(raster):
-    """return the the string representation of the raster pixel type"""
+    """Return the the string representation of the raster pixel type."""
     return PIXEL_TYPES[raster.pixelType]
 
 
 def cell_size(raster, output_unit_source=None):
-    """return the cell size of a raster in the linear units of another data source"""
-    #
+    """Return the cell size of a raster in the linear units of another data source."""
     output_unit = "FeetUS"
     if output_unit_source:
         output_unit = arcpy.Describe(output_unit_source).spatialReference.linearUnitName
@@ -47,7 +46,7 @@ def cell_size(raster, output_unit_source=None):
     return math.sqrt(cellsize_x * cellsize_y)
 
 def min_cell_path(parameters):
-    """return the parameter with the smallest cell size"""
+    """Return the parameter with the smallest cell size."""
     min_cell_size = None
     min_cell_path = None
     for param in parameters:

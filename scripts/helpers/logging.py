@@ -1,16 +1,15 @@
-# --------------------------------------------------------------------------------
-# Name:        Print Messages
-# Purpose:     This helper is used in various other tools to combine and print
-#              messages to the tool output.
+# ---------------------------------------------------------------------------------
+# Name:        Logging Helper
+# Purpose:     This package contains various tools for logging to the tool messages.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
-# --------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
 
 import arcpy
 
 def log(*args):
-    """provide a list of messages to this method"""
+    """Print out messages."""
     out_str = ""
     #args = args[1:] # get rid of first argument
     for arg in args:
@@ -19,7 +18,7 @@ def log(*args):
     return
 
 def warn(*args):
-    """provide a list of messages to this method"""
+    """Print out warnings."""
     out_str = ""
     #args = args[1:] # get rid of first argument
     for arg in args:
@@ -28,7 +27,7 @@ def warn(*args):
     return
 
 def error(*args):
-    """provide a list of messages to this method"""
+    """Print out errors."""
     out_str = ""
     #args = args[1:] # get rid of first argument
     for arg in args:
