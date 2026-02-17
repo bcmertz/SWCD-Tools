@@ -15,13 +15,11 @@ from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
 def generate_transects(line, interval, width):
-    """ TODO
-        line - arcpy.PolyLine() object
-        interval - <GPLinearUnit>
-        width - <GPLinearUnit>
-
-    doesn't include ends?
-        """
+    """ Generate transects of length WIDTH along a LINE at a given INTERVAL.
+    line - arcpy.PolyLine() object
+    interval - <GPLinearUnit>
+    width - <GPLinearUnit>
+    """
     interval, interval_unit = interval.split(" ")
     transects = []
 
@@ -34,35 +32,33 @@ def generate_transects(line, interval, width):
         point = line.positionAlongLine(dist, geodesic=False)[0]
 
         #create transect at point
-        # log(point.firstPoint)
         transect = transect_line(line, point, width)
         transects.append(transect)
 
-
     return transects
 
-def transect_line(stream_line, stream_vertex, transect_width):
-    """returns a transect to stream_line of length transect_length at stream_vertex point
-        stream_line - arcpy.PolyLine() object
-        stream_vertex - arcpy.Point() object
-        transect_width - <GPLinearUnit>
-        """
+def transect_line(line, point, transect_width):
+    """Returns a transect to LINE at POINT of length TRANSECT_WIDTH.
+    line - arcpy.PolyLine() object
+    point - arcpy.Point() object
+    transect_width - <GPLinearUnit>
+    """
 
     # epsilon
     e = 1e-5
 
     # get stream vertex
-    stream_vertex = stream_line.queryPointAndDistance(stream_vertex, False)
-    geom = stream_vertex[0]
-    distance = stream_vertex[1]
-    spatial_reference = stream_line.spatialReference
+    point = line.queryPointAndDistance(point, False)
+    geom = point[0]
+    distance = point[1]
+    spatial_reference = line.spatialReference
     line_unit = spatial_reference.linearUnitName
     transect_length, transect_length_unit = transect_width.split(" ")
     transect_length = float(transect_length) * arcpy.LinearUnitConversionFactor(transect_length_unit, line_unit)
 
     # get points immediately before and after midpoint
-    before = stream_line.positionAlongLine(distance-e, False)
-    after = stream_line.positionAlongLine(distance+e, False)
+    before = line.positionAlongLine(distance-e, False)
+    after = line.positionAlongLine(distance+e, False)
 
     dX = after[0].X - before[0].X
     dY = after[0].Y - before[0].Y
