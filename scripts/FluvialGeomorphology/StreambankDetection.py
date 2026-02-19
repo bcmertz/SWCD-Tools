@@ -1,23 +1,23 @@
 # --------------------------------------------------------------------------------
 # Name:        Streambank Detection
-# Purpose:     This tool uses the ratio of REM and Hydraulic Radius to detect
-#              where breaks in bank grade occur.
+# Purpose:     This tool uses takes a streambank likelihood raster and creates an
+#              output streambank polyline.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, empty_workspace, get_oid, reload_module, log, min_cell_path
+from ..helpers import license, empty_workspace, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
 class StreambankDetection:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Streambank Detection"
+        self.label = "Fluvial Geomorphology\\Streambank Detection"
         self.category = "Fluvial Geomorphology"
-        self.description = "Detect streambanks from REM"
+        self.description = "Create streambank feature"
 
     def getParameterInfo(self):
         """Define parameter definitions"""
@@ -39,8 +39,8 @@ class StreambankDetection:
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
-            displayName="REM",
-            name="rem",
+            displayName="Likelihood Raster",
+            name="likelihood",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
@@ -56,6 +56,7 @@ class StreambankDetection:
 
         params = [param0, param1, param2, param3]
         return params
+
 
     def updateParameters(self, parameters):
         return
@@ -80,75 +81,19 @@ class StreambankDetection:
         log("reading in parameters")
         streams = parameters[0].value
         extent = parameters[1].value
-        rem_layer = parameters[2].value
-        rem = arcpy.Raster(rem_layer.name)
+        likelihood_layer = parameters[2].value
+        likelihood = arcpy.Raster(likelihood_layer.name)
         output_file = parameters[3].valueAsText
-
-        # set cell size
-        arcpy.env.cellSize = min_cell_path(parameters)
 
         # set analysis extent
         if extent:
             arcpy.env.extent = extent
 
-        # create scratch layers
-        log("creating scratch layers")
-        scratch_area = arcpy.CreateScratchName("area", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
-
-        # create distance raster
-        log("calculating distance to stream centerlines")
-        distance = arcpy.sa.DistanceAccumulation(
-            in_source_data=streams,
-            distance_method="GEODESIC"
-        )
-
-        # smooth irregularities in streambed
-        # TODO: low pass filter?
-        log("smoothing streambed")
-        sql_query = "VALUE < 0.25" # TODO: find something more reasonable
-        con_rem = arcpy.sa.Con(rem, 0, rem, sql_query)
-
-        # create distance cost raster "hydraulic area"
-        # not actually hydraulic area since its the area under the curve not the area above the curve
-        log("calculating hydraulic area")
-        arcpy.sa.DistanceAllocation(
-            in_source_data=streams,
-            in_cost_raster=con_rem,
-            out_distance_accumulation_raster=scratch_area,
-            source_field=get_oid(streams),
-            distance_method="GEODESIC"
-        )
-
-        # calculate output
-        log("calculating relationship between height above thalweg and hydraulic depth")
-        output = (rem * distance)/(scratch_area - rem)
-        output.save(output_file)
+        return
 
         # add output to map
         log("adding output to map")
-        output_layer = active_map.addDataFromPath(output_file)
-
-        # update raster symbology
-        log("updating output symbology")
-        min_value = 0
-        max_value = 25
-        sym = output_layer.symbology
-        if hasattr(sym, 'colorizer'):
-            if sym.colorizer.type != "RasterStretchColorizer":
-                sym.updateColorizer("RasterStretchColorizer")
-            sym.colorizer.stretchType = "MinimumMaximum"
-            sym.colorizer.minLabel = "{}".format(min_value)
-            sym.colorizer.maxLabel = "{}".format(max_value)
-            output_layer.symbology = sym
-        cim_layer = output_layer.getDefinition("V3")
-        cim_layer.colorizer.statsType = 'GlobalStats'
-        #cim_layer.colorizer.useCustomStretchMinMax = True
-        cim_layer.colorizer.customStretchMin = min_value
-        cim_layer.colorizer.customStretchMax = max_value
-        cim_layer.colorizer.stretchStats.max = max_value
-        cim_layer.colorizer.stretchStats.min = min_value
-        output_layer.setDefinition(cim_layer)
-
+        active_map.addDataFromPath(output_file)
 
         # cleanup
         log("deleting unneeded data")
