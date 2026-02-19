@@ -6,6 +6,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
+import os
 import arcpy
 
 from ..helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log
@@ -187,20 +188,21 @@ class BurnCulverts(object):
         # polygon to raster
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster, cellsize=1)
 
-        # mosaic to new raster
-        log("creating mosaic raster")
-        scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
-            input_rasters=[dem,scratch_burned_raster],
-            output_location=arcpy.env.scratchGDB,
-            pixel_type=pixel_type(difference),
-            number_of_bands=difference.bandCount,
-            raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
-            mosaic_method="LAST",
-            mosaic_colormap_mode="FIRST"
-        )
 
         # fill
         if fill_depressions:
+            # mosaic to new raster
+            log("creating mosaic raster")
+            scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
+                output_location=arcpy.env.scratchGDB,
+                raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
+                input_rasters=[dem,scratch_burned_raster],
+                pixel_type=pixel_type(difference),
+                number_of_bands=difference.bandCount,
+                mosaic_method="LAST",
+                mosaic_colormap_mode="FIRST"
+            )
+
             log("filling output raster")
             out_surface_raster = arcpy.sa.Fill(
                 scratch_mosaic_raster,
@@ -208,9 +210,20 @@ class BurnCulverts(object):
             )
             out_surface_raster.save(output_file)
         else:
-            # save output
-            log("saving output raster")
-            scratch_mosaic_raster.save(output_file)
+            out_dir = os.path.dirname(output_file)
+            out_name = output_file.split("\\")[-1]
+
+            # mosaic to new raster
+            log("creating mosaic output raster")
+            arcpy.management.MosaicToNewRaster(
+                output_location=out_dir,
+                raster_dataset_name_with_extension=out_name,
+                input_rasters=[dem,scratch_burned_raster],
+                pixel_type=pixel_type(difference),
+                number_of_bands=difference.bandCount,
+                mosaic_method="LAST",
+                mosaic_colormap_mode="FIRST"
+            )
 
         # add raster to map
         log("adding hydro-conditioned DEM to map")
