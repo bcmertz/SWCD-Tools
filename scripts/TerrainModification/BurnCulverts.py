@@ -6,6 +6,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 
+import os
 import arcpy
 
 from ..helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log
@@ -30,45 +31,53 @@ class BurnCulverts(object):
             direction="Input")
 
         param1 = arcpy.Parameter(
+            displayName="Fill existing depressions?",
+            name="fill",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+        param1.value = True
+
+        param2 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Optional",
             direction="Input")
-        param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+        param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        param2 = arcpy.Parameter(
+        param3 = arcpy.Parameter(
             displayName="Output DEM",
             name="out_dem",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param2.parameterDependencies = [param0.name]
-        param2.schema.clone = True
+        param3.parameterDependencies = [param0.name]
+        param3.schema.clone = True
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="Culverts",
             name="culverts",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param3.filter.list = ["Point"]
-        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows point creation
+        param4.filter.list = ["Point"]
+        param4.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows point creation
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="Search Distance",
             name="distance",
             datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3, param4, param5]
         return params
 
     def updateParameters(self, parameters):
         # default search distance
-        if parameters[4].value is None:
-            parameters[4].value = "100 FeetUS"
+        if parameters[5].value is None:
+            parameters[5].value = "100 FeetUS"
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -90,12 +99,13 @@ class BurnCulverts(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         dem_symbology = dem_layer.symbology
-        extent = parameters[1].value
-        output_file = parameters[2].valueAsText
-        culverts = parameters[3].value
+        fill_depressions = parameters[1].value
+        extent = parameters[2].value
+        output_file = parameters[3].valueAsText
+        culverts = parameters[4].value
         desc = arcpy.Describe(culverts)
         spatial_reference = desc.spatialReference
-        distance, distance_unit = parameters[4].valueAsText.split(" ")
+        distance, distance_unit = parameters[5].valueAsText.split(" ")
         linear_unit = active_map.spatialReference.linearUnitName
         distance = float(distance) * arcpy.LinearUnitConversionFactor(distance_unit, linear_unit)
 
@@ -133,7 +143,7 @@ class BurnCulverts(object):
         culvert_raster_downstream = arcpy.sa.SnapPourPoint(culverts, negative_elev, distance, culverts_oid_field) # BUG: snap pour point doesn't respect map units (as it says it does in the documentation) or specified units, always takes meters
         arcpy.conversion.RasterToPoint(culvert_raster_downstream, scratch_culvert_downstream, "Value")
 
-        log("creating local streamlines")
+        log("merging points")
         arcpy.management.Merge([scratch_culvert_upstream,scratch_culvert_downstream],scratch_points_merge)
         # iterate through points and make lines from them
         #
@@ -178,22 +188,42 @@ class BurnCulverts(object):
         # polygon to raster
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster, cellsize=1)
 
-        # mosaic to new raster
-        log("creating mosaic raster")
-        scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
-            input_rasters=[dem,scratch_burned_raster],
-            output_location=arcpy.env.scratchGDB,
-            pixel_type=pixel_type(difference),
-            number_of_bands=difference.bandCount,
-            raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
-            mosaic_method="LAST",
-            mosaic_colormap_mode="FIRST"
-        )
 
         # fill
-        log("filling output raster")
-        out_surface_raster = arcpy.sa.Fill(scratch_mosaic_raster, z_limit=None)
-        out_surface_raster.save(output_file)
+        if fill_depressions:
+            # mosaic to new raster
+            log("creating mosaic raster")
+            scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
+                output_location=arcpy.env.scratchGDB,
+                raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
+                input_rasters=[dem,scratch_burned_raster],
+                pixel_type=pixel_type(difference),
+                number_of_bands=difference.bandCount,
+                mosaic_method="LAST",
+                mosaic_colormap_mode="FIRST"
+            )
+
+            log("filling output raster")
+            out_surface_raster = arcpy.sa.Fill(
+                scratch_mosaic_raster,
+                z_limit=None
+            )
+            out_surface_raster.save(output_file)
+        else:
+            out_dir = os.path.dirname(output_file)
+            out_name = output_file.split("\\")[-1]
+
+            # mosaic to new raster
+            log("creating mosaic output raster")
+            arcpy.management.MosaicToNewRaster(
+                output_location=out_dir,
+                raster_dataset_name_with_extension=out_name,
+                input_rasters=[dem,scratch_burned_raster],
+                pixel_type=pixel_type(difference),
+                number_of_bands=difference.bandCount,
+                mosaic_method="LAST",
+                mosaic_colormap_mode="FIRST"
+            )
 
         # add raster to map
         log("adding hydro-conditioned DEM to map")
