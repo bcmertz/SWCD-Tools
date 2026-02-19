@@ -143,7 +143,7 @@ class BurnCulverts(object):
         culvert_raster_downstream = arcpy.sa.SnapPourPoint(culverts, negative_elev, distance, culverts_oid_field) # BUG: snap pour point doesn't respect map units (as it says it does in the documentation) or specified units, always takes meters
         arcpy.conversion.RasterToPoint(culvert_raster_downstream, scratch_culvert_downstream, "Value")
 
-        log("creating local streamlines")
+        log("merging points")
         arcpy.management.Merge([scratch_culvert_upstream,scratch_culvert_downstream],scratch_points_merge)
         # iterate through points and make lines from them
         #
