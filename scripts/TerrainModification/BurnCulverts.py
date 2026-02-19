@@ -30,45 +30,53 @@ class BurnCulverts(object):
             direction="Input")
 
         param1 = arcpy.Parameter(
+            displayName="Fill existing depressions?",
+            name="fill",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+        param1.value = True
+
+        param2 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Optional",
             direction="Input")
-        param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+        param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        param2 = arcpy.Parameter(
+        param3 = arcpy.Parameter(
             displayName="Output DEM",
             name="out_dem",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param2.parameterDependencies = [param0.name]
-        param2.schema.clone = True
+        param3.parameterDependencies = [param0.name]
+        param3.schema.clone = True
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="Culverts",
             name="culverts",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param3.filter.list = ["Point"]
-        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows point creation
+        param4.filter.list = ["Point"]
+        param4.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows point creation
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="Search Distance",
             name="distance",
             datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3, param4, param5]
         return params
 
     def updateParameters(self, parameters):
         # default search distance
-        if parameters[4].value is None:
-            parameters[4].value = "100 FeetUS"
+        if parameters[5].value is None:
+            parameters[5].value = "100 FeetUS"
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -90,12 +98,13 @@ class BurnCulverts(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         dem_symbology = dem_layer.symbology
-        extent = parameters[1].value
-        output_file = parameters[2].valueAsText
-        culverts = parameters[3].value
+        fill_depressions = parameters[1].value
+        extent = parameters[2].value
+        output_file = parameters[3].valueAsText
+        culverts = parameters[4].value
         desc = arcpy.Describe(culverts)
         spatial_reference = desc.spatialReference
-        distance, distance_unit = parameters[4].valueAsText.split(" ")
+        distance, distance_unit = parameters[5].valueAsText.split(" ")
         linear_unit = active_map.spatialReference.linearUnitName
         distance = float(distance) * arcpy.LinearUnitConversionFactor(distance_unit, linear_unit)
 
@@ -191,9 +200,17 @@ class BurnCulverts(object):
         )
 
         # fill
-        log("filling output raster")
-        out_surface_raster = arcpy.sa.Fill(scratch_mosaic_raster, z_limit=None)
-        out_surface_raster.save(output_file)
+        if fill_depressions:
+            log("filling output raster")
+            out_surface_raster = arcpy.sa.Fill(
+                scratch_mosaic_raster,
+                z_limit=None
+            )
+            out_surface_raster.save(output_file)
+        else:
+            # save output
+            log("saving output raster")
+            scratch_mosaic_raster.save(output_file)
 
         # add raster to map
         log("adding hydro-conditioned DEM to map")
