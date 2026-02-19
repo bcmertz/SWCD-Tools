@@ -41,66 +41,74 @@ class BermAnalysis(object):
         param1.filter.list = z_units
 
         param2 = arcpy.Parameter(
+            displayName="Fill existing depressions?",
+            name="fill",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+        param2.value = True
+
+        param3 = arcpy.Parameter(
             displayName="Analysis Area",
             name="analysis_area",
             datatype="GPExtent",
             parameterType="Required",
             direction="Input")
-        param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+        param3.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        param3 = arcpy.Parameter(
+        param4 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             direction="Output")
-        param3.parameterDependencies = [param0.name]
-        param3.schema.clone = True
+        param4.parameterDependencies = [param0.name]
+        param4.schema.clone = True
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="Berm",
             name="berm",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param4.filter.list = ["Polyline"]
-        param4.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
+        param5.filter.list = ["Polyline"]
+        param5.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
-        param5 = arcpy.Parameter(
+        param6 = arcpy.Parameter(
             displayName="Specify berm height?",
             name="supply_berm_height",
             datatype="GPBoolean",
             parameterType="Optional",
             direction="Input")
 
-        param6 = arcpy.Parameter(
+        param7 = arcpy.Parameter(
             displayName="Max Berm Height",
             name="berm_height",
             datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
-        param7 = arcpy.Parameter(
+        param8 = arcpy.Parameter(
             displayName="Add depth contours?",
             name="contours",
             datatype="GPBoolean",
             parameterType="Optional",
             direction="Input")
 
-        param8 = arcpy.Parameter(
+        param9 = arcpy.Parameter(
             displayName="Contour interval",
             name="contour_interval",
             datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
 
-        param9 = arcpy.Parameter(
+        param10 = arcpy.Parameter(
             displayName="Output Contour Feature",
             name="contour_output",
             parameterType="Optional",
             datatype="DEFeatureClass",
             direction="Output")
 
-        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9]
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10]
         return params
 
     def isLicensed(self):
@@ -125,39 +133,39 @@ class BermAnalysis(object):
                 parameters[1].enabled = False
                 parameters[1].value = None
 
-        if not parameters[5].hasBeenValidated:
-            if parameters[5].value:
-                parameters[6].enabled = True
+        if not parameters[6].hasBeenValidated:
+            if parameters[6].value:
+                parameters[7].enabled = True
             else:
-                parameters[6].enabled = False
+                parameters[7].enabled = False
 
         # default berm height
-        if parameters[6].value is None:
-            parameters[6].value = "6 FeetUS"
+        if parameters[7].value is None:
+            parameters[7].value = "6 FeetUS"
 
         # default contour interval
-        if parameters[8].value is None:
-            parameters[8].value = "1 FeetUS"
+        if parameters[9].value is None:
+            parameters[9].value = "1 FeetUS"
 
         # toggle asking for default contour interval and output
-        if not parameters[7].hasBeenValidated:
-            if parameters[7].value:
-                parameters[8].enabled = True
+        if not parameters[8].hasBeenValidated:
+            if parameters[8].value:
                 parameters[9].enabled = True
-                if parameters[3].value:
-                    parameters[9].value = parameters[3].valueAsText + "_contours_" + sanitize(parameters[8].valueAsText)
+                parameters[10].enabled = True
+                if parameters[4].value:
+                    parameters[10].value = parameters[4].valueAsText + "_contours_" + sanitize(parameters[9].valueAsText)
             else:
-                parameters[8].enabled = False
                 parameters[9].enabled = False
-                parameters[9].value = None # clear its value so we don't overwrite existing features while disabled
+                parameters[10].enabled = False
+                parameters[10].value = None # clear its value so we don't overwrite existing features while disabled
 
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
-        # make optional parameters[8,9] required based off of parameters[7]
-        toggle_required_parameter(parameters[7], parameters[8])
-        toggle_required_parameter(parameters[7], parameters[9])
+        # make optional parameters[9,10] required based off of parameters[8]
+        toggle_required_parameter(parameters[8], parameters[9])
+        toggle_required_parameter(parameters[8], parameters[10])
 
         validate(parameters)
         return
@@ -173,26 +181,27 @@ class BermAnalysis(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         z_unit = parameters[1].value
-        extent = parameters[2].value
-        output_file = parameters[3].valueAsText
-        berms = parameters[4].value
+        fill_depressions = parameters[2].value
+        extent = parameters[3].value
+        output_file = parameters[4].valueAsText
+        berms = parameters[5].value
         # optionally specify berm height
-        supply_berm_height_bool = parameters[5].value
+        supply_berm_height_bool = parameters[6].value
         berm_height, berm_unit, berm_z_factor = "", "", ""
         if supply_berm_height_bool:
-            berm_height, berm_unit = parameters[6].valueAsText.split(" ")
+            berm_height, berm_unit = parameters[7].valueAsText.split(" ")
             berm_height = float(berm_height)
         else:
             berm_unit = "FeetUS"
         berm_z_factor = arcpy.LinearUnitConversionFactor(z_unit, berm_unit)
         # optionally specify contour interval
-        contour_bool = parameters[7].value
+        contour_bool = parameters[8].value
         contour_interval, contour_unit, contour_output = "", "", ""
         if contour_bool:
-            contour_interval, contour_unit = parameters[8].valueAsText.split(" ")
+            contour_interval, contour_unit = parameters[9].valueAsText.split(" ")
             contour_interval = float(contour_interval)
             contour_z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
-            contour_output = parameters[9].valueAsText
+            contour_output = parameters[10].valueAsText
 
         # set analysis extent
         arcpy.env.extent = extent
@@ -206,6 +215,7 @@ class BermAnalysis(object):
         scratch_effective_berm = arcpy.CreateScratchName("effective_berm", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_berm = arcpy.CreateScratchName("berm", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_raster_calculator = arcpy.CreateScratchName("calc", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # get spatial reference
         log("finding spatial reference")
@@ -315,22 +325,29 @@ class BermAnalysis(object):
                     mosaic_colormap_mode="FIRST"
                 )
 
-                # fill mosaic and clipped dem
-                log("fill mosaic")
+                # fill mosaic
+                log("filling mosaic")
                 scratch_fill_mosaic = arcpy.sa.Fill(
                     in_surface_raster=scratch_mosaic_raster,
                     z_limit=None
                 )
 
-                log("fill DEM")
-                scratch_fill_dem = arcpy.sa.Fill(
-                    in_surface_raster=dem,
-                    z_limit=None
-                )
+                if fill_depressions:
+                    # fill pre-exisiting depressions
+                    log("filling depressions in original DEM")
+                    scratch_fill_dem = arcpy.sa.Fill(
+                        in_surface_raster=dem,
+                        z_limit=None
+                    )
 
-                # raster calculator
-                log("calculate elevation differences")
-                scratch_raster_calculator = scratch_fill_mosaic - scratch_fill_dem
+                    # raster calculator
+                    log("calculate elevation differences")
+                    scratch_raster_calculator = scratch_fill_mosaic - scratch_fill_dem
+                else:
+                    # raster calculator
+                    log("calculate elevation differences")
+                    calc = scratch_fill_mosaic - dem
+                    calc.save(scratch_raster_calculator)
 
                 if contour_bool:
                     log("calculating contours")
