@@ -15,8 +15,8 @@ from ..helpers import validate_spatial_reference as validate
 class StreambankDetection:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Fluvial Geomorphology\\Streambank Detection"
-        self.category = "Fluvial Geomorphology"
+        self.label = "2. Output bank lines"
+        self.category = "Fluvial Geomorphology\\Streambank Detection"
         self.description = "Create streambank feature"
 
     def getParameterInfo(self):
