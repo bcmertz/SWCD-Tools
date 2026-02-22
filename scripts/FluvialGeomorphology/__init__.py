@@ -9,3 +9,6 @@
 from .StreamCenterlineAdjuster import LeastAction
 from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
+from .StreambankDetection import StreambankDetection
+from .StreambankDetectionLikelihood import StreambankDetectionLikelihood
+from .GenerateCrossSections import GenerateCrossSections, generate_transects, transect_line

@@ -8,8 +8,8 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-from math import atan2, pi
 
+from ..FluvialGeomorphology import transect_line
 from ..helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
@@ -110,51 +110,22 @@ class DamRemoval(object):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
 
-    def transectLine(self, stream_line, stream_vertex, transect_width):
-        '''returns a transect to stream_line of length transect_width at stream_vertex point
-        stream_line - arcpy.PolyLine() object
-        stream_vertex - arcpy.Point() object
-        transect_width - distance in meters of transect
-        '''
-        # epsilon
-        e = 1e-5
-
-        # get stream vertex
-        stream_vertex = stream_line.queryPointAndDistance(stream_vertex, False)
-        geom = stream_vertex[0]
-        distance = stream_vertex[1]
-        spatial_reference = stream_line.spatialReference
-
-        # get points immediately before and after midpoint
-        before = stream_line.positionAlongLine(distance-e, False)
-        after = stream_line.positionAlongLine(distance+e, False)
-
-        dX = after[0].X - before[0].X
-        dY = after[0].Y - before[0].Y
-
-        # angle of the midpoint segment
-        angle = atan2(dX,dY) * 180 / pi
-
-        first_tran_point = geom.pointFromAngleAndDistance(angle - 90, transect_width/2)
-        last_tran_point = geom.pointFromAngleAndDistance(angle + 90, transect_width/2)
-        dX = first_tran_point.firstPoint.X - last_tran_point.firstPoint.X
-        dY = first_tran_point.firstPoint.Y - last_tran_point.firstPoint.Y
-
-        transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference, has_id=True)
-        return transect
-
-
-    def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width, transect_point_spacing, transect_point_spacing_unit, scratch_transect_points, scratch_transect_elev_points):
+    def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points):
         '''return points along transect with elevations
         transect - arcpy.PolyLine() object
         dem_raster - elevation raster
         lowpoint_elev - elevation of streamline, considered lowpoint of constructed surface
-        transect_width - width of transect
-        transect_point_spacing - spacing between points on transect
-        transect_point_spacing_unit - unit of transect point spacing
+        transect_width - <GPLinearUnit> width of a given transect
+        transect_point_spacing - <GPLinearUnit> spacing between points on transect
         scratch_transect_points - scratch layer for transect points
         scratch_transect_elev_points - scratch layer for transect points with elevations
         '''
+        linear_unit = get_linear_unit(transect)
+        transect_point_spacing, transect_point_spacing_unit = transect_point_spacing.split(" ")
+        transect_point_spacing = float(transect_point_spacing) * arcpy.LinearUnitConversionFactor(transect_point_spacing_unit, linear_unit)
+        transect_width, transect_width_unit = transect_width.split(" ")
+        transect_width = float(transect_width) * arcpy.LinearUnitConversionFactor(transect_width_unit, linear_unit)
+
         arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", "{} {}".format(transect_point_spacing, transect_point_spacing_unit), "", "END_POINTS", "ADD_CHAINAGE")
         arcpy.sa.ExtractValuesToPoints(scratch_transect_points, dem_raster, scratch_transect_elev_points, "NONE", "VALUE_ONLY")
 
@@ -221,13 +192,10 @@ class DamRemoval(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         centerline = parameters[3].value
-        linear_unit = get_linear_unit(centerline)
         pond = parameters[4].value
         transect_spacing = parameters[5].valueAsText
-        transect_point_spacing, transect_point_spacing_unit = parameters[6].valueAsText.split(" ")
-        transect_point_spacing = float(transect_point_spacing) * arcpy.LinearUnitConversionFactor(transect_point_spacing_unit, linear_unit)
-        transect_width, transect_width_unit = parameters[7].valueAsText.split(" ")
-        transect_width = float(transect_width) * arcpy.LinearUnitConversionFactor(transect_width_unit, linear_unit)
+        transect_point_spacing = parameters[6].valueAsText
+        transect_width = parameters[7].valueAsText
 
         # create scratch layers
         scratch_centerline = arcpy.CreateScratchName("scratch_centerline", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
@@ -330,9 +298,9 @@ class DamRemoval(object):
                 # read in values
                 shape, elev, distance = point[0], point[1], point[2]
                 # create transect
-                transect = self.transectLine(centerline_polyline, shape, transect_width)
+                transect = transect_line(centerline_polyline, shape, transect_width)
                 # interpolate elevations
-                tmp_points = self.interpolateElevations(transect, scratch_mosaic_raster, elev, transect_width, transect_point_spacing, transect_point_spacing_unit, scratch_transect_points, scratch_transect_elev_points)
+                tmp_points = self.interpolateElevations(transect, scratch_mosaic_raster, elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points)
                 # add points to list of new points
                 new_points = new_points + tmp_points
 

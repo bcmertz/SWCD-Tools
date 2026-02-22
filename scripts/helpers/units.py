@@ -21,8 +21,11 @@ def get_z_unit(fc) -> str | None:
 def get_linear_unit(fc) -> str | None:
     """Find linear unit from spatial reference."""
     # find linear unit from spatial reference
-    desc = arcpy.Describe(fc)
-    return desc.spatialReference.linearUnitName
+    try:
+        desc = arcpy.Describe(fc)
+        return desc.spatialReference.linearUnitName
+    except:
+        return fc.spatialReference.linearUnitName
 
 
 # mapping of z unit to linear unit names

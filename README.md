@@ -17,6 +17,8 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Stream Elevation Profile](#1-stream-elevation-profile-)
     - [Calculate Stream Network](#2-calculate-stream-network-)
     - [Stream Centerline Adjuster](#3-stream-centerline-adjuster-)
+    - [Streambank Detection](#4-streambank-detection-)
+    - [Generate Cross-Sections](#5-generate-cross-sections-)
   - [Hydrology](#hydrology-)
     - [Watershed Delineation](#1-watershed-delineation-)
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
@@ -56,7 +58,7 @@ If you're not sure, each tool will verify you have the proper licenses needed. N
 # Installation [↑](#table-of-contents)
 
 1. Download repository
-	- [Option 1] Using git - Note: this has the benefit of allowing you to pull updates easily any time but is more complicated for non-developers
+	- [Option 1] Using git - Note: this has the benefit of allowing you to pull updates easily any time but may be more complicated for non-developers
      	1. Clone repo locally: `git clone https://github.com/bcmertz/SWCD-Tools.git`
 	- [Option 2] Download zip - Note: this is the simplest way to get access to these tools
      	1. Download zip file
@@ -110,7 +112,7 @@ Example above shows a berm on a shallowly sloped hill, the GIS analysis of the b
 
 ### 2. Dam Removal [↑](#table-of-contents)
 
-Remove a dam from a DEM. Takes a ponded area and a proposed stream line through the area, calculates the estimated thalweg elevations through the ponded area and linearly interpolates the walls of the valley to the thalway to produce a DEM with the ponded area removed.
+Remove a dam from a DEM. Takes a ponded area and a proposed stream line through the area, calculates the estimated thalweg elevations through the ponded area and linearly interpolates the walls of the valley to the thalweg to produce a DEM with the ponded area removed.
 
 Eventually this tool should support other valley types such as U-shaped glaciated valleys and flat floodplain creation.
 
@@ -175,6 +177,25 @@ Red line shows before blue line shows after
 
 Note: this tool can perform poorly on highly sinuous streams and often picks up on side-channels lower than the main channel. It is recommended to use [Calculate Stream Network](#2-calculate-stream-network-) on a properly [Hydro-conditioned DEM](#3-burn-culverts-in-dem-).
 
+### 4. Streambank Detection [↑](#table-of-contents)
+
+This tool finds most likely locations of streambanks based off of a DEM using research by [McKean 2005](https://www.researchgate.net/publication/253278581_Mapping_Channel_Morphology_and_Stream_Habitat_With_a_Full_Waveform_Green_Lidar) and [De Rosa et al 2019](https://doi.org/10.3390/ijgi8110480)
+
+<span>
+<img src="./assets/readme_examples/bankfull_detection_before.png" alt="a picture showing aerial imagery of a stream" width="400"/>
+<img src="./assets/readme_examples/bankfull_detection_after.png" alt="tool output black and white raster showing white pixels where streambank is estimated to be from DEM" width="400"/>
+</span>
+
+Example above shows an ouput raster of streambank likelihood based off of the DEM, where the closest peak in high raster values (white pixels) represents the likely top of bank.
+
+### 5. Generate Cross-Sections [↑](#table-of-contents)
+
+Generate cross-sections along a stream line
+
+<span>
+<img src="./assets/readme_examples/cross_section_after.png" alt="image shows a streamline and cross-sections generated along it 100 feet wide every 100 feet" width="600"/>
+</span>
+
 ## Hydrology [↑](#table-of-contents)
 
 ### 1. Watershed Delineation [↑](#table-of-contents)
@@ -226,18 +247,18 @@ Perform EFH-2 runoff calculations for a given watershed using DEM and land-use d
 This tool uses a DEM with a slope cutoff threshold, hydrologic soil group, land use data, topographic wetness index (optional), and existing mapped wetlands (optional) to create a shapefile of potential wetland locations.
 
 <span>
-<img src="./assets/readme_examples/potential_wetlands_after.png" alt="picture showing output of model potential wetlands tool with areas along a stream highlited red to indicate potential wetland areas" height="250"/>
-<img src="./assets/readme_examples/potential_wetlands_nwi.png" alt="picture showing national wetlands invenotry mapping of the same area in purple. There is considerable overlap between this and the previous photo" height="250"/>
+<img src="./assets/readme_examples/potential_wetlands_after.png" alt="picture showing output of model potential wetlands tool with areas along a stream highlighted red to indicate potential wetland areas" height="250"/>
+<img src="./assets/readme_examples/potential_wetlands_nwi.png" alt="picture showing national wetlands inventory mapping of the same area in purple. There is considerable overlap between this and the previous photo" height="250"/>
 </span>
 
-Exmaple showing modeled potential wetlands (without existing wetland exclusion) in red on the left and mapped wetlands (NWI) in purple on the right.
+Example showing modeled potential wetlands (without existing wetland exclusion) in red on the left and mapped wetlands (NWI) in purple on the right.
 
 This tool uses the following procedure:
 1. Find slopes <= user specified slope threshold
 2. Find all user specified hydric soils
 3. Extract all user-specified valid land uses
 4. Intersect all of these layers
-5. Optional: erase all user-specified mapped wetlands or floodlpains from analysis
+5. Optional: erase all user-specified mapped wetlands or floodplains from analysis
 6. Optional: find mean value of topographic wetness index (TWI) raster in each output polygon and discard those < the user-specified minimum topographic wetness index
 
 This provides a reasonable approximation of wetland soils, hydrology, and valid land use. The output of this analysis can be intersected with known agricultural ditches or other wetland manipulating structures to find potential project areas. Consider using the [USGS Hyper-Resolution Hydrology Dataset](https://www.usgs.gov/data/chesapeake-bay-hyper-resolution-hydrography-database) for mapped ag and road ditches.
@@ -268,10 +289,10 @@ This shows a TWI output with mapped NWI and DEC wetlands. Notice the  significan
 
 ### 3. Relative Elevation Model (REM) [↑](#table-of-contents)
 
-Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and indentifying geomorphic features.
+Create a relative elevation model (REM) or height above nearest drainage (HAND) model in a study area. This allows the user to see elevation normalized features above the stream elevation. This is useful for modeling streambank incision and identifying geomorphic features.
 
 <span>
-<img src="./assets/readme_examples/rem_after.png" alt="a relative elevation model (REM) along a stream, showing high streambank incision through legacy sedient deposits behind a breached mill dam" width="300"/>
+<img src="./assets/readme_examples/rem_after.png" alt="a relative elevation model (REM) along a stream, showing high streambank incision through legacy sediment deposits behind a breached mill dam" width="300"/>
 </span>
 
 This example outputs show legacy sediment deposits behind a breached 19th century milldam, as shown by the higher relative streambank incision closest to the milldam.
@@ -314,7 +335,7 @@ This example shows short-wave infrared radiation rasters from dry (left) and wet
 
 ### 3. Image Differencing [↑](#table-of-contents)
 
-Image Differencing uses short-wave infrared data (SWIR) from landast 8/9 satellites taken during wet and dry conditions, to visualize the effects of drainage tile on soil moisture. This procedure is based off of research by [Valayamkunnath et al, 2020](https://doi.org/10.1038/s41597-020-00596-x).
+Image Differencing uses short-wave infrared data (SWIR) from Landsat 8/9 satellites taken during wet and dry conditions, to visualize the effects of drainage tile on soil moisture. This procedure is based off of research by [Valayamkunnath et al, 2020](https://doi.org/10.1038/s41597-020-00596-x).
 
 <span>
 <img src="/assets/readme_examples/image_differencing_before.png" alt="image showing ag fields before processing, some are water stained" height="310" />
@@ -437,7 +458,7 @@ Sets up ag assessment project folder and selects all relevant parcels for later 
 Once the tool is done, you must manually split each land use (ag, nonag, forest) for each map before proceeding.
 
 <span>
-<img src="/assets/readme_examples/ag_delienate.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID" height="350"/>
+<img src="/assets/readme_examples/ag_delineate.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID" height="350"/>
 <img src="/assets/readme_examples/ag_delineate_split.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID split into its various land uses" height="350"/>
 </span>
 
