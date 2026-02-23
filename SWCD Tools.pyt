@@ -28,6 +28,7 @@ class Toolbox(object):
             CalculateEFH2,
             WatershedDelineation,
             SubBasinDelineation,
+            RemoveUnused,
             DecisionTree,
             ImageDifferencingSetup,
             ImageDifferencing,

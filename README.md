@@ -44,6 +44,7 @@ This is a set of tools for various GIS workflows related to hydrology, wetlands,
     - [Contour Polygon](#4-contour-polygon-)
     - [Slope Polygon](#5-slope-polygon-)
  	- [Historical Imagery](#6-historical-imagery-)
+ 	- [Remove Unused](#7-remove-unused-)
 - [Contributing](#contributing-)
 - [License](#license-)
 
@@ -422,6 +423,10 @@ Example showing output slope raster in polygon.
 ### 6. Historical Imagery [↑](#table-of-contents)
 
 Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
+
+### 7. Remove Unused [↑](#table-of-contents)
+
+Remove feature classes unused in any projet maps from a given workspace (geodatabse, folder, etc).
 
 ## Automated Agricultural Assessment [↑](#table-of-contents)
 
