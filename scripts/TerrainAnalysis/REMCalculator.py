@@ -112,10 +112,10 @@ class RelativeElevationModel(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", "FeatureClass", arcpy.env.workspace)
+        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", "FeatureClass", arcpy.env.workspace)
+        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", "FeatureClass", arcpy.env.workspace)
+        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", "FeatureClass", arcpy.env.workspace)
 
         if extent:
             # clip streams to analysis area
