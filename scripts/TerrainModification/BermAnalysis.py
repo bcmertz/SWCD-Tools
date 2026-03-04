@@ -318,7 +318,7 @@ class BermAnalysis(object):
 
                 # mosaic to new raster
                 log("mosaic to new raster")
-                scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
+                arcpy.management.MosaicToNewRaster(
                     input_rasters=[dem, scratch_zonal_statistics],
                     output_location=arcpy.env.scratchGDB,
                     raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
