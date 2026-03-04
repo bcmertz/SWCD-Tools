@@ -263,9 +263,12 @@ class BermAnalysis(object):
         # iterate through berms
         with arcpy.da.UpdateCursor(berms, [oidfield, "berm_height"], expression, spatial_filter=extent.polygon) as cursor:
             for berm in cursor:
+                # log to user
+                oid_value = berm[0]
+                log("-------------- processing berm, ID: {} --------------".format(oid_value))
+
                 # make a temporary feature layer to store the berm for zonal analysis
                 log("creating temporary berm feature for analysis")
-                oid_value = berm[0]
                 where_clause = "\"OBJECTID\" = " + str(oid_value)
                 arcpy.analysis.Select(berms, scratch_berm, where_clause)
 
