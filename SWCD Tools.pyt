@@ -31,6 +31,7 @@ class Toolbox(object):
             StreambankDetectionLikelihood,
             WatershedDelineation,
             SubBasinDelineation,
+            RemoveUnused,
             DecisionTree,
             ImageDifferencingSetup,
             ImageDifferencing,
