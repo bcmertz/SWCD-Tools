@@ -2,8 +2,8 @@
 # Name:        Buffer Potential
 # Purpose:     This tool finds potential riparian forest buffer planting areas.
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 import arcpy
 

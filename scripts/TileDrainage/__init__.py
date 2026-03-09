@@ -2,8 +2,8 @@
 # Name:        Tile Drainage Package
 # Purpose:     Collect tile drainage tools into a package
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 from .DecisionTree import DecisionTree

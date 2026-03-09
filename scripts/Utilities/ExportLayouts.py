@@ -2,8 +2,8 @@
 # Name:        Export Layouts
 # Purpose:     This tool takes a list of layouts and exports them as PDFs to a folder
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 import os

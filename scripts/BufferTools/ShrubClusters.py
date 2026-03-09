@@ -3,8 +3,8 @@
 # Purpose:     This tool creates shrub cluster polygons in a planting area for a
 #              given number of clusters and cluster size
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 import math

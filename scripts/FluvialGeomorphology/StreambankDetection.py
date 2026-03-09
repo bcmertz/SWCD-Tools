@@ -3,8 +3,8 @@
 # Purpose:     This tool uses the ratio of REM and Hydraulic Radius to detect
 #              where breaks in bank grade occur.
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 import arcpy
 

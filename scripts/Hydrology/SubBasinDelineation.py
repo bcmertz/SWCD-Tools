@@ -3,8 +3,8 @@
 # Purpose:     This tool finds sub-basins within a given flow accumulation threshold
 #              and defines their watersheds.
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 import arcpy

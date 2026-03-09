@@ -2,8 +2,8 @@
 # Name:        Helpers Package
 # Purpose:     Collect helper tools into a package, import functions specifically
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 from .layers import get_oid, add_layer_to_group
