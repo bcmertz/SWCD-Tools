@@ -153,10 +153,9 @@ class Process(object):
             tables = []
 
             # Start work
-            parcel_last_four = sanitize(parcel)[-4:]
-            lyrs = m.listLayers("*_{}".format(parcel_last_four))
-            lyr_types = set()
             log("processing {}".format(parcel))
+            lyrs = m.listLayers()
+            lyr_types = set()
             for lyr in lyrs:
                 # Update symbology
                 lyr_type = ""
@@ -174,17 +173,18 @@ class Process(object):
                 lyr_types.add(lyr_type)
 
                 # Create clip layer
-                new_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils".format(sanitize(lyr.name), sanitize(parcel)))
+                new_layer_name = "{}_{}".format(lyr_type, parcel)
+                new_layer_path = "{}\\{}_soils".format(arcpy.env.workspace, sanitize(new_layer_name))
                 arcpy.analysis.Clip(soil_layer, lyr, new_layer_path)
 
                 # Dissolve duplicate MUSYMs
-                dissolve_layer_path = "{}\\{}".format(arcpy.env.workspace, "{}_{}_soils_dissolved".format(sanitize(lyr.name), sanitize(parcel)))
+                dissolve_layer_path = "{}\\{}_soils_dissolved".format(arcpy.env.workspace, sanitize(new_layer_name))
                 arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,soils_mukey])
 
                 # Add to map
                 new_layer = m.addDataFromPath(dissolve_layer_path)
                 soils_layers.append(new_layer)
-                new_layer.name = "{}_soils".format(lyr.name)
+                new_layer.name = new_layer_name
 
                 # Add acreage field
                 field_alias = "{} Acres".format(lyr_type)
@@ -227,7 +227,7 @@ class Process(object):
                 new_layer.setDefinition(l_cim)
 
                 # Get soils layer attribute table and export / extract needed fields for layout
-                table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer.name)))
+                table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer_name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
                 arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".format(soils_mukey)], "KEEP_FIELDS")
 
