@@ -521,4 +521,4 @@ Contributions welcome, please open issues for feature requests and bugs, and pul
 
 # License [↑](#table-of-contents)
 
-This project is licensed under the AGPL v3 license with an additional [Contextual Copyleft clause](https://arxiv.org/abs/2507.12713) added. Please see [LICENSE](LICENSE) file for full license.
+This project is licensed under the [Contextual Copyleft AI (CCAI) License v1.0](https://arxiv.org/abs/2507.12713). See [LICENSE](LICENSE) file for full license text. CCAI is a FOSS copy-left license which extends copy-left requirements of training data to ML models to prevent "open-washing" of FOSS code through LLMs and other machine learning systems.
