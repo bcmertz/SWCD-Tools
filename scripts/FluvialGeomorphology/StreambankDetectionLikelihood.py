@@ -121,34 +121,55 @@ class StreambankDetectionLikelihood:
 
         # calculate output
         log("calculating relationship between height above thalweg and hydraulic depth")
-        output = (rem * distance)/(scratch_area - rem)
-        output.save(output_file)
+        ratio = (rem * distance)/(scratch_area - rem)
+
+
+        # Gaussian blur
+        log("gaussian blur")
+        gblur = arcpy.sa.Resample(ratio, "BilinearGaussBlur")
+
+        # Sobel rms
+        log("sobel rms")
+        sobel_x = arcpy.sa.Convolution(gblur, 17)
+        sobel_y = arcpy.sa.Convolution(gblur, 18)
+        sobel = arcpy.sa.SquareRoot(sobel_x^2 + sobel_y^2)
+
+        # non-maxima suppression
+        # log("non-maxima suppresion")
+        # foc_stat = arcpy.sa.FocalStatistics(sobel, arcpy.sa.NbrRectangle(3,3,"CELL"), "MAXIMUM", "DATA")
+        # diff = sobel - foc_stat
+        # con = arcpy.sa.Con(diff, 1, 0, "VALUE>=0")
+        log("saving")
+        sobel.save(output_file)
+
+        # # convolution
+        # log("performing Laplacian convolution")
+        # conv = arcpy.sa.Convolution(ratio, 19)
+        # conv.save(output_file)
 
         # add output to map
         log("adding output to map")
         output_layer = active_map.addDataFromPath(output_file)
 
         # update raster symbology
-        log("updating output symbology")
-        min_value = 0
-        max_value = 25
-        sym = output_layer.symbology
-        if hasattr(sym, 'colorizer'):
-            if sym.colorizer.type != "RasterStretchColorizer":
-                sym.updateColorizer("RasterStretchColorizer")
-            sym.colorizer.stretchType = "MinimumMaximum"
-            sym.colorizer.minLabel = "{}".format(min_value)
-            sym.colorizer.maxLabel = "{}".format(max_value)
-            output_layer.symbology = sym
-        cim_layer = output_layer.getDefinition("V3")
-        cim_layer.colorizer.statsType = 'GlobalStats'
-        #cim_layer.colorizer.useCustomStretchMinMax = True
-        cim_layer.colorizer.customStretchMin = min_value
-        cim_layer.colorizer.customStretchMax = max_value
-        cim_layer.colorizer.stretchStats.max = max_value
-        cim_layer.colorizer.stretchStats.min = min_value
-        output_layer.setDefinition(cim_layer)
-
+        # log("updating output symbology")
+        # min_value = 0
+        # max_value = 100
+        # sym = output_layer.symbology
+        # if hasattr(sym, 'colorizer'):
+        #     if sym.colorizer.type != "RasterStretchColorizer":
+        #         sym.updateColorizer("RasterStretchColorizer")
+        #     sym.colorizer.stretchType = "MinimumMaximum"
+        #     sym.colorizer.minLabel = "{}".format(min_value)
+        #     sym.colorizer.maxLabel = "{}".format(max_value)
+        #     output_layer.symbology = sym
+        # cim_layer = output_layer.getDefinition("V3")
+        # cim_layer.colorizer.statsType = 'GlobalStats'
+        # cim_layer.colorizer.customStretchMin = min_value
+        # cim_layer.colorizer.customStretchMax = max_value
+        # cim_layer.colorizer.stretchStats.max = max_value
+        # cim_layer.colorizer.stretchStats.min = min_value
+        # output_layer.setDefinition(cim_layer)
 
         # cleanup
         log("deleting unneeded data")

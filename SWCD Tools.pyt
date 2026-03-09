@@ -28,6 +28,7 @@ class Toolbox(object):
             RunoffCurveNumber,
             CalculateEFH2,
             StreambankDetection,
+            StreambankDetectionLikelihood,
             WatershedDelineation,
             SubBasinDelineation,
             DecisionTree,
