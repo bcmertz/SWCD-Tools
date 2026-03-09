@@ -122,7 +122,6 @@ class StreambankDetection:
         # calculate output
         log("calculating relationship between height above thalweg and hydraulic depth")
         ratio = (rem * distance)/(scratch_area - rem)
-        ratio.save(output_file)
 
         # con
         bankful = arcpy.sa.Con(ratio, 1, None, "VALUE<=0")
