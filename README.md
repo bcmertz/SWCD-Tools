@@ -521,4 +521,4 @@ Contributions welcome, please open issues for feature requests and bugs, and pul
 
 # License [↑](#table-of-contents)
 
-Please refer to the [LICENSE](LICENSE) file.
+This project is licensed under the AGPL v3 license with an additional [Contextual Copyleft clause](https://arxiv.org/abs/2507.12713) added. Please see [LICENSE](LICENSE) file for full license.
