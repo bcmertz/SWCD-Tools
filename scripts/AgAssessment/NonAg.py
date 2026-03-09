@@ -10,7 +10,7 @@
 import json
 import arcpy
 
-from ..helpers import sanitize, license, reload_module, log
+from ..helpers import license, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -62,28 +62,28 @@ class NonAg(object):
                 continue
 
             # get parcel layer or drop off of map
-            fc = None
+            parcel_lyr = None
             try:
-                fc = m.listLayers("*_{}".format(parcel))[0]
+                parcel_lyr = m.listLayers("*_{}".format(parcel))[0]
             except:
                 log("no appropriate parcel layer found for {}, results may be incomplete".format(parcel))
                 continue
 
             # check how many pieces are selected
-            sel_set = fc.getSelectionSet()
+            sel_set = parcel_lyr.getSelectionSet()
             if sel_set is None:
                 continue
 
-            # construct layer names and paths
-            layer_name = "{}_NonAg".format(fc.name)
-            sanitized_name = sanitize(layer_name)
-            layer_path = "{}\\{}".format(arcpy.env.workspace, sanitized_name)
+            # construct layer name and path
+            parcel_lyr_path = parcel_lyr.dataSource
+            layer_name = "NonAg"
+            # layer_name = "NonAg_{}".format(sanitize(parcel)[-4:])
+            layer_path = "{}_NonAg".format(parcel_lyr_path)
 
             # export shape to new feature class
-            feat = arcpy.management.MakeFeatureLayer(fc, layer_name)
-            arcpy.management.CopyFeatures(feat, layer_path)
+            arcpy.conversion.ExportFeatures(parcel_lyr, layer_path)
             lyr = m.addDataFromPath(layer_path)
-            lyr.name = "NonAg_{}".format(sanitize(parcel)[-4:])
+            lyr.name = layer_name
 
             # update symbology
             sym = lyr.symbology

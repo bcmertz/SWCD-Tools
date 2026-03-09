@@ -115,6 +115,7 @@ class BurnCulverts(object):
 
         # create scratch layers
         log("creating scratch layers")
+        scratch_culvert_buffer = arcpy.CreateScratchName("c_buff", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_culvert_upstream = arcpy.CreateScratchName("upstream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_culvert_downstream = arcpy.CreateScratchName("downstream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_points_merge = arcpy.CreateScratchName("merge", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
@@ -123,21 +124,33 @@ class BurnCulverts(object):
         scratch_burned_raster = arcpy.CreateScratchName("burned", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
         scratch_mosaic_raster = arcpy.CreateScratchName("mos_ras", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
-        # fill clipped raster
-        log("finding point upstream of culvert")
-        fill_raster = arcpy.sa.Fill(dem)
+        # buffer culvert for flow accumulation
+        # previously we filled the entire raster and found the deepest fills
+        # within the specific distance of the culvert but this failed for
+        # nearby culverts that are part of the same filled area.
+        # example: lower road upstream of high elevation road will fill incorrectly
+        log("buffering culverts")
+        arcpy.analysis.PairwiseBuffer(culverts, scratch_culvert_buffer, "{} {}".format(distance/2, linear_unit))
 
-        # subtract filled - clipped raster
-        difference = fill_raster - dem
+        # find high flow accumulations entering buffer
+        log("finding point upstream of culvert")
+        flow_acc = arcpy.sa.DeriveContinuousFlow(
+            in_surface_raster=dem,
+            in_depressions_data=scratch_culvert_buffer,
+            in_weight_raster=None,
+            out_flow_direction_raster=None,
+            flow_direction_type="D8",
+            force_flow="NORMAL"
+        )
 
         # snap culvert to max difference
         culverts_oid_field = get_oid(culverts)
-        culvert_raster_upstream = arcpy.sa.SnapPourPoint(culverts, difference, distance, culverts_oid_field) # BUG: snap pour point doesn't respect map units (as it says it does in the documentation) or specified units, always takes meters
+        culvert_raster_upstream = arcpy.sa.SnapPourPoint(culverts, flow_acc, distance, culverts_oid_field) # BUG: snap pour point doesn't respect map units (as it says it does in the documentation) or specified units, always takes meters
         arcpy.conversion.RasterToPoint(culvert_raster_upstream, scratch_culvert_upstream, "Value") # NOTE: culverts_oid_field gets set to Value instead of the field name mapped over
 
-        # 0 - Fill
+        # create negative elevation raster to snap to lowest elevation within distance of culvert
         log("finding point downstream of culvert")
-        negative_elev = -fill_raster
+        negative_elev = -dem
 
         # snap culvert to lowest point
         culvert_raster_downstream = arcpy.sa.SnapPourPoint(culverts, negative_elev, distance, culverts_oid_field) # BUG: snap pour point doesn't respect map units (as it says it does in the documentation) or specified units, always takes meters
@@ -147,7 +160,7 @@ class BurnCulverts(object):
         arcpy.management.Merge([scratch_culvert_upstream,scratch_culvert_downstream],scratch_points_merge)
         # iterate through points and make lines from them
         #
-        # NOTE: can't use builtin pointtoline becase we only have two points per line :(
+        # NOTE: can't use builtin pointtoline because we only have two points per line :(
         lines = []
         with arcpy.da.SearchCursor(scratch_points_merge, ["SHAPE@XY", "grid_code"], sql_clause=(None, "ORDER BY grid_code")) as points:
             point_dict = {}
@@ -182,14 +195,14 @@ class BurnCulverts(object):
         # set elev to 0
         with arcpy.da.UpdateCursor(scratch_stream_buffer, [elevation_field]) as cursor:
             for point in cursor:
-                point[0] = 0
+                point[0] = 0 # TODO: find way to get the elevation value without a fill - downstream elev?
                 cursor.updateRow(point)
 
         # polygon to raster
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster, cellsize=1)
 
 
-        # fill
+        # fill output raster
         if fill_depressions:
             # mosaic to new raster
             log("creating mosaic raster")
@@ -197,8 +210,8 @@ class BurnCulverts(object):
                 output_location=arcpy.env.scratchGDB,
                 raster_dataset_name_with_extension=scratch_mosaic_raster.split("\\")[-1],
                 input_rasters=[dem,scratch_burned_raster],
-                pixel_type=pixel_type(difference),
-                number_of_bands=difference.bandCount,
+                pixel_type=pixel_type(dem),
+                number_of_bands=dem.bandCount,
                 mosaic_method="LAST",
                 mosaic_colormap_mode="FIRST"
             )
@@ -219,10 +232,9 @@ class BurnCulverts(object):
                 output_location=out_dir,
                 raster_dataset_name_with_extension=out_name,
                 input_rasters=[dem,scratch_burned_raster],
-                pixel_type=pixel_type(difference),
-                number_of_bands=difference.bandCount,
+                pixel_type=pixel_type(dem),
+                number_of_bands=dem.bandCount,
                 mosaic_method="LAST",
-                mosaic_colormap_mode="FIRST"
             )
 
         # add raster to map

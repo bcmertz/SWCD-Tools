@@ -104,7 +104,7 @@ class RelativeElevationModel(object):
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
         buffer_radius = parameters[4].valueAsText
-        sampling_interval = parameters[4].valueAsText
+        sampling_interval = parameters[5].valueAsText
 
         # set analysis extent
         if extent:
@@ -112,10 +112,10 @@ class RelativeElevationModel(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", "FeatureClass", arcpy.env.scratchGDB)
-        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", "FeatureClass", arcpy.env.scratchGDB)
+        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         if extent:
             # clip streams to analysis area
@@ -145,17 +145,22 @@ class RelativeElevationModel(object):
         log("calculating IDW raster")
         arcpy.env.cellSize = dem_raster_clip
         arcpy.env.extent = scratch_stream_buffer
-        idw_raster = arcpy.sa.Idw(scratch_stream_elev_points, "RASTERVALU", "", "", "", "")
+        buffer_radius, buffer_radius_unit = buffer_radius.split(" ")
+        radius_map_units = int(buffer_radius) * arcpy.LinearUnitConversionFactor(buffer_radius_unit, active_map.mapUnits)
+        idw_raster = arcpy.sa.Idw(
+            in_point_features=scratch_stream_elev_points,
+            z_field="RASTERVALU",
+            search_radius=arcpy.sa.RadiusFixed(2 * radius_map_units, 0)
+        )
 
         # raster calculator (DEM - IDW_new)
         log("calculating relative elevation difference")
-        relative_elevation = arcpy.CreateUniqueName(output_file)
         out_rem = arcpy.sa.RasterCalculator([dem_raster_clip,idw_raster],["x","y"],"x-y", "FirstOf", "FirstOf")
-        out_rem.save(relative_elevation)
+        out_rem.save(output_file)
 
         # add results to map
         log("adding results to map")
-        rem_raster = active_map.addDataFromPath(out_rem)
+        rem_raster = active_map.addDataFromPath(output_file)
 
         # update raster symbology
         log("updating raster symbology")
