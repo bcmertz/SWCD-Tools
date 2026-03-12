@@ -1,6 +1,6 @@
 # Overview
 
-This is a set of tools for various GIS workflows related to hydrology, wetlands, agricultural conservation, and DEM processing.
+This is a set of tools for various GIS workflows related to hydrology, geomorphology, terrain analysis and terrain modification.
 
 # Table of Contents
 
