@@ -75,11 +75,14 @@ class SubBasinDelineation(object):
         watershed = parameters[1].value
         threshold = parameters[2].valueAsText
 
-        # find threshold in nunmber cells
-        threshold = area_to_num_cells(raster_layer, threshold)
-        if threshold is None:
-            log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
-            threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
+        # threshold in number of raster cells
+        # assume 1m^2 cell, threshold ~8 acres in number of cells
+        num_cells = 32000
+        try:
+            # find threshold in number of cells
+            num_cells = cells_per_area(raster_layer, threshold)
+        except:
+            warn("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
 
         # clip DEM raster to the watershed
         log("clipping raster to watershed")
@@ -99,7 +102,7 @@ class SubBasinDelineation(object):
 
         # con
         log("converting raster to stream network")
-        sql_query = "VALUE > {}".format(threshold)
+        sql_query = "VALUE > {}".format(num_cells)
         con_accumulation_scratch = arcpy.sa.Con(flow_accumulation_scratch, 1, "", sql_query)
 
         # stream link
