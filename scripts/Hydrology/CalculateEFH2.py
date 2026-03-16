@@ -3,8 +3,8 @@
 # Purpose:     This tool takes a watershed and RCNs, and calculates slopes,
 #              longest flow path, and other parameters needed to run EFH-2 analysis
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 import os
 import arcpy

@@ -1,6 +1,6 @@
 # Overview
 
-This is a set of tools for various GIS workflows related to hydrology, wetlands, agricultural conservation, and DEM processing.
+This is a set of tools for various GIS workflows related to hydrology, geomorphology, terrain analysis and terrain modification.
 
 # Table of Contents
 
@@ -521,4 +521,4 @@ Contributions welcome, please open issues for feature requests and bugs, and pul
 
 # License [↑](#table-of-contents)
 
-Please refer to the [LICENSE](LICENSE) file.
+This project is licensed under the [Contextual Copyleft AI (CCAI) License v1.0](https://arxiv.org/abs/2507.12713). See [LICENSE](LICENSE) file for full license text. CCAI is a FOSS copy-left license which extends copy-left requirements of training data to ML models to prevent "open-washing" of FOSS code through LLMs and other machine learning systems.

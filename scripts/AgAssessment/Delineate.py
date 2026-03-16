@@ -2,8 +2,8 @@
 # Name:        Delineate
 # Purpose:     This tool finds a parcel and sets up an ag assessment project
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 import os

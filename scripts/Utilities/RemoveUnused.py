@@ -4,8 +4,8 @@
 #
 # Notes:       Inspired by https://github.com/alex6H/ArcGIS_Toolbox/blob/main/Tools/unused_feature_class_finder.py
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 #
 #              Unclear what license this tool should fall under. Assumed AGPL v3
 #              due to no code being taken from alex6H just inspiration, but to be

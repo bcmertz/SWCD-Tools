@@ -2,8 +2,8 @@
 # Name:        Layer Helper
 # Purpose:     This package contains various tools for working with arcpy layers.
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # -----------------------------------------------------------------------------------
 
 import arcpy

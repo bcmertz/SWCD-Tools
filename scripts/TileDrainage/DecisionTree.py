@@ -2,8 +2,8 @@
 # Name:        Decision Tree Classification (DTC)
 # Purpose:     This tool analyzes soils, hydrology, and land use to find likely tile drained fields.
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------------------------
 
 import arcpy

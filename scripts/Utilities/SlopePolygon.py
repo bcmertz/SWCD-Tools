@@ -2,8 +2,8 @@
 # Name:        Slope Polygon
 # Purpose:     This tool takes a polygon and creates a slope raster inside it.
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 import arcpy

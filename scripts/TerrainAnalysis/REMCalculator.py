@@ -3,8 +3,8 @@
 # Purpose:     This tool creates an REM from a DEM and streamline. This can be used
 #              for modeling stream incision, geomorphic features, and other uses.
 #
-# License:     GNU Affero General Public License v3.
-#              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
 import arcpy
