@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, LINEAR_UNITS, get_z_unit, reload_module, log
+from ..helpers import license, get_oid, Z_UNITS, get_z_unit, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -35,7 +35,7 @@ class WatershedDelineation(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = LINEAR_UNITS
+        param1.filter.list = Z_UNITS
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",

@@ -12,7 +12,7 @@ import pathlib
 import openpyxl
 import datetime
 
-from ..helpers import license, get_oid, get_z_unit, get_linear_unit, LINEAR_UNITS, empty_workspace, reload_module, log
+from ..helpers import license, get_oid, get_z_unit, get_linear_unit, Z_UNITS, empty_workspace, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -38,7 +38,7 @@ class CalculateEFH2:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = LINEAR_UNITS
+        param1.filter.list = Z_UNITS
 
         param2 = arcpy.Parameter(
             displayName="Output Folder",
