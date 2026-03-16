@@ -8,7 +8,7 @@
 
 import arcpy
 
-from .units import convert_area, LINEAR_TO_AREAL
+from .units import convert_area, LINEAR_TO_AREAL, SPATIAL_TO_LINEAR
 
 PIXEL_TYPES = {
     "U1": "1_BIT",
@@ -33,7 +33,7 @@ def cell_area(raster) -> str:
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
-    linear_unit = desc_raster.spatialReference.linearUnitName
+    linear_unit = SPATIAL_TO_LINEAR[desc_raster.spatialReference.linearUnitName]
     square_unit = LINEAR_TO_AREAL[linear_unit]
 
     # Cell size in the X and Y axis
