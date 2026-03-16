@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, get_z_unit, z_units, empty_workspace, reload_module, log
+from ..helpers import license, get_oid, get_z_unit, LINEAR_UNITS, empty_workspace, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -35,7 +35,7 @@ class DecisionTree(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = z_units
+        param1.filter.list = LINEAR_UNITS
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",

@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log, z_units, get_z_unit
+from ..helpers import license, empty_workspace, reload_module, log, LINEAR_UNITS, get_z_unit
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -33,7 +33,7 @@ class WatershedSize:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = z_units
+        param1.filter.list = LINEAR_UNITS
 
         param2 = arcpy.Parameter(
             displayName="Output Folder",

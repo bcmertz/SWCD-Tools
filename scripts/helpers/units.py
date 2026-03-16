@@ -27,29 +27,27 @@ def get_linear_unit(fc) -> str | None:
     except:
         return fc.spatialReference.linearUnitName
 
-
-# mapping of z unit to linear unit names
-UNITS = {
-    "Kilometers": "KILOMETER",
-    "Meters": "METER",
-    "Decimeters": "DECIMETER",
-    "Millimeters": "MILLIMETER",
-    "Centimeters": "CENTIMETER",
-    "NauticalMilesInt": "NAUTICAL_MILE",
-    "MilesInt": "MILE_US",
-    "YardsInt": "YARD",
-    "FeetInt": "FOOT",
-    "InchesInt": "INCH",
-    "NauticalMilesUS": "NAUTICAL_MILE",
-    "MilesUS": "MILES_US",
-    "YardsUS": "YARD",
-    "FeetUS": "FOOT",
-    "InchesUS": "INCH",
+# mapping of linear to areal (square) units
+LINEAR_TO_AREAL = {
+    "Kilometers": "SquareKilometers",
+    "Meters": "SquareMeters",
+    "Decimeters": "SquareDecimeters",
+    "Centimeters": "SquareCentimeters",
+    "Millimeters": "SquareMillimeters",
+    "YardsInt": "SquareYards",
+    "FeetInt": "SquareFeet",
+    "InchesInt": "SquareInches",
+    "MilesInt": "SquareMiles",
+    "MilesUS": "SquareMilesUS",
+    "YardsUS": "SquareYardsUS",
+    "FeetUS": "SquareFeetUS",
+    "InchesUS": "SquareInchesUS ",
+    "NauticalMilesUS": "Unknown",
+    "NauticalMilesInt": "Unknown",
 }
 
-linear_units = list(UNITS.keys())
-z_units = list(UNITS.values())
-
+LINEAR_UNITS = list(UNITS.keys())
+AREAL_UNITS =list(UNITS.values())
 
 def area_to_num_cells(raster, area: str) -> int | None:
     """Convert GPArealUnit AREA to the number of cells in the RASTER it is equivalent to."""

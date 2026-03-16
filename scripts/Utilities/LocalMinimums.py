@@ -13,7 +13,7 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, z_units, empty_workspace, reload_module, log
+from ..helpers import license, get_z_unit, LINEAR_UNITS, empty_workspace, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -53,7 +53,7 @@ class LocalMinimums:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param2.filter.list = z_units
+        param2.filter.list = LINEAR_UNITS
 
         param3 = arcpy.Parameter(
             displayName="Analysis Area",
