@@ -125,8 +125,8 @@ class StreamNetwork(object):
         extent = parameters[1].value
         stream = parameters[2].value
         threshold_size, threshold_unit = parameters[3].valueAsText.split(" ")
-        keep_fields = parameters[4].valueAsText.split(";") if parameters[2].value else None
-        watershed_size = parameters[5].value
+        keep_fields = parameters[4].valueAsText.split(";") if parameters[4].value is not None else None
+        watershed_size_bool = parameters[5].value
         output_file = parameters[6].valueAsText
 
         # set analysis extent
@@ -137,7 +137,8 @@ class StreamNetwork(object):
         log("creating scratch layers")
         scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_zonst = arcpy.CreateScratchName("zonst", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # fill DEM
         log("filling raster")
@@ -154,12 +155,13 @@ class StreamNetwork(object):
         # convert flow accumulation from number of cells to threshold area units
         log("calculating watershed size")
         raster_cell_area = cell_area(dem)
-        flow_accumulation_units = flow_accumulation * convert_area(raster_cell_area, threshold_unit)
+        cell_size = convert_area(raster_cell_area, threshold_unit).split(" ")[0]
+        watershed_size = flow_accumulation * float(cell_size)
 
         # con
         log("applying watershed threshold")
         sql_query = "VALUE > {}".format(threshold_size)
-        con_accumulation = arcpy.sa.Con(flow_accumulation_units, 1, "", sql_query)
+        con_accumulation = arcpy.sa.Con(watershed_size, 1, "", sql_query)
 
         if stream:
             # stream to feature
@@ -220,6 +222,38 @@ class StreamNetwork(object):
             # stream to feature
             log("creating stream feature")
             arcpy.sa.StreamToFeature(con_accumulation, flow_direction, output_file, True)
+
+        # add watershed size information if requested
+        if watershed_size_bool:
+            # zonal statistics
+            log("adding watershed size information to output")
+            arcpy.sa.ZonalStatisticsAsTable(
+                in_zone_data=output_file,
+                zone_field=get_oid(output_file),
+                in_value_raster=watershed_size,
+                out_table=scratch_zonst,
+                ignore_nodata="DATA",
+                statistics_type="MAXIMUM",
+                out_join_layer=scratch_output,
+            )
+
+            # copy scratch output to output file
+            # necessary because otherwise AlterField gets
+            # upset about altering a joined table
+            arcpy.management.CopyFeatures(scratch_output, output_file)
+
+            # rename MAX field created by zonal stats
+            field_name = "MAX"
+            fieldList = arcpy.ListFields(output_file)  # Get a list of fields for each feature class
+            for field in fieldList:  # Lloop through each field
+                if field.aliasName == 'MAX':
+                    field_name = field.name
+            arcpy.management.AlterField(
+                in_table=output_file,
+                field=field_name,
+                new_field_name="watershed",
+                new_field_alias="Watershed Size ({})".format(threshold_unit),
+            )
 
         # add flow path polyline to map
         log("adding output to map")
