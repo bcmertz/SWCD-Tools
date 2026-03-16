@@ -27,7 +27,17 @@ def get_linear_unit(fc) -> str | None:
     except:
         return fc.spatialReference.linearUnitName
 
-# mapping of linear to areal (square) units
+# mapping of spatial reference linear unit to GPLinearUnit
+SPATIAL_TO_LINEAR = {
+    "Meter": "Meters",
+    "Foot_US": "FeetUS",
+    "Foot": "FeetInt"
+}
+
+# z-units available to rasters for VCS
+Z_UNITS = list(SPATIAL_TO_LINEAR.keys())
+
+# mapping of GPLinearUnit to GPArealUnit (square units)
 LINEAR_TO_AREAL = {
     "Kilometers": "SquareKilometers",
     "Meters": "SquareMeters",
@@ -46,8 +56,8 @@ LINEAR_TO_AREAL = {
     "NauticalMilesInt": "Unknown",
 }
 
-LINEAR_UNITS = list(UNITS.keys())
-AREAL_UNITS =list(UNITS.values())
+LINEAR_UNITS = list(LINEAR_TO_AREAL.keys())
+AREAL_UNITS = list(LINEAR_TO_AREAL.values())
 
 def convert_area(area: str, output_unit: str) -> str:
     """Convert AREA to OUTPUT_UNIT factoring in area size."""
