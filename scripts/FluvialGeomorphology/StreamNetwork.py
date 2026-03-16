@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, empty_workspace, area_to_num_cells, reload_module, log
+from ..helpers import license, get_oid, empty_workspace, cell_area, convert_area, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 

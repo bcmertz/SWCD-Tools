@@ -11,4 +11,4 @@ from .logging import log, warn, error
 from .parameter import validate_spatial_reference, toggle_required_parameter, sanitize
 from .rasters import pixel_type, cell_size, min_cell_path
 from .tool import license, setup_environment, reload_module, empty_workspace
-from .units import get_z_unit, get_linear_unit, z_units, linear_units, area_to_num_cells
+from .units import get_z_unit, get_linear_unit, LINEAR_UNITS, AREAL_UNITS, LINEAR_TO_AREAL, convert_area
