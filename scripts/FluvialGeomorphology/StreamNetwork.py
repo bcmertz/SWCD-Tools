@@ -133,12 +133,6 @@ class StreamNetwork(object):
         if extent:
             arcpy.env.extent = extent
 
-        # find threshold in nunmber cells
-        threshold = area_to_num_cells(dem, threshold)
-        if threshold is None:
-            log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
-            threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
-
         # create scratch layers
         log("creating scratch layers")
         scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
@@ -157,10 +151,15 @@ class StreamNetwork(object):
         log("calculating flow accumulation")
         flow_accumulation = arcpy.sa.FlowAccumulation(flow_direction)
 
+        # convert flow accumulation from number of cells to threshold area units
+        log("calculating watershed size")
+        raster_cell_area = cell_area(dem)
+        flow_accumulation_units = flow_accumulation * convert_area(raster_cell_area, threshold_unit)
+
         # con
-        log("converting raster to stream network")
-        sql_query = "VALUE > {}".format(threshold)
-        con_accumulation = arcpy.sa.Con(flow_accumulation, 1, "", sql_query)
+        log("applying watershed threshold")
+        sql_query = "VALUE > {}".format(threshold_size)
+        con_accumulation = arcpy.sa.Con(flow_accumulation_units, 1, "", sql_query)
 
         if stream:
             # stream to feature
