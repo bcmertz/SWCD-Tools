@@ -38,24 +38,24 @@ class StreamNetwork(object):
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        # NOTE: composite parameters not supported until ArcGIS Pro 3.4
-        # once supported consider combining threshold and stream lines
-        # into one parameter with a toggle
         param2 = arcpy.Parameter(
-            displayName="Stream Initiation Threshold",
-            name="threshold",
-            datatype="GPArealUnit",
-            parameterType="Required",
-            direction="Input")
-
-        param3 = arcpy.Parameter(
             displayName="Existing Stream Lines",
             name="stream",
             datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-        param3.filter.list = ["Line"]
-        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
+        param2.filter.list = ["Line"]
+        param2.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
+
+        # NOTE: composite parameters not supported until ArcGIS Pro 3.4
+        # once supported consider combining threshold and stream lines
+        # into one parameter with a toggle
+        param3 = arcpy.Parameter(
+            displayName="Stream Initiation Threshold",
+            name="threshold",
+            datatype="GPArealUnit",
+            parameterType="Required",
+            direction="Input")
 
         param4 = arcpy.Parameter(
             displayName="Fields to keep",
@@ -81,9 +81,9 @@ class StreamNetwork(object):
 
     def updateParameters(self, parameters):
         # get stream line fields
-        if not parameters[3].hasBeenValidated:
-            if parameters[3].value:
-                fields = [f.name for f in arcpy.ListFields(parameters[3].value)]
+        if not parameters[2].hasBeenValidated:
+            if parameters[2].value:
+                fields = [f.name for f in arcpy.ListFields(parameters[2].value)]
                 parameters[4].enabled = True
                 parameters[4].filter.list = fields
             else:
@@ -91,8 +91,8 @@ class StreamNetwork(object):
                 parameters[4].value = None
 
         # Default stream threshold value
-        if parameters[2].value is None:
-            parameters[2].value = "8 AcresUS"
+        if parameters[3].value is None:
+            parameters[3].value = "8 AcresUS"
 
         return
 
@@ -115,10 +115,9 @@ class StreamNetwork(object):
         # read in parameters
         dem = parameters[0].value
         extent = parameters[1].value
-        threshold = parameters[2].valueAsText
-        stream = parameters[3].value
-        keep_fields = parameters[4].valueAsText.split(";") if parameters[3].value else None
-        output_file = parameters[5].valueAsText
+        stream = parameters[2].value
+        threshold_size, threshold_unit = parameters[3].valueAsText.split(" ")
+        keep_fields = parameters[4].valueAsText.split(";") if parameters[2].value else None
 
         # set analysis extent
         if extent:
