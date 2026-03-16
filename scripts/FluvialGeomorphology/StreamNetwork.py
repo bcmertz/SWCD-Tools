@@ -68,15 +68,23 @@ class StreamNetwork(object):
         param4.filter.list = []
 
         param5 = arcpy.Parameter(
+            displayName="Include calculated watershed size as attribute",
+            name="size_bool",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+        param5.value = True
+
+        param6 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param5.parameterDependencies = [param0.name]
-        param5.schema.clone = True
+        param6.parameterDependencies = [param0.name]
+        param6.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4, param5]
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateParameters(self, parameters):
@@ -118,6 +126,8 @@ class StreamNetwork(object):
         stream = parameters[2].value
         threshold_size, threshold_unit = parameters[3].valueAsText.split(" ")
         keep_fields = parameters[4].valueAsText.split(";") if parameters[2].value else None
+        watershed_size = parameters[5].value
+        output_file = parameters[6].valueAsText
 
         # set analysis extent
         if extent:
