@@ -29,7 +29,8 @@ def pixel_type(raster):
     return PIXEL_TYPES[raster.pixelType]
 
 def cell_area(raster, area_unit=None) -> str:
-    """Return the cell size of a raster as a GPArealUnit. TODO: area_unit"""
+    """Return the cell size of a RASTER as a GPArealUnit. User can specify unit AREA_UNIT
+    for output GPArealUnit to be in."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
