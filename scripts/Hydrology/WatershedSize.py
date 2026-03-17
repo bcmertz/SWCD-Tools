@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------------
 # Name:        Wateshed Size
-# Purpose:     This tool TODO
+# Purpose:     This tool creates a watershed size raster in the units the user specifies.
 #
 # License:     GNU Affero General Public License v3.
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
