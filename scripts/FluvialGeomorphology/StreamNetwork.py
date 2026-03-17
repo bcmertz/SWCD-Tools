@@ -137,6 +137,7 @@ class StreamNetwork(object):
         log("creating scratch layers")
         scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_feature = arcpy.CreateScratchName("feature", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_zonst = arcpy.CreateScratchName("zonst", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
@@ -203,7 +204,7 @@ class StreamNetwork(object):
                 arcpy.analysis.SpatialJoin(
                     target_features=scratch_output,
                     join_features=stream,
-                    out_feature_class=output_file,
+                    out_feature_class=scratch_feature,
                     join_operation="JOIN_ONE_TO_ONE",
                     join_type="KEEP_ALL",
                     field_mapping=field_mapping,
@@ -212,23 +213,23 @@ class StreamNetwork(object):
                 )
 
                 # remove `Join_Count` and `TARGET_FID` fields
-                arcpy.management.DeleteField(output_file, ["Join_Count", "TARGET_FID"])
+                arcpy.management.DeleteField(scratch_feature, ["Join_Count", "TARGET_FID"])
             else:
                 # stream to feature
                 log("converting stream raster to output feature class")
-                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, output_file, True)
+                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_feature, True)
         else:
             # stream to feature
             log("creating stream feature")
-            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, output_file, True)
+            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, True)
 
         # add watershed size information if requested
         if watershed_size_bool:
             # zonal statistics
             log("adding watershed size information to output")
             arcpy.sa.ZonalStatisticsAsTable(
-                in_zone_data=output_file,
-                zone_field=get_oid(output_file),
+                in_zone_data=scratch_feature,
+                zone_field=get_oid(scratch_feature),
                 in_value_raster=watershed_size,
                 out_table=scratch_zonst,
                 ignore_nodata="DATA",
@@ -253,6 +254,10 @@ class StreamNetwork(object):
                 new_field_name="watershed",
                 new_field_alias="Watershed Size ({})".format(threshold_unit),
             )
+        else:
+            # copy output to feature class
+            log("copying output to feature class")
+            arcpy.management.CopyFeatures(scratch_output, output_file)
 
         # add flow path polyline to map
         log("adding output to map")
