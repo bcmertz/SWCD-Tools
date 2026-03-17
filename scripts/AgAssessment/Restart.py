@@ -78,6 +78,8 @@ class Restart(object):
         maps_bool = parameters[0].value
         folder_bool = parameters[1].value
         workspace_bool = parameters[2].value
+        parcels = []
+        output_folder = None
 
         if maps_bool or folder_bool:
             # read in json
@@ -87,7 +89,7 @@ class Restart(object):
                 with open(cache_file_path) as file:
                     cache = json.load(file)
                     parcels = cache["parcels"]
-                output_folder = cache["output_folder"]
+                    output_folder = cache["output_folder"]
             except:
                 log("Unable to find cache file and complete transaction. Please manually refresh the tool or manually clear out data.")
 
@@ -117,12 +119,12 @@ class Restart(object):
                     # delete map
                     project.deleteItem(m)
 
-            if folder_bool:
+            if folder_bool and output_folder is not None:
                 # clear out output folder
                 log("clearing output folder")
                 shutil.rmtree(output_folder)
 
-            if not os.path.exists(output_folder) and maps_bool:
+            if output_folder is not None and not os.path.exists(output_folder) and maps_bool:
                 # clear out cache
                 log("clearing out cache file")
                 os.remove(cache_file_path)
