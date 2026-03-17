@@ -98,7 +98,7 @@ class WatershedSize:
         log("calculating flow accumulation")
         flow_accumulation = arcpy.sa.FlowAccumulation(flow_direction)
 
-        # convert flow accumulation from number of cells to threshold area units
+        # convert flow accumulation from number of cells to area units
         log("calculating watershed size")
         cell_size = float(cell_area(dem, areal_unit).split(" ")[0])
         watershed_size = flow_accumulation * cell_size
