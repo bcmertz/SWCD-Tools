@@ -24,6 +24,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
     - [Runoff Curve Number (RCN)](#3-runoff-curve-number-)
     - [EFH-2](#4-efh-2-calculation-)
+    - [Watershed Size Raster](#5-watershed-size-raster-)
   - [Terrain Analysis](#terrain-analysis-)
     - [Model Potential Wetlands](#1-model-potential-wetlands-)
     - [Topographic Wetness Index (TWI)](#2-topographic-wetness-index-twi-)
@@ -240,6 +241,10 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 ### 4. EFH-2 Calculation [↑](#table-of-contents)
 
 Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
+
+### 5. Watershed Size Raster [↑](#table-of-contents)
+
+Take a DEM and a user defined areal unit and generate a raster where each cell's value represents the watershed size (in specified units) at that location.
 
 ## Terrain Analysis [↑](#table-of-contents)
 

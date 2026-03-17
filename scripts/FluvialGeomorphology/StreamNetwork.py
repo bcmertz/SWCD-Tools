@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, empty_workspace, area_to_num_cells, reload_module, log
+from ..helpers import license, get_oid, empty_workspace, cell_area, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -38,24 +38,24 @@ class StreamNetwork(object):
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
-        # NOTE: composite parameters not supported until ArcGIS Pro 3.4
-        # once supported consider combining threshold and stream lines
-        # into one parameter with a toggle
         param2 = arcpy.Parameter(
-            displayName="Stream Initiation Threshold",
-            name="threshold",
-            datatype="GPArealUnit",
-            parameterType="Required",
-            direction="Input")
-
-        param3 = arcpy.Parameter(
             displayName="Existing Stream Lines",
             name="stream",
             datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-        param3.filter.list = ["Line"]
-        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
+        param2.filter.list = ["Line"]
+        param2.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
+
+        # NOTE: composite parameters not supported until ArcGIS Pro 3.4
+        # once supported consider combining threshold and stream lines
+        # into one parameter with a toggle
+        param3 = arcpy.Parameter(
+            displayName="Stream Initiation Threshold",
+            name="threshold",
+            datatype="GPArealUnit",
+            parameterType="Required",
+            direction="Input")
 
         param4 = arcpy.Parameter(
             displayName="Fields to keep",
@@ -68,22 +68,30 @@ class StreamNetwork(object):
         param4.filter.list = []
 
         param5 = arcpy.Parameter(
+            displayName="Include calculated watershed size as attribute",
+            name="size_bool",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+        param5.value = True
+
+        param6 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param5.parameterDependencies = [param0.name]
-        param5.schema.clone = True
+        param6.parameterDependencies = [param0.name]
+        param6.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4, param5]
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateParameters(self, parameters):
         # get stream line fields
-        if not parameters[3].hasBeenValidated:
-            if parameters[3].value:
-                fields = [f.name for f in arcpy.ListFields(parameters[3].value)]
+        if not parameters[2].hasBeenValidated:
+            if parameters[2].value:
+                fields = [f.name for f in arcpy.ListFields(parameters[2].value)]
                 parameters[4].enabled = True
                 parameters[4].filter.list = fields
             else:
@@ -91,8 +99,8 @@ class StreamNetwork(object):
                 parameters[4].value = None
 
         # Default stream threshold value
-        if parameters[2].value is None:
-            parameters[2].value = "8 AcresUS"
+        if parameters[3].value is None:
+            parameters[3].value = "8 AcresUS"
 
         return
 
@@ -115,26 +123,23 @@ class StreamNetwork(object):
         # read in parameters
         dem = parameters[0].value
         extent = parameters[1].value
-        threshold = parameters[2].valueAsText
-        stream = parameters[3].value
-        keep_fields = parameters[4].valueAsText.split(";") if parameters[3].value else None
-        output_file = parameters[5].valueAsText
+        stream = parameters[2].value
+        threshold_size, threshold_unit = parameters[3].valueAsText.split(" ")
+        keep_fields = parameters[4].valueAsText.split(";") if parameters[4].value is not None else None
+        watershed_size_bool = parameters[5].value
+        output_file = parameters[6].valueAsText
 
         # set analysis extent
         if extent:
             arcpy.env.extent = extent
 
-        # find threshold in nunmber cells
-        threshold = area_to_num_cells(dem, threshold)
-        if threshold is None:
-            log("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
-            threshold = 32000 # assume 1m^2 cell, threshold ~8 acres in number of cells
-
         # create scratch layers
         log("creating scratch layers")
         scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_feature = arcpy.CreateScratchName("feature", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_zonst = arcpy.CreateScratchName("zonst", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # fill DEM
         log("filling raster")
@@ -148,10 +153,15 @@ class StreamNetwork(object):
         log("calculating flow accumulation")
         flow_accumulation = arcpy.sa.FlowAccumulation(flow_direction)
 
+        # convert flow accumulation from number of cells to threshold area units
+        log("calculating watershed size")
+        cell_size = float(cell_area(dem, threshold_unit).split(" ")[0])
+        watershed_size = flow_accumulation * cell_size
+
         # con
-        log("converting raster to stream network")
-        sql_query = "VALUE > {}".format(threshold)
-        con_accumulation = arcpy.sa.Con(flow_accumulation, 1, "", sql_query)
+        log("applying watershed threshold")
+        sql_query = "VALUE > {}".format(threshold_size)
+        con_accumulation = arcpy.sa.Con(watershed_size, 1, "", sql_query)
 
         if stream:
             # stream to feature
@@ -194,7 +204,7 @@ class StreamNetwork(object):
                 arcpy.analysis.SpatialJoin(
                     target_features=scratch_output,
                     join_features=stream,
-                    out_feature_class=output_file,
+                    out_feature_class=scratch_feature,
                     join_operation="JOIN_ONE_TO_ONE",
                     join_type="KEEP_ALL",
                     field_mapping=field_mapping,
@@ -203,15 +213,51 @@ class StreamNetwork(object):
                 )
 
                 # remove `Join_Count` and `TARGET_FID` fields
-                arcpy.management.DeleteField(output_file, ["Join_Count", "TARGET_FID"])
+                arcpy.management.DeleteField(scratch_feature, ["Join_Count", "TARGET_FID"])
             else:
                 # stream to feature
                 log("converting stream raster to output feature class")
-                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, output_file, True)
+                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_feature, True)
         else:
             # stream to feature
             log("creating stream feature")
-            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, output_file, True)
+            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, True)
+
+        # add watershed size information if requested
+        if watershed_size_bool:
+            # zonal statistics
+            log("adding watershed size information to output")
+            arcpy.sa.ZonalStatisticsAsTable(
+                in_zone_data=scratch_feature,
+                zone_field=get_oid(scratch_feature),
+                in_value_raster=watershed_size,
+                out_table=scratch_zonst,
+                ignore_nodata="DATA",
+                statistics_type="MAXIMUM",
+                out_join_layer=scratch_output,
+            )
+
+            # copy scratch output to output file
+            # necessary because otherwise AlterField gets
+            # upset about altering a joined table
+            arcpy.management.CopyFeatures(scratch_output, output_file)
+
+            # rename MAX field created by zonal stats
+            field_name = "MAX"
+            fieldList = arcpy.ListFields(output_file)  # Get a list of fields for each feature class
+            for field in fieldList:  # Lloop through each field
+                if field.aliasName == 'MAX':
+                    field_name = field.name
+            arcpy.management.AlterField(
+                in_table=output_file,
+                field=field_name,
+                new_field_name="watershed",
+                new_field_alias="Watershed Size ({})".format(threshold_unit),
+            )
+        else:
+            # copy output to feature class
+            log("copying output to feature class")
+            arcpy.management.CopyFeatures(scratch_feature, output_file)
 
         # add flow path polyline to map
         log("adding output to map")
