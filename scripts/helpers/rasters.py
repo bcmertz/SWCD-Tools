@@ -24,7 +24,7 @@ PIXEL_TYPES = {
     "F64": "64_BIT"
 }
 
-def pixel_type(raster):
+def pixel_type(raster) -> str:
     """Return the the string representation of the raster pixel type."""
     return PIXEL_TYPES[raster.pixelType]
 
