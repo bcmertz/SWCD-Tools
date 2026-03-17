@@ -114,7 +114,7 @@ class SubBasinDelineation(object):
         watershed = arcpy.sa.Watershed(flow_direction_scratch, stream_link)
 
         # stream to feature
-        log("craeting stream feature")
+        log("creating stream feature")
         stream_feature_path = "{}\\stream_to_feature".format(arcpy.env.workspace)
         stream_feature = arcpy.sa.StreamToFeature(con_accumulation_scratch, flow_direction_scratch, stream_feature_path, True)
         stream_feature = active_map.addDataFromPath(stream_feature)
