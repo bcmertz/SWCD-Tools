@@ -54,8 +54,8 @@ def cells_per_area(raster, area: str) -> int:
     area_size_in_cell_units = convert_area(area, cell_unit).split(" ")[0]
 
     # find number of cells
-    num_cells = area_size_in_cell_units / cell_size
-    return num_cells
+    num_cells = float(area_size_in_cell_units) / float(cell_size)
+    return int(num_cells)
 
 def min_cell_path(parameters) -> str:
     """Return the parameter with the smallest cell size."""
@@ -66,6 +66,7 @@ def min_cell_path(parameters) -> str:
             # get GPArealUnit of param and convert to US Acres
             raster_cell_area = cell_area(param.value)
             size_acres, unit = convert_area(raster_cell_area, "AcresUS").split(" ")
+            size_acres = float(size_acres)
 
             # compare sizes
             if min_cell_size is None or size_acres < min_cell_size:
