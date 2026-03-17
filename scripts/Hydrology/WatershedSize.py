@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, reload_module, log, AREAL_UNITS, AREAL_UNITS_MAP, cell_area, convert_area
+from ..helpers import license, reload_module, log, AREAL_UNITS, AREAL_UNITS_MAP, cell_area
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -100,9 +100,8 @@ class WatershedSize:
 
         # convert flow accumulation from number of cells to threshold area units
         log("calculating watershed size")
-        raster_cell_area = cell_area(dem)
-        cell_size = convert_area(raster_cell_area, areal_unit).split(" ")[0]
-        watershed_size = flow_accumulation * float(cell_size)
+        cell_size = float(cell_area(dem, areal_unit).split(" ")[0])
+        watershed_size = flow_accumulation * cell_size
 
         # save output to file
         log("saving output to file")

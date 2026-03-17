@@ -28,8 +28,8 @@ def pixel_type(raster):
     """Return the the string representation of the raster pixel type."""
     return PIXEL_TYPES[raster.pixelType]
 
-def cell_area(raster) -> str:
-    """Return the cell size of a raster as a GPArealUnit."""
+def cell_area(raster, area_unit=None) -> str:
+    """Return the cell size of a raster as a GPArealUnit. TODO: area_unit"""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
@@ -41,10 +41,13 @@ def cell_area(raster) -> str:
     cellsize_x = desc_raster.meanCellWidth
     area=cellsize_x * cellsize_y
 
-    # create unit
-    unit = "{} {}".format(area, square_unit)
+    # output area
+    area = "{} {}".format(area, square_unit)
 
-    return unit
+    if area_unit is not None:
+        area = convert_area(area, area_unit)
+
+    return area
 
 def cells_per_area(raster, area: str) -> int:
     """Convert GPArealUnit AREA to the number of cells in the RASTER it is equivalent to."""
@@ -63,10 +66,8 @@ def min_cell_path(parameters) -> str:
     min_cell_path = None
     for param in parameters:
         try:
-            # get GPArealUnit of param and convert to US Acres
-            raster_cell_area = cell_area(param.value)
-            size_acres, unit = convert_area(raster_cell_area, "AcresUS").split(" ")
-            size_acres = float(size_acres)
+            # get cell size of param in US Acres
+            size_acres = float(cell_area(param.value, "AcresUS").split(" ")[0])
 
             # compare sizes
             if min_cell_size is None or size_acres < min_cell_size:
