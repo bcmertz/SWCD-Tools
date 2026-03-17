@@ -13,7 +13,7 @@ import shutil
 import pathlib
 import openpyxl
 
-from ..helpers import license, sanitize, reload_module, log
+from ..helpers import license, sanitize, reload_module, log, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -234,12 +234,32 @@ class Delineate(object):
         cache_json = {
             "parcels": list(tax_id_nums),
             "output_folder": output_folder,
+            "orig_map": active_map.name,
         }
+
+        # setup cache file regardless of whether it exists or not
+        if os.path.isfile(cache_file_path):
+            with open(cache_file_path, "r") as file:
+                # read in data
+                data = json.load(file)
+                parcels = list(tax_id_nums.union(set(data["parcels"])))
+                cache_json["parcels"] = parcels
+                cache_json["orig_map"] = data["orig_map"]
+
+                # exit if the output folder has changed
+                if cache_json["output_folder"] != data["output_folder"]:
+                    error("Previous output folder {} detected that does not match current output folder {}. This will lead to errors. Start project over using the Restart tool or change output folder to {}.".format(data["output_folder"], cache_json["output_folder"], data["output_folder"]))
+                    return
+
         with open(cache_file_path, "w") as file:
+            # output data and move on
             json.dump(cache_json, file)
 
+        # get authoritative values
+        tax_id_nums = cache_json["parcels"]
+        orig_map = project.listMaps(cache_json["orig_map"])[0]
+
         # clear selections from map
-        orig_map = active_map
         orig_map.clearSelection()
 
         # sgw template path
@@ -256,6 +276,10 @@ class Delineate(object):
             parcel_path = "{}\\{}".format(arcpy.env.workspace, sanitized_name)
 
             # create new map and make it active
+            maps = project.listMaps(tax_id_num)
+            if len(maps) > 0:
+                continue
+
             log("creating map for {}".format(tax_id_num))
             new_map = project.copyItem(orig_map, tax_id_num)
             new_map.openView()
