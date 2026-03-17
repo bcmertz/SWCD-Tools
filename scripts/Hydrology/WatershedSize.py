@@ -49,7 +49,7 @@ class WatershedSize:
             name="out_features",
             datatype="DEFeatureClass",
             direction="Output")
-        param3.parameterDependencies = [param0.name, param2.name]
+        param3.parameterDependencies = [param0.name]
         param3.schema.clone = True
 
         params = [param0, param1, param2, param3]
