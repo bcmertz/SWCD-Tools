@@ -257,7 +257,7 @@ class StreamNetwork(object):
         else:
             # copy output to feature class
             log("copying output to feature class")
-            arcpy.management.CopyFeatures(scratch_output, output_file)
+            arcpy.management.CopyFeatures(scratch_feature, output_file)
 
         # add flow path polyline to map
         log("adding output to map")
