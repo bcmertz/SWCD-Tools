@@ -86,7 +86,8 @@ def reload_module(name, force=True):
     return reload_module
 
 
-def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
+# def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None: # breaks lower versions of python < 3.9
+def empty_workspace(gdb_path: str, keep) -> None:
     """Delete everything in a given workspace except for KEEP paths.
 
     License:  Modification of work in NRCS Engineering Tools 2.0 (no license present)
