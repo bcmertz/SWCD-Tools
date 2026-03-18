@@ -80,7 +80,9 @@ class Process(object):
                 active_map = project.activeMap
                 lyrs = active_map.listLayers()
                 for lyr in lyrs:
-                    if "soil" in lyr.name.lower():
+                    if lyr.isGroupLayer:
+                        continue
+                    elif "soil" in lyr.name.lower():
                         parameters[0].value = lyr.longName
                         self.set_dependent_layers(parameters)
                         break
