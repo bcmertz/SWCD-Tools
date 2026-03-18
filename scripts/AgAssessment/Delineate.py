@@ -380,7 +380,7 @@ class Delineate(object):
         # export parcel layouts to folder
         log("exporting layouts")
         for layout in layouts:
-            layout_file_path = "{}\{}.pdf".format(output_folder, layout.name)
+            layout_file_path = "{}\\{}.pdf".format(output_folder, layout.name)
             layout.exportToPDF(layout_file_path)
 
         # remove unused layout

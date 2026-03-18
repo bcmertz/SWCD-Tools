@@ -281,12 +281,12 @@ class Process(object):
             log("exporting tables for {}".format(parcel))
             soils_tables = []
             for table in tables:
-                table_file_path = "{}\{}.csv".format(output_folder, table.name)
+                table_file_path = "{}\\{}.csv".format(output_folder, table.name)
                 soils_tables.append(table_file_path)
                 arcpy.conversion.ExportTable(table, table_file_path)
 
             # Soil group worksheet
-            sgw_path = "{}\{}.xlsx".format(output_folder, lyt.name)
+            sgw_path = "{}\\{}.xlsx".format(output_folder, lyt.name)
 
             # Populate soil group worksheet with values
             log("filling out soil group worksheet for {}".format(parcel))
