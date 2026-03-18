@@ -20,12 +20,12 @@
 - You may also wish to adapt the soil group worksheet and soil map to represent your County. You can do so by:
   - Soil Map:
     - Create a new blank project
-    - Import Layout File: \\SWCD Tools\\assets\\agassessment_layout.pagx
+    - Import Layout File: `SWCD Tools\\assets\\agassessment_layout.pagx`
     - Make desired edits
       - Be careful to only edit County Specific information, otherwise you may break functionality
     - Save, then Share -> Layout File, and overwrite the old agassessment_layout.pagx file
   - Soil Group Worksheet:
-    - Edit only County specific cells in \\SWCD Tools\\assets\\Soil Group Worksheet.xlsx
+    - Edit only County specific cells in `SWCD Tools\\assets\\Soil Group Worksheet.xlsx`
 
 ## Opening the tool
 
