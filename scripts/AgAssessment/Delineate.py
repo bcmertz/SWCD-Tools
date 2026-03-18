@@ -152,16 +152,18 @@ class Delineate(object):
         parameters[3].filter.list = fields
         parameters[4].filter.list = fields
         parameters[5].filter.list = fields
-        if "PRINT_KEY" in fields:
-            parameters[1].value = "PRINT_KEY"
-        if "SWIS" in fields:
-            parameters[2].value = "SWIS"
-        if "TOWN" in fields:
-            parameters[3].value = "TOWN"
-        if "LOCATION" in fields:
-            parameters[4].value = "LOCATION"
-        if "AGDIST" in fields:
-            parameters[5].value = "AGDIST"
+        for f in fields:
+            name = f.lower()
+            if name == "printkey":
+                parameters[1].value = f
+            if name == "swis":
+                parameters[2].value = f
+            if name == "town":
+                parameters[3].value = f
+            if name == "location":
+                parameters[4].value = f
+            if name == "agdist":
+                parameters[5].value = f
         return
 
     def updateParameters(self, parameters):
