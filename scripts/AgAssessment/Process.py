@@ -161,13 +161,15 @@ class Process(object):
             for lyr in lyrs:
                 # Update symbology
                 lyr_type = ""
-                if "agland" == lyr.name.lower():
+
+                # find layer types
+                if "Agland" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "Agland"
-                elif "nonag" == lyr.name.lower():
+                elif "NonAg" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "NonAg"
-                elif "forest" == lyr.name.lower():
+                elif "Forest" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "Forest"
                 else:
