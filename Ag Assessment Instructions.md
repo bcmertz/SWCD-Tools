@@ -29,17 +29,13 @@
 
 ## Opening the tool
 
-Create a new blank project or a new project from your desired template
-
-Add the SWCD Toolbox to the project
-
-- Catalog pane -> Right click Toolboxes -> Add Toolbox -> Navigate and select the 'SWCD Tools.pyt' toolbox wherever you have it save
-
-Open the toolbox by clicking on it or:
-
-- Open the Geoprocessing pane.
-- Select the Toolboxes tab.
-- SWCD Tools -> Automated Ag Assessment
+- Create a new blank project or a new project from your desired template
+- Add the SWCD Toolbox to the project
+  - Catalog pane -> Right click Toolboxes -> Add Toolbox -> Navigate and select the 'SWCD Tools.pyt' toolbox wherever you have it save
+- Open the toolbox by clicking on it or:
+  - Open the Geoprocessing pane.
+  - Select the Toolboxes tab.
+  - SWCD Tools -> Automated Ag Assessment
 
 ## Running the tool
 
