@@ -24,6 +24,8 @@
     - Make desired edits
       - Be careful to only edit County Specific information, otherwise you may break functionality
     - Save, then Share -> Layout File, and overwrite the old agassessment_layout.pagx file
+  - Soil Group Worksheet:
+    - Edit only County specific cells in \\SWCD Tools\\assets\\Soil Group Worksheet.xlsx
 
 ## Opening the tool
 
