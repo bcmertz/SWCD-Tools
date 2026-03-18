@@ -1,6 +1,6 @@
-Automated Agricultural Assessment / Soil Group Worksheet Instructions
+# Automated Agricultural Assessment / Soil Group Worksheet Instructions
 
-**Installation / First Time Setup:**
+## Installation / First Time Setup
 
 - Verify you have ArcGIS Pro 3.3 or newer
 - Verify you have the following GIS shapefiles:
@@ -25,7 +25,7 @@ Automated Agricultural Assessment / Soil Group Worksheet Instructions
       - Be careful to only edit County Specific information, otherwise you may break functionality
     - Save, then Share -> Layout File, and overwrite the old agassessment_layout.pagx file
 
-**Opening the tool:**
+## Opening the tool
 
 Create a new blank project or a new project from your desired template
 
@@ -39,7 +39,7 @@ Open the toolbox by clicking on it or:
 - Select the Toolboxes tab.
 - SWCD Tools -> Automated Ag Assessment
 
-**Running the tool**
+## Running the tool
 
 - Obtain Initial Information from Landowner/Farmer:
   - Parcel Number(s)
@@ -51,26 +51,27 @@ Open the toolbox by clicking on it or:
   - Enter tax #s and landowner information
   - Specify output folder for Soil Group Worksheet and maps
     - Can be same or different from current ArcGIS project
+
 <span>
 <img src="/assets/readme_examples/ag_delineate.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID" height="350"/>
 <img src="/assets/readme_examples/ag_delineate_split.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID split into its various land uses" height="350"/>
 </span>
+
 - Delineate Agland, NonAg, and Forest
   - On each parcel's map, select and split the parcel into it's various uses, then save
   - For each land use, select across all maps the split pieces that are that land use
   - Run the tool and proceed to the next land use or step
+
 <span>
-<img src="/assets/readme_examples/ag_agland.png" alt="Aerial view of a split up parcel with the agricultural areas outlined red" height="350"/>
-<img src="/assets/readme_examples/ag_nonag.png" alt="Aerial view of a split up parcel with the non-agricultural areas outlined blue" height="350"/>
-<img src="/assets/readme_examples/ag_forest.png" alt="Aerial view of a split up parcel with the forest areas outlined green" height="350"/>
+<img src="/assets/readme_examples/ag_agland.png" alt="Aerial view of a split up parcel with the agricultural areas outlined red" height="280"/>
+<img src="/assets/readme_examples/ag_nonag.png" alt="Aerial view of a split up parcel with the non-agricultural areas outlined blue" height="280"/>
+<img src="/assets/readme_examples/ag_forest.png" alt="Aerial view of a split up parcel with the forest areas outlined green" height="280"/>
 </span>
+
 - Process
   - Select the soils shapefile and fields if not already selected
   - Run the program
   - This step finds the soils, acreage, and fills out the SGW and map for each parcel and for each land use
-<span>
-<img src="/assets/readme_examples/ag_process.png" alt="Image of an ArcGIS Pro layout showing ag, nonag, and forest land uses, as well as tables of acres and soils of each" height="350"/>
-</span>
 - Export layouts
   - Prior to running make any desired changes to the created layouts
     - Usually, you have to manually add data to the tables:
@@ -80,4 +81,5 @@ Open the toolbox by clicking on it or:
 - Restart
   - If any errors are made use the Restart tool
 
-If you run into any issues feel free to open an issue on [Github](https://github.com/bcmertz/SWCD-Tools/issues), or contact the maintainer directly: mertzr@otsegosoilandwater.com](mailto:mertzr@otsegosoilandwater.com), 607-547-8337 ext 4
+## Questions / Issues
+If you run into any issues feel free to open an issue on [Github](https://github.com/bcmertz/SWCD-Tools/issues), or contact the maintainer directly: [mertzr@otsegosoilandwater.com](mailto:mertzr@otsegosoilandwater.com), 607-547-8337 ext 4
