@@ -461,7 +461,7 @@ This tool tries to assume nothing about your layer files or folder structure. Th
 
 Additionally, you may want to edit the default Soil Group Worksheet template to have your County name or other data.
 
-For full instructions see [here](Ag Assessment Instructions.md).
+For full instructions see [here](<./Ag Assessment Instructions.md>).
 
 ### 1. Delineate Parcels [↑](#table-of-contents)
 
