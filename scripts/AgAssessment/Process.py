@@ -129,6 +129,7 @@ class Process(object):
         layouts = []
         log("iterating through parcels and processing")
         for parcel in parcels:
+            log("parcel", parcel)
             # find map of parcel
             m = None
             try:
@@ -139,6 +140,7 @@ class Process(object):
 
             # Clear selection
             m.clearSelection()
+            log("map name", m.name)
 
             # find layout
             lyt = None
@@ -172,6 +174,7 @@ class Process(object):
                     lyr_type = "Forest"
                 else:
                     continue
+                log("lyr_type, parcel", lyr_type, parcel)
                 lyr_types.add(lyr_type)
 
                 # Create clip layer
