@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------
-# Name:        Delineate
+# Name:        Define Parcels
 # Purpose:     This tool finds a parcel and sets up an ag assessment project
 #
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
@@ -17,11 +17,11 @@ from ..helpers import license, sanitize, reload_module, log, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
-class Delineate(object):
+class DefineParcels(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "1. Delineate Parcels"
-        self.description = "Delienate parcels and create folder structure"
+        self.label = "1. Define Parcels"
+        self.description = "Define parcels and create folder structure"
         self.category = "Automated Ag Assessment"
         self.canRunInBackground = False
 
