@@ -8,6 +8,7 @@
 
 import os
 import arcpy
+import platform
 
 from ..helpers import license, reload_module, log
 from ..helpers import setup_environment as setup
@@ -66,7 +67,8 @@ class ExportLayouts(object):
                 layout_file_path = "{}\{}.pdf".format(file_path, layout.name)
                 layout.exportToPDF(layout_file_path)
 
-        # Open project folder
-        os.startfile(file_path)
+        if platform.system() == "Windows":
+            # Open project folder
+            os.startfile(file_path)
 
         return

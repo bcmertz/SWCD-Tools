@@ -8,6 +8,7 @@
 
 import os
 import arcpy
+import platform
 
 from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit
 from ..helpers import setup_environment as setup
@@ -262,9 +263,10 @@ class StreamElevation(object):
         log("exporting elevation data to table")
         arcpy.conversion.ExportTable(scratch_points_elev, output_file)
 
-        # open coordinates folder
-        log("opening folder")
-        os.startfile(output_file)
+        if platform.system() == "Windows":
+            # open coordinates folder
+            log("opening folder")
+            os.startfile(output_file)
 
         # cleanup
         log("deleting unneeded data")

@@ -12,6 +12,7 @@ import arcpy
 import shutil
 import pathlib
 import openpyxl
+import platform
 
 from ..helpers import license, sanitize, reload_module, log, error
 from ..helpers import setup_environment as setup
@@ -393,8 +394,9 @@ class DefineParcels(object):
         project.save()
         del project
 
-        # open folder to print out maps
-        log("opening project folder")
-        os.startfile(output_folder)
+        if platform.system() == "Windows":
+            # open folder to print out maps
+            log("opening project folder")
+            os.startfile(output_folder)
 
         return
