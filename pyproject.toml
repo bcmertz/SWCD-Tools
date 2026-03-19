@@ -16,4 +16,5 @@ python-version = "3.11"
 unresolved-import = "ignore"
 unresolved-attribute = "ignore"
 
-[tool.ty.analysis]
+[tool.ty.src]
+include = ["scripts"]
