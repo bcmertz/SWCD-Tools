@@ -307,7 +307,7 @@ class Delineate(object):
             # create parcel layer and add it to the map
             log("adding parcel {}".format(tax_id_num))
             feat = arcpy.management.MakeFeatureLayer(parcel_layer, layer_name, sql_expr)
-            arcpy.management.CopyFeatures(feat, parcel_path)
+            arcpy.management.MultipartToSinglepart(feat, parcel_path)
             lyr = new_map.addDataFromPath(parcel_path)
             lyr.name = layer_name
 
