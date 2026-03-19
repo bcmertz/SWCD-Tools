@@ -39,7 +39,7 @@ class Delineate(object):
             displayName="Tax Parcel ID Field",
             name="parcel_id_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param1.filter.type = "ValueList"
         param1.filter.list = []
@@ -48,7 +48,7 @@ class Delineate(object):
             displayName="SWIS Code Field",
             name="swis_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param2.filter.type = "ValueList"
         param2.filter.list = []
@@ -57,7 +57,7 @@ class Delineate(object):
             displayName="Municipality Field",
             name="municipality_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param3.filter.type = "ValueList"
         param3.filter.list = []
@@ -66,7 +66,7 @@ class Delineate(object):
             displayName="Address Field",
             name="address_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param4.filter.type = "ValueList"
         param4.filter.list = []
@@ -75,7 +75,7 @@ class Delineate(object):
             displayName="Ag District Field",
             name="ag_dist_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param5.filter.type = "ValueList"
         param5.filter.list = []
