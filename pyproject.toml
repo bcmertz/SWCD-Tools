@@ -3,5 +3,11 @@ dev = [
     "ty>=0.0.24",
 ]
 
+[tool.ty.environment]
+python-version = "3.11"
+
 [tool.ty.rules]
 unresolved-import = "ignore"
+unresolved-attribute = "ignore"
+
+[tool.ty.analysis]
