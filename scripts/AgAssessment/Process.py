@@ -12,7 +12,7 @@ import arcpy
 import pathlib
 import openpyxl
 
-from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log
+from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log, warn
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -134,7 +134,7 @@ class Process(object):
             try:
                 m = project.listMaps(parcel)[0]
             except:
-                log("unable to find map for {}, results may be incomplete".format(parcel))
+                warn("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
 
             # Clear selection
@@ -146,7 +146,7 @@ class Process(object):
                 lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
             except:
-                log("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
+                warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
                 continue
 
             # Helper variables
