@@ -26,7 +26,7 @@ def license(licenses=[], version_required=""):
                 return False
         for l in licenses:
             if l == "OSWCD_GIS":
-                if not os.path.exists("G:\GIS"):
+                if not os.path.exists("G:\\GIS"):
                     return False
             else:
                 status = arcpy.CheckExtension(l)
