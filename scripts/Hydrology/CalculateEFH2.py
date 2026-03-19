@@ -9,6 +9,7 @@
 import os
 import arcpy
 import pathlib
+import platform
 import openpyxl
 import datetime
 
@@ -263,8 +264,9 @@ class CalculateEFH2:
         log("saving project")
         project.save()
 
-        # open hydrology worksheet
-        log("opening hydrology worksheet folder")
-        os.startfile(output_folder_path)
+        if platform.system() == "Windows":
+            # open hydrology worksheet folder
+            log("opening hydrology worksheet folder")
+            os.startfile(output_folder_path)
 
         return

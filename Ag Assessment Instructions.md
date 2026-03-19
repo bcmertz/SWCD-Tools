@@ -55,9 +55,11 @@
 <img src="/assets/readme_examples/ag_delineate_split.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID split into its various land uses" height="350"/>
 </span>
 
+- Split parcels into land uses
+  - For each parcel map: select and then split the parcel into it's various uses, then save
+
 - Delineate Agland, NonAg, and Forest
-  - On each parcel's map, select and split the parcel into it's various uses, then save
-  - For each land use, select across all maps the split pieces that are that land use
+  - For each land use: select the pieces of the parcel of that land use across all maps
   - Run the tool and proceed to the next land use or step
 
 <span>

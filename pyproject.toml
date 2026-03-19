@@ -1,0 +1,20 @@
+[project]
+name = "SWCD-Tools"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">3.11"
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.24",
+]
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.rules]
+unresolved-import = "ignore"
+unresolved-attribute = "ignore"
+
+[tool.ty.src]
+include = ["scripts"]

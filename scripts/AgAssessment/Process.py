@@ -12,7 +12,7 @@ import arcpy
 import pathlib
 import openpyxl
 
-from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log
+from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log, warn
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -80,7 +80,9 @@ class Process(object):
                 active_map = project.activeMap
                 lyrs = active_map.listLayers()
                 for lyr in lyrs:
-                    if "soil" in lyr.name.lower():
+                    if lyr.isGroupLayer:
+                        continue
+                    elif "soil" in lyr.name.lower():
                         parameters[0].value = lyr.longName
                         self.set_dependent_layers(parameters)
                         break
@@ -132,7 +134,7 @@ class Process(object):
             try:
                 m = project.listMaps(parcel)[0]
             except:
-                log("unable to find map for {}, results may be incomplete".format(parcel))
+                warn("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
 
             # Clear selection
@@ -144,7 +146,7 @@ class Process(object):
                 lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
             except:
-                log("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
+                warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
                 continue
 
             # Helper variables
@@ -159,13 +161,15 @@ class Process(object):
             for lyr in lyrs:
                 # Update symbology
                 lyr_type = ""
-                if "agland" in lyr.name.lower():
+
+                # find layer types
+                if "Agland" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "Agland"
-                elif "nonag" in lyr.name.lower():
+                elif "NonAg" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "NonAg"
-                elif "forest" in lyr.name.lower():
+                elif "Forest" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "Forest"
                 else:
@@ -182,11 +186,13 @@ class Process(object):
                 arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,soils_mukey])
 
                 # Add to map
+                # TODO
                 new_layer = m.addDataFromPath(dissolve_layer_path)
                 soils_layers.append(new_layer)
                 new_layer.name = new_layer_name
 
                 # Add acreage field
+                # TODO
                 field_alias = "{} Acres".format(lyr_type)
                 arcpy.management.AddField(new_layer, "Acres", "FLOAT", 2, 2, field_alias=field_alias)
 
@@ -227,11 +233,14 @@ class Process(object):
                 new_layer.setDefinition(l_cim)
 
                 # Get soils layer attribute table and export / extract needed fields for layout
+                # TODO
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer_name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
                 arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".format(soils_mukey)], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
+                # TODO: consider avoiding tables???
+                # TODO: handle repeats
                 soils_table = arcpy.mp.Table(table_path)
                 tables.append(soils_table)
                 m.addTable(soils_table)
@@ -249,6 +258,7 @@ class Process(object):
                 lyt_cim = lyt.getDefinition('V3')
                 lyt.setDefinition(lyt_cim)
 
+                # save and close layouts
                 project.save()
                 project.closeViews("LAYOUTS")
 
@@ -259,6 +269,8 @@ class Process(object):
                     m.moveLayer(use_layer, soils_layer, "AFTER")
 
             # Remove unused tables
+            # TODO: repeated runs, what if tables are already deleted
+            #       need to handle above
             log("removing unused tables for {}".format(parcel))
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
@@ -278,15 +290,16 @@ class Process(object):
                     item.visible = False
 
             # Export tables
+            # TODO: remove?????
             log("exporting tables for {}".format(parcel))
             soils_tables = []
             for table in tables:
-                table_file_path = "{}\{}.csv".format(output_folder, table.name)
+                table_file_path = "{}\\{}.csv".format(output_folder, table.name)
                 soils_tables.append(table_file_path)
                 arcpy.conversion.ExportTable(table, table_file_path)
 
             # Soil group worksheet
-            sgw_path = "{}\{}.xlsx".format(output_folder, lyt.name)
+            sgw_path = "{}\\{}.xlsx".format(output_folder, lyt.name)
 
             # Populate soil group worksheet with values
             log("filling out soil group worksheet for {}".format(parcel))

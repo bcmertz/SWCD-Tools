@@ -64,7 +64,7 @@ def cells_per_area(raster, area: str) -> int:
 def min_cell_path(parameters) -> str:
     """Return the parameter with the smallest cell size."""
     min_cell_size = None
-    min_cell_path = None
+    min_cell_path = "MINOF"
     for param in parameters:
         try:
             # get cell size of param in US Acres

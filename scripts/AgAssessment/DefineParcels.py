@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------
-# Name:        Delineate
+# Name:        Define Parcels
 # Purpose:     This tool finds a parcel and sets up an ag assessment project
 #
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
@@ -12,16 +12,17 @@ import arcpy
 import shutil
 import pathlib
 import openpyxl
+import platform
 
-from ..helpers import license, sanitize, reload_module, log
+from ..helpers import license, sanitize, reload_module, log, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
-class Delineate(object):
+class DefineParcels(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "1. Delineate Parcels"
-        self.description = "Delienate parcels and create folder structure"
+        self.label = "1. Define Parcels"
+        self.description = "Define parcels and create folder structure"
         self.category = "Automated Ag Assessment"
         self.canRunInBackground = False
 
@@ -39,7 +40,7 @@ class Delineate(object):
             displayName="Tax Parcel ID Field",
             name="parcel_id_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param1.filter.type = "ValueList"
         param1.filter.list = []
@@ -48,7 +49,7 @@ class Delineate(object):
             displayName="SWIS Code Field",
             name="swis_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param2.filter.type = "ValueList"
         param2.filter.list = []
@@ -57,7 +58,7 @@ class Delineate(object):
             displayName="Municipality Field",
             name="municipality_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param3.filter.type = "ValueList"
         param3.filter.list = []
@@ -66,7 +67,7 @@ class Delineate(object):
             displayName="Address Field",
             name="address_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param4.filter.type = "ValueList"
         param4.filter.list = []
@@ -75,7 +76,7 @@ class Delineate(object):
             displayName="Ag District Field",
             name="ag_dist_field",
             datatype="GPString",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param5.filter.type = "ValueList"
         param5.filter.list = []
@@ -152,16 +153,18 @@ class Delineate(object):
         parameters[3].filter.list = fields
         parameters[4].filter.list = fields
         parameters[5].filter.list = fields
-        if "PRINT_KEY" in fields:
-            parameters[1].value = "PRINT_KEY"
-        if "SWIS" in fields:
-            parameters[2].value = "SWIS"
-        if "TOWN" in fields:
-            parameters[3].value = "TOWN"
-        if "LOCATION" in fields:
-            parameters[4].value = "LOCATION"
-        if "AGDIST" in fields:
-            parameters[5].value = "AGDIST"
+        for f in fields:
+            name = f.lower()
+            if name == "printkey":
+                parameters[1].value = f
+            if name == "swis":
+                parameters[2].value = f
+            if name == "town":
+                parameters[3].value = f
+            if name == "location":
+                parameters[4].value = f
+            if name == "agdist":
+                parameters[5].value = f
         return
 
     def updateParameters(self, parameters):
@@ -234,12 +237,32 @@ class Delineate(object):
         cache_json = {
             "parcels": list(tax_id_nums),
             "output_folder": output_folder,
+            "orig_map": active_map.name,
         }
+
+        # setup cache file regardless of whether it exists or not
+        if os.path.isfile(cache_file_path):
+            with open(cache_file_path, "r") as file:
+                # read in data
+                data = json.load(file)
+                parcels = list(tax_id_nums.union(set(data["parcels"])))
+                cache_json["parcels"] = parcels
+                cache_json["orig_map"] = data["orig_map"]
+
+                # exit if the output folder has changed
+                if cache_json["output_folder"] != data["output_folder"]:
+                    error("Previous output folder {} detected that does not match current output folder {}. This will lead to errors. Start project over using the Restart tool or change output folder to {}.".format(data["output_folder"], cache_json["output_folder"], data["output_folder"]))
+                    return
+
         with open(cache_file_path, "w") as file:
+            # output data and move on
             json.dump(cache_json, file)
 
+        # get authoritative values
+        tax_id_nums = cache_json["parcels"]
+        orig_map = project.listMaps(cache_json["orig_map"])[0]
+
         # clear selections from map
-        orig_map = active_map
         orig_map.clearSelection()
 
         # sgw template path
@@ -256,6 +279,10 @@ class Delineate(object):
             parcel_path = "{}\\{}".format(arcpy.env.workspace, sanitized_name)
 
             # create new map and make it active
+            maps = project.listMaps(tax_id_num)
+            if len(maps) > 0:
+                continue
+
             log("creating map for {}".format(tax_id_num))
             new_map = project.copyItem(orig_map, tax_id_num)
             new_map.openView()
@@ -281,7 +308,7 @@ class Delineate(object):
             # create parcel layer and add it to the map
             log("adding parcel {}".format(tax_id_num))
             feat = arcpy.management.MakeFeatureLayer(parcel_layer, layer_name, sql_expr)
-            arcpy.management.CopyFeatures(feat, parcel_path)
+            arcpy.management.MultipartToSinglepart(feat, parcel_path)
             lyr = new_map.addDataFromPath(parcel_path)
             lyr.name = layer_name
 
@@ -356,7 +383,7 @@ class Delineate(object):
         # export parcel layouts to folder
         log("exporting layouts")
         for layout in layouts:
-            layout_file_path = "{}\{}.pdf".format(output_folder, layout.name)
+            layout_file_path = "{}\\{}.pdf".format(output_folder, layout.name)
             layout.exportToPDF(layout_file_path)
 
         # remove unused layout
@@ -367,8 +394,9 @@ class Delineate(object):
         project.save()
         del project
 
-        # open folder to print out maps
-        log("opening project folder")
-        os.startfile(output_folder)
+        if platform.system() == "Windows":
+            # open folder to print out maps
+            log("opening project folder")
+            os.startfile(output_folder)
 
         return

@@ -10,7 +10,7 @@
 import arcpy
 
 from ..FluvialGeomorphology import transect_line
-from ..helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log
+from ..helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -159,7 +159,7 @@ class DamRemoval(object):
                         distance_end = distance
 
                     # add interpolated points to list of points to be added to DEM
-                    if elev_start is not None and elev_end is not None:
+                    if elev_start is not None and elev_end is not None and distance_end is not None and distance_start is not None:
                         slope = (elev_end - elev_start)/(distance_end - distance_start)
                         for i in update_points:
                             i[1] = slope * (i[2] - distance_start) + elev_start
@@ -249,6 +249,10 @@ class DamRemoval(object):
                         distance_high = distance
                 elev_prev = elev
                 distance_prev = distance
+
+        if elev_high is None or elev_low is None or distance_high is None or distance_low is None:
+            error("Unable to interpolate centerline elevations, please ensure the centerline feature extends beyond the boundaries of the pond and is fully within the DEM boundaries.")
+            return
 
         # calculate slope between known points
         log("calculating centerline slope")
