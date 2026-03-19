@@ -1,0 +1,7 @@
+[dependency-groups]
+dev = [
+    "ty>=0.0.24",
+]
+
+[tool.ty.rules]
+unresolved-import = "ignore"
