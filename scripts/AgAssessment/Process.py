@@ -253,6 +253,7 @@ class Process(object):
                 lyt_cim = lyt.getDefinition('V3')
                 lyt.setDefinition(lyt_cim)
 
+                # save and close layouts
                 project.save()
                 project.closeViews("LAYOUTS")
 
