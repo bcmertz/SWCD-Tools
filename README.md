@@ -24,6 +24,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
     - [Runoff Curve Number (RCN)](#3-runoff-curve-number-)
     - [EFH-2](#4-efh-2-calculation-)
+    - [Watershed Size Raster](#5-watershed-size-raster-)
   - [Terrain Analysis](#terrain-analysis-)
     - [Model Potential Wetlands](#1-model-potential-wetlands-)
     - [Topographic Wetness Index (TWI)](#2-topographic-wetness-index-twi-)
@@ -241,6 +242,10 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 
 Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
 
+### 5. Watershed Size Raster [↑](#table-of-contents)
+
+Take a DEM and a user defined areal unit and generate a raster where each cell's value represents the watershed size (in specified units) at that location.
+
 ## Terrain Analysis [↑](#table-of-contents)
 
 ### 1. Model Potential Wetlands [↑](#table-of-contents)
@@ -455,6 +460,8 @@ Remove feature classes unused in any projet maps from a given workspace (geodata
 This tool tries to assume nothing about your layer files or folder structure. This means you have to specify layers and fields in those layers to use for processing. This means you need a soils layer with a MUSYM attribute, as well as a parcel layer with parcel ID, municipality, ag district, and a street name/no (123 Apple St) field. You are able to manually specify to the program the name of these fields.
 
 Additionally, you may want to edit the default Soil Group Worksheet template to have your County name or other data.
+
+For full instructions see [here](<./Ag Assessment Instructions.md>).
 
 ### 1. Delineate Parcels [↑](#table-of-contents)
 

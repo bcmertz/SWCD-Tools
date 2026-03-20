@@ -10,3 +10,4 @@ from .CalculateEFH2 import CalculateEFH2
 from .RunoffCurveNumber import RunoffCurveNumber
 from .SubBasinDelineation import SubBasinDelineation
 from .WatershedDelineation import WatershedDelineation
+from .WatershedSize import WatershedSize

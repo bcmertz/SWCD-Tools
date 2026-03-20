@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, z_units, reload_module, log
+from ..helpers import license, get_z_unit, Z_UNITS, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -35,7 +35,7 @@ class StreamPowerIndex(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = z_units
+        param1.filter.list = Z_UNITS
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
