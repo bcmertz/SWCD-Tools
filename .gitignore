@@ -1,4 +1,7 @@
-example/
+# arcpy stubs folder
+arcpy/
+# ignore caches
 scripts/**/__pycache__
 .cache/
+# ignore image thumbnails
 assets/**/Thumbs.db

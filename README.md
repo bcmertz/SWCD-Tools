@@ -517,7 +517,15 @@ Export all relevant maps to PDF in the project folder.
 
 # Contributing [↑](#table-of-contents)
 
-Contributions welcome, please open issues for feature requests and bugs, and pull requests for code changes. This project uses the [Gentoo LLM policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy) and kindly asks contributors to refrain from submitting LLM generated code.
+Contributions welcome, please open issues for feature requests and bugs, and pull requests for code changes. 
+
+Arcpy type stub .pyi files can be cloned from the [arcpy-typestubs repository](https://github.com/bcmertz/arcpy-typestubs) into the root of the project into a folder named `arcpy` by running:
+```
+cd SWCD-Tools/
+git clone git@github.com:bcmertz/arcpy-typestubs.git arcpy
+```
+
+This project uses the [Gentoo LLM policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy) and kindly asks contributors to refrain from submitting LLM generated code.
 
 # License [↑](#table-of-contents)
 
