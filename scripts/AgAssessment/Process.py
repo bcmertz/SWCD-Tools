@@ -159,6 +159,7 @@ class Process(object):
             # Helper variables
             soils_layers = []
             use_layers = []
+            tables = []
 
             # Start work
             log("processing {}".format(parcel))
@@ -237,7 +238,6 @@ class Process(object):
                 # Update CIM definition
                 new_layer.setDefinition(l_cim)
 
-                # TODO: remove tables?
                 # Get soils layer attribute table and export / extract needed fields for layout
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer_name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
@@ -292,61 +292,45 @@ class Process(object):
                 else:
                     item.visible = False
 
-            # Export tables
-            log("exporting tables for {}".format(parcel))
-            soils_tables = []
-            for table in tables:
-                table_file_path = "{}\\{}.csv".format(output_folder, table.name)
-                soils_tables.append(table_file_path)
-                arcpy.conversion.ExportTable(table, table_file_path)
-
-            # Soil group worksheet
+            # Populate soil group worksheet with values from tables
+            log("filling out {} soil group worksheet".format(parcel))
             sgw_path = "{}\\{}.xlsx".format(output_folder, lyt.name)
-
-            # Populate soil group worksheet with values
-            log("filling out soil group worksheet for {}".format(parcel))
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
-            sgw_workbook = openpyxl.load_workbook(sgw_path)
-            ws = sgw_workbook['SGW']
-            for tbl in soils_tables:
-                if "agland" in tbl.lower():
-                    with open(tbl, 'r') as csvfile:
-                        csvreader = csv.reader(csvfile)
-                        next(csvreader)
+            for table in tables:
+                sgw_workbook = openpyxl.load_workbook(sgw_path)
+                ws = sgw_workbook['SGW']
+                with arcpy.da.SearchCursor(table, ["MUSYM", "MUKEY", "Acres"]) as cursor:
+                    for row in cursor:
                         idx = 0
-                        for row in csvreader:
+                        musym = row[0]
+                        mukey = int(row[1])
+                        acres = round(float(row[2]), 2)
+
+                        if "agland" in table.name.lower():
                             if idx < 24:
                                 soil_cell = 'A{}'.format(34 + idx)
                                 area_cell = 'H{}'.format(34 + idx)
                                 mukey_cell = 'F{}'.format(34 + idx)
-                                ws[soil_cell] = row[0]
-                                ws[mukey_cell] = int(row[1])
-                                ws[area_cell] = round(float(row[2]), 2)
+                                ws[soil_cell] = musym
+                                ws[mukey_cell] = mukey
+                                ws[area_cell] = acres
                             else:
                                 # overflow
                                 soil_cell = 'N{}'.format(9 + idx)
                                 area_cell = 'U{}'.format(9 + idx)
                                 mukey_cell = 'S{}'.format(9 + idx)
-                                ws[soil_cell] = row[0]
-                                ws[mukey_cell] = int(row[1])
-                                ws[area_cell] = round(float(row[2]), 2)
+                                ws[soil_cell] = musym
+                                ws[mukey_cell] = mukey
+                                ws[area_cell] = acres
                             idx += 1
-                elif "nonag" in tbl.lower():
-                    tot = 0
-                    with open(tbl, 'r') as csvfile:
-                        csvreader = csv.reader(csvfile)
-                        next(csvreader)
-                        for row in csvreader:
-                            tot += float(row[2])
-                    ws['K28'] = tot
-                elif "forest" in tbl.lower():
-                    tot = 0
-                    with open(tbl, 'r') as csvfile:
-                        csvreader = csv.reader(csvfile)
-                        next(csvreader)
-                        for row in csvreader:
-                            tot += float(row[2])
-                    ws['L24'] = tot
+                        elif "nonag" in tbl.lower():
+                            tot = 0
+                            tot += acres
+                            ws['K28'] = tot
+                        elif "forest" in tbl.lower():
+                            tot = 0
+                            tot += acres
+                            ws['L24'] = tot
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
             del sgw_workbook
