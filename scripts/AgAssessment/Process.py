@@ -12,7 +12,8 @@ import arcpy
 import pathlib
 import openpyxl
 
-from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log, warn
+from .DefineParcels import AG_ASSESSMENT_GDB_NAME
+from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log, warn, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -125,6 +126,12 @@ class Process(object):
         soils_musym = parameters[1].value
         soils_mukey = parameters[2].value
 
+        # check for geodatabase and set it as workspace
+        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        if not arcpy.Exists(db_path):
+            error("Ag assessment geodatase {} does not exist. Please start over with step 1.".format(db_path))
+        arcpy.env.workspace = db_path
+
         # collect layouts to be able to close and redisplay later
         layouts = []
         log("iterating through parcels and processing")
@@ -152,7 +159,6 @@ class Process(object):
             # Helper variables
             soils_layers = []
             use_layers = []
-            tables = []
 
             # Start work
             log("processing {}".format(parcel))
@@ -231,13 +237,13 @@ class Process(object):
                 # Update CIM definition
                 new_layer.setDefinition(l_cim)
 
+                # TODO: remove tables?
                 # Get soils layer attribute table and export / extract needed fields for layout
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer_name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
                 arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".format(soils_mukey)], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
-                # TODO: consider avoiding tables???
                 soils_table = arcpy.mp.Table(table_path)
                 tables.append(soils_table)
                 m.addTable(soils_table)

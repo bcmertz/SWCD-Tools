@@ -10,7 +10,8 @@
 import json
 import arcpy
 
-from ..helpers import license, reload_module, log
+from .DefineParcels import AG_ASSESSMENT_GDB_NAME
+from ..helpers import license, reload_module, log, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -43,6 +44,12 @@ class Agland(object):
         project, active_map = setup()
         project_dir = project.homeFolder
         cache_file_path = "{}/.ag_cache.json".format(project_dir)
+
+        # check for geodatabase and set it as workspace
+        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        if not arcpy.Exists(db_path):
+            error("Ag assessment geodatase {} does not exist. Please start over with step 1.".format(db_path))
+        arcpy.env.workspace = db_path
 
         # read in json
         log("reading in cache")

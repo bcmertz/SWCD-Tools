@@ -18,6 +18,8 @@ from ..helpers import license, sanitize, reload_module, log, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
+AG_ASSESSMENT_GDB_NAME = "Ag Assessment"
+
 class DefineParcels(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -231,6 +233,12 @@ class DefineParcels(object):
         state = parameters[11].valueAsText
         zip_code = parameters[12].valueAsText
         output_folder = parameters[13].valueAsText
+
+        # create geodatabase if it doesn't exist
+        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        if not arcpy.Exists(db_path):
+            arcpy.management.CreateFileGDB(project.homeFolder, AG_ASSESSMENT_GDB_NAME, "CURRENT")
+        arcpy.env.workspace = db_path
 
         # setup cache
         log("setting up cache")
