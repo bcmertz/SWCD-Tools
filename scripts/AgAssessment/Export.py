@@ -8,6 +8,7 @@
 
 import os
 import json
+import platform
 
 from ..helpers import license, reload_module, log
 from ..helpers import setup_environment as setup
@@ -59,8 +60,9 @@ class Export(object):
                 layout_file_path = "{}\{}.pdf".format(output_folder, layout.name)
                 layout.exportToPDF(layout_file_path)
 
-        # Open project folder
-        log("opening project folder")
-        os.startfile(output_folder)
+        if platform.system() == "Windows":
+            # Open project folder
+            log("opening project folder")
+            os.startfile(output_folder)
 
         return

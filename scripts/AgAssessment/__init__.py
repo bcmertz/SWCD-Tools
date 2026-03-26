@@ -6,7 +6,7 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-from .Delineate import Delineate
+from .DefineParcels import DefineParcels
 from .Agland import Agland
 from .Forest import Forest
 from .NonAg import NonAg

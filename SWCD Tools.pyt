@@ -40,7 +40,7 @@ class Toolbox(object):
             PotentialWetlands,
             BermAnalysis,
             DamRemoval,
-            Delineate,
+            DefineParcels,
             Agland,
             NonAg,
             GeocodeAddress,

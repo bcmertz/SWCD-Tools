@@ -12,7 +12,8 @@ import arcpy
 import pathlib
 import openpyxl
 
-from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log
+from .DefineParcels import AG_ASSESSMENT_GDB_NAME
+from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log, warn, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -80,7 +81,9 @@ class Process(object):
                 active_map = project.activeMap
                 lyrs = active_map.listLayers()
                 for lyr in lyrs:
-                    if "soil" in lyr.name.lower():
+                    if lyr.isGroupLayer:
+                        continue
+                    elif "soil" in lyr.name.lower():
                         parameters[0].value = lyr.longName
                         self.set_dependent_layers(parameters)
                         break
@@ -123,6 +126,12 @@ class Process(object):
         soils_musym = parameters[1].value
         soils_mukey = parameters[2].value
 
+        # check for geodatabase and set it as workspace
+        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        if not arcpy.Exists(db_path):
+            error("Ag assessment geodatase {} does not exist. Please start over with step 1.".format(db_path))
+        arcpy.env.workspace = db_path
+
         # collect layouts to be able to close and redisplay later
         layouts = []
         log("iterating through parcels and processing")
@@ -132,7 +141,7 @@ class Process(object):
             try:
                 m = project.listMaps(parcel)[0]
             except:
-                log("unable to find map for {}, results may be incomplete".format(parcel))
+                warn("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
 
             # Clear selection
@@ -144,7 +153,7 @@ class Process(object):
                 lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
             except:
-                log("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
+                warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
                 continue
 
             # Helper variables
@@ -159,13 +168,15 @@ class Process(object):
             for lyr in lyrs:
                 # Update symbology
                 lyr_type = ""
-                if "agland" in lyr.name.lower():
+
+                # find layer types
+                if "Agland" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "Agland"
-                elif "nonag" in lyr.name.lower():
+                elif "NonAg" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "NonAg"
-                elif "forest" in lyr.name.lower():
+                elif "Forest" == lyr.name:
                     use_layers.append(lyr)
                     lyr_type = "Forest"
                 else:
@@ -187,8 +198,9 @@ class Process(object):
                 new_layer.name = new_layer_name
 
                 # Add acreage field
-                field_alias = "{} Acres".format(lyr_type)
-                arcpy.management.AddField(new_layer, "Acres", "FLOAT", 2, 2, field_alias=field_alias)
+                if "Acres" not in [f.name for f in arcpy.ListFields(new_layer.dataSource)]:
+                    field_alias = "{} Acres".format(lyr_type)
+                    arcpy.management.AddField(new_layer, "Acres", "FLOAT", 2, 2, field_alias=field_alias)
 
                 # Calculate geometry
                 arcpy.management.CalculateGeometryAttributes(in_features=new_layer.name, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
@@ -249,6 +261,7 @@ class Process(object):
                 lyt_cim = lyt.getDefinition('V3')
                 lyt.setDefinition(lyt_cim)
 
+                # save and close layouts
                 project.save()
                 project.closeViews("LAYOUTS")
 
@@ -258,13 +271,15 @@ class Process(object):
                 for use_layer in use_layers:
                     m.moveLayer(use_layer, soils_layer, "AFTER")
 
-            # Remove unused tables
+            # Remove unused layout tables
             log("removing unused tables for {}".format(parcel))
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
                 if i not in lyr_types:
-                    tbl_remove = lyt.listElements("MAPSURROUND_ELEMENT", i)[0]
-                    lyt.deleteElement(tbl_remove)
+                    tbls = lyt.listElements("MAPSURROUND_ELEMENT", i)
+                    if len(tbls) > 0:
+                        tbl_remove = tbls[0]
+                        lyt.deleteElement(tbl_remove)
 
             # Display wanted legend items only
             log("removing unused legend items for {}".format(parcel))
@@ -277,61 +292,45 @@ class Process(object):
                 else:
                     item.visible = False
 
-            # Export tables
-            log("exporting tables for {}".format(parcel))
-            soils_tables = []
-            for table in tables:
-                table_file_path = "{}\{}.csv".format(output_folder, table.name)
-                soils_tables.append(table_file_path)
-                arcpy.conversion.ExportTable(table, table_file_path)
-
-            # Soil group worksheet
-            sgw_path = "{}\{}.xlsx".format(output_folder, lyt.name)
-
-            # Populate soil group worksheet with values
-            log("filling out soil group worksheet for {}".format(parcel))
+            # Populate soil group worksheet with values from tables
+            log("filling out {} soil group worksheet".format(parcel))
+            sgw_path = "{}\\{}.xlsx".format(output_folder, lyt.name)
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
-            sgw_workbook = openpyxl.load_workbook(sgw_path)
-            ws = sgw_workbook['SGW']
-            for tbl in soils_tables:
-                if "agland" in tbl.lower():
-                    with open(tbl, 'r') as csvfile:
-                        csvreader = csv.reader(csvfile)
-                        next(csvreader)
+            for table in tables:
+                sgw_workbook = openpyxl.load_workbook(sgw_path)
+                ws = sgw_workbook['SGW']
+                with arcpy.da.SearchCursor(table, ["MUSYM", "MUKEY", "Acres"]) as cursor:
+                    for row in cursor:
                         idx = 0
-                        for row in csvreader:
+                        musym = row[0]
+                        mukey = int(row[1])
+                        acres = round(float(row[2]), 2)
+
+                        if "agland" in table.name.lower():
                             if idx < 24:
                                 soil_cell = 'A{}'.format(34 + idx)
                                 area_cell = 'H{}'.format(34 + idx)
                                 mukey_cell = 'F{}'.format(34 + idx)
-                                ws[soil_cell] = row[0]
-                                ws[mukey_cell] = int(row[1])
-                                ws[area_cell] = round(float(row[2]), 2)
+                                ws[soil_cell] = musym
+                                ws[mukey_cell] = mukey
+                                ws[area_cell] = acres
                             else:
                                 # overflow
                                 soil_cell = 'N{}'.format(9 + idx)
                                 area_cell = 'U{}'.format(9 + idx)
                                 mukey_cell = 'S{}'.format(9 + idx)
-                                ws[soil_cell] = row[0]
-                                ws[mukey_cell] = int(row[1])
-                                ws[area_cell] = round(float(row[2]), 2)
+                                ws[soil_cell] = musym
+                                ws[mukey_cell] = mukey
+                                ws[area_cell] = acres
                             idx += 1
-                elif "nonag" in tbl.lower():
-                    tot = 0
-                    with open(tbl, 'r') as csvfile:
-                        csvreader = csv.reader(csvfile)
-                        next(csvreader)
-                        for row in csvreader:
-                            tot += float(row[2])
-                    ws['K28'] = tot
-                elif "forest" in tbl.lower():
-                    tot = 0
-                    with open(tbl, 'r') as csvfile:
-                        csvreader = csv.reader(csvfile)
-                        next(csvreader)
-                        for row in csvreader:
-                            tot += float(row[2])
-                    ws['L24'] = tot
+                        elif "nonag" in tbl.name.lower():
+                            tot = 0
+                            tot += acres
+                            ws['K28'] = tot
+                        elif "forest" in tbl.name.lower():
+                            tot = 0
+                            tot += acres
+                            ws['L24'] = tot
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
             del sgw_workbook

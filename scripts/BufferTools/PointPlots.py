@@ -16,6 +16,7 @@
 import os
 import math
 import arcpy
+import platform
 
 from ..helpers import license, empty_workspace, toggle_required_parameter, reload_module, log
 from ..helpers import setup_environment as setup
@@ -175,9 +176,11 @@ class PointPlots:
                 log("exporting point plot coordinates")
                 arcpy.conversion.ExportTable(output_points, r"{}/point_plots.csv".format(output_coords))
 
-                # open coordinates folder
-                log("opening folder with coordinates")
-                os.startfile(output_coords)
+
+                if platform.system() == "Windows":
+                    # open coordinates folder
+                    log("opening folder with coordinates")
+                    os.startfile(output_coords)
 
         # cleanup
         log("deleting unneeded data")

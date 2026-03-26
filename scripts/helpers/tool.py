@@ -26,7 +26,7 @@ def license(licenses=[], version_required=""):
                 return False
         for l in licenses:
             if l == "OSWCD_GIS":
-                if not os.path.exists("G:\GIS"):
+                if not os.path.exists("G:\\GIS"):
                     return False
             else:
                 status = arcpy.CheckExtension(l)
@@ -93,13 +93,13 @@ def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
               Assumed to fall under this project's license: GNU Affero General Public
               License v3.
     """
-    keep = tuple(keep)
+    tup = tuple(keep)
     gdb_contents = []
 
     for dirpath, dirnames, filenames in arcpy.da.Walk(gdb_path):
         for filename in filenames:
             file = os.path.join(dirpath, filename)
-            if file not in keep:
+            if file not in tup:
                 gdb_contents.append(file)
     for fc in gdb_contents:
         arcpy.management.Delete(fc)
