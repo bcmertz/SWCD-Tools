@@ -323,11 +323,11 @@ class Process(object):
                                 ws[mukey_cell] = mukey
                                 ws[area_cell] = acres
                             idx += 1
-                        elif "nonag" in tbl.lower():
+                        elif "nonag" in tbl.name.lower():
                             tot = 0
                             tot += acres
                             ws['K28'] = tot
-                        elif "forest" in tbl.lower():
+                        elif "forest" in tbl.name.lower():
                             tot = 0
                             tot += acres
                             ws['L24'] = tot
