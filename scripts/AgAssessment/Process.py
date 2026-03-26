@@ -265,7 +265,7 @@ class Process(object):
                 for use_layer in use_layers:
                     m.moveLayer(use_layer, soils_layer, "AFTER")
 
-            # Remove unused tables
+            # Remove unused layout tables
             log("removing unused tables for {}".format(parcel))
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
