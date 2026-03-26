@@ -1,5 +1,6 @@
+# arcpy stubs folder
 arcpy/
-example/
+# ignore cache
 __pycache__
-.cache/
+# ignore image thumbnails
 assets/**/Thumbs.db
