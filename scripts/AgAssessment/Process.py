@@ -186,15 +186,14 @@ class Process(object):
                 arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,soils_mukey])
 
                 # Add to map
-                # TODO
                 new_layer = m.addDataFromPath(dissolve_layer_path)
                 soils_layers.append(new_layer)
                 new_layer.name = new_layer_name
 
                 # Add acreage field
-                # TODO
-                field_alias = "{} Acres".format(lyr_type)
-                arcpy.management.AddField(new_layer, "Acres", "FLOAT", 2, 2, field_alias=field_alias)
+                if "Acres" not in [f.name for f in arcpy.ListFields(new_layer.dataSource)]:
+                    field_alias = "{} Acres".format(lyr_type)
+                    arcpy.management.AddField(new_layer, "Acres", "FLOAT", 2, 2, field_alias=field_alias)
 
                 # Calculate geometry
                 arcpy.management.CalculateGeometryAttributes(in_features=new_layer.name, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
@@ -233,14 +232,12 @@ class Process(object):
                 new_layer.setDefinition(l_cim)
 
                 # Get soils layer attribute table and export / extract needed fields for layout
-                # TODO
                 table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer_name)))
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
                 arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".format(soils_mukey)], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
                 # TODO: consider avoiding tables???
-                # TODO: handle repeats
                 soils_table = arcpy.mp.Table(table_path)
                 tables.append(soils_table)
                 m.addTable(soils_table)
@@ -269,14 +266,14 @@ class Process(object):
                     m.moveLayer(use_layer, soils_layer, "AFTER")
 
             # Remove unused tables
-            # TODO: repeated runs, what if tables are already deleted
-            #       need to handle above
             log("removing unused tables for {}".format(parcel))
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
                 if i not in lyr_types:
-                    tbl_remove = lyt.listElements("MAPSURROUND_ELEMENT", i)[0]
-                    lyt.deleteElement(tbl_remove)
+                    tbls = lyt.listElements("MAPSURROUND_ELEMENT", i)
+                    if len(tbls) > 0:
+                        tbl_remove = tbls[0]
+                        lyt.deleteElement(tbl_remove)
 
             # Display wanted legend items only
             log("removing unused legend items for {}".format(parcel))
@@ -290,7 +287,6 @@ class Process(object):
                     item.visible = False
 
             # Export tables
-            # TODO: remove?????
             log("exporting tables for {}".format(parcel))
             soils_tables = []
             for table in tables:
