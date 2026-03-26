@@ -50,6 +50,10 @@ class Restart(object):
         if not os.path.exists(cache_file_path):
             parameters[0].enabled = False
             parameters[0].value = False
+        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        if not arcpy.Exists(db_path):
+            parameters[1].enabled = False
+            parameters[1].value = False
         return
 
     def isLicensed(self):
