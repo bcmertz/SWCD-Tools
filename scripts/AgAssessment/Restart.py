@@ -74,7 +74,7 @@ class Restart(object):
 
         if maps_bool:
             # read in json
-            log("reading in cache, will be deleted once maps and layouts are deleted")
+            log("reading in cache - cache will be deleted once maps and layouts are deleted")
             cache = {}
             try:
                 with open(cache_file_path) as file:
@@ -122,7 +122,7 @@ class Restart(object):
                 log("clearing out feature classes from project workspace")
                 empty_workspace(db_path)
             else:
-                log("project geodatabase {} does not exist".format(db_path))
+                log("project geodatabase {} does not exist, nothing to delete".format(db_path))
 
         # cleanup
         log("saving project")
