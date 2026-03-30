@@ -30,6 +30,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Topographic Wetness Index (TWI)](#2-topographic-wetness-index-twi-)
     - [Relative Elevation Model (REM)](#3-relative-elevation-model-rem-)
     - [Stream Power Index (SPI)](#4-stream-power-index-spi-)
+    - [Topographic Position Index (TPI)](#5-topographic-position-index-tpi-)
   - [Drainage Tile Detection](#drainage-tile-detection-)
     - [Decision Tree Classification](#1-decision-tree-classification-dtc-)
     - [Image Differencing - Setup](#2-image-differencing---setup-)
@@ -312,6 +313,19 @@ Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on 
 </span>
 
 This example outputs shows stream power along a small headwater stream in the forest.
+
+### 4. Topographic Position Index (TPI) [↑](#table-of-contents)
+
+Create a topographic position index (TPI) raster from a DEM. Modeling TPI gives info on landscape position.
+
+<span>
+<img src="./assets/readme_examples/tpi_before_elevation.png" alt="before image study area elevations" width="300"/>
+<img src="./assets/readme_examples/tpi_after_10ft.png" alt="after image showing output 10ft TPI" width="300"/>
+<img src="./assets/readme_examples/tpi_after_50ft.png" alt="after image showing output 50ft TPI" width="300"/>
+<img src="./assets/readme_examples/tpi_after_200ft.png" alt="after image showing output 200ft TPI" width="300"/>
+</span>
+
+This example outputs shows an elevation raster, compared to a 10ft, 50ft, 200ft TPI raster.
 
 ## Drainage Tile Detection [↑](#table-of-contents)
 
