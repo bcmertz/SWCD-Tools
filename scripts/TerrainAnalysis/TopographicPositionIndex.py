@@ -17,7 +17,7 @@ class TopographicPositionIndex(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Topographic Position Index (TPI)"
-        self.description = "TODO"
+        self.description = "Calculate Topographic Position Index (TPI)"
         self.category = "Terrain Analysis"
         self.canRunInBackground = False
 
