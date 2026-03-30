@@ -314,7 +314,7 @@ Create a stream power index (SPI) raster from a DEM. Modeling SPI gives info on 
 
 This example outputs shows stream power along a small headwater stream in the forest.
 
-### 4. Topographic Position Index (TPI) [↑](#table-of-contents)
+### 5. Topographic Position Index (TPI) [↑](#table-of-contents)
 
 Create a topographic position index (TPI) raster from a DEM. Modeling TPI gives info on landscape position.
 
