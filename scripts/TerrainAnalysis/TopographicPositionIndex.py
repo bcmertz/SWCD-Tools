@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log, add_layer_to_group, convert_length
+from ..helpers import license, reload_module, log, add_layer_to_group, convert_length, cell_size, convert_length
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -71,6 +71,19 @@ class TopographicPositionIndex(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
+
+        # check if neighborhood size is too small for given DEM
+        if parameters[2].value and parameters[0].value:
+            warning_message = "Neighborhood size is smaller than DEM cell size. This will lead to meaningless results."
+            neighborhood = parameters[2].valueAsText
+            dem_cell_size, dem_cell_unit = cell_size(parameters[0].value).split(" ")
+            neighborhood_size = convert_length(neighborhood, dem_cell_unit).split(" ")[0]
+            if neighborhood_size <= dem_cell_size:
+                parameters[2].setWarningMessage(warning_message)
+            else:
+                if parameters[4].message == warning_message:
+                    parameters[4].clearMessage()
+
         return
 
     @reload_module(__name__)
