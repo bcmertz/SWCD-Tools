@@ -121,3 +121,10 @@ def convert_area(area: str, output_unit: str) -> str:
     output_size = float(size) * arcpy.ArealUnitConversionFactor(from_unit, output_unit)
     output_area = "{} {}".format(output_size, output_unit)
     return output_area
+
+def convert_length(length: str, output_unit: str) -> str:
+    """Convert LENGTH to OUTPUT_UNIT factoring in length size."""
+    size, from_unit = length.split(" ")
+    output_size = float(size) * arcpy.LinearUnitConversionFactor(from_unit, output_unit)
+    output_length = "{} {}".format(output_size, output_unit)
+    return output_length

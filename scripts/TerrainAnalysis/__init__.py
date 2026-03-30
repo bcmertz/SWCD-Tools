@@ -10,3 +10,4 @@ from .PotentialWetlands import PotentialWetlands
 from .REMCalculator import RelativeElevationModel
 from .StreamPowerIndex import StreamPowerIndex
 from .TopographicWetness import TopographicWetness
+from .TopographicPositionIndex import TopographicPositionIndex

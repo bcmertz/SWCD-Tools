@@ -8,7 +8,7 @@
 
 import arcpy
 
-from .units import convert_area, LINEAR_TO_AREAL, SPATIAL_TO_LINEAR
+from .units import convert_area, convert_length, LINEAR_TO_AREAL, SPATIAL_TO_LINEAR
 
 PIXEL_TYPES = {
     "U1": "1_BIT",
@@ -50,6 +50,28 @@ def cell_area(raster, area_unit=None) -> str:
 
     return area
 
+def cell_length(raster, length_unit=None) -> str:
+    """Return the average cell length of a RASTER as a GPLinearUnit. User can specify
+    unit LINEAR_UNIT for output GPLinearUnit to be in."""
+    # Note: throws an error if not a raster, this is desirable and shouldn't be used on
+    # data types other than a raster
+    desc_raster = arcpy.Describe(raster)
+    linear_unit = SPATIAL_TO_LINEAR[desc_raster.spatialReference.linearUnitName]
+
+    # Cell size in the X and Y axis
+    cellsize_y = desc_raster.meanCellHeight
+    cellsize_x = desc_raster.meanCellWidth
+    average_length = (cellsize_y + cellsize_x) / 2
+
+    # output length
+    length = "{} {}".format(average_length, linear_unit)
+
+    if length_unit is not None:
+        length = convert_length(length, length_unit)
+
+    return length
+
+
 def cells_per_area(raster, area: str) -> int:
     """Convert GPArealUnit AREA to the number of cells in the RASTER it is equivalent to."""
     cell_size, cell_unit = cell_area(raster).split(" ")
@@ -60,6 +82,18 @@ def cells_per_area(raster, area: str) -> int:
     # find number of cells
     num_cells = float(area_size_in_cell_units) / float(cell_size)
     return int(num_cells)
+
+def cells_per_length(raster, length: str) -> int:
+    """Convert GPLinearUnit LENGTH to the number of cells in the RASTER it is equivalent to."""
+    cell_size, cell_unit = cell_length(raster).split(" ")
+
+    # convert length to raster cell unit
+    area_size_in_cell_units = convert_length(length, cell_unit).split(" ")[0]
+
+    # find number of cells
+    num_cells = float(area_size_in_cell_units) / float(cell_size)
+    return int(num_cells)
+
 
 def min_cell_path(parameters) -> str:
     """Return the parameter with the smallest cell size."""
