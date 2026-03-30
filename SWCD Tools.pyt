@@ -20,6 +20,7 @@ class Toolbox(object):
             GenerateCrossSections,
             LocalMinimums,
             RelativeElevationModel,
+            TopographicPositionIndex,
             PointPlots,
             ShrubClusters,
             BufferPotential,
