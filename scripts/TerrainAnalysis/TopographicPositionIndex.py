@@ -39,8 +39,8 @@ class TopographicPositionIndex(object):
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
-            displayName="Focal Width",
-            name="focal_width",
+            displayName="Neighborhood Size",
+            name="neighborhood",
             datatype="GPLinearUnit",
             parameterType="Optional",
             direction="Input")
@@ -85,20 +85,19 @@ class TopographicPositionIndex(object):
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
         extent = parameters[1].value
-        focal_width = parameters[2].valueAsText # TODO explain focal width should be larger than features trying to see
-        # warn if focal_width is too big for dem cell size
+        neighborhood = parameters[2].valueAsText
         output_file = parameters[3].valueAsText
 
         # set analysis extent
         if extent:
             arcpy.env.extent = extent
 
-        # convert focal_width map units
-        width = convert_length(focal_width, active_map.mapUnits).split(" ")[0]
+        # convert neighborhood map units
+        width = convert_length(neighborhood, active_map.mapUnits).split(" ")[0]
         height = width
 
         # calculate mean
-        log("calculating mean elevations with {} cell".format(focal_width))
+        log("calculating mean elevations with {} cell".format(neighborhood))
         neighborhood = arcpy.sa.NbrRectangle(width, height, "MAP")
         log(neighborhood)
         mean = arcpy.sa.FocalStatistics(
