@@ -87,7 +87,7 @@ class TopographicPositionIndex(object):
         return
 
     @reload_module(__name__)
-    def execute(self, parameters):
+    def execute(self, parameters, messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
