@@ -64,18 +64,21 @@ class CollectRasters:
                         # prevent adding existing maps
                         existing = orig_map.listLayers(lyr_name)
                         if len(existing) == 0:
-                            # make raster layer from path
-                            new_lyr = arcpy.management.MakeRasterLayer(path, path.split('\\')[-1])
-                            new_lyr = new_lyr.getOutput(0)
-                            # add raster to group
-                            grp_lyr = orig_map.listLayers("In Use Map Layers")[0]
-                            new_lyr = orig_map.addLayerToGroup(grp_lyr, new_lyr)[0]
-                            # rename raster
-                            new_lyr.name = lyr_name
-                            new_lyr.visible = False
-                            # collapse each added layer
-                            new_lyr_cim = new_lyr.getDefinition('V3')
-                            new_lyr_cim.expanded = False
-                            new_lyr.setDefinition(new_lyr_cim)
+                            try:
+                                # make raster layer from path
+                                new_lyr = arcpy.management.MakeRasterLayer(path, path.split('\\')[-1])
+                                new_lyr = new_lyr.getOutput(0)
+                                # add raster to group
+                                grp_lyr = orig_map.listLayers("In Use Map Layers")[0]
+                                new_lyr = orig_map.addLayerToGroup(grp_lyr, new_lyr)[0]
+                                # rename raster
+                                new_lyr.name = lyr_name
+                                new_lyr.visible = False
+                                # collapse each added layer
+                                new_lyr_cim = new_lyr.getDefinition('V3')
+                                new_lyr_cim.expanded = False
+                                new_lyr.setDefinition(new_lyr_cim)
+                            except:
+                                pass
 
         return
