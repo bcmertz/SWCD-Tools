@@ -189,7 +189,7 @@ class StreamNetwork(object):
             if keep_fields:
                 # stream to feature
                 log("converting stream raster to output feature class")
-                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_output, True)
+                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_output, "SIMPLIFY")
 
                 log("joining keep fields to output feature class")
                 # create field mapping keeping only join feature fields specified
@@ -217,11 +217,11 @@ class StreamNetwork(object):
             else:
                 # stream to feature
                 log("converting stream raster to output feature class")
-                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_feature, True)
+                arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_feature, "SIMPLIFY")
         else:
             # stream to feature
             log("creating stream feature")
-            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, True)
+            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, "SIMPLIFY")
 
         # add watershed size information if requested
         if watershed_size_bool:
