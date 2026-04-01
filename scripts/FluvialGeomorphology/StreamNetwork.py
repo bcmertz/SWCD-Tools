@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, empty_workspace, cell_area, reload_module, log
+from ..helpers import license, get_oid, empty_workspace, convert_length, cell_area, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -135,10 +135,11 @@ class StreamNetwork(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_streamlines = arcpy.CreateScratchName("scratch_streamlines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_initiations = arcpy.CreateScratchName("initiations", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_end_points = arcpy.CreateScratchName("end_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_feature = arcpy.CreateScratchName("feature", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream = arcpy.CreateScratchName("stream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_zonst = arcpy.CreateScratchName("zonst", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # fill DEM
@@ -158,32 +159,34 @@ class StreamNetwork(object):
         cell_size = float(cell_area(dem, threshold_unit).split(" ")[0])
         watershed_size = flow_accumulation * cell_size
 
-        # con
-        log("applying watershed threshold")
-        sql_query = "VALUE > {}".format(threshold_size)
-        con_accumulation = arcpy.sa.Con(watershed_size, 1, "", sql_query)
-
         if stream:
-            # stream to feature
-            log("creating stream feature")
-            arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_streamlines, True)
+            # necessary since FeatureVerticesToPoints won't see edge of extent as an endpoint otherwise
+            arcpy.analysis.Clip(stream, extent.polygon, scratch_stream)
 
             # get end points of existing lines
             log("finding existing streamline endpoints")
-            arcpy.management.FeatureVerticesToPoints(stream, scratch_end_points, point_location="DANGLE")
+            arcpy.management.FeatureVerticesToPoints(scratch_stream, scratch_end_points, point_location="DANGLE")
 
-            # get stream initiation point
-            # choose max value, if beyond it the point doesn't snap which is usually fine if there's not a watershed divide in between
+            # snap stream initiation point to highest flow accumulation within snap_dist
             log("snap existing stream initiation points to flow accumulation model")
-            stream_initiations = arcpy.edit.Snap(scratch_end_points, snap_environment=[[scratch_streamlines, "EDGE", "200 Feet"]]) # TODO: choose reasonable distance to look for initiation points
+            snap_dist = convert_length("200 Feet", active_map.spatialReference.linearUnitName)
+
+            stream_initiations_raster = arcpy.sa.SnapPourPoint(
+                in_pour_point_data=scratch_end_points,
+                in_accumulation_raster=flow_accumulation,
+                snap_distance=snap_dist, # TODO: choose reasonable distance to look for initiation points
+            )
+
+            # convert stream initiation raster to points
+            arcpy.conversion.RasterToPoint(stream_initiations_raster, scratch_initiations)
 
             # find flow path: optimal path as raster
             log("tracing downstream from stream initiation points")
             out_path_accumulation_raster = arcpy.sa.OptimalPathAsRaster(
-                in_destination_data=stream_initiations,
+                in_destination_data=scratch_initiations,
                 in_distance_accumulation_raster=flow_accumulation,
                 in_back_direction_raster=flow_direction,
-                destination_field=get_oid(stream_initiations)
+                destination_field=get_oid(scratch_initiations)
             )
 
             if keep_fields:
@@ -194,7 +197,7 @@ class StreamNetwork(object):
                 log("joining keep fields to output feature class")
                 # create field mapping keeping only join feature fields specified
                 field_mapping = arcpy.FieldMappings()
-                field_mapping.addTable(stream)
+                field_mapping.addTable(scratch_stream)
                 for field in field_mapping.fields:
                     if field.name not in keep_fields:
                         field_mapping.removeFieldMap(field_mapping.findFieldMapIndex(field.name))
@@ -203,7 +206,7 @@ class StreamNetwork(object):
                 # perform spatial join
                 arcpy.analysis.SpatialJoin(
                     target_features=scratch_output,
-                    join_features=stream,
+                    join_features=scratch_stream,
                     out_feature_class=scratch_feature,
                     join_operation="JOIN_ONE_TO_ONE",
                     join_type="KEEP_ALL",
@@ -219,6 +222,11 @@ class StreamNetwork(object):
                 log("converting stream raster to output feature class")
                 arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_feature, "SIMPLIFY")
         else:
+            # con
+            log("applying watershed threshold")
+            sql_query = "VALUE > {}".format(threshold_size)
+            con_accumulation = arcpy.sa.Con(watershed_size, 1, "", sql_query)
+
             # stream to feature
             log("creating stream feature")
             arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, "SIMPLIFY")
