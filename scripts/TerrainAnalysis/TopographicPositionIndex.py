@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log, add_layer_to_group, convert_length, cell_length, convert_length
+from ..helpers import license, reload_module, log, convert_length, cell_length, convert_length
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -87,7 +87,7 @@ class TopographicPositionIndex(object):
         return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters):
         """The source code of the tool."""
         # Setup
         log("setting up project")
