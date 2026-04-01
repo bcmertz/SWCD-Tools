@@ -112,7 +112,6 @@ class TopographicPositionIndex(object):
         # calculate mean
         log("calculating mean elevations with {} cell".format(neighborhood))
         neighborhood = arcpy.sa.NbrRectangle(width, height, "MAP")
-        log(neighborhood)
         mean = arcpy.sa.FocalStatistics(
             in_raster=dem,
             neighborhood=neighborhood,
