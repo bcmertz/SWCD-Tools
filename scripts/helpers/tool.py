@@ -85,60 +85,58 @@ def reload_module(name, force=True):
         return wrapper
     return reload_module
 
-def __empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
+def __empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
+    """License:  Modification of work in NRCS Engineering Tools 2.0 (no license present)
+                 Assumed to fall under this project's license: GNU Affero General Public
+                 License v3."""
     tup = tuple(keep)
-    gdb_contents = []
+    ws_contents = []
 
-    for dirpath, dirnames, filenames in arcpy.da.Walk(gdb_path):
+    for dirpath, dirnames, filenames in arcpy.da.Walk(ws_path):
         for filename in filenames:
             file = os.path.join(dirpath, filename)
             if file not in tup:
-                gdb_contents.append(file)
-    for fc in gdb_contents:
+                ws_contents.append(file)
+    for fc in ws_contents:
         arcpy.management.Delete(fc)
 
     return
 
-def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
-    """Delete everything in a given workspace except for KEEP paths.
-
-    License:  Modification of work in NRCS Engineering Tools 2.0 (no license present)
-              Assumed to fall under this project's license: GNU Affero General Public
-              License v3.
-    """
+def empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
+    """Delete everything in a given workspace except for KEEP paths."""
     if len(keep) > 0:
-        __empty_workspace(gdb_path, keep)
+        __empty_workspace(ws_path, keep)
     else:
         # get workspace type
-        desc = arcpy.Describe(gdb_path)
+        desc = arcpy.Describe(ws_path)
         wst = desc.workspaceType
 
         # get workspace path info
-        gdb_folder = os.path.dirname(gdb_path)
-        gdb_name = os.path.basename(gdb_path)
-        gdb_extension = gdb_name.split(".")[-1]
+        ws_folder = os.path.dirname(ws_path)
+        ws_name = os.path.basename(ws_path)
+        ws_extension = ws_name.split(".")[-1]
 
         # check if we can completely delete and recreate it or if we need
         # to clear it file by file
         # for now we only delete and recreate folders and file geodatabases
         if wst == "FileSystem":
             # delete workspace
-            arcpy.management.Delete(gdb_path)
+            arcpy.management.Delete(ws_path)
 
             # recreate workspace
-            arcpy.management.CreateFolder(gdb_folder, gdb_name)
+            arcpy.management.CreateFolder(ws_folder, ws_name)
 
         elif wst == "LocalDatabase":
-            if gdb_extension == ".gdb":
+            if ws_extension == ".gdb":
                 # delete workspace
-                arcpy.management.Delete(gdb_path)
+                arcpy.management.Delete(ws_path)
 
                 # recreate workspace
-                arcpy.management.CreateFileGDB(gdb_folder, gdb_name)
+                arcpy.management.CreateFileGDB(ws_folder, ws_name)
             else:
-                __empty_workspace(gdb_path, keep)
+                __empty_workspace(ws_path, keep)
 
         else:
-            __empty_workspace(gdb_path, keep)
+            __empty_workspace(ws_path, keep)
 
     return
