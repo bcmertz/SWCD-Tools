@@ -85,14 +85,7 @@ def reload_module(name, force=True):
         return wrapper
     return reload_module
 
-
-def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
-    """Delete everything in a given workspace except for KEEP paths.
-
-    License:  Modification of work in NRCS Engineering Tools 2.0 (no license present)
-              Assumed to fall under this project's license: GNU Affero General Public
-              License v3.
-    """
+def __empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
     tup = tuple(keep)
     gdb_contents = []
 
@@ -103,5 +96,49 @@ def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
                 gdb_contents.append(file)
     for fc in gdb_contents:
         arcpy.management.Delete(fc)
+
+    return
+
+def empty_workspace(gdb_path: str, keep: list[str]=[]) -> None:
+    """Delete everything in a given workspace except for KEEP paths.
+
+    License:  Modification of work in NRCS Engineering Tools 2.0 (no license present)
+              Assumed to fall under this project's license: GNU Affero General Public
+              License v3.
+    """
+    if len(keep) > 0:
+        __empty_workspace(gdb_path, keep)
+    else:
+        # get workspace type
+        desc = arcpy.Describe(gdb_path)
+        wst = desc.workspaceType
+
+        # get workspace path info
+        gdb_folder = os.path.dirname(gdb_path)
+        gdb_name = os.path.basename(gdb_path)
+        gdb_extension = gdb_name.split(".")[-1]
+
+        # check if we can completely delete and recreate it or if we need
+        # to clear it file by file
+        # for now we only delete and recreate folders and file geodatabases
+        if wst == "FileSystem":
+            # delete workspace
+            arcpy.management.Delete(gdb_path)
+
+            # recreate workspace
+            arcpy.management.CreateFolder(gdb_folder, gdb_name)
+
+        elif wst == "LocalDatabase":
+            if gdb_extension == ".gdb":
+                # delete workspace
+                arcpy.management.Delete(gdb_path)
+
+                # recreate workspace
+                arcpy.management.CreateFileGDB(gdb_folder, gdb_name)
+            else:
+                __empty_workspace(gdb_path, keep)
+
+        else:
+            __empty_workspace(gdb_path, keep)
 
     return
