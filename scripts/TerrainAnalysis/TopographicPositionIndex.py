@@ -123,7 +123,11 @@ class TopographicPositionIndex(object):
         # positive values indicate DEM elevations above average in neighborhood
         log("calculating topographic position index")
         diff = dem - mean
-        diff.save(output_file)
+
+        # normalize tpi values to standard deviation (Weiss 2001)
+        std_dev = float(arcpy.management.GetRasterProperties(diff, "STD").getOutput(0))
+        tpi_std = arcpy.sa.Int(((diff / std_dev) * 100) + 0.5)
+        tpi_std.save(output_file)
 
         # add results to map
         log("adding results to map")
