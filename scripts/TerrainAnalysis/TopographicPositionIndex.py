@@ -59,7 +59,7 @@ class TopographicPositionIndex(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license()
+        return license(['Spatial'])
 
     def updateParameters(self, parameters):
         # default focal width
