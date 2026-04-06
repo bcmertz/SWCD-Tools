@@ -39,9 +39,9 @@ class TopographicPositionIndex(object):
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param2 = arcpy.Parameter(
-            displayName="Neighborhood Size",
+            displayName="Neighborhood",
             name="neighborhood",
-            datatype="GPLinearUnit",
+            datatype="GPSANeighborhood",
             parameterType="Optional",
             direction="Input")
 
@@ -62,27 +62,11 @@ class TopographicPositionIndex(object):
         return license(['Spatial'])
 
     def updateParameters(self, parameters):
-        # default focal width
-        if parameters[2].value is None:
-            parameters[2].value = "10 Feet"
-
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-
-        # check if neighborhood size is too small for given DEM
-        if parameters[2].value and parameters[0].value:
-            warning_message = "Neighborhood size is smaller than DEM cell size. This will lead to meaningless results."
-            neighborhood = parameters[2].valueAsText
-            dem_cell_size, dem_cell_unit = cell_length(parameters[0].value).split(" ")
-            neighborhood_size = convert_length(neighborhood, dem_cell_unit).split(" ")[0]
-            if neighborhood_size <= dem_cell_size:
-                parameters[2].setWarningMessage(warning_message)
-            else:
-                if parameters[2].message == warning_message:
-                    parameters[2].clearMessage()
 
         return
 
@@ -105,13 +89,8 @@ class TopographicPositionIndex(object):
         if extent:
             arcpy.env.extent = extent
 
-        # convert neighborhood map units
-        width = convert_length(neighborhood, active_map.mapUnits).split(" ")[0]
-        height = width
-
         # calculate mean
-        log("calculating mean elevations with {} cell".format(neighborhood))
-        neighborhood = arcpy.sa.NbrRectangle(width, height, "MAP")
+        log("calculating mean elevations in neighborhood")
         mean = arcpy.sa.FocalStatistics(
             in_raster=dem,
             neighborhood=neighborhood,
