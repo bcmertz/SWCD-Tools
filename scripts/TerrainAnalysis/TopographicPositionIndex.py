@@ -98,7 +98,7 @@ class TopographicPositionIndex(object):
             ignore_nodata="DATA",
         )
 
-        # calculate smoothed vs unsmoothed diference
+        # calculate smoothed vs unsmoothed difference
         # positive values indicate DEM elevations above average in neighborhood
         log("calculating topographic position index")
         diff = dem - mean
