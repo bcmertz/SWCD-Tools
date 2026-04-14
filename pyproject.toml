@@ -4,6 +4,9 @@ version = "0.1.0"
 readme = "README.md"
 requires-python = ">3.11"
 
+[tool.uv]
+exclude-newer = "1 month"
+
 [dependency-groups]
 dev = [
     "ty>=0.0.24",
