@@ -13,6 +13,29 @@ from ..helpers import license, reload_module, log, convert_length, cell_length, 
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
+def topographic_position_index(dem, neighborhood):
+    """Calculate Topographic Position Index for a given DEM and neighborhood."""
+    # calculate mean
+    log("calculating mean elevations in neighborhood")
+    mean = arcpy.sa.FocalStatistics(
+        in_raster=dem,
+        neighborhood=neighborhood,
+        statistics_type="MEAN",
+        ignore_nodata="DATA",
+    )
+
+    # calculate smoothed vs unsmoothed difference
+    # positive values indicate DEM elevations above average in neighborhood
+    log("calculating topographic position index")
+    diff = dem - mean
+
+    # normalize tpi values to standard deviation (Weiss 2001)
+    std_dev = float(arcpy.management.GetRasterProperties(diff, "STD").getOutput(0))
+    tpi_std = arcpy.sa.Int(((diff / std_dev) * 100) + 0.5)
+
+    #return TPI raster
+    return tpi_std
+
 class TopographicPositionIndex(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -89,24 +112,9 @@ class TopographicPositionIndex(object):
         if extent:
             arcpy.env.extent = extent
 
-        # calculate mean
-        log("calculating mean elevations in neighborhood")
-        mean = arcpy.sa.FocalStatistics(
-            in_raster=dem,
-            neighborhood=neighborhood,
-            statistics_type="MEAN",
-            ignore_nodata="DATA",
-        )
-
-        # calculate smoothed vs unsmoothed difference
-        # positive values indicate DEM elevations above average in neighborhood
-        log("calculating topographic position index")
-        diff = dem - mean
-
-        # normalize tpi values to standard deviation (Weiss 2001)
-        std_dev = float(arcpy.management.GetRasterProperties(diff, "STD").getOutput(0))
-        tpi_std = arcpy.sa.Int(((diff / std_dev) * 100) + 0.5)
-        tpi_std.save(output_file)
+        # calculate TPI
+        tpi = topographic_position_index(dem, neighborhood)
+        tpi.save(output_file)
 
         # add results to map
         log("adding results to map")
