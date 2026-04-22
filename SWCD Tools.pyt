@@ -30,6 +30,7 @@ class Toolbox(object):
             CalculateEFH2,
             WatershedSize,
             StreambankDetection,
+            LandscapePosition,
             WatershedDelineation,
             SubBasinDelineation,
             RemoveUnused,
