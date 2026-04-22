@@ -47,15 +47,29 @@ class LandscapePosition(object):
         param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
         param3 = arcpy.Parameter(
+            displayName="Small Neighborhood Radius",
+            name="small_radius",
+            datatype="GPLinearUnit",
+            parameterType="Required",
+            direction="Input")
+
+        param4 = arcpy.Parameter(
+            displayName="Large Neighborhood Radius",
+            name="large_radius",
+            datatype="GPLinearUnit",
+            parameterType="Required",
+            direction="Input")
+
+        param5 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param3.parameterDependencies = [param0.name]
-        param3.schema.clone = True
+        param5.parameterDependencies = [param0.name]
+        param5.schema.clone = True
 
-        params = [param0, param1, param2, param3]
+        params = [param0, param1, param2, param3, param4, param5]
         return params
 
     def isLicensed(self):
@@ -80,6 +94,14 @@ class LandscapePosition(object):
                 parameters[1].enabled = False
                 parameters[1].value = None
 
+        # define small neighborhood radius
+        if parameters[3].value is None:
+            parameters[3].value = "150 Meters"
+
+        # default large neighborhood radius
+        if parameters[4].value is None:
+            parameters[4].value = "1000 Meters"
+
         return
 
     def updateMessages(self, parameters):
@@ -101,7 +123,9 @@ class LandscapePosition(object):
         dem = arcpy.Raster(dem_layer.name)
         z_unit = parameters[1].value
         extent = parameters[2].value
-        output_file = parameters[3].valueAsText
+        radius_small, radius_small_unit = parameters[3].valueAsText.split(" ")
+        radius_large, radius_large_unit = parameters[4].valueAsText.split(" ")
+        output_file = parameters[5].valueAsText
 
         # set analysis extent
         if extent:
@@ -109,19 +133,18 @@ class LandscapePosition(object):
 
         # create neighborhoods
         map_unit = active_map.mapUnits
-        width_300 = 300 * arcpy.LinearUnitConversionFactor("Meters", map_unit)
-        height_300 = width_300
-        width_2000 = 2000 * arcpy.LinearUnitConversionFactor("Meters", map_unit)
-        height_2000 = width_2000
-        neighborhood_300 = arcpy.sa.NbrRectangle(width_300, height_300, "MAP")
-        neighborhood_2000 = arcpy.sa.NbrRectangle(width_2000, height_2000, "MAP")
+        radius_small = float(radius_small) * arcpy.LinearUnitConversionFactor(radius_small_unit, map_unit)
+        radius_large = float(radius_large) * arcpy.LinearUnitConversionFactor(radius_large_unit, map_unit)
+        neighborhood_small = arcpy.sa.NbrCircle(radius_small, "MAP")
+        neighborhood_large = arcpy.sa.NbrCircle(radius_large, "MAP")
 
-        # calculate TPI's at 300m and 2000m scale
-        log("calculating topographic position index at 300m and 2000m scale")
-        tpi_300 = topographic_position_index(dem, neighborhood_300)
-        tpi_2000 = topographic_position_index(dem, neighborhood_2000)
+        # calculate TPI's at small and large radii
+        log("calculating topographic position index with small and large radii scale")
+        tpi_small = topographic_position_index(dem, neighborhood_small)
+        tpi_large = topographic_position_index(dem, neighborhood_large)
 
         # slope
+        # TODO: change resolution to a different scale, Deumlich did 125m
         log("calculating slope")
         slope = arcpy.sa.Slope(dem, "DEGREE", "", "GEODESIC", z_unit)
 
@@ -155,13 +178,13 @@ class LandscapePosition(object):
         # 331 - Mountain tops and high narrow ridges
         # 332 - Mountain tops and high narrow ridges
 
-        log("remap 300m TPI")
-        remap_300 = arcpy.sa.RemapRange([[-100000, -100, 100], [-100, 100, 200], [100, 100000, 300]])
-        tpi_300_remap = arcpy.sa.Reclassify(tpi_300, "VALUE", remap_300)
+        log("remap small neighborhood TPI")
+        remap_small = arcpy.sa.RemapRange([[-100000, -100, 100], [-100, 100, 200], [100, 100000, 300]])
+        tpi_small_remap = arcpy.sa.Reclassify(tpi_small, "VALUE", remap_small)
 
-        log("remap 2000m TPI")
-        remap_2000 = arcpy.sa.RemapRange([[-100000, -100, 10], [-100, 100, 20], [100, 100000, 30]])
-        tpi_2000_remap = arcpy.sa.Reclassify(tpi_2000, "VALUE", remap_2000)
+        log("remap large neighborhood TPI")
+        remap_large = arcpy.sa.RemapRange([[-100000, -100, 10], [-100, 100, 20], [100, 100000, 30]])
+        tpi_large_remap = arcpy.sa.Reclassify(tpi_large, "VALUE", remap_large)
 
         log("remap slope")
         remap_slope = arcpy.sa.RemapRange([[0, 5, 1], [5, 90, 2]])
@@ -169,7 +192,7 @@ class LandscapePosition(object):
 
         # add rasters together
         log("combining rasters")
-        combined = tpi_300_remap + tpi_2000_remap + slope_remap
+        combined = tpi_small_remap + tpi_large_remap + slope_remap
         combined.save(output_file)
 
         # add description field
