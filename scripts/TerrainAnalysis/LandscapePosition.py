@@ -1,6 +1,7 @@
 # --------------------------------------------------------------------------------------------------
 # Name:        Landscape Position
-# Purpose:     TODO
+# Purpose:     Calculate landscape position using topographic position index at
+#              a small and large scale.
 #
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
@@ -17,7 +18,7 @@ class LandscapePosition(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Landscape Position"
-        self.description = "TODO"
+        self.description = "Calculate landscape position based off of elevation data."
         self.category = "Terrain Analysis"
         self.canRunInBackground = False
 
