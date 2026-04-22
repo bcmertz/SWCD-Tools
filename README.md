@@ -31,6 +31,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Relative Elevation Model (REM)](#3-relative-elevation-model-rem-)
     - [Stream Power Index (SPI)](#4-stream-power-index-spi-)
     - [Topographic Position Index (TPI)](#5-topographic-position-index-tpi-)
+    - [Landscape Position](#6-landscape-position-)
   - [Drainage Tile Detection](#drainage-tile-detection-)
     - [Decision Tree Classification](#1-decision-tree-classification-dtc-)
     - [Image Differencing - Setup](#2-image-differencing---setup-)
@@ -326,6 +327,18 @@ Create a topographic position index (TPI) raster from a DEM. Modeling TPI gives 
 </span>
 
 This example outputs shows an elevation raster, compared to a 10ft, 50ft, 200ft TPI raster.
+
+### 6. Landscape Position [↑](#table-of-contents)
+
+Create a landscape position raster from a DEM. This provides classification of landscape features based off of TPI at various scales and slope.
+
+<span>
+<img src="./assets/readme_examples/landscape_position_before.png" alt="before image study area topo map" width="300"/>
+<img src="./assets/readme_examples/landscape_position_after.png" alt="after image showing output landscape position raster" width="300"/>
+<img src="./assets/readme_examples/landscape_position_key.png" alt="key of output landscape position colors" width="300"/>
+</span>
+
+This shows landscape position classification compared to a topographic map.
 
 ## Drainage Tile Detection [↑](#table-of-contents)
 
