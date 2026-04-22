@@ -21,7 +21,7 @@ def topographic_position_index(dem, neighborhood):
         in_raster=dem,
         neighborhood=neighborhood,
         statistics_type="MEAN",
-        ignore_nodata="DATA",
+        ignore_nodata="NODATA",
     )
 
     # calculate smoothed vs unsmoothed difference
