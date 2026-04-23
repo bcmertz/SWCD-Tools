@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log, toggle_required_parameter, empty_workspace
+from ..helpers import license, reload_module, log, set_required_parameter, empty_workspace
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -170,7 +170,7 @@ class ImageDifferencing(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         # toggle cloud output path
-        toggle_required_parameter(parameters[7], parameters[8])
+        set_required_parameter(parameters[7].value, parameters[8])
 
         validate(parameters)
         return

@@ -11,7 +11,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, toggle_required_parameter, reload_module, log
+from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -164,8 +164,8 @@ class BermAnalysis(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         # make optional parameters[9,10] required based off of parameters[8]
-        toggle_required_parameter(parameters[8], parameters[9])
-        toggle_required_parameter(parameters[8], parameters[10])
+        set_required_parameter(parameters[8], parameters[9])
+        set_required_parameter(parameters[8], parameters[10])
 
         validate(parameters)
         return
