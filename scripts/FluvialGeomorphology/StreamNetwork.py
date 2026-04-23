@@ -182,7 +182,7 @@ class StreamNetwork(object):
         extent = parameters[1].value
         # parameters[2] is just a toggle for updateParameters to visualize what the user is doing
         stream = parameters[3].value
-        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4] is not None else None, None
+        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4].value is not None else None, None
         keep_fields = parameters[5].valueAsText.split(";") if parameters[5].value is not None else None
         # read in areal unit and map it's pretty string to the arcpy representation
         watershed_size_bool = parameters[6].value
