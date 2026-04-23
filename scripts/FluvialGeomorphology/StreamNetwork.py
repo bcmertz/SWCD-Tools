@@ -158,6 +158,16 @@ class StreamNetwork(object):
     def updateMessages(self, parameters):
         "Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
+
+        # toggle existing stream lines
+        set_required_parameter(parameters[2].valueAsText == "Existing Stream Lines", parameters[3])
+
+        # toggle watershed threshold
+        set_required_parameter(parameters[2].valueAsText == "Watershed Size Threshold", parameters[4])
+
+        # toggle watershed size unit
+        set_required_parameter(parameters[6].value, parameters[7])
+
         return
 
     @reload_module(__name__)
