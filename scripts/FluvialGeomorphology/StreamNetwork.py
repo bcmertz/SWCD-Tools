@@ -39,69 +39,115 @@ class StreamNetwork(object):
             direction="Input")
         param1.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
 
+        # Note: this could be accomplished with a composite parameter, however
+        # composite parameters don't have a way to introspect in updateParameters
+        # what the user has toggled the composite parameter to as the dataType
+        # we need that functionality in order to set defaults and controlCLSID's
         param2 = arcpy.Parameter(
+            displayName="Stream Initiation Point Data Source",
+            name="toggle",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param2.filter.list = ["Existing Stream Lines", "Watershed Size Threshold"]
+
+        param3 = arcpy.Parameter(
             displayName="Existing Stream Lines",
             name="stream",
             datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-        param2.filter.list = ["Line"]
-        param2.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
-
-        # NOTE: composite parameters not supported until ArcGIS Pro 3.4
-        # once supported consider combining threshold and stream lines
-        # into one parameter with a toggle
-        param3 = arcpy.Parameter(
-            displayName="Stream Initiation Threshold",
-            name="threshold",
-            datatype="GPArealUnit",
-            parameterType="Required",
-            direction="Input")
+        param3.filter.list = ["Polyline"]
+        param3.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param4 = arcpy.Parameter(
+            displayName="Watershed Size Threshold",
+            name="threshold",
+            datatype="GPArealUnit",
+            parameterType="Optional",
+            direction="Input")
+
+        param5 = arcpy.Parameter(
             displayName="Fields to keep",
             name="keep",
             datatype="GPString",
             parameterType="Optional",
             multiValue="True",
             direction="Input")
-        param4.filter.type = "ValueList"
-        param4.filter.list = []
+        param5.filter.type = "ValueList"
+        param5.filter.list = []
 
-        param5 = arcpy.Parameter(
+        param6 = arcpy.Parameter(
             displayName="Include calculated watershed size as attribute",
             name="size_bool",
             datatype="GPBoolean",
             parameterType="Optional",
             direction="Input")
-        param5.value = True
+        param6.value = True
 
-        param6 = arcpy.Parameter(
+        param7 = arcpy.Parameter(
+            displayName="Watershed Size Unit",
+            name="unit",
+            datatype="GPString",
+            parameterType="Optional",
+            direction="Input")
+        param7.filter.list = AREAL_UNITS
+        param7.value = "Square US Survey Miles"
+
+        param8 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
-        param6.parameterDependencies = [param0.name]
-        param6.schema.clone = True
+        param8.parameterDependencies = [param0.name]
+        param8.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4, param5, param6]
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8]
         return params
 
     def updateParameters(self, parameters):
-        # get stream line fields
+        # toggle initiation data source
         if not parameters[2].hasBeenValidated:
-            if parameters[2].value:
-                fields = [f.name for f in arcpy.ListFields(parameters[2].value)]
-                parameters[4].enabled = True
-                parameters[4].filter.list = fields
-            else:
+            if parameters[2].valueAsText == "Existing Stream Lines":
+                parameters[3].enabled = True
                 parameters[4].enabled = False
                 parameters[4].value = None
+            elif parameters[2].valueAsText == "Watershed Size Threshold":
+                parameters[3].enabled = False
+                parameters[3].value = None
+                parameters[4].enabled = True
+                parameters[5].enabled = False
+                parameters[5].value = None
+            else:
+                parameters[3].enabled = False
+                parameters[3].value = None
+                parameters[4].enabled = False
+                parameters[4].value = None
+                parameters[5].enabled = False
+                parameters[5].value = None
+
+        # handle stream layer
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].value:
+                fields = [f.name for f in arcpy.ListFields(parameters[3].value)]
+                parameters[5].enabled = True
+                parameters[5].filter.list = fields
+            else:
+                parameters[5].enabled = False
+                parameters[5].value = None
 
         # Default stream threshold value
-        if parameters[3].value is None:
-            parameters[3].value = "8 AcresUS"
+        if not parameters[4].hasBeenValidated and parameters[4].value is None:
+            parameters[4].value = "8 AcresUS"
+
+        # toggle watershed size unit
+        if not parameters[6].hasBeenValidated:
+            if parameters[6].value:
+                parameters[7].enabled = True
+            else:
+                parameters[7].enabled = False
+                parameters[7].value = None
 
         return
 
