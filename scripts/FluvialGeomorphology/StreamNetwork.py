@@ -180,11 +180,14 @@ class StreamNetwork(object):
         # read in parameters
         dem = parameters[0].value
         extent = parameters[1].value
-        stream = parameters[2].value
-        threshold_size, threshold_unit = parameters[3].valueAsText.split(" ")
-        keep_fields = parameters[4].valueAsText.split(";") if parameters[4].value is not None else None
-        watershed_size_bool = parameters[5].value
-        output_file = parameters[6].valueAsText
+        # parameters[2] is just a toggle for updateParameters to visualize what the user is doing
+        stream = parameters[3].value
+        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4] is not None else None, None
+        keep_fields = parameters[5].valueAsText.split(";") if parameters[5].value is not None else None
+        # read in areal unit and map it's pretty string to the arcpy representation
+        watershed_size_bool = parameters[6].value
+        watershed_size_unit = AREAL_UNITS_MAP[parameters[7].valueAsText]
+        output_file = parameters[8].valueAsText
 
         # set analysis extent
         if extent:
@@ -322,7 +325,7 @@ class StreamNetwork(object):
                 in_table=output_file,
                 field=field_name,
                 new_field_name="watershed",
-                new_field_alias="Watershed Size ({})".format(threshold_unit),
+                new_field_alias="Watershed Size ({})".format(watershed_size_unit),
             )
         else:
             # copy output to feature class
