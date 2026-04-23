@@ -211,11 +211,6 @@ class StreamNetwork(object):
         log("calculating flow accumulation")
         flow_accumulation = arcpy.sa.FlowAccumulation(flow_direction)
 
-        # convert flow accumulation from number of cells to threshold area units
-        log("calculating watershed size")
-        cell_size = float(cell_area(dem, threshold_unit).split(" ")[0])
-        watershed_size = flow_accumulation * cell_size
-
         if stream:
             # necessary since FeatureVerticesToPoints won't see edge of extent as an endpoint otherwise
             arcpy.analysis.Clip(stream, extent.polygon, scratch_stream)
@@ -279,8 +274,13 @@ class StreamNetwork(object):
                 log("converting stream raster to output feature class")
                 arcpy.sa.StreamToFeature(out_path_accumulation_raster, flow_direction, scratch_feature, "SIMPLIFY")
         else:
+            # convert flow accumulation from number of cells to threshold area units
+            log("calculating watershed size")
+            cell_size = float(cell_area(dem, threshold_unit).split(" ")[0])
+            watershed_size = flow_accumulation * cell_size
+
             # con
-            log("applying watershed threshold")
+            log("applying watershed size threshold")
             sql_query = "VALUE > {}".format(threshold_size)
             con_accumulation = arcpy.sa.Con(watershed_size, 1, "", sql_query)
 
@@ -290,6 +290,11 @@ class StreamNetwork(object):
 
         # add watershed size information if requested
         if watershed_size_bool:
+            # convert flow_accumulation raster to watershed_size_units
+            log("calculating output watershed size attribute")
+            cell_size = float(cell_area(dem, watershed_size_unit).split(" ")[0])
+            watershed_size = flow_accumulation * cell_size
+
             # zonal statistics
             log("adding watershed size information to output")
             arcpy.sa.ZonalStatisticsAsTable(
