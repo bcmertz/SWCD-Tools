@@ -54,16 +54,9 @@ def validate_spatial_reference(parameters):
     return
 
 # This helper is used in various other tools to make an optional parameter required while enabled.
-def toggle_required_parameter(toggle, parameter) -> None:
-    """Toggle PARAMETER as required when optional parameter TOGGLE has a value set."""
-    # make newly toggled on parameter required
-    if not toggle.hasBeenValidated:
-        if toggle.value:
-            if not parameter.value:
-                parameter.setIDMessage("ERROR", 530)
-
-    # handle deleted parameter value
-    if not parameter.hasBeenValidated and not parameter.value:
+def set_required_parameter(toggle, parameter) -> None:
+    """Set optional PARAMETER as required when TOGGLE is True."""
+    if toggle and not parameter.value:
         parameter.setIDMessage("ERROR", 530)
 
     return
