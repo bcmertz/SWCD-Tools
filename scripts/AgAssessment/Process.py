@@ -13,7 +13,7 @@ import pathlib
 import openpyxl
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
-from ..helpers import sanitize, license, toggle_required_parameter, reload_module, log, warn, error
+from ..helpers import sanitize, license, set_required_parameter, reload_module, log, warn, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -93,8 +93,8 @@ class Process(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         # make newly toggled on parameters required
-        toggle_required_parameter(parameters[0], parameters[1])
-        toggle_required_parameter(parameters[0], parameters[2])
+        set_required_parameter(parameters[0].value, parameters[1])
+        set_required_parameter(parameters[0].value, parameters[2])
 
         validate(parameters)
         return

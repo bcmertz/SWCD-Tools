@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, get_z_unit, Z_UNITS, empty_workspace, toggle_required_parameter, reload_module, log
+from ..helpers import license, get_oid, get_z_unit, Z_UNITS, empty_workspace, set_required_parameter, reload_module, log
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -242,7 +242,7 @@ class PotentialWetlands(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         # make optional parameters[5] required based off of parameters[6]
-        toggle_required_parameter(parameters[5], parameters[6])
+        set_required_parameter(parameters[5].value, parameters[6])
 
         validate(parameters)
         return
