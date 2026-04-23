@@ -212,7 +212,7 @@ class StreamNetwork(object):
                     join_type="KEEP_ALL",
                     field_mapping=field_mapping,
                     match_option="CLOSEST",
-                    search_radius="25 Meters", # consider non-hardcoded alternative
+                    search_radius="25 Meters", # TODO: consider non-hardcoded alternative
                 )
 
                 # remove `Join_Count` and `TARGET_FID` fields
@@ -253,7 +253,7 @@ class StreamNetwork(object):
             # rename MAX field created by zonal stats
             field_name = "MAX"
             fieldList = arcpy.ListFields(output_file)  # Get a list of fields for each feature class
-            for field in fieldList:  # Lloop through each field
+            for field in fieldList:  # Loop through each field
                 if field.aliasName == 'MAX':
                     field_name = field.name
             arcpy.management.AlterField(
