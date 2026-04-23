@@ -73,7 +73,7 @@ class PointPlots:
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         # make optional parameters[3] required based off of parameters[2]
-        set_required_parameter(parameters[2], parameters[3])
+        set_required_parameter(parameters[2].value, parameters[3])
 
         validate(parameters)
         return

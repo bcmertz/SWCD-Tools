@@ -164,8 +164,8 @@ class BermAnalysis(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         # make optional parameters[9,10] required based off of parameters[8]
-        set_required_parameter(parameters[8], parameters[9])
-        set_required_parameter(parameters[8], parameters[10])
+        set_required_parameter(parameters[8].value, parameters[9])
+        set_required_parameter(parameters[8].value, parameters[10])
 
         validate(parameters)
         return
