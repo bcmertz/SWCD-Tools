@@ -153,7 +153,7 @@ Example output showing graph of tributary elevations.
 
 ### 2. Calculate Stream Network [↑](#table-of-contents)
 
-Use elevation data to find streamlines for flow accumulations larger than the stream initiation threshold. The output can be restricted to existing streamlines to effectively correct hydrologically correct the input streamlines to match the DEM. For creating hydro-conditioned DEMs, see [Burn Culverts in DEM](#3-burn-culverts-in-dem)
+Use elevation data to calculate stream lines. This tool will output how stream lines route, as well as watershed size information. Stream initiation location can be derived from existing stream line initiation points or from a watershed size threshold. Using existing stream lines can hydrologically correct stream lines to a given DEM. For creating hydro-conditioned DEMs, see [Burn Culverts in DEM](#3-burn-culverts-in-dem)
 
 <span>
 <img src="/assets/readme_examples/stream_network_before.png" alt="before image showing original less accurate streamlines in blue against a grey hillshade background" height="350"/>
