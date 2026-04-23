@@ -215,8 +215,11 @@ class StreamNetwork(object):
         flow_accumulation = arcpy.sa.FlowAccumulation(flow_direction)
 
         if stream:
-            # necessary since FeatureVerticesToPoints won't see edge of extent as an endpoint otherwise
-            arcpy.analysis.Clip(stream, extent.polygon, scratch_stream)
+            if extent:
+                # necessary since FeatureVerticesToPoints won't see edge of extent as an endpoint otherwise
+                arcpy.analysis.Clip(stream, extent.polygon, scratch_stream)
+            else:
+                scratch_stream = stream
 
             # get end points of existing lines
             log("finding existing streamline endpoints")
