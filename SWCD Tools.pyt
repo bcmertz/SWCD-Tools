@@ -31,6 +31,7 @@ class Toolbox(object):
             WatershedSize,
             StreambankDetection,
             LandscapePosition,
+            VBET,
             WatershedDelineation,
             SubBasinDelineation,
             RemoveUnused,
