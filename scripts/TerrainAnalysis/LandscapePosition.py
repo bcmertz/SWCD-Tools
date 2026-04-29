@@ -146,6 +146,7 @@ class LandscapePosition(object):
 
         # slope
         # TODO: change resolution to a different scale, Deumlich did 125m
+        # TODO: would an arcpy.ia.RasterCollection help here?
         log("calculating slope")
         slope = arcpy.sa.Slope(dem, "DEGREE", "", "GEODESIC", z_unit)
 
