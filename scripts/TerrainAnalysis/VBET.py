@@ -280,7 +280,7 @@ class VBET(object):
 
         # combine 3 probability rasters into 1, taking highest probability value as actual
         log("combining probabilities into output")
-        rc = arcpy.ia.RasterCollection([evidence_low, evidence_med, evidence_high])
+        rc = arcpy.ia.RasterCollection([i for i in [evidence_low, evidence_med, evidence_high] if i is not None])
         max_raster = arcpy.ia.Max(
             rasters=rc,
             extent_type = "UnionOf",
