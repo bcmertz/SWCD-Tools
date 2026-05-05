@@ -246,6 +246,12 @@ class VBET(object):
                 out_features=scratch_area,
                 where_clause=sql_query,
             )
+
+            # skip if output is empty
+            if int(arcpy.management.GetCount(scratch_area)[0]) == 0:
+                continue
+
+            # limit analysis area to area
             arcpy.env.mask = scratch_area
 
             # calculate rem + slope evidence based off of watershed size
