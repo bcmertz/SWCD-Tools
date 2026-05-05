@@ -238,13 +238,15 @@ class VBET(object):
         evidence_med = None
         evidence_high = None
         i = 0
+        mask = arcpy.env.mask
         for sql_query in queries:
-            # create new buffer in the relevant watershed size
+            # create new buffer in the relevant watershed size and limit analysis
             arcpy.conversion.ExportFeatures(
                 in_features=scratch_buffer,
                 out_features=scratch_area,
                 where_clause=sql_query,
             )
+            arcpy.env.mask = scratch_area
 
             # calculate rem + slope evidence based off of watershed size
             rem_tmp = rem
@@ -268,6 +270,9 @@ class VBET(object):
 
             # iterate to keep track of watershed size
             i += 1
+
+        # reset mask boundaries
+        arcpy.env.mask = mask
 
         # combine 3 probability rasters into 1, taking highest probability value as actual
         log("combining probabilities into output")
