@@ -6,8 +6,6 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------------------------
 
-# TODO: documentation, lit review, attribution
-
 import arcpy
 
 from ..helpers import license, reload_module, log, empty_workspace, convert_length, cell_length, convert_length, get_z_unit, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
