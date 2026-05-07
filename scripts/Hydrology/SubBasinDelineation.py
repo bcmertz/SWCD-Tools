@@ -19,7 +19,6 @@ class SubBasinDelineation(object):
         self.label = "Sub-Basin Delineation"
         self.description = "Calculate hydrology for all sub-basins and perform stream routing"
         self.category = "Hydrology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

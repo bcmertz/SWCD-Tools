@@ -22,7 +22,6 @@ class Restart(object):
         self.label = "Restart - clear out existing project info"
         self.description = "This tool allows the user to restart an ag assessment from scratch. Warning - This tool deletes permanently deletes maps, layouts, and workspace feature classes"
         self.category = "Automated Ag Assessment"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

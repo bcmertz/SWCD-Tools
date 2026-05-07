@@ -20,7 +20,6 @@ class LeastAction(object):
         self.label = "Stream Centerline Adjuster"
         self.description = "Stream Centerline Adjuster"
         self.category = "Fluvial Geomorphology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

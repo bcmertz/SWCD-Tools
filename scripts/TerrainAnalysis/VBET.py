@@ -18,7 +18,6 @@ class VBET(object):
         self.label = "Valley Bottom Extraction Tool (VBET)"
         self.description = "Extract valley bottom geometry"
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

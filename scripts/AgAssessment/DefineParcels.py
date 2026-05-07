@@ -26,7 +26,6 @@ class DefineParcels(object):
         self.label = "1. Define Parcels"
         self.description = "Define parcels and create folder structure"
         self.category = "Automated Ag Assessment"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

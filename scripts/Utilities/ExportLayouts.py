@@ -19,7 +19,6 @@ class ExportLayouts(object):
         self.label = "Export Layouts"
         self.description = "Run to export layouts"
         self.category = "Utilities"
-        self.canRunInBackground = False
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""

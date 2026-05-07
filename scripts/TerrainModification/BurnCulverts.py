@@ -19,7 +19,6 @@ class BurnCulverts(object):
         self.label = "Burn Culverts into DEM"
         self.description = "Remove obstructions for flow direction"
         self.category = "Terrain Modification"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

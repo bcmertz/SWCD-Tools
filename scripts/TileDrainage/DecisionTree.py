@@ -18,7 +18,6 @@ class DecisionTree(object):
         self.label = "Decision Tree Calculation"
         self.description = "Model potential tile drainage areas"
         self.category = "Hydrology\\Drainage Tile"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

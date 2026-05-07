@@ -19,7 +19,6 @@ class RelativeElevationModel(object):
         self.label = "Relative Elevation Model (REM)"
         self.description = "Compute REM"
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

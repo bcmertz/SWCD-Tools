@@ -21,7 +21,6 @@ class BermAnalysis(object):
         self.label = "Berm Analysis"
         self.description = "Model backwatered area from berm"
         self.category = "Terrain Modification"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

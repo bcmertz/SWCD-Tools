@@ -20,7 +20,6 @@ class StreamElevation(object):
         self.label = "Stream Elevation Profile"
         self.description = "Create profile of the stream throughout it's length"
         self.category = "Fluvial Geomorphology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

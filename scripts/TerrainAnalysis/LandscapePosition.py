@@ -20,7 +20,6 @@ class LandscapePosition(object):
         self.label = "Landscape Position"
         self.description = "Calculate landscape position based off of elevation data."
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

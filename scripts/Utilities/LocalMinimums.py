@@ -23,7 +23,6 @@ class LocalMinimums:
         self.label = "Local Minimums"
         self.description = "Find local minimums along line for a given raster"
         self.category = "Utilities"
-        self.canRunInBackground = False
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""

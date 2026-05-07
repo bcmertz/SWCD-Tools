@@ -28,7 +28,6 @@ class PointPlots:
         self.label = "Point Plots"
         self.description = "Point Plots"
         self.category = "Buffer tools"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define the tool parameters."""

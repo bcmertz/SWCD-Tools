@@ -20,7 +20,6 @@ class StreamNetwork(object):
         self.label = "Calculate Stream Network"
         self.description = "Create stream network from DEM"
         self.category = "Fluvial Geomorphology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
