@@ -206,18 +206,13 @@ class DecisionTree(object):
         # select viable land uses from land use raster
         log("extracting desired land uses")
         scratch_land_use = None
-        land_use_sql_query = ""
         existing_values = []
         with arcpy.da.SearchCursor(land_use_raster, land_use_field) as cursor:
             existing_values = sorted({row[0] for row in cursor})
         land_use_values = [ i for i in land_use_values if i in existing_values ]
         if len(land_use_values) != 0:
-            for value in land_use_values:
-                if land_use_sql_query == "":
-                    land_use_sql_query = "{} = '{}'".format(land_use_field, value)
-                else:
-                    land_use_sql_query += " Or {} = '{}'".format(land_use_field, value)
-            scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster, land_use_sql_query)
+            sql_query = ' Or '.join("{} = {}".format(land_use_field, value) for value in land_use_values)
+            scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
         else:
             log("no valid land uses found in area, please try again with land uses found in analysis area")
             return
