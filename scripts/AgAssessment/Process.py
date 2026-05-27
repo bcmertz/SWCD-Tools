@@ -300,8 +300,8 @@ class Process(object):
                 sgw_workbook = openpyxl.load_workbook(sgw_path)
                 ws = sgw_workbook['SGW']
                 with arcpy.da.SearchCursor(table, ["MUSYM", "MUKEY", "Acres"]) as cursor:
+                    idx = 0
                     for row in cursor:
-                        idx = 0
                         musym = row[0]
                         mukey = int(row[1])
                         acres = round(float(row[2]), 2)
