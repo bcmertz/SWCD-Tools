@@ -9,7 +9,7 @@
 
 import arcpy
 
-from .TopographicPositionIndex import topographic_position_index
+from ..TerrainAnalysis import topographic_position_index
 from ..helpers import license, reload_module, log, convert_length, cell_length, convert_length, Z_UNITS, get_z_unit
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate

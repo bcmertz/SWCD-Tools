@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..REMCalculator import relative_elevation_model
+from ..TerrainAnalysis import relative_elevation_model
 from ..helpers import license, reload_module, log, empty_workspace, convert_length, cell_length, convert_length, get_z_unit, is_empty, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
