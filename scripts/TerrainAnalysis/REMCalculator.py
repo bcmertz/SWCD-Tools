@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log, get_oid
+from ..helpers import license, empty_workspace, reload_module, log, get_oid, is_empty
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -185,6 +185,11 @@ class RelativeElevationModel(object):
                 search_radius=search_radius,
                 in_barrier_polyline_features=scratch_breaklines,
             )
+
+                    # check if there are no points
+                    if is_empty(scratch_elev_points_tmp):
+                        continue
+
         else:
             # interpolate surface and resolve buffer overlap conflicts by proximity
             log("calculating IDW raster")

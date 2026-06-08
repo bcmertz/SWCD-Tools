@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log, empty_workspace, convert_length, cell_length, convert_length, get_z_unit, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
+from ..helpers import license, reload_module, log, empty_workspace, convert_length, cell_length, convert_length, get_z_unit, is_empty, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -244,7 +244,7 @@ class VBET(object):
             )
 
             # skip if output is empty
-            if int(arcpy.management.GetCount(scratch_area)[0]) == 0:
+            if is_empty(scratch_area):
                 continue
 
             # limit analysis area to area
