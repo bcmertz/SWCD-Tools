@@ -8,6 +8,7 @@
 
 import arcpy
 
+from ..REMCalculator import relative_elevation_model
 from ..helpers import license, reload_module, log, empty_workspace, convert_length, cell_length, convert_length, get_z_unit, is_empty, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
@@ -171,7 +172,7 @@ class VBET(object):
         z_unit = parameters[1].value
         extent = parameters[2].value
         rem_layer = parameters[3].value
-        rem = arcpy.Raster(rem_layer.name)
+        rem = arcpy.Raster(rem_layer.name) if rem_layer is not None else None
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
         watershed_area_unit = AREAL_UNITS_MAP[parameters[6].valueAsText]
@@ -212,7 +213,10 @@ class VBET(object):
         log("calculating slope")
         slope = arcpy.sa.Slope(dem, "DEGREE", "", "GEODESIC", z_unit)
 
-        # TODO: optionally create REM
+        # optionally create REM
+        if rem is None:
+            log("calculating relative elevation model")
+            rem = relative_elevation_model(dem, extent, streams, buffer_radius, "35 Feet", resolve=True)
 
         # get threshold watershed sizes in km^2
         log("creating watershed size thresholds")
