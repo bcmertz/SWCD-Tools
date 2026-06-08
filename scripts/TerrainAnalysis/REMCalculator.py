@@ -185,11 +185,6 @@ class RelativeElevationModel(object):
                 search_radius=search_radius,
                 in_barrier_polyline_features=scratch_breaklines,
             )
-
-                    # check if there are no points
-                    if is_empty(scratch_elev_points_tmp):
-                        continue
-
         else:
             # interpolate surface and resolve buffer overlap conflicts by proximity
             log("calculating IDW raster")
