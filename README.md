@@ -356,6 +356,8 @@ VBET produces outputs like below:
 <img src="./assets/readme_examples/vbet_after2.png" alt="output VBET data 2 showing polygon bordering stream line." width="300"/>
 </span>
 
+The second image shows a large watershed VBET output (low-lying) in the green and FEMA floodplains in red.
+
 ## Drainage Tile Detection [↑](#table-of-contents)
 
 ### 1. Decision Tree Classification (DTC) [↑](#table-of-contents)
