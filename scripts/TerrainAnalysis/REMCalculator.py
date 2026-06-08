@@ -154,7 +154,7 @@ class RelativeElevationModel(object):
 
         # raster calculator (DEM - IDW_new)
         log("calculating relative elevation difference")
-        out_rem = arcpy.sa.RasterCalculator([dem_raster_clip,idw_raster],["x","y"],"x-y", "FirstOf", "FirstOf")
+        out_rem = dem_raster_clip - idw_raster
         out_rem.save(output_file)
 
         # add results to map
