@@ -200,6 +200,7 @@ class StreamNetwork(object):
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_stream = arcpy.CreateScratchName("stream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_zonst = arcpy.CreateScratchName("zonst", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_max = arcpy.CreateScratchName("max", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # fill DEM
         log("filling raster")
@@ -302,6 +303,35 @@ class StreamNetwork(object):
 
             # zonal statistics
             log("adding watershed size information to output")
+            arcpy.sa.ZonalStatisticsAsTable(
+                in_zone_data=scratch_feature,
+                zone_field=get_oid(scratch_feature),
+                in_value_raster=watershed_size,
+                out_table=scratch_zonst,
+                ignore_nodata="DATA",
+                statistics_type="MAXIMUM",
+                out_join_layer=scratch_max,
+            )
+
+            # get unique max values:
+            # the previously calculated values will be incorrect since the endpoint of a stream line at
+            # each confluence will have the max flow accumulation equal to itself and its sister stream
+            # it joins with so we want to set the flow acc raster values equal to these confluences null
+            # to find the actual max flow accumulation value for each stream line
+            log("removing confluence statistics")
+            field_name = "MAX"
+            field_list = arcpy.ListFields(scratch_max)  # Get a list of fields for each feature class
+            unique_vals = {}
+            for field in field_list:  # Loop through each field
+                if field.aliasName == field_name:
+                    field_name = field.name
+            with arcpy.da.SearchCursor(scratch_max, field_name) as cursor:
+                unique_vals = sorted({row[0] for row in cursor})
+            sql_query = ' Or '.join("Value = {}".format(str(v)) for v in unique_vals)
+            watershed_size = arcpy.sa.SetNull(watershed_size, watershed_size, where_clause=sql_query)
+
+            # set max values to null and recalculate max values for output
+            log("updating watershed size information")
             arcpy.sa.ZonalStatisticsAsTable(
                 in_zone_data=scratch_feature,
                 zone_field=get_oid(scratch_feature),
