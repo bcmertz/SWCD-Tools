@@ -167,6 +167,8 @@ class RelativeElevationModel(object):
                 in_pour_point_data=scratch_stream_layer,
                 pour_point_field=get_oid(scratch_stream_layer)
             )
+
+            # create watershed breaklines to separate IDW calculation for each watershed
             arcpy.conversion.RasterToPolygon(
                 in_raster=watershed,
                 simplify=True,
@@ -174,8 +176,6 @@ class RelativeElevationModel(object):
                 raster_field="Value",
                 create_multipart_features=True,
             )
-
-            # create watershed breaklines to separate IDW calculation for each watershed
             arcpy.management.PolygonToLine(scratch_watershed, scratch_breaklines)
 
             # This has the known side-effect of producing missing artefacts in the output
