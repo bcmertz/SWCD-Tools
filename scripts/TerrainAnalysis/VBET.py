@@ -222,7 +222,7 @@ class VBET(object):
             log("limiting watershed size")
             min_watershed_size = float(min_watershed_size) * arcpy.ArealUnitConversionFactor(min_watershed_unit, watershed_area_unit)
 
-        # TODO: check the min_watershed_size check is working
+        # set watershed size boundaries
         queries = [
             "{} > {} and {} < {}".format(watershed_size_field, min_watershed_size, watershed_size_field,threshold_low)\
             if min_watershed_size is not None else "{} < {}".format(watershed_size_field,threshold_low),
