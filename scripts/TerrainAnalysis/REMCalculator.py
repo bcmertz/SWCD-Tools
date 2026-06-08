@@ -69,7 +69,14 @@ class RelativeElevationModel(object):
             parameterType="Optional",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4, param5]
+        param6 = arcpy.Parameter(
+            displayName="Resolve interpolation conflicts by watershed?",
+            name="resolve",
+            datatype="GPBoolean",
+            parameterType="Optional",
+           direction="Input")
+
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateMessages(self, parameters):
@@ -104,6 +111,7 @@ class RelativeElevationModel(object):
         stream_layer = parameters[3].value
         buffer_radius = parameters[4].valueAsText
         sampling_interval = parameters[5].valueAsText
+        resolve = parameters[6].value
 
         # set analysis extent
         if extent:
@@ -111,10 +119,12 @@ class RelativeElevationModel(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_layer = arcpy.CreateScratchName("layer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_points = arcpy.CreateScratchName("stream_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_stream_elev_points = arcpy.CreateScratchName("elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_watershed = arcpy.CreateScratchName("watershed", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_breaklines = arcpy.CreateScratchName("breaklines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         if extent:
             # clip streams to analysis area
@@ -151,6 +161,43 @@ class RelativeElevationModel(object):
             z_field="RASTERVALU",
             search_radius=arcpy.sa.RadiusFixed(2 * radius_map_units, 0)
         )
+        if resolve:
+            # interpolate surface and resolve buffer overlap conflicts by watershed
+            log("calculating sub-watersheds to resolve interpolation conflicts")
+            fill_raster = arcpy.sa.Fill(dem_raster)
+            flow_direction = arcpy.sa.FlowDirection(fill_raster, flow_direction_type="D8")
+            flow_accumulation = arcpy.sa.FlowAccumulation(
+                in_flow_direction_raster=flow_direction,
+                data_type="FLOAT",
+                flow_direction_type="D8"
+            )
+            snap = arcpy.sa.SnapPourPoint(
+                in_pour_point_data=scratch_stream_layer,
+                in_accumulation_raster=flow_accumulation,
+                snap_distance=0,
+            )
+            watershed = arcpy.sa.Watershed(
+                in_flow_direction_raster=flow_direction,
+                in_pour_point_data=snap,
+            )
+            arcpy.conversion.RasterToPolygon(
+                in_raster=watershed,
+                simplify=True,
+                out_polygon_features=scratch_watershed,
+                raster_field="Value",
+                create_multipart_features=True,
+            )
+
+            # create watershed breaklines to separate IDW calculation for each watershed
+            arcpy.management.PolygonToLine(scratch_watershed, scratch_breaklines)
+
+            log("calculating IDW raster")
+            idw_raster = arcpy.sa.Idw(
+                in_point_features=scratch_stream_elev_points,
+                z_field="RASTERVALU",
+                search_radius=search_radius,
+                in_barrier_polyline_features=scratch_breaklines,
+            )
 
         # raster calculator (DEM - IDW_new)
         log("calculating relative elevation difference")
