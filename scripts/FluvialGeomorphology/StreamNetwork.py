@@ -315,19 +315,20 @@ class StreamNetwork(object):
             # copy scratch output to output file
             # necessary because otherwise AlterField gets
             # upset about altering a joined table
+            log("copying watershed size data to output feature class")
             arcpy.management.CopyFeatures(scratch_output, output_file)
 
             # rename MAX field created by zonal stats
             field_name = "MAX"
-            fieldList = arcpy.ListFields(output_file)  # Get a list of fields for each feature class
-            for field in fieldList:  # Loop through each field
-                if field.aliasName == 'MAX':
+            field_list = arcpy.ListFields(output_file)  # Get a list of fields for each feature class
+            for field in field_list:  # Loop through each field
+                if field.aliasName == field_name:
                     field_name = field.name
             arcpy.management.AlterField(
                 in_table=output_file,
                 field=field_name,
                 new_field_name="watershed",
-                new_field_alias="Watershed Size ({})".format(watershed_size_unit),
+                new_field_alias="Max Total Drainage Area ({})".format(watershed_size_unit),
             )
         else:
             # copy output to feature class
