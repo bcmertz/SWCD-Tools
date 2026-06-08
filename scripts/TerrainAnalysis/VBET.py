@@ -216,7 +216,7 @@ class VBET(object):
         # optionally create REM
         if rem is None:
             log("calculating relative elevation model")
-            rem = relative_elevation_model(dem, extent, streams, buffer_radius, "35 Feet", resolve=True)
+            rem = relative_elevation_model(active_map, dem, extent, streams, buffer_radius, "35 Feet", resolve=True)
 
         # get threshold watershed sizes in km^2
         log("creating watershed size thresholds")
