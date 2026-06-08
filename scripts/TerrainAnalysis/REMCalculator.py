@@ -178,6 +178,9 @@ class RelativeElevationModel(object):
             # create watershed breaklines to separate IDW calculation for each watershed
             arcpy.management.PolygonToLine(scratch_watershed, scratch_breaklines)
 
+            # This has the known side-effect of producing missing artefacts in the output
+            # REM raster where the sightlines are blocked for IDW in_barrier_polyline_features.
+            # However, it is 2-3x slower to IDW each watershed and append them together.
             log("calculating IDW raster")
             idw_raster = arcpy.sa.Idw(
                 in_point_features=scratch_stream_elev_points,
