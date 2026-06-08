@@ -150,17 +150,13 @@ class RelativeElevationModel(object):
         log("adding elevation data to stream line points")
         arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem_raster_clip, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
 
-        # IDW (to buffer extent)
-        log("calculating IDW raster")
+        idw_raster = None
         arcpy.env.cellSize = dem_raster_clip
         arcpy.env.extent = scratch_stream_buffer
         buffer_radius, buffer_radius_unit = buffer_radius.split(" ")
-        radius_map_units = int(buffer_radius) * arcpy.LinearUnitConversionFactor(buffer_radius_unit, active_map.mapUnits)
-        idw_raster = arcpy.sa.Idw(
-            in_point_features=scratch_stream_elev_points,
-            z_field="RASTERVALU",
-            search_radius=arcpy.sa.RadiusFixed(2 * radius_map_units, 0)
-        )
+        max_distance = 1.5 * int(buffer_radius) * arcpy.LinearUnitConversionFactor(buffer_radius_unit, active_map.mapUnits)
+        num_points = 12
+        search_radius = arcpy.sa.RadiusVariable(num_points, max_distance)
         if resolve:
             # interpolate surface and resolve buffer overlap conflicts by watershed
             log("calculating sub-watersheds to resolve interpolation conflicts")
