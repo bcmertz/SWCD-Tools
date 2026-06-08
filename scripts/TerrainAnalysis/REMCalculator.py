@@ -236,6 +236,10 @@ class RelativeElevationModel(object):
         cim_layer.colorizer.stretchStats.min = min_value
         rem_raster.setDefinition(cim_layer)
 
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
+
         # save project
         log("saving project")
         project.save()
