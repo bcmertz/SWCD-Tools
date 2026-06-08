@@ -234,9 +234,8 @@ class VBET(object):
         evidence_low = None
         evidence_med = None
         evidence_high = None
-        i = 0
         mask = arcpy.env.mask
-        for sql_query in queries:
+        for index, sql_query in enumerate(queries):
             # create new buffer in the relevant watershed size and limit analysis
             arcpy.conversion.ExportFeatures(
                 in_features=scratch_buffer,
@@ -254,7 +253,7 @@ class VBET(object):
             # calculate rem + slope evidence based off of watershed size
             rem_tmp = rem
             slope_tmp = slope
-            match i:
+            match index:
                 case 0: # small watershed
                     log("finding small watershed valley bottom probability")
                     slope_tmp = arcpy.sa.Exp(-0.12 * slope_tmp)
@@ -270,9 +269,6 @@ class VBET(object):
                     slope_tmp = arcpy.sa.Exp(-0.3 * slope_tmp)
                     rem_tmp = 1 / (1 + arcpy.sa.Exp(-3.652 + 0.432 * rem_tmp))
                     evidence_high = 0.65 * rem_tmp + 0.35 * slope_tmp
-
-            # iterate to keep track of watershed size
-            i += 1
 
         # reset mask boundaries
         arcpy.env.mask = mask
