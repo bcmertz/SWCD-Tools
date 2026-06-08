@@ -352,8 +352,8 @@ Implementation of the Valley Bottom Extract Tool originally defined by [Gilbert 
 VBET produces outputs like below:
 
 <span>
-<img src="./assets/readme_examples/vbet_before.png" alt="aerial image of valley bottom area before analysis" width="300"/>
-<img src="./assets/readme_examples/vbet_after.png" alt="same image as before but with polygon showing valley bottom extent output from tool" width="300"/>
+<img src="./assets/readme_examples/vbet_after1.png" alt="output VBET data 1 showing polygon bordering stream line." width="300"/>
+<img src="./assets/readme_examples/vbet_after2.png" alt="output VBET data 2 showing polygon bordering stream line." width="300"/>
 </span>
 
 ## Drainage Tile Detection [↑](#table-of-contents)
