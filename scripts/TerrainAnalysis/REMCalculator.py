@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log
+from ..helpers import license, empty_workspace, reload_module, log, get_oid
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -162,19 +162,10 @@ class RelativeElevationModel(object):
             log("calculating sub-watersheds to resolve interpolation conflicts")
             fill_raster = arcpy.sa.Fill(dem_raster)
             flow_direction = arcpy.sa.FlowDirection(fill_raster, flow_direction_type="D8")
-            flow_accumulation = arcpy.sa.FlowAccumulation(
-                in_flow_direction_raster=flow_direction,
-                data_type="FLOAT",
-                flow_direction_type="D8"
-            )
-            snap = arcpy.sa.SnapPourPoint(
-                in_pour_point_data=scratch_stream_layer,
-                in_accumulation_raster=flow_accumulation,
-                snap_distance=0,
-            )
             watershed = arcpy.sa.Watershed(
                 in_flow_direction_raster=flow_direction,
-                in_pour_point_data=snap,
+                in_pour_point_data=scratch_stream_layer,
+                pour_point_field=get_oid(scratch_stream_layer)
             )
             arcpy.conversion.RasterToPolygon(
                 in_raster=watershed,
