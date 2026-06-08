@@ -89,7 +89,7 @@ class VBET(object):
             datatype="GPArealUnit",
             parameterType="Optional",
             direction="Input")
-        param8.value = "1 SquareKilometers"
+        param8.value = "0 SquareKilometers"
 
         param9 = arcpy.Parameter(
             displayName="Valley Bottom Output Feature",
