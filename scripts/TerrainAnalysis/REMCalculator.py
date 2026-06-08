@@ -198,6 +198,14 @@ class RelativeElevationModel(object):
                 search_radius=search_radius,
                 in_barrier_polyline_features=scratch_breaklines,
             )
+        else:
+            # interpolate surface and resolve buffer overlap conflicts by proximity
+            log("calculating IDW raster")
+            idw_raster = arcpy.sa.Idw(
+                in_point_features=scratch_stream_elev_points,
+                z_field="RASTERVALU",
+                search_radius=search_radius,
+            )
 
         # raster calculator (DEM - IDW_new)
         log("calculating relative elevation difference")
