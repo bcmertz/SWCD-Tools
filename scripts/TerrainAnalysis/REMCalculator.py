@@ -102,10 +102,6 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
     log("calculating relative elevation difference")
     rem = dem_raster_clip - idw_raster
 
-    # cleanup
-    log("deleting unneeded data")
-    empty_workspace(arcpy.env.scratchGDB, keep=[])
-
     return rem
 
 
