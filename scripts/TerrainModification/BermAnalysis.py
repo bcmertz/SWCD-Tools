@@ -11,7 +11,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log
+from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -186,7 +186,7 @@ class BermAnalysis(object):
         berms = parameters[5].value
         # optionally specify berm height
         supply_berm_height_bool = parameters[6].value
-        berm_height, berm_unit, berm_z_factor = "", "", ""
+        berm_height, berm_unit, berm_z_factor = None, None, None
         if supply_berm_height_bool:
             berm_height, berm_unit = parameters[7].valueAsText.split(" ")
             berm_height = float(berm_height)
@@ -398,19 +398,23 @@ class BermAnalysis(object):
                         out_feature_class=scratch_effective_berm,
                         cluster_tolerance=None
                     )
-                    berm_raster = arcpy.sa.ZonalStatistics(
-                        in_zone_data=scratch_effective_berm,
-                        zone_field="OBJECTID",
-                        in_value_raster=dem,
-                        statistics_type="RANGE",
-                    )
-                    berm_height = berm_raster.maximum * berm_z_factor
-                    log("berm height: ", berm_height, berm_unit)
+                    if is_empty(scratch_effective_berm):
+                        warn("berm ID {} created no backwatered area, cannot calculate height".format(oid_value))
+                    else:
+                        berm_raster = arcpy.sa.ZonalStatistics(
+                            in_zone_data=scratch_effective_berm,
+                            zone_field="OBJECTID",
+                            in_value_raster=dem,
+                            statistics_type="RANGE",
+                        )
+                        berm_height = berm_raster.maximum * berm_z_factor
+                        log("berm height: ", berm_height, berm_unit)
 
                 # add height to berm
-                log("adding berm height to berm feature attribute table")
-                berm[1] = berm_height
-                cursor.updateRow(berm)
+                if berm_height is not None:
+                    log("adding berm height to berm feature attribute table")
+                    berm[1] = berm_height
+                    cursor.updateRow(berm)
 
         # cleanup
         log("deleting unneeded data")
