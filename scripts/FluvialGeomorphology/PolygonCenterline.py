@@ -17,26 +17,45 @@ from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
 def polygon_centerline(polygon, edge_points):
-    """ TODO
-    line - arcpy.PolyLine() object
-    interval - <GPLinearUnit>
-    """
-    interval, interval_unit = interval.split(" ")
-    transects = []
+    """Find centerline of polygon."""
 
-    # positionAlongLine fails to get start point dist=0 if using geodesic=True
-    # so we use geodesic=False which uses Meters as linear unit instead of line unit
-    interval = int(float(interval) * arcpy.LinearUnitConversionFactor(interval_unit, "Meters"))
-    length = line.getLength("GEODESIC", units="Meters")
-    for dist in range(0, int(length)+interval, interval):
-        # get point at distance
-        point = line.positionAlongLine(dist, geodesic=False)[0]
+    # TODO: densify
+    arcpy.edit.Densify(
+        in_features="vbet_SimplifyPolygon1",
+        densification_method="DISTANCE",
+        distance="50 Meters",
+        max_deviation="0.1 Meters",
+        max_angle=10,
+        max_vertex_per_segment=None
+    )
 
-        #create transect at point
-        transect = transect_line(line, point, width)
-        transects.append(transect)
+    # TODO: thiessen
 
-    return transects
+    # TODO: polygon to line
+
+    # TODO: select by location: completely within
+
+    # TODO: Export to new fc
+
+    # TODO: Dissolve (single, unsplit)
+
+    # TODO: feat vert to pts (dangling)
+
+    # TODO: Selct by location (itnersect pt and line)
+
+    # TODO: Delete selected
+
+    # TODO: Generate near table
+
+    # TODO: XY to line from table
+
+    # TODO: Merge line with centerline
+
+    # TODO: Select by location (completely within VBET)
+
+    # TODO: Delete selected
+
+    return centerline
 
 class PolygonCenterline(object):
     def __init__(self):
