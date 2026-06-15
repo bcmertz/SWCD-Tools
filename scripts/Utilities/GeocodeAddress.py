@@ -15,7 +15,7 @@ from ..helpers import setup_environment as setup
 class GeocodeAddress(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "NY Geocode Address"
+        self.label = "Geocode Address (NY)"
         self.description = "Geocode NY address to point"
         self.category = "Utilities"
         self.canRunInBackground = False
