@@ -314,8 +314,6 @@ class VBET(object):
             repair_at_end_point="REPAIR_ENDS"
         )
 
-        # TODO: generate valley bottom centerline using least cost path
-
         # add results to map
         log("adding results to map")
         active_map.addDataFromPath(low_lying_file)
