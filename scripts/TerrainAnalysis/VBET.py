@@ -165,6 +165,8 @@ class VBET(object):
         log("setting up project")
         project, active_map = setup()
 
+        arcpy.env.qualifiedFieldNames = False
+
         # read in parameters
         log("reading in parameters")
         dem_layer = parameters[0].value
