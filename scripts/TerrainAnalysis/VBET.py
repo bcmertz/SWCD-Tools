@@ -288,13 +288,14 @@ class VBET(object):
             cellsize_type = "MinOf",
 	    ignore_nodata = True,
         )
+        max_stats = arcpy.management.CalculateStatistics(max_raster)
 
         # threshold to full valley bottom and low-lying valley bottom
         #
         # full valley bottom = 0.65, low lying valley bottom = 0.85
         log("thresholding output probability to find full valley bottom and low-lying valley bottom areas")
-        full_valley = arcpy.sa.Con(max_raster, 1, where_clause="VALUE >= 0.65")
-        low_lying = arcpy.sa.Con(max_raster, 1, where_clause="VALUE >= 0.85")
+        full_valley = arcpy.sa.Con(max_stats, 1, where_clause="VALUE >= 0.65")
+        low_lying = arcpy.sa.Con(max_stats, 1, where_clause="VALUE >= 0.85")
 
         # polygonize outputs
         log("converting outputs to polygons")
