@@ -20,7 +20,6 @@ class DamRemoval(object):
         self.label = "Dam Removal"
         self.description = "Dam Removal"
         self.category = "Terrain Modification"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

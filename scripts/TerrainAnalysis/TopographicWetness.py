@@ -19,7 +19,6 @@ class TopographicWetness(object):
         self.label = "Topographic Wetness Index (TWI)"
         self.description = "Calculate Topographic Wetness of a given area"
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

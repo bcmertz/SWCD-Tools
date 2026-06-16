@@ -28,7 +28,6 @@ class RemoveUnused(object):
         self.label = "Remove Unused"
         self.description = "This tool deletes feature classes in a workspace not used in any maps"
         self.category = "Utilities"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

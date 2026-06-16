@@ -20,7 +20,6 @@ class StreamNetwork(object):
         self.label = "Calculate Stream Network"
         self.description = "Create stream network from DEM"
         self.category = "Fluvial Geomorphology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
@@ -182,7 +181,7 @@ class StreamNetwork(object):
         extent = parameters[1].value
         # parameters[2] is just a toggle for updateParameters to visualize what the user is doing
         stream = parameters[3].value
-        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4].value is not None else None, None
+        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4].value is not None else (None, None) # TODO: verify (None, None) is correct
         keep_fields = parameters[5].valueAsText.split(";") if parameters[5].value is not None else None
         # read in areal unit and map it's pretty string to the arcpy representation
         watershed_size_bool = parameters[6].value
@@ -201,6 +200,7 @@ class StreamNetwork(object):
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_stream = arcpy.CreateScratchName("stream", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_zonst = arcpy.CreateScratchName("zonst", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_max = arcpy.CreateScratchName("max", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # fill DEM
         log("filling raster")
@@ -310,25 +310,55 @@ class StreamNetwork(object):
                 out_table=scratch_zonst,
                 ignore_nodata="DATA",
                 statistics_type="MAXIMUM",
+                out_join_layer=scratch_max,
+            )
+
+            # get unique max values:
+            # the previously calculated values will be incorrect since the endpoint of a stream line at
+            # each confluence will have the max flow accumulation equal to itself and its sister stream
+            # it joins with so we want to set the flow acc raster values equal to these confluences null
+            # to find the actual max flow accumulation value for each stream line
+            log("removing confluence statistics")
+            field_name = "MAX"
+            field_list = arcpy.ListFields(scratch_max)  # Get a list of fields for each feature class
+            unique_vals = {}
+            for field in field_list:  # Loop through each field
+                if field.aliasName == field_name:
+                    field_name = field.name
+            with arcpy.da.SearchCursor(scratch_max, field_name) as cursor:
+                unique_vals = sorted({row[0] for row in cursor})
+            sql_query = ' Or '.join("Value = {}".format(str(v)) for v in unique_vals)
+            watershed_size = arcpy.sa.SetNull(watershed_size, watershed_size, where_clause=sql_query)
+
+            # set max values to null and recalculate max values for output
+            log("updating watershed size information")
+            arcpy.sa.ZonalStatisticsAsTable(
+                in_zone_data=scratch_feature,
+                zone_field=get_oid(scratch_feature),
+                in_value_raster=watershed_size,
+                out_table=scratch_zonst,
+                ignore_nodata="DATA",
+                statistics_type="MAXIMUM",
                 out_join_layer=scratch_output,
             )
 
             # copy scratch output to output file
             # necessary because otherwise AlterField gets
             # upset about altering a joined table
+            log("copying watershed size data to output feature class")
             arcpy.management.CopyFeatures(scratch_output, output_file)
 
             # rename MAX field created by zonal stats
             field_name = "MAX"
-            fieldList = arcpy.ListFields(output_file)  # Get a list of fields for each feature class
-            for field in fieldList:  # Loop through each field
-                if field.aliasName == 'MAX':
+            field_list = arcpy.ListFields(output_file)  # Get a list of fields for each feature class
+            for field in field_list:  # Loop through each field
+                if field.aliasName == field_name:
                     field_name = field.name
             arcpy.management.AlterField(
                 in_table=output_file,
                 field=field_name,
                 new_field_name="watershed",
-                new_field_alias="Watershed Size ({})".format(watershed_size_unit),
+                new_field_alias="Max Total Drainage Area ({})".format(watershed_size_unit),
             )
         else:
             # copy output to feature class

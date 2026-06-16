@@ -20,7 +20,6 @@ class Export(object):
         self.label = "4. Export Layouts"
         self.description = "Run to export layouts"
         self.category = "Automated Ag Assessment"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

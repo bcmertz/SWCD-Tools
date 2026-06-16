@@ -18,7 +18,6 @@ class WatershedDelineation(object):
         self.label = "Watershed Delineation"
         self.description = "Calculate watershed for a given point"
         self.category = "Hydrology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

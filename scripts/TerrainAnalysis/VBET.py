@@ -1,0 +1,372 @@
+# --------------------------------------------------------------------------------------------------
+# Name:        Valley Bottom Extraction Tool
+# Purpose:     Extract valley bottom geometry
+#
+# License:     Contextual Copyleft AI (CCAI) License v1.0.
+#              Full license in LICENSE file.
+# --------------------------------------------------------------------------------------------------
+
+import arcpy
+
+from ..TerrainAnalysis import relative_elevation_model
+from ..helpers import license, reload_module, log, empty_workspace, convert_length, cell_length, convert_length, get_z_unit, is_empty, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
+from ..helpers import setup_environment as setup
+from ..helpers import validate_spatial_reference as validate
+
+class VBET(object):
+    def __init__(self):
+        """Define the tool (tool name is the name of the class)."""
+        self.label = "Valley Bottom Extraction Tool (VBET)"
+        self.description = "Extract valley bottom geometry"
+        self.category = "Terrain Analysis"
+
+    def getParameterInfo(self):
+        """Define parameter definitions"""
+        param0 = arcpy.Parameter(
+            displayName="DEM",
+            name="dem",
+            datatype="GPRasterLayer",
+            parameterType="Required",
+            direction="Input")
+
+        param1 = arcpy.Parameter(
+            displayName="Z Unit",
+            name="z_unit",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param1.filter.list = Z_UNITS
+
+        param2 = arcpy.Parameter(
+            displayName="Analysis Area",
+            name="analysis_area",
+            datatype="GPExtent",
+            parameterType="Optional",
+            direction="Input")
+        param2.controlCLSID = '{15F0D1C1-F783-49BC-8D16-619B8E92F668}'
+
+        param3 = arcpy.Parameter(
+            displayName="REM",
+            name="rem",
+            datatype="GPRasterLayer",
+            parameterType="Optional",
+            direction="Input")
+
+        param4 = arcpy.Parameter(
+            displayName="Stream Lines",
+            name="stream",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+        param4.filter.list = ["Polyline"]
+
+        param5 = arcpy.Parameter(
+            displayName="Watershed Size Field",
+            name="watershed_size_field",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param5.filter.type = "ValueList"
+        param5.filter.list = []
+
+        param6 = arcpy.Parameter(
+            displayName="Watershed Area Unit",
+            name="unit",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param6.filter.list = AREAL_UNITS
+
+        param7 = arcpy.Parameter(
+            displayName="Buffer Radius",
+            name="buffer_radius",
+            datatype="GPLinearUnit",
+            parameterType="Required",
+            direction="Input")
+
+        param8 = arcpy.Parameter(
+            displayName="Minimum watershed size",
+            name="min_watershed",
+            datatype="GPArealUnit",
+            parameterType="Optional",
+            direction="Input")
+        param8.value = "0 SquareKilometers"
+
+        param9 = arcpy.Parameter(
+            displayName="Valley Bottom Output Feature",
+            name="valley_bottom",
+            datatype="DEFeatureClass",
+            parameterType="Required",
+            direction="Output")
+        param9.parameterDependencies = [param0.name]
+        param9.schema.clone = True
+
+        param10 = arcpy.Parameter(
+            displayName="Low-Lying Valley Output Feature",
+            name="low_lying",
+            datatype="DEFeatureClass",
+            parameterType="Required",
+            direction="Output")
+        param10.parameterDependencies = [param0.name]
+        param10.schema.clone = True
+
+        param11 = arcpy.Parameter(
+            displayName="Remove polygons non-contiguous to stream lines?",
+            name="remove",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11]
+        return params
+
+    def isLicensed(self):
+        """Set whether the tool is licensed to execute."""
+        return license(['Spatial', 'ImageAnalyst', 'Foundation'])
+
+    def updateParameters(self, parameters):
+        # find z unit of raster based on vertical coordinate system
+        #  - if there is none, let the user define it
+        #  - if it exists, set the value and hide the parameter
+        #  - if it doesn't exist show the parameter and set the value to None
+        if not parameters[0].hasBeenValidated:
+            if parameters[0].value:
+                z_unit = get_z_unit(parameters[0].value)
+                if z_unit:
+                    parameters[1].enabled = False
+                    parameters[1].value = z_unit
+                else:
+                    parameters[1].enabled = True
+                    parameters[1].value = None
+            else:
+                parameters[1].enabled = False
+                parameters[1].value = None
+
+        # get watershed size field
+        if not parameters[4].hasBeenValidated:
+            if parameters[4].value:
+                parameters[5].enabled = True
+                fields2 = [f2.name for f2 in arcpy.ListFields(parameters[4].value)]
+                parameters[5].filter.list = fields2
+                parameters[6].enabled = True
+            else:
+                parameters[5].enabled = False
+                parameters[6].enabled = False
+
+        # default buffer radius
+        if parameters[7].value is None:
+            parameters[7].value = "1000 Meters"
+
+        return
+
+    def updateMessages(self, parameters):
+        """Modify the messages created by internal validation for each tool parameter."""
+        validate(parameters)
+
+        return
+
+    @reload_module(__name__)
+    def execute(self, parameters, _):
+        """The source code of the tool."""
+        # Setup
+        log("setting up project")
+        project, active_map = setup()
+
+        arcpy.env.qualifiedFieldNames = False
+
+        # read in parameters
+        log("reading in parameters")
+        dem_layer = parameters[0].value
+        dem = arcpy.Raster(dem_layer.name)
+        z_unit = parameters[1].value
+        extent = parameters[2].value
+        rem_layer = parameters[3].value
+        rem = arcpy.Raster(rem_layer.name) if rem_layer is not None else None
+        streams = parameters[4].value
+        watershed_size_field = parameters[5].valueAsText
+        watershed_area_unit = AREAL_UNITS_MAP[parameters[6].valueAsText]
+        buffer_radius = parameters[7].valueAsText
+        min_watershed_size, min_watershed_unit =  parameters[8].valueAsText.split(" ") if parameters[8].value is not None else (None, None)
+        full_valley_file = parameters[9].valueAsText
+        low_lying_file = parameters[10].valueAsText
+        remove = parameters[11].value
+
+        # set analysis extent
+        if extent:
+            log("setting analysis extent")
+            arcpy.env.extent = extent
+
+        # create scratch layers
+        log("creating scratch layers")
+        scratch_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_area = arcpy.CreateScratchName("area", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+
+        # buffer streams, each stream segment a separate buffer segment
+        log("creating buffer around stream lines")
+        arcpy.analysis.PairwiseBuffer(
+            in_features=streams,
+            out_feature_class=scratch_buffer,
+            buffer_distance_or_field=buffer_radius,
+            dissolve_option="NONE",
+            dissolve_field=None,
+            method="GEODESIC",
+        )
+
+        # set analysis mask to buffered area
+        arcpy.env.mask = scratch_buffer
+
+        # create slope inside buffer area
+        #
+        # Difference from VBET 2.0 - we don't IDW slope evidence...
+        # the HAND raster is already IDW'd so this isn't necessary
+        # in order to exclude effects of far away streams processing
+        log("calculating slope")
+        slope = arcpy.sa.Slope(dem, "DEGREE", "", "GEODESIC", z_unit)
+
+        # optionally create REM
+        if rem is None:
+            log("calculating relative elevation model")
+            rem = relative_elevation_model(active_map, dem, extent, streams, buffer_radius, "35 Feet", resolve=True)
+
+        # get threshold watershed sizes in km^2
+        log("creating watershed size thresholds")
+        threshold_low = 25 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
+        threshold_high = 250 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
+        if min_watershed_size is not None:
+            log("limiting watershed size")
+            min_watershed_size = float(min_watershed_size) * arcpy.ArealUnitConversionFactor(min_watershed_unit, watershed_area_unit)
+
+        # set watershed size boundaries
+        queries = [
+            "{} > {} and {} < {}".format(watershed_size_field, min_watershed_size, watershed_size_field,threshold_low)\
+            if min_watershed_size is not None else "{} < {}".format(watershed_size_field,threshold_low),
+            "{} > {} And {} < {}".format(watershed_size_field,threshold_low,watershed_size_field,threshold_high),
+            "{} > {}".format(watershed_size_field,threshold_high)
+        ]
+
+        # iterate through each buffer size (<25km^2, 25-250km^2, >250km^2)
+        evidence_low = None
+        evidence_med = None
+        evidence_high = None
+        mask = arcpy.env.mask
+        for index, sql_query in enumerate(queries):
+            # create new buffer in the relevant watershed size and limit analysis
+            arcpy.conversion.ExportFeatures(
+                in_features=scratch_buffer,
+                out_features=scratch_area,
+                where_clause=sql_query,
+            )
+
+            # skip if output is empty
+            if is_empty(scratch_area):
+                continue
+
+            # limit analysis area to area
+            arcpy.env.mask = scratch_area
+
+            # calculate rem + slope evidence based off of watershed size
+            rem_tmp = rem
+            slope_tmp = slope
+            match index:
+                case 0: # small watershed
+                    log("finding small watershed valley bottom probability")
+                    slope_tmp = arcpy.sa.Exp(-0.12 * slope_tmp)
+                    rem_tmp = 1 / (1 + arcpy.sa.Exp(-3.653 + 1.04 * rem_tmp))
+                    evidence_low = 0.65 * rem_tmp + 0.35 * slope_tmp
+                case 1: # medium watershed
+                    log("finding medium watershed valley bottom probability")
+                    slope_tmp = arcpy.sa.Exp(-0.2 * slope_tmp)
+                    rem_tmp = 1 / (1 + arcpy.sa.Exp(-3.86 + 0.717 * rem_tmp))
+                    evidence_med = 0.65 * rem_tmp + 0.35 * slope_tmp
+                case 2: # large watershed
+                    log("finding large watershed valley bottom probability")
+                    slope_tmp = arcpy.sa.Exp(-0.3 * slope_tmp)
+                    rem_tmp = 1 / (1 + arcpy.sa.Exp(-3.652 + 0.432 * rem_tmp))
+                    evidence_high = 0.65 * rem_tmp + 0.35 * slope_tmp
+
+        # reset mask boundaries
+        arcpy.env.mask = mask
+
+        # combine 3 probability rasters into 1, taking highest probability value as actual
+        log("combining probabilities into output")
+        rc = arcpy.ia.RasterCollection([i for i in [evidence_low, evidence_med, evidence_high] if i is not None])
+        max_raster = arcpy.ia.Max(
+            rasters=rc,
+            extent_type = "UnionOf",
+            cellsize_type = "MinOf",
+	    ignore_nodata = True,
+        )
+        max_stats = arcpy.management.CalculateStatistics(max_raster)
+
+        # threshold to full valley bottom and low-lying valley bottom
+        #
+        # full valley bottom = 0.65, low lying valley bottom = 0.85
+        log("thresholding output probability to find full valley bottom and low-lying valley bottom areas")
+        full_valley = arcpy.sa.Con(max_stats, 1, where_clause="VALUE >= 0.65")
+        low_lying = arcpy.sa.Con(max_stats, 1, where_clause="VALUE >= 0.85")
+
+        # polygonize outputs
+        log("converting outputs to polygons")
+        arcpy.conversion.RasterToPolygon(full_valley, full_valley_file)
+        arcpy.conversion.RasterToPolygon(low_lying, low_lying_file)
+
+        # remove self intersections
+        log("cleaning up geometry")
+        arcpy.topographic.RepairSelfIntersection(
+            in_features=full_valley_file,
+            repair_type="DELETE",
+            max_length=None,
+            repair_at_end_point="REPAIR_ENDS"
+        )
+        arcpy.topographic.RepairSelfIntersection(
+            in_features=low_lying_file,
+            repair_type="DELETE",
+            max_length=None,
+            repair_at_end_point="REPAIR_ENDS"
+        )
+
+        # add results to map
+        log("adding results to map")
+        low_lying = active_map.addDataFromPath(low_lying_file)
+        full_valley = active_map.addDataFromPath(full_valley_file)
+
+        # optionally remove non-contiguous polygons to stream lines
+        if remove:
+            log("removing non-contiguous polygons")
+            arcpy.management.SelectLayerByLocation(
+                in_layer=full_valley,
+                overlap_type="INTERSECT",
+                select_features=streams,
+                search_distance=None,
+                selection_type="NEW_SELECTION",
+                invert_spatial_relationship="INVERT"
+            )
+
+            # check how many pieces are selected
+            sel_set = full_valley.getSelectionSet()
+            if sel_set is not None:
+                arcpy.management.DeleteFeatures(full_valley)
+
+            arcpy.management.SelectLayerByLocation(
+                in_layer=low_lying,
+                overlap_type="INTERSECT",
+                select_features=streams,
+                search_distance=None,
+                selection_type="NEW_SELECTION",
+                invert_spatial_relationship="INVERT"
+            )
+
+            # check how many pieces are selected
+            sel_set = low_lying.getSelectionSet()
+            if sel_set is not None:
+                arcpy.management.DeleteFeatures(low_lying)
+
+        # save project
+        log("saving project")
+        project.save()
+
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchGDB, keep=[])
+
+        return

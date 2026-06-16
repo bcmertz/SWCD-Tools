@@ -6,7 +6,7 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-from .layers import get_oid, add_layer_to_group
+from .layers import get_oid, add_layer_to_group, is_empty
 from .logging import log, warn, error
 from .parameter import validate_spatial_reference, set_required_parameter, sanitize
 from .rasters import pixel_type, cell_area, cell_length, min_cell_path, cells_per_area, cells_per_length

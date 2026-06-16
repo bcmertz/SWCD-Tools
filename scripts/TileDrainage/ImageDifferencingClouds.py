@@ -19,7 +19,6 @@ class ImageDifferencingClouds(object):
         self.label = "Image Differencing - Cloud and Shadow Removal"
         self.description = "This tool removes potential tiled areas based off of a cloud/shadow mask create in the Image Differencing tool."
         self.category = "Hydrology\\Drainage Tile"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

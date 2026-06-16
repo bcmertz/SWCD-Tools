@@ -9,7 +9,7 @@
 
 import arcpy
 
-from .TopographicPositionIndex import topographic_position_index
+from ..TerrainAnalysis import topographic_position_index
 from ..helpers import license, reload_module, log, convert_length, cell_length, convert_length, Z_UNITS, get_z_unit
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
@@ -20,7 +20,6 @@ class LandscapePosition(object):
         self.label = "Landscape Position"
         self.description = "Calculate landscape position based off of elevation data."
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
@@ -146,6 +145,7 @@ class LandscapePosition(object):
 
         # slope
         # TODO: change resolution to a different scale, Deumlich did 125m
+        # TODO: would an arcpy.ia.RasterCollection help here?
         log("calculating slope")
         slope = arcpy.sa.Slope(dem, "DEGREE", "", "GEODESIC", z_unit)
 

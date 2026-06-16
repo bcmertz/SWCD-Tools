@@ -51,7 +51,6 @@ class ImageDifferencing(object):
         self.label = "Image Differencing"
         self.description = "This tool finds agricultural areas where short-wave infrared radiation reflectance in dry and post-storm conditions are similar, indicating potential drainage tile."
         self.category = "Hydrology\\Drainage Tile"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

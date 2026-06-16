@@ -21,3 +21,7 @@ def add_layer_to_group(active_map, group, layer, hide=False):
     if hide:
         new_layer.visible = False
     return new_layer
+
+def is_empty(fc):
+    """Return boolean representing if the feature class is empty."""
+    return int(arcpy.management.GetCount(fc)[0]) == 0
