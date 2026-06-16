@@ -122,7 +122,15 @@ class GenerateCrossSections(object):
             parameterType="Required",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4]
+        param5 = arcpy.Parameter(
+            displayName="Remove output line intersections?",
+            name="remove",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+        param5.value = True
+
+        params = [param0, param1, param2, param3, param4, param5]
         return params
 
     def updateParameters(self, parameters):
@@ -160,10 +168,13 @@ class GenerateCrossSections(object):
         out_dir = os.path.dirname(output_file)
         width = parameters[3].valueAsText
         interval = parameters[4].valueAsText
+        remove = parameters[5].value
 
         # create scratch layers
         log("creating scratch layers")
         scratch_streams = arcpy.CreateScratchName("streams", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_intersection = arcpy.CreateScratchName("intersect", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_transects = arcpy.CreateScratchName("transects", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # set analysis extent
         if extent:
@@ -195,9 +206,62 @@ class GenerateCrossSections(object):
                     for transect in transects:
                         transect_cursor.insertRow([transect])
 
-        # add data
-        log("adding data")
-        active_map.addDataFromPath(transects_fc)
+
+        # optionally remove intersections
+        if remove:
+            log("removing intersections in output cross-sections")
+
+            # create intersection points
+            arcpy.analysis.Intersect(
+                in_features=transects_fc,
+                out_feature_class=scratch_intersection,
+                join_attributes="ALL",
+                cluster_tolerance=None,
+                output_type="POINT"
+            )
+
+            # split cross-sections at points
+            arcpy.management.SplitLineAtPoint(
+                in_features=transects_fc,
+                point_features=scratch_intersection,
+                out_feature_class=scratch_transects,
+                search_radius=None
+            )
+
+            # copy scratch_transects to transects_fc
+            log("adding transect data")
+            arcpy.management.CopyFeatures(scratch_transects, transects_fc)
+            transects_lyr = active_map.addDataFromPath(transects_fc)
+
+            # select lines with intersections
+            arcpy.management.SelectLayerByLocation(
+                in_layer=transects_lyr,
+                overlap_type="INTERSECT",
+                select_features=scratch_intersection,
+                search_distance=None,
+                selection_type="NEW_SELECTION",
+                invert_spatial_relationship="NOT_INVERT"
+            )
+
+            # select only the parts of those lines that don't pass through the stream line
+            arcpy.management.SelectLayerByLocation(
+                in_layer=transects_lyr,
+                overlap_type="INTERSECT",
+                select_features=streams,
+                search_distance=None,
+                selection_type="REMOVE_FROM_SELECTION",
+                invert_spatial_relationship="NOT_INVERT"
+            )
+
+            # make sure something is selected
+            sel_set = transects_lyr.getSelectionSet()
+            if sel_set is not None:
+                # deleted selected pieces / trim intersections
+                arcpy.management.DeleteFeatures(transects_lyr)
+        else:
+            # add transect data
+            log("adding transect data")
+            active_map.addDataFromPath(transects_fc)
 
         # cleanup
         log("deleting unneeded data")
