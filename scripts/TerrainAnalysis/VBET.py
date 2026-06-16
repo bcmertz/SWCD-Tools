@@ -115,7 +115,7 @@ class VBET(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial', 'ImageAnalyst'], version_required="v3.3") # 3.3 of greater required for python match case
+        return license(['Spatial', 'ImageAnalyst', 'Foundation'])
 
     def updateParameters(self, parameters):
         # find z unit of raster based on vertical coordinate system
