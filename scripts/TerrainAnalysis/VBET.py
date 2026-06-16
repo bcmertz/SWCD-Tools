@@ -110,7 +110,14 @@ class VBET(object):
         param10.parameterDependencies = [param0.name]
         param10.schema.clone = True
 
-        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10]
+        param11 = arcpy.Parameter(
+            displayName="Remove polygons non-contiguous to stream lines?",
+            name="remove",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11]
         return params
 
     def isLicensed(self):
@@ -182,6 +189,7 @@ class VBET(object):
         min_watershed_size, min_watershed_unit =  parameters[8].valueAsText.split(" ") if parameters[8].value is not None else (None, None)
         full_valley_file = parameters[9].valueAsText
         low_lying_file = parameters[10].valueAsText
+        remove = parameters[11].value
 
         # set analysis extent
         if extent:
@@ -319,8 +327,39 @@ class VBET(object):
 
         # add results to map
         log("adding results to map")
-        active_map.addDataFromPath(low_lying_file)
-        active_map.addDataFromPath(full_valley_file)
+        low_lying = active_map.addDataFromPath(low_lying_file)
+        full_valley = active_map.addDataFromPath(full_valley_file)
+
+        # optionally remove non-contiguous polygons to stream lines
+        if remove:
+            log("removing non-contiguous polygons")
+            arcpy.management.SelectLayerByLocation(
+                in_layer=full_valley,
+                overlap_type="INTERSECT",
+                select_features=streams,
+                search_distance=None,
+                selection_type="NEW_SELECTION",
+                invert_spatial_relationship="INVERT"
+            )
+
+            # check how many pieces are selected
+            sel_set = full_valley.getSelectionSet()
+            if sel_set is not None:
+                arcpy.management.DeleteFeatures(full_valley)
+
+            arcpy.management.SelectLayerByLocation(
+                in_layer=low_lying,
+                overlap_type="INTERSECT",
+                select_features=streams,
+                search_distance=None,
+                selection_type="NEW_SELECTION",
+                invert_spatial_relationship="INVERT"
+            )
+
+            # check how many pieces are selected
+            sel_set = low_lying.getSelectionSet()
+            if sel_set is not None:
+                arcpy.management.DeleteFeatures(low_lying)
 
         # save project
         log("saving project")
