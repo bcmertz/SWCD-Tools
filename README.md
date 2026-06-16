@@ -32,6 +32,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Stream Power Index (SPI)](#4-stream-power-index-spi-)
     - [Topographic Position Index (TPI)](#5-topographic-position-index-tpi-)
     - [Landscape Position](#6-landscape-position-)
+    - [Valley Bottom Extraction Tool (VBET)](#7-valley-bottom-extraction-tool-vbet-)
   - [Drainage Tile Detection](#drainage-tile-detection-)
     - [Decision Tree Classification](#1-decision-tree-classification-dtc-)
     - [Image Differencing - Setup](#2-image-differencing---setup-)
@@ -339,6 +340,23 @@ Create a landscape position raster from a DEM. This provides classification of l
 </span>
 
 This shows landscape position classification compared to a topographic map.
+
+### 7. Valley Bottom Extraction Tool (VBET) [↑](#table-of-contents)
+
+Implementation of the Valley Bottom Extract Tool originally defined by [Gilbert et al 2016](http://dx.doi.org/10.1016/j.cageo.2016.07.014). It finds valley bottoms by calculating low slope low relative elevation landforms along streams. The VBET tool has varying thresholds based off of watershed size as follows:
+
+<span>
+<img src="./assets/readme_examples/vbet_thresholds.png" alt="Chart showing vbet calculation thresholds" width="600"/>
+</span>
+
+VBET produces outputs like below:
+
+<span>
+<img src="./assets/readme_examples/vbet_after1.png" alt="output VBET data 1 showing polygon bordering stream line." width="300"/>
+<img src="./assets/readme_examples/vbet_after2.png" alt="output VBET data 2 showing polygon bordering stream line." width="300"/>
+</span>
+
+The second image shows a large watershed VBET output (low-lying) in the green and FEMA floodplains in red.
 
 ## Drainage Tile Detection [↑](#table-of-contents)
 

@@ -17,7 +17,6 @@ class CollectRasters:
         self.label = "Collect Historical Imagery Rasters"
         self.description = ""
         self.category = "Utilities"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define the tool parameters."""

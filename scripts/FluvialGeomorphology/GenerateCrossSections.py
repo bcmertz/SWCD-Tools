@@ -80,7 +80,6 @@ class GenerateCrossSections(object):
         self.label = "Generate Cross-Sections"
         self.description = "Generate Cross-Sections"
         self.category = "Fluvial Geomorphology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

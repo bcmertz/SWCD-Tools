@@ -18,7 +18,6 @@ class GeocodeAddress(object):
         self.label = "NY Geocode Address"
         self.description = "Geocode NY address to point"
         self.category = "Utilities"
-        self.canRunInBackground = False
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""

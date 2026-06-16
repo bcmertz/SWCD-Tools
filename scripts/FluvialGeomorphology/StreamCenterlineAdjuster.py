@@ -20,7 +20,6 @@ class LeastAction(object):
         self.label = "Stream Centerline Adjuster"
         self.description = "Stream Centerline Adjuster"
         self.category = "Fluvial Geomorphology"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
@@ -117,7 +116,7 @@ class LeastAction(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license()
+        return license(['Foundation'])
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""

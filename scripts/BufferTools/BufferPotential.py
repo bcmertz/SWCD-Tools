@@ -17,7 +17,6 @@ class BufferPotential:
         self.label = "Riparian Forest Buffer Potential"
         self.description = "Find RFB Potential"
         self.category = "Buffer tools"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define the tool parameters."""

@@ -9,9 +9,101 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log
+from ..helpers import license, empty_workspace, reload_module, log, get_oid
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
+
+def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius, sampling_interval, resolve):
+    # set analysis extent
+    if extent:
+        arcpy.env.extent = extent
+
+    # create scratch layers
+    log("creating scratch layers")
+    scratch_stream_layer = arcpy.CreateScratchName("layer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+    scratch_stream_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+    scratch_stream_points = arcpy.CreateScratchName("stream_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+    scratch_stream_elev_points = arcpy.CreateScratchName("elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+    scratch_watershed = arcpy.CreateScratchName("watershed", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+    scratch_breaklines = arcpy.CreateScratchName("breaklines", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+
+    if extent:
+        # clip streams to analysis area
+        log("clipping stream centerline to analysis area")
+        arcpy.analysis.Clip(stream_layer, extent.polygon, scratch_stream_layer)
+    else:
+        scratch_stream_layer = stream_layer
+
+    # pairwise buffer stream
+    # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
+    log("creating buffer polygon around stream")
+    arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, buffer_radius, "ALL", "", "GEODESIC", "")
+
+    # clip dem to buffer
+    log("clipping DEM to buffer")
+    dem_raster_clip = arcpy.sa.ExtractByMask(dem_raster, scratch_stream_buffer, "INSIDE", "MINOF")
+
+    # generate points along line
+    log("generating points along stream")
+    arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
+
+    # extract values to points
+    log("adding elevation data to stream line points")
+    arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem_raster_clip, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
+
+    idw_raster = None
+    arcpy.env.cellSize = dem_raster_clip
+    arcpy.env.extent = scratch_stream_buffer
+    buffer_radius, buffer_radius_unit = buffer_radius.split(" ")
+    max_distance = 1.5 * int(buffer_radius) * arcpy.LinearUnitConversionFactor(buffer_radius_unit, active_map.mapUnits)
+    num_points = 12
+    search_radius = arcpy.sa.RadiusVariable(num_points, max_distance)
+    if resolve:
+        # interpolate surface and resolve buffer overlap conflicts by watershed
+        log("calculating sub-watersheds to resolve interpolation conflicts")
+        fill_raster = arcpy.sa.Fill(dem_raster)
+        flow_direction = arcpy.sa.FlowDirection(fill_raster, flow_direction_type="D8")
+        watershed = arcpy.sa.Watershed(
+            in_flow_direction_raster=flow_direction,
+            in_pour_point_data=scratch_stream_layer,
+            pour_point_field=get_oid(scratch_stream_layer)
+        )
+
+        # create watershed breaklines to separate IDW calculation for each watershed
+        arcpy.conversion.RasterToPolygon(
+            in_raster=watershed,
+            simplify=True,
+            out_polygon_features=scratch_watershed,
+            raster_field="Value",
+            create_multipart_features=True,
+        )
+        arcpy.management.PolygonToLine(scratch_watershed, scratch_breaklines)
+
+        # This has the known side-effect of producing missing artefacts in the output
+        # REM raster where the sightlines are blocked for IDW in_barrier_polyline_features.
+        # However, it is 2-3x slower to IDW each watershed and append them together.
+        log("calculating IDW raster")
+        idw_raster = arcpy.sa.Idw(
+            in_point_features=scratch_stream_elev_points,
+            z_field="RASTERVALU",
+            search_radius=search_radius,
+            in_barrier_polyline_features=scratch_breaklines,
+        )
+    else:
+        # interpolate surface and resolve buffer overlap conflicts by proximity
+        log("calculating IDW raster")
+        idw_raster = arcpy.sa.Idw(
+            in_point_features=scratch_stream_elev_points,
+            z_field="RASTERVALU",
+            search_radius=search_radius,
+        )
+
+    # raster calculator (DEM - IDW_new)
+    log("calculating relative elevation difference")
+    rem = dem_raster_clip - idw_raster
+
+    return rem
+
 
 class RelativeElevationModel(object):
     def __init__(self):
@@ -19,7 +111,6 @@ class RelativeElevationModel(object):
         self.label = "Relative Elevation Model (REM)"
         self.description = "Compute REM"
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
@@ -70,7 +161,14 @@ class RelativeElevationModel(object):
             parameterType="Optional",
             direction="Input")
 
-        params = [param0, param1, param2, param3, param4, param5]
+        param6 = arcpy.Parameter(
+            displayName="Resolve interpolation conflicts by watershed?",
+            name="resolve",
+            datatype="GPBoolean",
+            parameterType="Optional",
+           direction="Input")
+
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateMessages(self, parameters):
@@ -105,58 +203,12 @@ class RelativeElevationModel(object):
         stream_layer = parameters[3].value
         buffer_radius = parameters[4].valueAsText
         sampling_interval = parameters[5].valueAsText
+        resolve = parameters[6].value
 
-        # set analysis extent
-        if extent:
-            arcpy.env.extent = extent
-
-        # create scratch layers
-        log("creating scratch layers")
-        scratch_stream_layer = arcpy.CreateScratchName("scratch_stream_layer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_stream_buffer = arcpy.CreateScratchName("scratch_stream_buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_stream_points = arcpy.CreateScratchName("scratch_stream_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_stream_elev_points = arcpy.CreateScratchName("scratch_stream_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-
-        if extent:
-            # clip streams to analysis area
-            log("clipping stream centerline to analysis area")
-            arcpy.analysis.Clip(stream_layer, extent.polygon, scratch_stream_layer)
-        else:
-            scratch_stream_layer = stream_layer
-
-        # pairwise buffer stream
-        # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
-        log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, buffer_radius, "ALL", "", "GEODESIC", "")
-
-        # clip dem to buffer
-        log("clipping DEM to buffer")
-        dem_raster_clip = arcpy.sa.ExtractByMask(dem_raster, scratch_stream_buffer, "INSIDE", "MINOF")
-
-        # generate points along line
-        log("generating points along stream")
-        arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
-
-        # extract values to points
-        log("adding elevation data to stream line points")
-        arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem_raster_clip, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
-
-        # IDW (to buffer extent)
-        log("calculating IDW raster")
-        arcpy.env.cellSize = dem_raster_clip
-        arcpy.env.extent = scratch_stream_buffer
-        buffer_radius, buffer_radius_unit = buffer_radius.split(" ")
-        radius_map_units = int(buffer_radius) * arcpy.LinearUnitConversionFactor(buffer_radius_unit, active_map.mapUnits)
-        idw_raster = arcpy.sa.Idw(
-            in_point_features=scratch_stream_elev_points,
-            z_field="RASTERVALU",
-            search_radius=arcpy.sa.RadiusFixed(2 * radius_map_units, 0)
-        )
-
-        # raster calculator (DEM - IDW_new)
-        log("calculating relative elevation difference")
-        out_rem = arcpy.sa.RasterCalculator([dem_raster_clip,idw_raster],["x","y"],"x-y", "FirstOf", "FirstOf")
-        out_rem.save(output_file)
+        # calculate REM
+        rem = relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius, sampling_interval, resolve)
+        log("saving REM output")
+        rem.save(output_file)
 
         # add results to map
         log("adding results to map")

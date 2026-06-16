@@ -18,7 +18,6 @@ class StreamPowerIndex(object):
         self.label = "Stream Power Index (SPI)"
         self.description = "Calculate Stream Power Index"
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

@@ -21,7 +21,6 @@ class ImageDifferencingSetup(object):
         self.label = "Image Differencing - Setup"
         self.description = "Setup image differencing workflow to model potential tile drainage areas"
         self.category = "Hydrology\\Drainage Tile"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

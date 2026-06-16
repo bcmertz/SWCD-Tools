@@ -20,7 +20,6 @@ class ShrubClusters:
         self.label = "Shrub Cluster Tool"
         self.description = "Shrub Clusters"
         self.category = "Buffer tools"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define the tool parameters."""

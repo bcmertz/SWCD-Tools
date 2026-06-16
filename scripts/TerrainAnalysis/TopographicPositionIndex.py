@@ -43,7 +43,6 @@ class TopographicPositionIndex(object):
         self.label = "Topographic Position Index (TPI)"
         self.description = "Calculate Topographic Position Index (TPI)"
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""

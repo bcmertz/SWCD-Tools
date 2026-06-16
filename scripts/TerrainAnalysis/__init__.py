@@ -7,8 +7,9 @@
 # --------------------------------------------------------------------------------
 
 from .PotentialWetlands import PotentialWetlands
-from .REMCalculator import RelativeElevationModel
+from .REMCalculator import RelativeElevationModel, relative_elevation_model
 from .StreamPowerIndex import StreamPowerIndex
 from .TopographicWetness import TopographicWetness
 from .TopographicPositionIndex import TopographicPositionIndex, topographic_position_index
 from .LandscapePosition import LandscapePosition
+from .VBET import VBET

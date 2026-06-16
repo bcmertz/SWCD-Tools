@@ -19,7 +19,6 @@ class PotentialWetlands(object):
         self.label = "Model Potential Wetlands"
         self.description = "Model potential wetlands from DEM"
         self.category = "Terrain Analysis"
-        self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
