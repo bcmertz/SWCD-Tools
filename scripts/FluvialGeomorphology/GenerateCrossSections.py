@@ -172,7 +172,7 @@ class GenerateCrossSections(object):
 
         # create scratch layers
         log("creating scratch layers")
-        scratch_streams = arcpy.CreateScratchName("streams", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_streams = arcpy.CreateScratchName("streams", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_intersection = arcpy.CreateScratchName("intersect", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_transects = arcpy.CreateScratchName("transects", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
@@ -183,7 +183,6 @@ class GenerateCrossSections(object):
             arcpy.analysis.Clip(streams, extent.polygon, scratch_streams)
         else:
             scratch_streams = streams
-
 
         # output spatial reference
         log("finding output spatial reference")
@@ -196,7 +195,6 @@ class GenerateCrossSections(object):
 
         # generating transects
         log("generating transects")
-        # iterate through each stream line
         n = len([row[0] for row in arcpy.da.SearchCursor(scratch_streams, ["SHAPE@"])])
         log("iterating through {} stream lines".format(n))
         with arcpy.da.SearchCursor(scratch_streams, ["SHAPE@"]) as stream_cursor:
