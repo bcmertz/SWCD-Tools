@@ -223,7 +223,7 @@ class GenerateCrossSections(object):
                 in_features=transects_fc,
                 point_features=scratch_intersection,
                 out_feature_class=scratch_transects,
-                search_radius=None
+                search_radius="0.001 Feet"
             )
 
             # copy scratch_transects to transects_fc
