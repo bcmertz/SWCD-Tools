@@ -68,8 +68,8 @@ def transect_line(line, point, transect_width):
 
     first_tran_point = geom.pointFromAngleAndDistance(angle - 90, transect_length/2)
     last_tran_point = geom.pointFromAngleAndDistance(angle + 90, transect_length/2)
-    dX = first_tran_point.firstPoint.X - last_tran_point.firstPoint.X
-    dY = first_tran_point.firstPoint.Y - last_tran_point.firstPoint.Y
+    # dX = first_tran_point.firstPoint.X - last_tran_point.firstPoint.X
+    # dY = first_tran_point.firstPoint.Y - last_tran_point.firstPoint.Y
 
     transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference)
     return transect
