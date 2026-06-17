@@ -125,7 +125,7 @@ class DamRemoval(object):
         transect_width, transect_width_unit = transect_width.split(" ")
         transect_width = float(transect_width) * arcpy.LinearUnitConversionFactor(transect_width_unit, linear_unit)
 
-        arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", "{} {}".format(transect_point_spacing, transect_point_spacing_unit), "", "END_POINTS", "ADD_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", "{} {}".format(transect_point_spacing, linear_unit), "", "END_POINTS", "ADD_CHAINAGE")
         arcpy.sa.ExtractValuesToPoints(scratch_transect_points, dem_raster, scratch_transect_elev_points, "NONE", "VALUE_ONLY")
 
         # iterate through transect points
