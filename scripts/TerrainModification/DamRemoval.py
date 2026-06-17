@@ -131,7 +131,7 @@ class DamRemoval(object):
         # iterate through transect points
         # collect new points to add and interpolate elevations along them
         num_points = (not not transect_width % transect_point_spacing) + int(transect_width / transect_point_spacing) + 1
-        slope = elev_start = elev_end = distance_start = distance_end = elev_prev = distance_prev = None
+        elev_start = elev_end = distance_start = distance_end = elev_prev = distance_prev = None
         new_points = []
         with arcpy.da.SearchCursor(scratch_transect_elev_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
             update_points = []
@@ -229,7 +229,7 @@ class DamRemoval(object):
 
         # iterate through centerline points
         log("finding known centerline points")
-        slope = elev_high = elev_low = distance_high = distance_low = elev_prev = distance_prev = None
+        elev_high = elev_low = distance_high = distance_low = elev_prev = distance_prev = None
         with arcpy.da.SearchCursor(scratch_centerline_elev_points, ["RASTERVALU", "ORIG_LEN"]) as cursor:
             for point in cursor:
                 if elev_high is not None and elev_low is not None:
@@ -266,8 +266,7 @@ class DamRemoval(object):
                     point[0] = slope * (distance - distance_low) + elev_low
                 cursor.updateRow(point)
 
-        # do we still need this mosaic? A - no, we can just pass the elevation
-        # Points to Raster
+        # points to raster
         log("creating raster from new points")
         arcpy.conversion.PointToRaster(scratch_centerline_elev_points, "RASTERVALU", scratch_point_raster, cellsize=3)
 
@@ -315,7 +314,7 @@ class DamRemoval(object):
                 cursor.insertRow(point)
 
         # IDW or Global Polynomial Interpolation
-        ## depends whether we want to IDW points (must include all points then) or want to fill in DEM and interpolate voids
+        # depends whether we want to IDW points (must include all points then) or want to fill in DEM and interpolate voids
         log("performing IDW analysis on interpolated points")
         idw_raster = arcpy.sa.Idw(scratch_final_idw_points, "RASTERVALU")
 
