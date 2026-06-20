@@ -10,7 +10,6 @@
 import os
 import json
 import arcpy
-import shutil
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
 from ..helpers import license, reload_module, log, empty_workspace

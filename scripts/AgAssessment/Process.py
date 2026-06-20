@@ -6,7 +6,6 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-import csv
 import json
 import arcpy
 import pathlib
