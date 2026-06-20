@@ -72,7 +72,6 @@ class Restart(object):
         maps_bool = parameters[0].value
         workspace_bool = parameters[1].value
         parcels = []
-        output_folder = None
 
         if maps_bool:
             # read in json
@@ -82,7 +81,6 @@ class Restart(object):
                 with open(cache_file_path) as file:
                     cache = json.load(file)
                     parcels = cache["parcels"]
-                    output_folder = cache["output_folder"]
             except:
                 log("Unable to find cache file and complete transaction. Please manually refresh the tool or manually clear out data.")
                 return
