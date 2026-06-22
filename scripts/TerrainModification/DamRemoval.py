@@ -144,8 +144,9 @@ class DamRemoval(object):
                     elev = lowpoint_elev
                     point[1] = elev
 
-                if elev == -9999:
+                if elev is None:
                     # start of unknown section
+                    elev = -9999
                     if elev_prev != -9999:
                         elev_start = elev_prev
                         distance_start = distance_prev
@@ -263,7 +264,7 @@ class DamRemoval(object):
         with arcpy.da.UpdateCursor(scratch_centerline_elev_points, ["RASTERVALU", "ORIG_LEN"]) as cursor:
             for point in cursor:
                 elev, distance = point[0], point[1]
-                if elev == -9999:
+                if elev is None:
                     point[0] = slope * (distance - distance_low) + elev_low
                 cursor.updateRow(point)
 
