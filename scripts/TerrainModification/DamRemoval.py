@@ -185,6 +185,7 @@ class DamRemoval(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        map_unit = active_map.mapUnits
 
         dem_layer = parameters[0].value
         dem = arcpy.Raster(dem_layer.name)
@@ -317,7 +318,14 @@ class DamRemoval(object):
         # IDW or Global Polynomial Interpolation
         # depends whether we want to IDW points (must include all points then) or want to fill in DEM and interpolate voids
         log("performing IDW analysis on interpolated points")
-        idw_raster = arcpy.sa.Idw(scratch_final_idw_points, "RASTERVALU")
+        transect_point_spacing, transect_point_spacing_unit = transect_point_spacing.split(" ")
+        transect_spacing, transect_spacing_unit = transect_spacing.split(" ")
+        distance_1 = float(transect_point_spacing) * arcpy.LinearUnitConversionFactor(transect_point_spacing_unit, map_unit)
+        distance_2 = float(transect_spacing) * arcpy.LinearUnitConversionFactor(transect_spacing_unit, map_unit)
+        distance = max(distance_1, distance_2)
+        min_num_points = 2
+        search_radius = arcpy.sa.RadiusFixed(distance, min_num_points)
+        idw_raster = arcpy.sa.Idw(scratch_final_idw_points, "RASTERVALU", search_radius=search_radius)
 
         # extract by mask
         log("extracting ponded area from IDW raster")
