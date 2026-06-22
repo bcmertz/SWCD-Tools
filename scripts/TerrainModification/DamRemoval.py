@@ -309,7 +309,7 @@ class DamRemoval(object):
 
         # add points to final point fc
         log("adding interpolated points to fc")
-        scratch_final_idw_points = arcpy.management.CreateFeatureclass(arcpy.env.scratchGDB, "scratch_final_idw_points", "POINT", scratch_centerline_elev_points)
+        scratch_final_idw_points = arcpy.management.CreateFeatureclass(arcpy.env.scratchGDB, "final_idw_points", "POINT", scratch_centerline_elev_points)
         with arcpy.da.InsertCursor(scratch_final_idw_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
             for point in new_points:
                 cursor.insertRow(point)
