@@ -218,6 +218,7 @@ class DamRemoval(object):
         # extract by mask to remove pond from dem
         log("removing ponded area from dem")
         dem_pondless = arcpy.sa.ExtractByMask(dem, pond, "OUTSIDE")
+        dem_pondless_raster = arcpy.Raster(dem_pondless)
 
         # generate points along line
         log("generating points along centerline")
@@ -272,7 +273,6 @@ class DamRemoval(object):
 
         # Mosaic dem_pondless, raster_points
         log("mosaic to new raster")
-        dem_pondless_raster = arcpy.Raster(dem_pondless)
         scratch_mosaic_raster = arcpy.management.MosaicToNewRaster(
             input_rasters=[dem_pondless, scratch_point_raster],
             output_location=arcpy.env.scratchGDB,
