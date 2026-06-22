@@ -16,47 +16,6 @@ from ..helpers import license, reload_module, log, empty_workspace
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
-def polygon_centerline(polygon, edge_points):
-    """Find centerline of polygon."""
-
-    # TODO: densify
-    arcpy.edit.Densify(
-        in_features="vbet_SimplifyPolygon1",
-        densification_method="DISTANCE",
-        distance="50 Meters",
-        max_deviation="0.1 Meters",
-        max_angle=10,
-        max_vertex_per_segment=None
-    )
-
-    # TODO: thiessen
-
-    # TODO: polygon to line
-
-    # TODO: select by location: completely within
-
-    # TODO: Export to new fc
-
-    # TODO: Dissolve (single, unsplit)
-
-    # TODO: feat vert to pts (dangling)
-
-    # TODO: Selct by location (itnersect pt and line)
-
-    # TODO: Delete selected
-
-    # TODO: Generate near table
-
-    # TODO: XY to line from table
-
-    # TODO: Merge line with centerline
-
-    # TODO: Select by location (completely within VBET)
-
-    # TODO: Delete selected
-
-    return centerline
-
 class PolygonCenterline(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -74,14 +33,17 @@ class PolygonCenterline(object):
             parameterType="Required",
             direction="Input")
         param0.filter.list = ["Polygon"]
+        param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         param1 = arcpy.Parameter(
             displayName="Connecting Edge Points",
             name="points",
             datatype="GPFeatureLayer",
             parameterType="Optional",
+            multiValue=True,
             direction="Input")
         param1.filter.list = ["Point"]
+        param1.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         # TODO: fill holes option
 
@@ -126,9 +88,145 @@ class PolygonCenterline(object):
 
         # TODO: handle multiple polygons / points
 
-        # find centerline
-        centerline = polygon_centerline(polygon, edge_points)
-        arcpy.conversion.ExportFeatures(centerline, output_file)
+        # create scratch layers
+        scratch_polygon = arcpy.CreateScratchName("polygon", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_vertices = arcpy.CreateScratchName("vertices", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_thiessen = arcpy.CreateScratchName("thiessen", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_line = arcpy.CreateScratchName("line", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dangling = arcpy.CreateScratchName("dangling", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+
+        # export polygon to scratch
+        log("export")
+        arcpy.management.CopyFeatures(polygon, scratch_polygon)
+
+        # densify
+        log("densify")
+        arcpy.edit.Densify(
+            in_features=scratch_polygon,
+            densification_method="DISTANCE",
+            distance="50 Meters",
+            max_deviation="0.1 Meters",
+        )
+
+        # polygon to vertices
+        log("feature vertices to points")
+        arcpy.management.FeatureVerticesToPoints(
+            in_features=scratch_polygon,
+            out_feature_class=scratch_vertices,
+            point_location="ALL"
+        )
+
+        # thiessen
+        log("thiessen")
+        arcpy.analysis.CreateThiessenPolygons(
+            in_features=scratch_vertices,
+            out_feature_class=scratch_thiessen,
+            fields_to_copy="ONLY_FID"
+        )
+
+        # polygon to line
+        log("polygon to line")
+        arcpy.management.PolygonToLine(
+            in_features=scratch_thiessen,
+            out_feature_class=scratch_line,
+            neighbor_option="IDENTIFY_NEIGHBORS"
+        )
+
+        # select by location: completely within
+        log("select by location")
+        completely_within, _, _ = arcpy.management.SelectLayerByLocation(
+            in_layer=scratch_line,
+            overlap_type="COMPLETELY_WITHIN",
+            select_features=polygon,
+            search_distance=None,
+            selection_type="NEW_SELECTION",
+            invert_spatial_relationship="NOT_INVERT"
+        )
+
+        # dissolve (single, unsplit)
+        log("dissolve")
+        arcpy.management.Dissolve(
+            in_features=completely_within,
+            out_feature_class=scratch_dissolve,
+            multi_part="SINGLE_PART",
+            unsplit_lines="UNSPLIT_LINES",
+        )
+
+        # feat vert to pts (dangling)
+        log("dangling points")
+        arcpy.management.FeatureVerticesToPoints(
+            in_features=scratch_dissolve,
+            out_feature_class=scratch_dangling,
+            point_location="DANGLE"
+        )
+
+        # Selct by location (itnersect pt and line)
+        log("select dangling")
+        dangling, _, _ = arcpy.management.SelectLayerByLocation(
+            in_layer=scratch_dissolve,
+            overlap_type="INTERSECT",
+            select_features=scratch_dangling,
+            search_distance=None,
+            selection_type="NEW_SELECTION",
+            invert_spatial_relationship="NOT_INVERT"
+        )
+
+        # Delete selected
+        log("delete selected")
+        arcpy.management.DeleteFeatures(dangling)
+
+        # dissolve (single, unsplit)
+        log("dissolve to single part")
+        arcpy.management.Dissolve(
+            in_features=dangling,
+            out_feature_class=output_file,
+            dissolve_field=None,
+            multi_part="MULTI_PART",
+            unsplit_lines="DISSOLVE_LINES",
+        )
+
+        ### IF CONNECTION POINTS ###
+
+        # # TODO: Generate near table
+        # arcpy.analysis.GenerateNearTable(
+        #     in_features="PolygonCenterlinePolygonPolygons_PolygonCenterline4",
+        #     near_features="'Polygon Centerline Connecting Edge Points (Points) 2'",
+        #     out_table=r"G:\GIS\Reya\tmp\MyPraaoject\MyPraaoject.gdb\PolygonCenterl_GenerateNearT",
+        #     search_radius=None,
+        #     location="LOCATION",
+        #     angle="NO_ANGLE",
+        #     closest="CLOSEST",
+        #     closest_count=0,
+        #     method="PLANAR",
+        #     distance_unit=""
+        # )
+
+        # # TODO: XY to line from table\
+        # arcpy.management.XYToLine(
+        #     in_table="PolygonCenterl_GenerateNearT",
+        #     out_featureclass=r"G:\GIS\Reya\tmp\MyPraaoject\MyPraaoject.gdb\PolygonCenterl_Gene_XYToLine",
+        #     startx_field="FROM_X",
+        #     starty_field="FROM_Y",
+        #     endx_field="NEAR_X",
+        #     endy_field="NEAR_Y",
+        #     line_type="GEODESIC",
+        #     id_field="IN_FID",
+        #     spatial_reference='PROJCS["WGS_1984_UTM_Zone_18N",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Transverse_Mercator"],PARAMETER["False_Easting",500000.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",-75.0],PARAMETER["Scale_Factor",0.9996],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0]];-5120900 -9998100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision',
+        #     attributes="NO_ATTRIBUTES"
+        # )
+
+        # TODO: Merge line with centerline
+
+        # TODO: feature vertices to points dangling
+
+        # TODO: dissolve (multi-part, dissolve)
+
+        # TODO: Select by location (touching dangling)
+
+        # TODO: Select by location (completely within VBET)
+
+        # TODO: Delete selected
 
         # add data
         log("adding data")

@@ -11,4 +11,4 @@ from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
 from .StreambankDetection import StreambankDetection
 from .GenerateCrossSections import GenerateCrossSections, generate_transects, transect_line
-from .PolygonCenterline import PolygonCenterline, polygon_centerline
+from .PolygonCenterline import PolygonCenterline
