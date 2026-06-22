@@ -85,6 +85,9 @@ class PolygonCenterline(object):
 
         # TODO: fill holes option
 
+        # TODO: one centerline per polygon option using convex hull on polygon
+        # https://github.com/bcmertz/SWCD-Tools/issues/161
+
         param2 = arcpy.Parameter(
             displayName="Output Features",
             name="out_features",

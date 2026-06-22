@@ -181,7 +181,7 @@ class StreamNetwork(object):
         extent = parameters[1].value
         # parameters[2] is just a toggle for updateParameters to visualize what the user is doing
         stream = parameters[3].value
-        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4].value is not None else (None, None) # TODO: verify (None, None) is correct
+        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4].value is not None else (None, None)
         keep_fields = parameters[5].valueAsText.split(";") if parameters[5].value is not None else None
         # read in areal unit and map it's pretty string to the arcpy representation
         watershed_size_bool = parameters[6].value
@@ -232,7 +232,7 @@ class StreamNetwork(object):
             stream_initiations_raster = arcpy.sa.SnapPourPoint(
                 in_pour_point_data=scratch_end_points,
                 in_accumulation_raster=flow_accumulation,
-                snap_distance=snap_dist, # TODO: choose reasonable distance to look for initiation points
+                snap_distance=snap_dist, # TODO: choose reasonable distance to look for initiation points, user option?
             )
 
             # convert stream initiation raster to points
@@ -270,7 +270,7 @@ class StreamNetwork(object):
                     join_type="KEEP_ALL",
                     field_mapping=field_mapping,
                     match_option="CLOSEST",
-                    search_radius="25 Meters", # TODO: consider non-hardcoded alternative
+                    search_radius="25 Meters", # TODO: consider non-hardcoded alternative, user option same as above?
                 )
 
                 # remove `Join_Count` and `TARGET_FID` fields
