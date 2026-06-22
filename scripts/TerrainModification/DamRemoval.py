@@ -197,12 +197,12 @@ class DamRemoval(object):
         transect_width = parameters[7].valueAsText
 
         # create scratch layers
-        scratch_centerline = arcpy.CreateScratchName("scratch_centerline", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_centerline_points = arcpy.CreateScratchName("scratch_centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_centerline_elev_points = arcpy.CreateScratchName("scratch_centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_centerline = arcpy.CreateScratchName("centerline", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_centerline_points = arcpy.CreateScratchName("centerline_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_centerline_elev_points = arcpy.CreateScratchName("centerline_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_point_raster = arcpy.CreateScratchName("point_raster", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
-        scratch_transect_points = arcpy.CreateScratchName("scratch_transect_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_transect_elev_points = arcpy.CreateScratchName("scratch_transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_transect_points = arcpy.CreateScratchName("transect_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_transect_elev_points = arcpy.CreateScratchName("transect_elev_points", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_mosaic_raster = arcpy.CreateScratchName("mosaic_ras", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         if extent:
