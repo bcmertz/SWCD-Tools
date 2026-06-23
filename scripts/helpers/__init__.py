@@ -13,3 +13,4 @@ from .rasters import pixel_type, cell_area, cell_length, min_cell_path, cells_pe
 from .tool import license, setup_environment, reload_module, empty_workspace
 from .units import get_z_unit, get_linear_unit, Z_UNITS, LINEAR_UNITS, AREAL_UNITS, \
     LINEAR_UNITS_MAP, AREAL_UNITS_MAP, SPATIAL_TO_LINEAR, LINEAR_TO_AREAL, convert_area, convert_length
+from .geometry import fc_to_numpy_array, delaunay
