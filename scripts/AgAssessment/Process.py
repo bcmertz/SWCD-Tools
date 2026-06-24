@@ -295,9 +295,9 @@ class Process(object):
             log("filling out {} soil group worksheet".format(parcel))
             sgw_path = "{}\\{}.xlsx".format(output_folder, lyt.name)
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
+            sgw_workbook = openpyxl.load_workbook(sgw_path)
+            ws = sgw_workbook['SGW']
             for table in tables:
-                sgw_workbook = openpyxl.load_workbook(sgw_path)
-                ws = sgw_workbook['SGW']
                 table_name = table.name.lower()
                 with arcpy.da.SearchCursor(table, ["MUSYM", "MUKEY", "Acres"]) as cursor:
                     idx = 0
