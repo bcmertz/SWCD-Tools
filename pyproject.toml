@@ -20,4 +20,4 @@ unresolved-import = "ignore"
 unresolved-attribute = "ignore"
 
 [tool.ty.src]
-include = ["scripts"]
+include = ["src"]
