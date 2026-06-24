@@ -295,17 +295,19 @@ class Process(object):
             log("filling out {} soil group worksheet".format(parcel))
             sgw_path = "{}\\{}.xlsx".format(output_folder, lyt.name)
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
+            sgw_workbook = openpyxl.load_workbook(sgw_path)
+            ws = sgw_workbook['SGW']
             for table in tables:
-                sgw_workbook = openpyxl.load_workbook(sgw_path)
-                ws = sgw_workbook['SGW']
+                table_name = table.name.lower()
                 with arcpy.da.SearchCursor(table, ["MUSYM", "MUKEY", "Acres"]) as cursor:
                     idx = 0
+                    tot = 0
                     for row in cursor:
                         musym = row[0]
                         mukey = int(row[1])
                         acres = round(float(row[2]), 2)
 
-                        if "agland" in table.name.lower():
+                        if "agland" in table_name:
                             if idx < 24:
                                 soil_cell = 'A{}'.format(34 + idx)
                                 area_cell = 'H{}'.format(34 + idx)
@@ -322,14 +324,12 @@ class Process(object):
                                 ws[mukey_cell] = mukey
                                 ws[area_cell] = acres
                             idx += 1
-                        elif "nonag" in tbl.name.lower():
-                            tot = 0
+                        else:
                             tot += acres
-                            ws['K28'] = tot
-                        elif "forest" in tbl.name.lower():
-                            tot = 0
-                            tot += acres
-                            ws['L24'] = tot
+                    if "forest" in table_name:
+                        ws['L24'] = round(tot, 2)
+                    elif "nonag" in table_name:
+                        ws['K28'] = round(tot, 2)
             sgw_workbook.save(sgw_path)
             sgw_workbook.close()
             del sgw_workbook
