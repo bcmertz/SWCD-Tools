@@ -55,10 +55,12 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
 - [License](#license-)
 
 # Requirements [↑](#table-of-contents)
-ArcGIS Pro v3.3 or greater with access to the following licenses:
-- Spatial Analyst
+ArcGIS Pro v3.3 or greater with access to the following optional licenses:
+- Spatial Analyst (highly recommended)
+- Image Analyst
+- Production Mapping
 
-If you're not sure, each tool will verify you have the proper licenses needed. Not all tools require advanced licenses.
+Each tool will verify you have the proper licenses needed. Not all tools require advanced licenses.
 
 # Installation [↑](#table-of-contents)
 
