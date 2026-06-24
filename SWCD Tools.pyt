@@ -18,6 +18,7 @@ class Toolbox(object):
             StreamNetwork,
             StreamElevation,
             GenerateCrossSections,
+            PolygonCenterline,
             LocalMinimums,
             RelativeElevationModel,
             TopographicPositionIndex,

@@ -162,6 +162,8 @@ class BurnCulverts(object):
         # NOTE: can't use builtin pointtoline because we only have two points per line :(
         lines = []
         with arcpy.da.SearchCursor(scratch_points_merge, ["SHAPE@XY", "grid_code"], sql_clause=(None, "ORDER BY grid_code")) as points:
+            # store points as {grid_code: [point]} and lines as {grid_code: arcpy.Polyline}
+            # not super elegant data structure and could be done better with two separate data structures with static types
             point_dict = {}
             for point in points:
                 x, y = point[0]
@@ -194,12 +196,11 @@ class BurnCulverts(object):
         # set elev to 0
         with arcpy.da.UpdateCursor(scratch_stream_buffer, [elevation_field]) as cursor:
             for point in cursor:
-                point[0] = 0 # TODO: find way to get the elevation value without a fill - downstream elev?
+                point[0] = 0 # TODO: find way to get the elevation value if the user doesn't fill output (use downstream elev? fill locally?)
                 cursor.updateRow(point)
 
         # polygon to raster
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster, cellsize=1)
-
 
         # fill output raster
         if fill_depressions:
