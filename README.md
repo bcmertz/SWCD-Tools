@@ -80,7 +80,7 @@ Each tool will verify you have the proper licenses needed. Not all tools require
 SWCD-Tools/
 ├── assets/                      # various static assets for use by tools
 │   ├── readme_examples/         # contains before and after images of tools for documentation
-├── scripts/                     # folder containing all python scripts / tools
+├── src/                         # folder containing all python tools and helpers
 │   ├── AgAssessment/            # automated agricultural value assessment tools
 │   ├── BufferTools/             # riparian forest buffer planting planning
 │   ├── FluvialGeomorphology/    # stream / landscape analysis toolbox

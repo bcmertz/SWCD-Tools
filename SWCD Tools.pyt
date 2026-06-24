@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from scripts import *
+from src import *
 
 class Toolbox(object):
     def __init__(self):
