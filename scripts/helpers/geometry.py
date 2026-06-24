@@ -47,6 +47,23 @@ def delaunay(in_fc, out_fc):
 
     return
 
-# TODO: consider manual voronoi polygon calculation
+# voronoi polygon calculation
 # https://gist.github.com/letmaik/8803860
 # https://github.com/Dan-Patterson/numpy_geometry/blob/master/arcpro_npg/npg/tbx_tools.py
+def voronoi(delaunay_fc, out_fc):
+    spatial_ref = arcpy.Describe(delaunay_fc).spatialReference
+    _, np_arr = fc_to_numpy_array(delaunay_fc)
+
+
+
+# from https://stackoverflow.com/questions/10650645/python-calculate-voronoi-tesselation-from-scipys-delaunay-triangulation-in-3d/15783581#15783581
+def triangle_csc(pts):
+    rows, cols = pts.shape
+
+    A = np.bmat([[2 * np.dot(pts, pts.T), np.ones((rows, 1))],
+                 [np.ones((1, rows)), np.zeros((1, 1))]])
+
+    b = np.hstack((np.sum(pts * pts, axis=1), np.ones((1))))
+    x = np.linalg.solve(A,b)
+    bary_coords = x[:-1]
+    return np.sum(pts * np.tile(bary_coords.reshape((pts.shape[0], 1)), (1, pts.shape[1])), axis=0)
