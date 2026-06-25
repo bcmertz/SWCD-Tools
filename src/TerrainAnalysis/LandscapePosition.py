@@ -197,7 +197,7 @@ class LandscapePosition(object):
         combined.save(output_file)
 
         # add description field
-        description_field = "description"
+        description_field = "desc"
         if description_field not in [f.name for f in arcpy.ListFields(output_file)]:
             log("add descriptive land position field")
             arcpy.management.AddField(

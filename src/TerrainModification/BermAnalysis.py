@@ -245,8 +245,9 @@ class BermAnalysis(object):
             arcpy.management.AddField(contour_output, "Contour", "DOUBLE")
 
         # add berm height field to berm fc
-        if "berm_height" not in [f.name for f in arcpy.ListFields(berms)]:
-            arcpy.management.AddField(berms, "berm_height", "FLOAT", field_precision=255, field_scale=2)
+        berm_height_field = "height"
+        if berm_height_field not in [f.name for f in arcpy.ListFields(berms)]:
+            arcpy.management.AddField(berms, berm_height_field, "FLOAT", field_precision=255, field_scale=2)
 
         # get OID field name for berm fc
         oidfield = get_oid(berms)
