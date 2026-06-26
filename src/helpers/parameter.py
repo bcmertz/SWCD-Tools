@@ -65,11 +65,10 @@ def sanitize(text):
     """Return a sanitized file path string."""
     return str(text).translate(str.maketrans('', '', string.punctuation)).replace(" ", "")
 
-def raster_and_layer(in_ras):
+def raster_and_layer(in_ras) -> tuple[arcpy.Raster, arcpy.Layer | None]:
     """Return raster and raster layer if it exists."""
-    # TODO: check if in_ras is a layer or a file / tiff type thingggg
-    desc = arcpy.da.Describe(in_ras)
-    data_type =  desc["dataType"]
+    desc = arcpy.Describe(in_ras)
+    data_type =  desc.dataType
     if data_type == "RasterLayer":
         ras = arcpy.Raster(in_ras.name)
         ras_layer = in_ras
