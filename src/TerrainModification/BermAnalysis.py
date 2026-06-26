@@ -245,11 +245,12 @@ class BermAnalysis(object):
             arcpy.management.AddField(contour_output, "Contour", "DOUBLE")
 
         # add berm height field to berm fc
-        if "berm_height" not in [f.name for f in arcpy.ListFields(berms)]:
-            arcpy.management.AddField(berms, "berm_height", "FLOAT", field_precision=255, field_scale=2)
+        berm_height_field = "height"
+        if berm_height_field not in [f.name for f in arcpy.ListFields(berms)]:
+            arcpy.management.AddField(berms, berm_height_field, "FLOAT", field_precision=255, field_scale=2)
 
         # get OID field name for berm fc
-        oidfield = get_oid(berms)
+        oid_field = get_oid(berms)
 
         # get selected features in layer
         selection_set = berms.getSelectionSet()
@@ -257,10 +258,10 @@ class BermAnalysis(object):
         if selection_set:
             selection_tuple = tuple(selection_set)
             selection = "("+",".join([str(i) for i in selection_tuple])+")"
-            expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oidfield),selection)
+            expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oid_field),selection)
 
         # iterate through berms
-        with arcpy.da.UpdateCursor(berms, [oidfield, "berm_height"], expression, spatial_filter=extent.polygon) as cursor:
+        with arcpy.da.UpdateCursor(berms, [oid_field, berm_height_field], expression, spatial_filter=extent.polygon) as cursor:
             for berm in cursor:
                 # log to user
                 oid_value = berm[0]
@@ -277,7 +278,7 @@ class BermAnalysis(object):
                     log("setting berm elevation")
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
-                        zone_field=oidfield,
+                        zone_field=oid_field,
                         in_value_raster=dem,
                         statistics_type="MINIMUM",
                     )
@@ -309,7 +310,7 @@ class BermAnalysis(object):
 
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
-                        zone_field=oidfield,
+                        zone_field=oid_field,
                         in_value_raster=dem,
                         statistics_type="MAXIMUM",
                     )
