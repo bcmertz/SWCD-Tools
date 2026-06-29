@@ -200,7 +200,7 @@ class StreamElevation(object):
         dag = {}
         to_nodes = set()
         from_nodes = set()
-        with arcpy.da.SearchCursor(scratch_nodes, ["from_node", "to_node", "length"]) as cursor:
+        with arcpy.da.SearchCursor(scratch_nodes, [from_node, to_node, "length"]) as cursor:
             for row in cursor:
                 to_node = row[0]    # reversed since our dag "flows" upstream
                 from_node = row[1]  # reversed since out dag "flows" upstream
