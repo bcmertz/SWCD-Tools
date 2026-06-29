@@ -7,10 +7,10 @@
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
 #
-#              Unclear what license this tool should fall under. Assumed AGPL v3
+#              Unclear what license this tool should fall under. Assumed CCAI
 #              due to no code being taken from alex6H just inspiration, but to be
 #              safe this tool shouldn't be used for commercial purposes to comply
-#              with the original tool's CC-SA-NA license. TODO: figure out if this is true
+#              with the original tool's CC-SA-NA license. See GPL/CC compatibility.
 # --------------------------------------------------------------------------------
 
 import arcpy

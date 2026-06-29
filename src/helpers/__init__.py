@@ -23,6 +23,7 @@ from .rasters import (
     cells_per_length,
 )
 from .tool import license, setup_environment, reload_module, empty_workspace
+from .geometry import fc_to_numpy_array, delaunay
 from .units import (
     get_z_unit,
     get_linear_unit,
@@ -69,4 +70,6 @@ __all__ = [
     "LINEAR_TO_AREAL",
     "convert_area",
     "convert_length",
+    "fc_to_numpy_array",
+    "delaunay",
 ]
