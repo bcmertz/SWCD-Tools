@@ -272,12 +272,13 @@ class BermAnalysis(object):
                 arcpy.analysis.Select(berms, scratch_berm, where_clause)
 
                 # if berm height is supplied, add it to the lowest elevation to get the flat berm elevation
+                scratch_oid = get_oid(scratch_berm)
                 if supply_berm_height_bool:
                     # find minimum berm elevation
                     log("setting berm elevation")
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
-                        zone_field=oid_field,
+                        zone_field=scratch_oid,
                         in_value_raster=dem,
                         statistics_type="MINIMUM",
                     )
@@ -309,7 +310,7 @@ class BermAnalysis(object):
 
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
-                        zone_field=oid_field,
+                        zone_field=scratch_oid,
                         in_value_raster=dem,
                         statistics_type="MAXIMUM",
                     )
