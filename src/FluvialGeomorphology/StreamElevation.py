@@ -10,7 +10,7 @@ import os
 import arcpy
 import platform
 
-from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit
+from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -142,7 +142,7 @@ class StreamElevation(object):
         from_node_field = parameters[1].value
         to_node_field = parameters[2].value
         keep_fields = parameters[3].valueAsText.split(";") if parameters[3].value else []
-        dem = parameters[4].value
+        dem, _ = raster_and_layer(parameters[4].value)
         watershed = parameters[5].value
         linear_unit = get_linear_unit(streams)
         point_spacing = parameters[6].valueAsText

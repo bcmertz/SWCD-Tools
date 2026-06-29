@@ -258,12 +258,12 @@ class PotentialWetlands(object):
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         max_slope = parameters[4].value
-        twi_raster = parameters[5].value
+        twi_raster, _ = raster_and_layer(parameters[5].value)
         min_twi = parameters[6].value
         soils_shapefile = parameters[7].value
         soils_hsg_field = parameters[8].value
         hsg_values = parameters[9].valueAsText.split(";")
-        land_use_raster = parameters[10].value
+        land_use_raster, _ = raster_and_layer(parameters[10].value)
         land_use_field = parameters[11].value
         land_use_values = parameters[12].valueAsText.replace("'","").split(";")
         calculate_wetlands = parameters[13].value

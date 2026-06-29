@@ -179,8 +179,7 @@ class VBET(object):
         dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
-        rem_layer = parameters[3].value
-        rem = arcpy.Raster(rem_layer.name) if rem_layer is not None else None
+        rem, _ = raster_and_layer(parameters[3].value) if parameters[3].value is not None else (None, None)
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
         watershed_area_unit = AREAL_UNITS_MAP[parameters[6].valueAsText]

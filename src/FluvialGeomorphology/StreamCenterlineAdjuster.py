@@ -10,7 +10,7 @@ import math
 import arcpy
 
 from .GenerateCrossSections import transect_line
-from ..helpers import license, reload_module, log
+from ..helpers import license, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -131,7 +131,7 @@ class LeastAction(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
         streams = parameters[2].value
         output_file = parameters[3].valueAsText

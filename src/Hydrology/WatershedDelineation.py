@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, Z_UNITS, get_z_unit, reload_module, log
+from ..helpers import license, get_oid, Z_UNITS, get_z_unit, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -112,7 +112,7 @@ class WatershedDelineation(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
         pour_points = parameters[3].value
