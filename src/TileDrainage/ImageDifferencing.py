@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log, set_required_parameter, empty_workspace
+from ..helpers import license, reload_module, log, set_required_parameter, empty_workspace, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -183,8 +183,8 @@ class ImageDifferencing(object):
 
         log("reading in parameters")
         extent = parameters[0].value
-        wet_raster = arcpy.Raster(parameters[1].valueAsText)
-        dry_raster = arcpy.Raster(parameters[2].valueAsText)
+        wet_raster, _ = raster_and_layer(parameters[1].value)
+        dry_raster, _ = raster_and_layer(parameters[2].value)
         land_use_raster = parameters[3].value
         land_use_field = parameters[4].value
         land_use_values = parameters[5].valueAsText.replace("'","").split(";")

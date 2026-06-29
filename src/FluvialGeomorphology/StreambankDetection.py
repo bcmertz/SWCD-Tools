@@ -8,7 +8,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, empty_workspace, get_oid, reload_module, log, min_cell_path
+from ..helpers import license, empty_workspace, get_oid, reload_module, log, min_cell_path, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -80,8 +80,7 @@ class StreambankDetection:
         log("reading in parameters")
         streams = parameters[0].value
         extent = parameters[1].value
-        rem_layer = parameters[2].value
-        rem = arcpy.Raster(rem_layer.name)
+        rem, _ = raster_and_layer(parameters[2].value)
         output_file = parameters[3].valueAsText
 
         # set cell size

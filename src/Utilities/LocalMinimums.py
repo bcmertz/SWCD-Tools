@@ -13,7 +13,7 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, Z_UNITS, empty_workspace, reload_module, log
+from ..helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -133,8 +133,7 @@ class LocalMinimums:
 
         log("reading in parameters")
         line = parameters[0].value
-        dem_layer = parameters[1].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem, _ = raster_and_layer(parameters[1].value)
         z_linear_unit = parameters[2].value
         extent = parameters[3].value
         search_interval = parameters[4].valueAsText
