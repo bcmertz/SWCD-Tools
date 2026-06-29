@@ -245,7 +245,7 @@ class CalculateEFH2:
                 land_use = row[2]
                 hsg = row[3]
                 ws_data["C"+str(idx)] = rcn
-                ws_data["D"+str(idx)] = acres
+                ws_data["D"+str(idx)] = round(float(acres),2)
                 ws_data["A"+str(idx)] = land_use
                 ws_data["B"+str(idx)] = hsg
                 idx += 1
