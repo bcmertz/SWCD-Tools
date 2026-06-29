@@ -9,7 +9,7 @@
 import arcpy
 
 from ..TerrainAnalysis import relative_elevation_model
-from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
+from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -176,12 +176,10 @@ class VBET(object):
 
         # read in parameters
         log("reading in parameters")
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
-        rem_layer = parameters[3].value
-        rem = arcpy.Raster(rem_layer.name) if rem_layer is not None else None
+        rem, _ = raster_and_layer(parameters[3].value) if parameters[3].value is not None else (None, None)
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
         watershed_area_unit = AREAL_UNITS_MAP[parameters[6].valueAsText]

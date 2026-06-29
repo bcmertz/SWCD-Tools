@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log
+from ..helpers import license, empty_workspace, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -187,7 +187,7 @@ class RunoffCurveNumber:
         output_fc = parameters[1].valueAsText
         soils = parameters[2].value
         hsg_field = parameters[3].value
-        land_use_raster = parameters[4].value
+        land_use_raster, _ = raster_and_layer(parameters[4].value)
         land_use_field = parameters[5].value
         rcn_field_a = parameters[6].value
         rcn_field_b = parameters[7].value

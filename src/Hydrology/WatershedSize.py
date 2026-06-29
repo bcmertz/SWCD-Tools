@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, reload_module, log, AREAL_UNITS, AREAL_UNITS_MAP, cell_area
+from ..helpers import license, reload_module, log, AREAL_UNITS, AREAL_UNITS_MAP, cell_area, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -76,7 +76,7 @@ class WatershedSize:
 
         # read in parameters
         log("reading in parameters")
-        dem = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
         # read in areal unit and map it's pretty string to the arcpy representation
         areal_unit = AREAL_UNITS_MAP[parameters[2].valueAsText]

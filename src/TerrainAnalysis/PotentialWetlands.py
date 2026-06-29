@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, get_z_unit, Z_UNITS, empty_workspace, set_required_parameter, reload_module, log
+from ..helpers import license, get_oid, get_z_unit, empty_workspace, set_required_parameter, reload_module, log, raster_and_layer, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -253,18 +253,17 @@ class PotentialWetlands(object):
         log("setting up project")
         project, active_map = setup()
 
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         max_slope = parameters[4].value
-        twi_raster = parameters[5].value
+        twi_raster, _ = raster_and_layer(parameters[5].value)
         min_twi = parameters[6].value
         soils_shapefile = parameters[7].value
         soils_hsg_field = parameters[8].value
         hsg_values = parameters[9].valueAsText.split(";")
-        land_use_raster = parameters[10].value
+        land_use_raster, _ = raster_and_layer(parameters[10].value)
         land_use_field = parameters[11].value
         land_use_values = parameters[12].valueAsText.replace("'","").split(";")
         calculate_wetlands = parameters[13].value

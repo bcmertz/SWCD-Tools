@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log, get_oid
+from ..helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -197,7 +197,7 @@ class RelativeElevationModel(object):
         project, active_map = setup()
 
         # read in parameters
-        dem_raster = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
@@ -206,7 +206,7 @@ class RelativeElevationModel(object):
         resolve = parameters[6].value
 
         # calculate REM
-        rem = relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius, sampling_interval, resolve)
+        rem = relative_elevation_model(active_map, dem, extent, stream_layer, buffer_radius, sampling_interval, resolve)
         log("saving REM output")
         rem.save(output_file)
 

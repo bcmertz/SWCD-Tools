@@ -10,7 +10,7 @@ import os
 import arcpy
 import platform
 
-from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit
+from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -29,7 +29,7 @@ class StreamElevation(object):
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param0.filter.list = ["Line"]
+        param0.filter.list = ["Polyline"]
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param1 = arcpy.Parameter(
@@ -139,10 +139,10 @@ class StreamElevation(object):
 
         # read in parameters
         streams = parameters[0].value
-        from_node = parameters[1].value
-        to_node = parameters[2].value
+        from_node_field = parameters[1].value
+        to_node_field = parameters[2].value
         keep_fields = parameters[3].valueAsText.split(";") if parameters[3].value else []
-        dem = parameters[4].value
+        dem, _ = raster_and_layer(parameters[4].value)
         watershed = parameters[5].value
         linear_unit = get_linear_unit(streams)
         point_spacing = parameters[6].valueAsText
@@ -200,7 +200,7 @@ class StreamElevation(object):
         dag = {}
         to_nodes = set()
         from_nodes = set()
-        with arcpy.da.SearchCursor(scratch_nodes, ["from_node", "to_node", "length"]) as cursor:
+        with arcpy.da.SearchCursor(scratch_nodes, [from_node_field, to_node_field, "length"]) as cursor:
             for row in cursor:
                 to_node = row[0]    # reversed since our dag "flows" upstream
                 from_node = row[1]  # reversed since out dag "flows" upstream
@@ -246,7 +246,7 @@ class StreamElevation(object):
 
         # update lengths to include upstream length
         log("add downstream length to data points")
-        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", "to_node"]) as cursor:
+        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", to_node_field]) as cursor:
             for row in cursor:
                 orig_len = row[0] * arcpy.LinearUnitConversionFactor(linear_unit, point_spacing_unit)
                 to_node = row[1]
