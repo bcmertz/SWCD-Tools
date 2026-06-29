@@ -139,8 +139,8 @@ class StreamElevation(object):
 
         # read in parameters
         streams = parameters[0].value
-        from_node = parameters[1].value
-        to_node = parameters[2].value
+        from_node_field = parameters[1].value
+        to_node_field = parameters[2].value
         keep_fields = parameters[3].valueAsText.split(";") if parameters[3].value else []
         dem = parameters[4].value
         watershed = parameters[5].value
@@ -200,7 +200,7 @@ class StreamElevation(object):
         dag = {}
         to_nodes = set()
         from_nodes = set()
-        with arcpy.da.SearchCursor(scratch_nodes, [from_node, to_node, "length"]) as cursor:
+        with arcpy.da.SearchCursor(scratch_nodes, [from_node_field, to_node_field, "length"]) as cursor:
             for row in cursor:
                 to_node = row[0]    # reversed since our dag "flows" upstream
                 from_node = row[1]  # reversed since out dag "flows" upstream
@@ -246,7 +246,7 @@ class StreamElevation(object):
 
         # update lengths to include upstream length
         log("add downstream length to data points")
-        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", to_node]) as cursor:
+        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", to_node_field]) as cursor:
             for row in cursor:
                 orig_len = row[0] * arcpy.LinearUnitConversionFactor(linear_unit, point_spacing_unit)
                 to_node = row[1]
