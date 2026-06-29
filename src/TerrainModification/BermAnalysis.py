@@ -268,7 +268,7 @@ class BermAnalysis(object):
 
                 # make a temporary feature layer to store the berm for zonal analysis
                 log("creating temporary berm feature for analysis")
-                where_clause = "\"OBJECTID\" = " + str(oid_value)
+                where_clause = '"{}" = {}'.format(oid_field, oid_value)
                 arcpy.analysis.Select(berms, scratch_berm, where_clause)
 
                 # if berm height is supplied, add it to the lowest elevation to get the flat berm elevation
