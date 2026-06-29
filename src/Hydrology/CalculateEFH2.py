@@ -13,7 +13,7 @@ import platform
 import openpyxl
 import datetime
 
-from ..helpers import license, get_oid, get_z_unit, get_linear_unit, Z_UNITS, empty_workspace, reload_module, log
+from ..helpers import license, get_oid, get_z_unit, get_linear_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -158,7 +158,7 @@ class CalculateEFH2:
 
         # read in parameters
         log("reading in parameters")
-        raster_layer = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         output_folder_path = parameters[2].valueAsText
         rcn_layer = parameters[3].value
@@ -181,7 +181,7 @@ class CalculateEFH2:
 
         # clip DEM raster to watershed
         log("clipping elevation data to watershed boundary")
-        out_dem_watershed_clip = arcpy.sa.ExtractByMask(raster_layer, scratch_watershed, "INSIDE")
+        out_dem_watershed_clip = arcpy.sa.ExtractByMask(dem, scratch_watershed, "INSIDE")
 
         # slope map
         log("creating slope map")
