@@ -135,7 +135,9 @@ class LeastAction(object):
         extent = parameters[1].value
         stream_layer = parameters[2].value
         output_file = parameters[3].valueAsText
-        transect_length = parameters[4].valueAsText
+        distance = parameters[4].valueAsText
+        distance, distance_unit = distance.split(" ")
+        transect_length = "{} {}".format(float(distance) * 2, distance_unit)
 
         # set analysis extent
         if extent:
