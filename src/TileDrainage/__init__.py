@@ -12,8 +12,8 @@ from .ImageDifferencing import ImageDifferencing
 from .ImageDifferencingClouds import ImageDifferencingClouds
 
 __all__ = [
-    DecisionTree,
-    ImageDifferencingSetup,
-    ImageDifferencing,
-    ImageDifferencingClouds,
+    "DecisionTree",
+    "ImageDifferencingSetup",
+    "ImageDifferencing",
+    "ImageDifferencingClouds",
 ]

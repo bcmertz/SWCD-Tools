@@ -17,11 +17,11 @@ from .GenerateCrossSections import (
 )
 
 __all__ = [
-    LeastAction,
-    StreamElevation,
-    StreamNetwork,
-    StreambankDetection,
-    GenerateCrossSections,
-    generate_transects,
-    transect_line,
+    "LeastAction",
+    "StreamElevation",
+    "StreamNetwork",
+    "StreambankDetection",
+    "GenerateCrossSections",
+    "generate_transects",
+    "transect_line",
 ]

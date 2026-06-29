@@ -18,13 +18,13 @@ from .LandscapePosition import LandscapePosition
 from .VBET import VBET
 
 __all__ = [
-    PotentialWetlands,
-    RelativeElevationModel,
-    relative_elevation_model,
-    StreamPowerIndex,
-    TopographicWetness,
-    TopographicPositionIndex,
-    topographic_position_index,
-    LandscapePosition,
-    VBET,
+    "PotentialWetlands",
+    "RelativeElevationModel",
+    "relative_elevation_model",
+    "StreamPowerIndex",
+    "TopographicWetness",
+    "TopographicPositionIndex",
+    "topographic_position_index",
+    "LandscapePosition",
+    "VBET",
 ]

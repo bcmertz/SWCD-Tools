@@ -13,9 +13,9 @@ from .WatershedDelineation import WatershedDelineation
 from .WatershedSize import WatershedSize
 
 __all__ = [
-    CalculateEFH2,
-    RunoffCurveNumber,
-    SubBasinDelineation,
-    WatershedDelineation,
-    WatershedSize,
+    "CalculateEFH2",
+    "RunoffCurveNumber",
+    "SubBasinDelineation",
+    "WatershedDelineation",
+    "WatershedSize",
 ]

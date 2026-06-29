@@ -11,7 +11,7 @@ from .PointPlots import PointPlots
 from .BufferPotential import BufferPotential
 
 __all__ = [
-    ShrubClusters,
-    PointPlots,
-    BufferPotential,
+    "ShrubClusters",
+    "PointPlots",
+    "BufferPotential",
 ]
