@@ -252,12 +252,13 @@ class BermAnalysis(object):
         oid_field = get_oid(berms)
 
         # get selected features in layer
-        selection_set = berms.getSelectionSet()
-        expression = "*"
-        if selection_set:
+        try:
+            selection_set = berms.getSelectionSet()
             selection_tuple = tuple(selection_set)
             selection = "("+",".join([str(i) for i in selection_tuple])+")"
             expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oid_field),selection)
+        except:
+            expression = "*"
 
         # iterate through berms
         with arcpy.da.UpdateCursor(berms, [oid_field, berm_height_field], expression, spatial_filter=extent.polygon) as cursor:
