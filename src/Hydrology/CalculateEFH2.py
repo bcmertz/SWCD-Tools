@@ -51,7 +51,7 @@ class CalculateEFH2:
         param3 = arcpy.Parameter(
             displayName="Runoff Curve Number Layer",
             name="rcns",
-            datatype="GPFeatureLayer",
+            datatype="GPLayer",
             parameterType="Required",
             direction="Input")
 
