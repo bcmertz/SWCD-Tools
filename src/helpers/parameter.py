@@ -74,7 +74,7 @@ def raster_and_layer(in_ras: arcpy.Raster | arcpy._mp.Layer) -> tuple[arcpy.Rast
         ras_layer = in_ras
         return ras, ras_layer
     elif data_type == "RasterDataset":
-        ras = in_ras
+        ras = arcpy.Raster(str(in_ras))
         ras_layer = None
         return ras, ras_layer
     else:
