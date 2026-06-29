@@ -246,7 +246,7 @@ class StreamElevation(object):
 
         # update lengths to include upstream length
         log("add downstream length to data points")
-        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", "to_node"]) as cursor:
+        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", to_node]) as cursor:
             for row in cursor:
                 orig_len = row[0] * arcpy.LinearUnitConversionFactor(linear_unit, point_spacing_unit)
                 to_node = row[1]
