@@ -29,7 +29,7 @@ class StreamElevation(object):
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
-        param0.filter.list = ["Line"]
+        param0.filter.list = ["Polyline"]
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param1 = arcpy.Parameter(
