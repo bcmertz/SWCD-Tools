@@ -307,7 +307,11 @@ class DefineParcels(object):
             mf.name = tax_id_num
 
             # turn off parcel layer
-            parcel_layer.visible = False
+            try:
+                parcel_layer.visible = False
+            except:
+                # parcel_layer is a shapefile
+                pass
 
             # create sql expression to select correct parcel
             sql_expr="{} = '{}'".format(parcel_layer_field, tax_id_num)
