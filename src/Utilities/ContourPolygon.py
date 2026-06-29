@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, Z_UNITS, reload_module, log
+from ..helpers import license, get_z_unit, Z_UNITS, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -104,7 +104,7 @@ class ContourPolygon(object):
         project, active_map = setup()
 
         # get parameters
-        raster_layer = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         polygon = parameters[2].value
         output_file = parameters[3].valueAsText
@@ -113,7 +113,7 @@ class ContourPolygon(object):
 
         # clip raster to polyon
         log("clipping raster to polygon")
-        outExtractByMask = arcpy.sa.ExtractByMask(raster_layer, polygon, "INSIDE")
+        outExtractByMask = arcpy.sa.ExtractByMask(dem, polygon, "INSIDE")
 
         # create contour in polygon
         log("creating contour")

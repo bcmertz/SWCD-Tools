@@ -10,7 +10,7 @@ import math
 import arcpy
 
 from .GenerateCrossSections import transect_line
-from ..helpers import license, reload_module, log
+from ..helpers import license, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -131,18 +131,20 @@ class LeastAction(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
-        stream_layer = parameters[2].value
+        streams = parameters[2].value
         output_file = parameters[3].valueAsText
-        transect_length = parameters[4].valueAsText
+        distance = parameters[4].valueAsText
+        distance, distance_unit = distance.split(" ")
+        transect_length = "{} {}".format(float(distance) * 2, distance_unit)
 
         # set analysis extent
         if extent:
             arcpy.env.extent = extent
 
         # output spatial reference
-        stream_desc = arcpy.Describe(stream_layer)
+        stream_desc = arcpy.Describe(streams)
         spatial_reference = stream_desc.spatialReference.name
 
         # clip streams to analysis area
@@ -152,9 +154,9 @@ class LeastAction(object):
         new_stream_line_name = new_stream_line_path.split("\\")[-1]
         new_stream_line = arcpy.management.CreateFeatureclass(env_path, new_stream_line_name, "POLYLINE", spatial_reference=spatial_reference)
         if extent:
-            arcpy.analysis.Clip(stream_layer, extent.polygon, new_stream_line)
+            arcpy.analysis.Clip(streams, extent.polygon, new_stream_line)
         else:
-            arcpy.management.CopyFeatures(stream_layer, new_stream_line)
+            arcpy.management.CopyFeatures(streams, new_stream_line)
 
         ## Debugging
         ## create temporary classes for debugging

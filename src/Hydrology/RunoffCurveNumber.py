@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log
+from ..helpers import license, empty_workspace, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -64,8 +64,8 @@ class RunoffCurveNumber:
             direction="Input")
 
         param5 = arcpy.Parameter(
-            displayName="RCN Field - HSG A",
-            name="rcn_field_a",
+            displayName="Land Use Field",
+            name="land_use_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -73,8 +73,8 @@ class RunoffCurveNumber:
         param5.filter.list = []
 
         param6 = arcpy.Parameter(
-            displayName="RCN Field - HSG B",
-            name="rcn_field_b",
+            displayName="RCN Field - HSG A",
+            name="rcn_field_a",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -82,8 +82,8 @@ class RunoffCurveNumber:
         param6.filter.list = []
 
         param7 = arcpy.Parameter(
-            displayName="RCN Field - HSG C",
-            name="rcn_field_c",
+            displayName="RCN Field - HSG B",
+            name="rcn_field_b",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -91,15 +91,24 @@ class RunoffCurveNumber:
         param7.filter.list = []
 
         param8 = arcpy.Parameter(
-            displayName="RCN Field - HSG D",
-            name="rcn_field_d",
+            displayName="RCN Field - HSG C",
+            name="rcn_field_c",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
         param8.filter.type = "ValueList"
         param8.filter.list = []
 
-        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8]
+        param9 = arcpy.Parameter(
+            displayName="RCN Field - HSG D",
+            name="rcn_field_d",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param9.filter.type = "ValueList"
+        param9.filter.list = []
+
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8, param9]
         return params
 
     def isLicensed(self):
@@ -112,7 +121,7 @@ class RunoffCurveNumber:
 
         warning_message = "In order to use this tool you must have land use / runoff curve number data. We recommend using Chesapeake Bay Land Use Data and modifying the raster to include fields for runoff curve number values for each hydrologic soil groups A,B,C,D."
 
-        if parameters[4].value and (not parameters[5].value or not parameters[6].value or not parameters[7].value or not parameters[8].value):
+        if parameters[4].value and (not parameters[5].value or not parameters[6].value or not parameters[7].value or not parameters[8].value or not parameters[9].value):
             parameters[4].setWarningMessage(warning_message)
         else:
             if parameters[4].message == warning_message:
@@ -132,31 +141,36 @@ class RunoffCurveNumber:
             else:
                 parameters[3].enabled = False
 
-        # get rcn fields
+        # get land use and rcn fields
         if not parameters[4].hasBeenValidated:
             if parameters[4].value:
                 parameters[5].enabled = True
                 parameters[6].enabled = True
                 parameters[7].enabled = True
                 parameters[8].enabled = True
+                parameters[9].enabled = True
                 fields2 = [f2.name for f2 in arcpy.ListFields(parameters[4].value)]
                 parameters[5].filter.list = fields2
                 parameters[6].filter.list = fields2
                 parameters[7].filter.list = fields2
                 parameters[8].filter.list = fields2
+                parameters[9].filter.list = fields2
+                if "LandCover" in fields2:
+                    parameters[5].value = "LandCover"
                 if "RCNA" in fields2:
-                    parameters[5].value = "RCNA"
+                    parameters[6].value = "RCNA"
                 if "RCNB" in fields2:
-                    parameters[6].value = "RCNB"
+                    parameters[7].value = "RCNB"
                 if "RCNC" in fields2:
-                    parameters[7].value = "RCNC"
+                    parameters[8].value = "RCNC"
                 if "RCND" in fields2:
-                    parameters[8].value = "RCND"
+                    parameters[9].value = "RCND"
             else:
                 parameters[5].enabled = False
                 parameters[6].enabled = False
                 parameters[7].enabled = False
                 parameters[8].enabled = False
+                parameters[9].enabled = False
 
         return
 
@@ -173,11 +187,12 @@ class RunoffCurveNumber:
         output_fc = parameters[1].valueAsText
         soils = parameters[2].value
         hsg_field = parameters[3].value
-        land_use_raster = parameters[4].value
-        rcn_field_a = parameters[5].value
-        rcn_field_b = parameters[6].value
-        rcn_field_c = parameters[7].value
-        rcn_field_d = parameters[8].value
+        land_use_raster, _ = raster_and_layer(parameters[4].value)
+        land_use_field = parameters[5].value
+        rcn_field_a = parameters[6].value
+        rcn_field_b = parameters[7].value
+        rcn_field_c = parameters[8].value
+        rcn_field_d = parameters[9].value
 
         # scratch layers
         log("creating scratch layers")
@@ -195,11 +210,11 @@ class RunoffCurveNumber:
 
         # convert land usage output to polygon
         log("converting land use areas to polygon")
-        arcpy.conversion.RasterToPolygon(land_use_raster_clip, scratch_land_use_polygon, "SIMPLIFY", "LandUse", "SINGLE_OUTER_PART")
+        arcpy.conversion.RasterToPolygon(land_use_raster_clip, scratch_land_use_polygon, "SIMPLIFY", land_use_field, "SINGLE_OUTER_PART")
 
         # join land use attributes to land use polygons
         log("join land use RCN fields into polygon")
-        joined_land_use_polygon = arcpy.management.AddJoin(scratch_land_use_polygon, "LandUse", land_use_raster_clip, "LandUse", "KEEP_ALL", "INDEX_JOIN_FIELDS")
+        joined_land_use_polygon = arcpy.management.AddJoin(scratch_land_use_polygon, land_use_field, land_use_raster_clip, land_use_field, "KEEP_ALL", "INDEX_JOIN_FIELDS")
         arcpy.management.CopyFeatures(joined_land_use_polygon, scratch_joined_land_use_polygon)
 
         # intersect land use and soils

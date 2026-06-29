@@ -9,7 +9,7 @@
 import math
 import arcpy
 
-from ..helpers import license, get_z_unit, Z_UNITS, reload_module, log
+from ..helpers import license, get_z_unit, reload_module, log, raster_and_layer, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -93,8 +93,7 @@ class TopographicWetness(object):
         project, active_map = setup()
 
         # read in parameters
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
         output_file = parameters[3].valueAsText

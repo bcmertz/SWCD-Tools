@@ -64,3 +64,18 @@ def set_required_parameter(toggle, parameter) -> None:
 def sanitize(text):
     """Return a sanitized file path string."""
     return str(text).translate(str.maketrans('', '', string.punctuation)).replace(" ", "")
+
+def raster_and_layer(in_ras: arcpy.Raster | arcpy._mp.Layer) -> tuple[arcpy.Raster, arcpy._mp.Layer | None]:
+    """Return raster and raster layer if it exists."""
+    desc = arcpy.Describe(in_ras)
+    data_type =  desc.dataType
+    if data_type == "RasterLayer":
+        ras = arcpy.Raster(in_ras.name)
+        ras_layer = in_ras
+        return ras, ras_layer
+    elif data_type == "RasterDataset":
+        ras = arcpy.Raster(str(in_ras))
+        ras_layer = None
+        return ras, ras_layer
+    else:
+        raise ValueError("Invalid input, expected RasterLayer or RasterDataset.")

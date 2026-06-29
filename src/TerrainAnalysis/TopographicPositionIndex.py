@@ -9,7 +9,7 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log
+from ..helpers import license, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -102,8 +102,7 @@ class TopographicPositionIndex(object):
 
         # read in parameters
         log("reading in parameters")
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
         neighborhood = parameters[2].valueAsText
         output_file = parameters[3].valueAsText

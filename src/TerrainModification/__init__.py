@@ -9,3 +9,9 @@
 from .BermAnalysis import BermAnalysis
 from .BurnCulverts import BurnCulverts
 from .DamRemoval import DamRemoval
+
+__all__ = [
+    "BermAnalysis",
+    "BurnCulverts",
+    "DamRemoval",
+]

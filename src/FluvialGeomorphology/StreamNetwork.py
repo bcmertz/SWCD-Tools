@@ -10,7 +10,7 @@
 import arcpy
 
 from ..helpers import license, get_oid, empty_workspace, convert_length, cell_area, reload_module,\
-    log, set_required_parameter, AREAL_UNITS, AREAL_UNITS_MAP
+    log, set_required_parameter, raster_and_layer, AREAL_UNITS, AREAL_UNITS_MAP
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -177,7 +177,7 @@ class StreamNetwork(object):
         project, active_map = setup()
 
         # read in parameters
-        dem = parameters[0].value
+        dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
         # parameters[2] is just a toggle for updateParameters to visualize what the user is doing
         stream = parameters[3].value

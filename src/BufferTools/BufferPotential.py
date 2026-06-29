@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log
+from ..helpers import license, empty_workspace, reload_module, log, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -167,7 +167,7 @@ class BufferPotential:
         min_acres = float(min_acres) * arcpy.ArealUnitConversionFactor(min_acres_unit, "AcresUS")
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
-        land_use_raster = parameters[5].value
+        land_use_raster, _ = raster_and_layer(parameters[5].value)
         land_use_field = parameters[6].value
         land_use_values = parameters[7].valueAsText.replace("'","").split(";")
         calculate_wetlands = parameters[8].value

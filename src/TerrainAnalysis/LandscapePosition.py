@@ -10,7 +10,7 @@
 import arcpy
 
 from ..TerrainAnalysis import topographic_position_index
-from ..helpers import license, reload_module, log, Z_UNITS, get_z_unit
+from ..helpers import license, reload_module, log, get_z_unit, raster_and_layer, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -119,8 +119,7 @@ class LandscapePosition(object):
 
         # read in parameters
         log("reading in parameters")
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
         radius_small, radius_small_unit = parameters[3].valueAsText.split(" ")
@@ -196,7 +195,7 @@ class LandscapePosition(object):
         combined.save(output_file)
 
         # add description field
-        description_field = "description"
+        description_field = "desc"
         if description_field not in [f.name for f in arcpy.ListFields(output_file)]:
             log("add descriptive land position field")
             arcpy.management.AddField(

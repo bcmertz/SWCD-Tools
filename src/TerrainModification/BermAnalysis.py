@@ -11,7 +11,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty
+from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -177,8 +177,7 @@ class BermAnalysis(object):
         project, active_map = setup()
 
         log("reading in parameters")
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
+        dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         fill_depressions = parameters[2].value
         extent = parameters[3].value
@@ -245,22 +244,24 @@ class BermAnalysis(object):
             arcpy.management.AddField(contour_output, "Contour", "DOUBLE")
 
         # add berm height field to berm fc
-        if "berm_height" not in [f.name for f in arcpy.ListFields(berms)]:
-            arcpy.management.AddField(berms, "berm_height", "FLOAT", field_precision=255, field_scale=2)
+        berm_height_field = "height"
+        if berm_height_field not in [f.name for f in arcpy.ListFields(berms)]:
+            arcpy.management.AddField(berms, berm_height_field, "FLOAT", field_precision=255, field_scale=2)
 
         # get OID field name for berm fc
-        oidfield = get_oid(berms)
+        oid_field = get_oid(berms)
 
         # get selected features in layer
-        selection_set = berms.getSelectionSet()
-        expression = "*"
-        if selection_set:
+        try:
+            selection_set = berms.getSelectionSet()
             selection_tuple = tuple(selection_set)
             selection = "("+",".join([str(i) for i in selection_tuple])+")"
-            expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oidfield),selection)
+            expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oid_field),selection)
+        except:
+            expression = "*"
 
         # iterate through berms
-        with arcpy.da.UpdateCursor(berms, [oidfield, "berm_height"], expression, spatial_filter=extent.polygon) as cursor:
+        with arcpy.da.UpdateCursor(berms, [oid_field, berm_height_field], expression, spatial_filter=extent.polygon) as cursor:
             for berm in cursor:
                 # log to user
                 oid_value = berm[0]
@@ -268,16 +269,17 @@ class BermAnalysis(object):
 
                 # make a temporary feature layer to store the berm for zonal analysis
                 log("creating temporary berm feature for analysis")
-                where_clause = "\"OBJECTID\" = " + str(oid_value)
+                where_clause = '"{}" = {}'.format(oid_field, oid_value)
                 arcpy.analysis.Select(berms, scratch_berm, where_clause)
 
                 # if berm height is supplied, add it to the lowest elevation to get the flat berm elevation
+                scratch_oid = get_oid(scratch_berm)
                 if supply_berm_height_bool:
                     # find minimum berm elevation
                     log("setting berm elevation")
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
-                        zone_field=oidfield,
+                        zone_field=scratch_oid,
                         in_value_raster=dem,
                         statistics_type="MINIMUM",
                     )
@@ -309,7 +311,7 @@ class BermAnalysis(object):
 
                     out_raster = arcpy.sa.ZonalStatistics(
                         in_zone_data=scratch_berm,
-                        zone_field=oidfield,
+                        zone_field=scratch_oid,
                         in_value_raster=dem,
                         statistics_type="MAXIMUM",
                     )

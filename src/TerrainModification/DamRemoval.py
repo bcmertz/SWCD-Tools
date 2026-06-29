@@ -10,7 +10,7 @@
 import arcpy
 
 from ..FluvialGeomorphology import transect_line
-from ..helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error
+from ..helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -187,9 +187,9 @@ class DamRemoval(object):
         project, active_map = setup()
         map_unit = active_map.mapUnits
 
-        dem_layer = parameters[0].value
-        dem = arcpy.Raster(dem_layer.name)
-        dem_symbology = dem_layer.symbology
+        dem, dem_layer = raster_and_layer(parameters[0].value)
+        if dem_layer:
+            dem_symbology = dem_layer.symbology
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         centerline = parameters[3].value
@@ -334,11 +334,12 @@ class DamRemoval(object):
 
         # add results to map
         log("adding results to map")
-        rem_raster = active_map.addDataFromPath(output_file)
+        dem_raster = active_map.addDataFromPath(output_file)
 
         # update raster symbology
-        log("updating raster symbology")
-        rem_raster.symbology = dem_symbology
+        if dem_layer:
+            log("updating raster symbology")
+            dem_raster.symbology = dem_symbology
 
         # cleanup
         log("deleting unneeded data")
