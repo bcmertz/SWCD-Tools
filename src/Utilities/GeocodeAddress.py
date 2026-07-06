@@ -9,7 +9,7 @@
 import os
 import arcpy
 
-from ..helpers import license, reload_module, log
+from ..helpers import license, reload_module, log, warn
 from ..helpers import setup_environment as setup
 
 class GeocodeAddress(object):
@@ -78,7 +78,7 @@ class GeocodeAddress(object):
             out_loc = None
             if len(geocoding_candidates) == 0:
                 # return warning
-                arcpy.AddWarning("Warning: Couldn't find any matches for address '{}'".format(address))
+                warn("Warning: Couldn't find any matches for address '{}'".format(address))
                 continue
             else:
                 out_loc = geocoding_candidates[0]

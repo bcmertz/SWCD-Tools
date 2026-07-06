@@ -16,7 +16,7 @@
 import arcpy
 import os
 
-from ..helpers import license, reload_module, log
+from ..helpers import license, reload_module, log, warn
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -100,7 +100,10 @@ class RemoveUnused(object):
 
         log("deleting unused data")
         for fc in unused:
-            arcpy.management.Delete(fc)
+            try:
+                arcpy.management.Delete(fc)
+            except:
+                warn("Could not delete {}".format(fc))
 
         # save and exit program successfully
         log("saving project")
