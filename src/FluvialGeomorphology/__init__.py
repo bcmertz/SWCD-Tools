@@ -22,7 +22,7 @@ __all__ = [
     "StreamElevation",
     "StreamNetwork",
     "StreambankDetection",
-    "PolygonCenterline"
+    "PolygonCenterline",
     "GenerateCrossSections",
     "generate_transects",
     "transect_line",
