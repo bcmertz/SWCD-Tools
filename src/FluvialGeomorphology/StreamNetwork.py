@@ -185,7 +185,7 @@ class StreamNetwork(object):
         keep_fields = parameters[5].valueAsText.split(";") if parameters[5].value is not None else None
         # read in areal unit and map it's pretty string to the arcpy representation
         watershed_size_bool = parameters[6].value
-        watershed_size_unit = AREAL_UNITS_MAP[parameters[7].valueAsText]
+        watershed_size_unit = AREAL_UNITS_MAP[parameters[7].valueAsText] if parameters[7].value is not None else None
         output_file = parameters[8].valueAsText
 
         # set analysis extent
