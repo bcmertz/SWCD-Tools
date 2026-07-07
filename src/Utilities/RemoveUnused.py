@@ -102,7 +102,7 @@ class RemoveUnused(object):
         for fc in unused:
             try:
                 arcpy.management.Delete(fc)
-            except:
+            except Exception:
                 warn("Could not delete {}".format(fc))
 
         # save and exit program successfully

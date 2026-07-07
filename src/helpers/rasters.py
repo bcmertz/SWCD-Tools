@@ -108,7 +108,7 @@ def min_cell_path(parameters) -> str:
             if min_cell_size is None or size_acres < min_cell_size:
                 min_cell_size = size_acres
                 min_cell_path = param.valueAsText
-        except:
+        except Exception:
             pass
 
     return min_cell_path

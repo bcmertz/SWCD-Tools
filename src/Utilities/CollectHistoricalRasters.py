@@ -77,7 +77,7 @@ class CollectRasters:
                                 new_lyr_cim = new_lyr.getDefinition('V3')
                                 new_lyr_cim.expanded = False
                                 new_lyr.setDefinition(new_lyr_cim)
-                            except:
+                            except Exception:
                                 pass
 
         return

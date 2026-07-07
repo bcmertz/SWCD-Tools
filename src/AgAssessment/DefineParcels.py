@@ -309,7 +309,7 @@ class DefineParcels(object):
             # turn off parcel layer
             try:
                 parcel_layer.visible = False
-            except:
+            except Exception:
                 # parcel_layer is a shapefile
                 pass
 

@@ -18,7 +18,7 @@ import math
 import arcpy
 import platform
 
-from ..helpers import license, empty_workspace, set_required_parameter, reload_module, log
+from ..helpers import license, empty_workspace, set_required_parameter, reload_module, log, warn
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -141,8 +141,8 @@ class PointPlots:
                 log("create sampling locations")
                 arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance="{} Feet".format(radius*2))
 
-            except:
-                log("Failed to create {} point plots with a radius of {} feet. It is likely because the buffer is too narrow to fit all of the point plots.".format(num, radius))
+            except Exception:
+                warn("Failed to create {} point plots with a radius of {} feet. It is likely because the buffer is too narrow to fit all of the point plots.".format(num, radius))
 
                 radius = 11.8
                 num = int(math.ceil(acreage * 10))

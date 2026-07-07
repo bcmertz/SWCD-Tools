@@ -139,7 +139,7 @@ class Process(object):
             m = None
             try:
                 m = project.listMaps(parcel)[0]
-            except:
+            except Exception:
                 warn("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
 
@@ -151,7 +151,7 @@ class Process(object):
             try:
                 lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
-            except:
+            except Exception:
                 warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
                 continue
 

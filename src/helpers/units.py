@@ -24,7 +24,7 @@ def get_linear_unit(fc) -> str | None:
     try:
         desc = arcpy.Describe(fc)
         return desc.spatialReference.linearUnitName
-    except:
+    except Exception:
         return fc.spatialReference.linearUnitName
 
 # mapping of spatial reference linear unit to GPLinearUnit

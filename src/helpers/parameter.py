@@ -39,7 +39,7 @@ def validate_spatial_reference(parameters):
                     elif spatial_ref.type == "Geographic":
                         valid_sr = False
                         warning_message = warning_message_geographic
-            except:
+            except Exception:
                 continue
         else:
             continue

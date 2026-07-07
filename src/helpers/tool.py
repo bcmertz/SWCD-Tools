@@ -33,7 +33,7 @@ def license(licenses=[], version_required=""):
                 if status != "Available":
                     return False
         return True
-    except:
+    except Exception:
         return False
 
 

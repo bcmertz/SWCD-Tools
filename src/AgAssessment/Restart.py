@@ -12,7 +12,7 @@ import json
 import arcpy
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
-from ..helpers import license, reload_module, log, empty_workspace
+from ..helpers import license, reload_module, log, warn, empty_workspace
 from ..helpers import setup_environment as setup
 
 class Restart(object):
@@ -81,8 +81,8 @@ class Restart(object):
                 with open(cache_file_path) as file:
                     cache = json.load(file)
                     parcels = cache["parcels"]
-            except:
-                log("Unable to find cache file and complete transaction. Please manually refresh the tool or manually clear out data.")
+            except Exception:
+                warn("Unable to find cache file and complete transaction. Please manually refresh the tool or manually clear out data.")
                 return
 
             # clear out maps, layouts, and feature classes
@@ -92,8 +92,8 @@ class Restart(object):
                 lyt = None
                 try:
                     lyt = project.listLayouts(parcel)[0]
-                except:
-                    log("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
+                except Exception:
+                    warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
                     continue
 
                 # delete map
@@ -103,8 +103,8 @@ class Restart(object):
                 m = None
                 try:
                     m = project.listMaps(parcel)[0]
-                except:
-                    log("unable to find map for parcel {}, results may be incomplete".format(parcel))
+                except Exception:
+                    warn("unable to find map for parcel {}, results may be incomplete".format(parcel))
                     continue
 
                 # delete map

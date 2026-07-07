@@ -257,7 +257,7 @@ class BermAnalysis(object):
             selection_tuple = tuple(selection_set)
             selection = "("+",".join([str(i) for i in selection_tuple])+")"
             expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oid_field),selection)
-        except:
+        except Exception:
             expression = "*"
 
         # iterate through berms

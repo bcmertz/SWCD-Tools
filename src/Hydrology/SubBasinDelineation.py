@@ -80,7 +80,7 @@ class SubBasinDelineation(object):
         try:
             # find threshold in number of cells
             num_cells = cells_per_area(dem, threshold)
-        except:
+        except Exception:
             warn("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
 
         # clip DEM raster to the watershed

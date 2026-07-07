@@ -11,7 +11,7 @@ import json
 import arcpy
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
-from ..helpers import license, reload_module, log, error
+from ..helpers import license, reload_module, log, warn, error
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -64,16 +64,16 @@ class NonAg(object):
             m = None
             try:
                 m = project.listMaps(parcel)[0]
-            except:
-                log("unable to find map for {}, results may be incomplete".format(parcel))
+            except Exception:
+                warn("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
 
             # get parcel layer or drop off of map
             parcel_lyr = None
             try:
                 parcel_lyr = m.listLayers("*_{}".format(parcel))[0]
-            except:
-                log("no appropriate parcel layer found for {}, results may be incomplete".format(parcel))
+            except Exception:
+                warn("no appropriate parcel layer found for {}, results may be incomplete".format(parcel))
                 continue
 
             # check how many pieces are selected
