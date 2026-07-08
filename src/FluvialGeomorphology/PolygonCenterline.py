@@ -11,8 +11,10 @@
 import os
 import math
 import arcpy
+import numpy as np
+from scipy.spatial import Delaunay
 
-from ..helpers import license, reload_module, log, empty_workspace
+from ..helpers import license, reload_module, log, empty_workspace, fc_to_numpy_array, bbox, voronoi
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -33,17 +35,15 @@ class PolygonCenterline(object):
             parameterType="Required",
             direction="Input")
         param0.filter.list = ["Polygon"]
-        param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
         param1 = arcpy.Parameter(
             displayName="Connecting Edge Points",
             name="points",
             datatype="GPFeatureLayer",
             parameterType="Optional",
-            multiValue=True,
             direction="Input")
         param1.filter.list = ["Point"]
-        param1.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
+        param1.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows point creation
 
         # TODO: fill holes option
 
@@ -86,19 +86,67 @@ class PolygonCenterline(object):
         edge_points = parameters[1].value
         output_file = parameters[2].valueAsText
 
+        # # create scratch layers
+        # log("create scratch layers")
+        # scratch_edge = arcpy.CreateScratchName("edge_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+
+        # # export polygon to scratch
+        # log("export")
+        # arcpy.management.CopyFeatures(edge_points, scratch_edge)
+
+        # convert fc to numpy array
+        log("converting input polygon feature class to numpy array")
+        spatial_ref = arcpy.Describe(polygon).spatialReference
+        _, np_arr = fc_to_numpy_array(polygon)
+
+        # calculate bounding box and add it to the polygon numpy array
+        log("finding polygon bounding box")
+        box = bbox(np_arr)
+        np_arr = np.concatenate((np_arr, box), axis=0)
+
+        # find the delaunay triangulation
+        log("calculating Delaunay triangulation")
+        delaunay = Delaunay(np_arr)
+
+        # find voronoi polygon array
+        log("creating voronoi polygons from Delaunay triangulation")
+        # if edge_points:
+        #     _, edge_arr = fc_to_numpy_array(edge_points)
+        #     vor_arr = voronoi(delaunay)
+        # else:
+        #     vor_arr = voronoi(delaunay)
+        vor_arr = voronoi(delaunay)
+        features = []
+        for feature in vor_arr:
+            array = arcpy.Array([arcpy.Point(*coords) for coords in feature])
+            polyline = arcpy.Polyline(array, spatial_reference=spatial_ref)
+            features.append(polyline)
+
+        # create output fc from polygons
+        arcpy.management.CopyFeatures(features, output_file)
+        return
+
+
+        ####
+
+        arcpy.da.NumPyArrayToFeatureClass(circum_centers, output_file, ["X","Y"], spatial_ref)
+        return
+
+
         # TODO: handle multiple polygons / points
 
         # create scratch layers
-        scratch_polygon = arcpy.CreateScratchName("polygon", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_vertices = arcpy.CreateScratchName("vertices", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_thiessen = arcpy.CreateScratchName("thiessen", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_line = arcpy.CreateScratchName("line", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_dangling = arcpy.CreateScratchName("dangling", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        # scratch_polygon = arcpy.CreateScratchName("polygon", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        # scratch_vertices = arcpy.CreateScratchName("vertices", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        # scratch_thiessen = arcpy.CreateScratchName("thiessen", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        # scratch_line = arcpy.CreateScratchName("line", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        # scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        # scratch_dangling = arcpy.CreateScratchName("dangling", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # export polygon to scratch
-        log("export")
-        arcpy.management.CopyFeatures(polygon, scratch_polygon)
+        # log("export")
+        # arcpy.management.CopyFeatures(polygon, scratch_polygon)
+
 
         # densify
         log("densify")
