@@ -23,7 +23,14 @@ from .rasters import (
     cells_per_length,
 )
 from .tool import license, setup_environment, reload_module, empty_workspace
-from .geometry import fc_to_numpy_array, delaunay
+from .geometry import (
+    fc_to_numpy_array,
+    bbox,
+    delaunay_fc,
+    voronoi,
+    voronoi_fc,
+    triangle_csc,
+)
 from .units import (
     get_z_unit,
     get_linear_unit,
@@ -71,5 +78,9 @@ __all__ = [
     "convert_area",
     "convert_length",
     "fc_to_numpy_array",
-    "delaunay",
+    "bbox",
+    "delaunay_fc",
+    "voronoi",
+    "voronoi_fc",
+    "triangle_csc",
 ]
