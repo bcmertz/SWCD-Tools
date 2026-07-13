@@ -37,6 +37,7 @@ class RemoveUnused(object):
             displayName="Workspace",
             name="workspace",
             datatype="DEWorkspace",
+            multiValue="True",
             parameterType="Required",
             direction="Input")
 
@@ -58,19 +59,23 @@ class RemoveUnused(object):
         # find unused
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                workspace = parameters[0].value
-                options = set()
-
-                # get all filepaths from workspace
-                for dirpath, dirnames, filenames in arcpy.da.Walk(workspace):
-                    for filename in filenames:
-                        fc = os.path.join(dirpath, filename)
-                        options.add(fc)
-
-                # remove all used filepaths
+                used = set()
                 maps = self.project.listMaps()
                 for m in maps:
-                    options = options - set(l.dataSource for l in m.listLayers() if l.supports("DATASOURCE"))
+                    for layer in m.listLayers():
+                        if layer.supports("DATASOURCE"):
+                            used.add(layer.dataSource)
+                options = set()
+                workspaces = parameters[0].valueAsText.replace("'","").split(";")
+                for workspace in workspaces:
+                    # get all filepaths from workspace
+                    for dirpath, _, filenames in arcpy.da.Walk(workspace):
+                        for filename in filenames:
+                            fc = os.path.join(dirpath, filename)
+                            options.add(fc)
+
+                # remove all used filepaths
+                options = options - used
 
                 parameters[1].filter.list = list(options)
             else:
