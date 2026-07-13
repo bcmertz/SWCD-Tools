@@ -7,26 +7,26 @@
 # -----------------------------------------------------------------------------------
 
 import arcpy
+from enum import Enum
 
 from .units import convert_area, convert_length, LINEAR_TO_AREAL, SPATIAL_TO_LINEAR
 
-PIXEL_TYPES = {
-    "U1": "1_BIT",
-    "U2": "2_BIT",
-    "U4": "4_BIT",
-    "S8": "8_BIT_SIGNED",
-    "U8": "8_BIT_UNSIGNED",
-    "S16": "16_BIT_UNSIGNED",
-    "U16": "16_BIT_SIGNED",
-    "S32": "32_BIT_UNSIGNED",
-    "U32": "32_BIT_SIGNED",
-    "F32": "32_BIT_FLOAT",
-    "F64": "64_BIT"
-}
+class PIXEL_TYPE(Enum):
+    U1="1_BIT",
+    U2 = "2_BIT"
+    U4 = "4_BIT"
+    S8 = "8_BIT_SIGNED"
+    U8 = "8_BIT_UNSIGNED"
+    S16 = "16_BIT_UNSIGNED"
+    U16 = "16_BIT_SIGNED"
+    S32 = "32_BIT_UNSIGNED"
+    U32 = "32_BIT_SIGNED"
+    F32 = "32_BIT_FLOAT"
+    F64 = "64_BIT"
 
-def pixel_type(raster) -> str:
+def pixel_type(raster) -> PIXEL_TYPE:
     """Return the the string representation of the raster pixel type."""
-    return PIXEL_TYPES[raster.pixelType]
+    return PIXEL_TYPE[raster.pixelType]
 
 def cell_area(raster, area_unit=None) -> str:
     """Return the cell size of a RASTER as a GPArealUnit. User can specify unit AREA_UNIT
