@@ -202,8 +202,8 @@ class DecisionTree(object):
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
-        scratch_land_use = None
-        existing_values = []
+        scratch_land_use: arcpy.Raster
+        existing_values: list[str]
         with arcpy.da.SearchCursor(land_use_raster, land_use_field) as cursor:
             existing_values = sorted({row[0] for row in cursor})
         land_use_values = [ i for i in land_use_values if i in existing_values ]
