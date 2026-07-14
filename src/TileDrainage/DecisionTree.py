@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
+from ..helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, convert_area
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -185,10 +185,7 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        num_acres, num_acres_unit = "", ""
-        if parameters[9].value:
-            num_acres, num_acres_unit = parameters[9].valueAsText.split(" ")
-            num_acres = float(num_acres) * arcpy.ArealUnitConversionFactor(num_acres_unit, "AcresUS")
+        num_acres = float(convert_area(parameters[9].valueAsText, "AcresUS").split(" ")[0]) if parameters[9].value else None
 
         # set analysis extent
         if extent:

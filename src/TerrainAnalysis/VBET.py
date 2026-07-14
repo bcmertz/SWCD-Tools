@@ -9,7 +9,7 @@
 import arcpy
 
 from ..TerrainAnalysis import relative_elevation_model
-from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
+from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, convert_area, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -184,7 +184,7 @@ class VBET(object):
         watershed_size_field = parameters[5].valueAsText
         watershed_area_unit = AREAL_UNITS_MAP[parameters[6].valueAsText]
         buffer_radius = parameters[7].valueAsText
-        min_watershed_size, min_watershed_unit =  parameters[8].valueAsText.split(" ") if parameters[8].value is not None else (None, None)
+        min_watershed_size, _ = convert_area(parameters[8].valueAsText, watershed_area_unit).split(" ") if parameters[8].value else (None, None)
         full_valley_file = parameters[9].valueAsText
         low_lying_file = parameters[10].valueAsText
         remove = parameters[11].value
@@ -231,9 +231,6 @@ class VBET(object):
         log("creating watershed size thresholds")
         threshold_low = 25 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
         threshold_high = 250 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
-        if min_watershed_size is not None:
-            log("limiting watershed size")
-            min_watershed_size = float(min_watershed_size) * arcpy.ArealUnitConversionFactor(min_watershed_unit, watershed_area_unit)
 
         # set watershed size boundaries
         queries = [
