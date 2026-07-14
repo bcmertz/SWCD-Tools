@@ -8,7 +8,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, Z_UNITS, get_z_unit, reload_module, log, raster_and_layer
+from ..helpers import license, get_oid, Z_UNITS, get_z_unit, reload_module, log, raster_and_layer, convert_length
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -116,8 +116,7 @@ class WatershedDelineation(object):
         z_unit = parameters[1].value
         extent = parameters[2].value
         pour_points = parameters[3].value
-        snap_adjustment, snap_adjustment_unit = parameters[4].valueAsText.split(" ")
-        snap_adjustment = float(snap_adjustment) * arcpy.LinearUnitConversionFactor(snap_adjustment_unit, z_unit)
+        snap_adjustment = float(convert_length(parameters[4].valueAsText, z_unit).split(" ")[0])
         output_file = parameters[5].valueAsText
 
         # set analysis extent

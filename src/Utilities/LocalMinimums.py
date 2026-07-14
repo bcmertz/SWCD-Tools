@@ -13,7 +13,7 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
+from ..helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, convert_length, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -137,8 +137,7 @@ class LocalMinimums:
         z_linear_unit = parameters[2].value
         extent = parameters[3].value
         search_interval = parameters[4].valueAsText
-        threshold, threshold_unit = parameters[5].valueAsText.split(" ")
-        threshold = float(threshold) * arcpy.LinearUnitConversionFactor(threshold_unit, z_linear_unit)
+        threshold = float(convert_length(parameters[5].valueAsText, z_linear_unit).split(" ")[0])
         output_file = parameters[6].valueAsText
 
         # create scratch layers

@@ -10,7 +10,7 @@
 import arcpy
 
 from ..TerrainAnalysis import topographic_position_index
-from ..helpers import license, reload_module, log, get_z_unit, raster_and_layer, Z_UNITS
+from ..helpers import license, reload_module, log, get_z_unit, raster_and_layer, convert_length, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -116,14 +116,15 @@ class LandscapePosition(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        map_unit = active_map.mapUnits
 
         # read in parameters
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
-        radius_small, radius_small_unit = parameters[3].valueAsText.split(" ")
-        radius_large, radius_large_unit = parameters[4].valueAsText.split(" ")
+        radius_small = float(convert_length(parameters[3].valueAsText, map_unit).split(" ")[0])
+        radius_large = float(convert_length(parameters[4].valueAsText, map_unit).split(" ")[0])
         output_file = parameters[5].valueAsText
 
         # set analysis extent
@@ -131,9 +132,6 @@ class LandscapePosition(object):
             arcpy.env.extent = extent
 
         # create neighborhoods
-        map_unit = active_map.mapUnits
-        radius_small = float(radius_small) * arcpy.LinearUnitConversionFactor(radius_small_unit, map_unit)
-        radius_large = float(radius_large) * arcpy.LinearUnitConversionFactor(radius_large_unit, map_unit)
         neighborhood_small = arcpy.sa.NbrCircle(radius_small, "MAP")
         neighborhood_large = arcpy.sa.NbrCircle(radius_large, "MAP")
 

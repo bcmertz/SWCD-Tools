@@ -11,7 +11,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer
+from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer, convert_length
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -194,12 +194,8 @@ class BermAnalysis(object):
         berm_z_factor = arcpy.LinearUnitConversionFactor(z_unit, berm_unit)
         # optionally specify contour interval
         contour_bool = parameters[8].value
-        contour_interval, contour_unit, contour_output = "", "", ""
-        if contour_bool:
-            contour_interval, contour_unit = parameters[9].valueAsText.split(" ")
-            contour_interval = float(contour_interval)
-            contour_z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
-            contour_output = parameters[10].valueAsText
+        contour_interval = float(convert_length(parameters[9].valueAsText, z_unit).split(" ")[0]) if contour_bool else None
+        contour_output = parameters[10].valueAsText
 
         # set analysis extent
         arcpy.env.extent = extent
@@ -360,7 +356,6 @@ class BermAnalysis(object):
                         out_polyline_features=scratch_contour,
                         contour_interval=contour_interval,
                         base_contour=0,
-                        z_factor=contour_z_factor,
                     )
 
                     # append contour outputs contour_output
