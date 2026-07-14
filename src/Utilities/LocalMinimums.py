@@ -127,9 +127,6 @@ class LocalMinimums:
         # Setup
         log("setting up project")
         project, active_map = setup()
-        spatial_reference_name = active_map.spatialReference.name
-        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
-        arcpy.env.outputCoordinateSystem = spatial_reference
 
         log("reading in parameters")
         line = parameters[0].value
@@ -237,8 +234,7 @@ class LocalMinimums:
             if len(local_minimums) > 0:
                 log("copying points to feature class")
                 arcpy.management.CopyFeatures(local_minimums, output_file)
-                #log("defining spatial reference of feature")
-                #arcpy.management.DefineProjection(output_file,spatial_reference)
+
                 log("adding minimums to map")
                 active_map.addDataFromPath(output_file)
             else:
