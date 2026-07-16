@@ -210,7 +210,7 @@ class BufferPotential:
                     land_use_sql_query += " Or {} = '{}'".format(land_use_field, value)
             scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster_clip, land_use_sql_query)
         else:
-            log("no valid land uses found in area, please try again with land uses found in analysis area")
+            warn("no valid land uses found in area, please try again with land uses found in analysis area")
             return
 
         # convert land usage output to polygon
