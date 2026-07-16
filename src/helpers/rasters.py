@@ -9,7 +9,7 @@
 import arcpy
 from enum import Enum
 
-from .units import convert_area, convert_length, LINEAR_TO_AREAL, SPATIAL_TO_LINEAR
+from .units import LINEAR_TO_AREAL, SPATIAL_TO_LINEAR, LinearUnit, ArealUnit, LINEAR_UNITS, AREAL_UNITS
 
 class PIXEL_TYPE(Enum):
     U1="1_BIT",
@@ -28,7 +28,7 @@ def pixel_type(raster) -> PIXEL_TYPE:
     """Return the the string representation of the raster pixel type."""
     return PIXEL_TYPE[raster.pixelType]
 
-def cell_area(raster, area_unit=None) -> str:
+def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> ArealUnit:
     """Return the cell size of a RASTER as a GPArealUnit. User can specify unit AREA_UNIT
     for output GPArealUnit to be in."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
@@ -43,14 +43,14 @@ def cell_area(raster, area_unit=None) -> str:
     area=cellsize_x * cellsize_y
 
     # output area
-    area = "{} {}".format(area, square_unit)
+    area = ArealUnit("{} {}".format(area, square_unit))
 
-    if area_unit is not None:
-        area = convert_area(area, area_unit)
+    if to_unit is not None:
+        area = area.to_unit(to_unit)
 
     return area
 
-def cell_length(raster, length_unit=None) -> str:
+def cell_length(raster, to_unit=None) -> LinearUnit:
     """Return the average cell length of a RASTER as a GPLinearUnit. User can specify
     unit LINEAR_UNIT for output GPLinearUnit to be in."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
@@ -64,34 +64,39 @@ def cell_length(raster, length_unit=None) -> str:
     average_length = (cellsize_y + cellsize_x) / 2
 
     # output length
-    length = "{} {}".format(average_length, linear_unit)
+    length = LinearUnit("{} {}".format(average_length, linear_unit))
 
-    if length_unit is not None:
-        length = convert_length(length, length_unit)
+    if to_unit is not None:
+        length = length.to_unit(to_unit)
 
     return length
 
 
-def cells_per_area(raster, area: str) -> int:
+def cells_per_area(raster, area: ArealUnit) -> int:
     """Convert GPArealUnit AREA to the number of cells in the RASTER it is equivalent to."""
-    cell_size, cell_unit = cell_area(raster).split(" ")
+    raster_cell_area = cell_area(raster)
+    cell_size = raster_cell_area.area
+    cell_unit = raster_cell_area.unit
 
     # convert area to raster cell unit
-    area_size_in_cell_units = convert_area(area, cell_unit).split(" ")[0]
+    area_size_in_cell_units = area.to_unit(cell_unit).area
 
     # find number of cells
-    num_cells = float(area_size_in_cell_units) / float(cell_size)
+    num_cells = area_size_in_cell_units / cell_size
     return int(num_cells)
 
-def cells_per_length(raster, length: str) -> int:
+def cells_per_length(raster, length: LinearUnit) -> int:
     """Convert GPLinearUnit LENGTH to the number of cells in the RASTER it is equivalent to."""
-    cell_size, cell_unit = cell_length(raster).split(" ")
+    raster_cell_length = cell_length(raster)
+    cell_size = raster_cell_length.length
+    cell_unit = raster_cell_length.unit
+
 
     # convert length to raster cell unit
-    area_size_in_cell_units = convert_length(length, cell_unit).split(" ")[0]
+    area_size_in_cell_units = length.to_unit(cell_unit).length
 
     # find number of cells
-    num_cells = float(area_size_in_cell_units) / float(cell_size)
+    num_cells = area_size_in_cell_units / cell_size
     return int(num_cells)
 
 
@@ -102,7 +107,7 @@ def min_cell_path(parameters) -> str:
     for param in parameters:
         try:
             # get cell size of param in US Acres
-            size_acres = float(cell_area(param.value, "AcresUS").split(" ")[0])
+            size_acres = cell_area(param.value, AREAL_UNITS.AcresUS).area
 
             # compare sizes
             if min_cell_size is None or size_acres < min_cell_size:
