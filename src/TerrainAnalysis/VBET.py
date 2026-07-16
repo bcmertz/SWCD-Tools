@@ -9,7 +9,7 @@
 import arcpy
 
 from ..TerrainAnalysis import relative_elevation_model
-from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, convert_area, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
+from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, ArealUnit, LinearUnit
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -75,7 +75,7 @@ class VBET(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param6.filter.list = AREAL_UNITS
+        param6.filter.list = [i for i in AREAL_UNITS_MAP.keys()]
 
         param7 = arcpy.Parameter(
             displayName="Buffer Radius",
@@ -182,12 +182,17 @@ class VBET(object):
         rem, _ = raster_and_layer(parameters[3].value) if parameters[3].value is not None else (None, None)
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
-        watershed_area_unit = AREAL_UNITS_MAP[parameters[6].valueAsText]
-        buffer_radius = parameters[7].valueAsText
-        min_watershed_size, _ = convert_area(parameters[8].valueAsText, watershed_area_unit).split(" ") if parameters[8].value else (None, None)
+        watershed_area_unit = AREAL_UNITS[AREAL_UNITS_MAP[parameters[6].valueAsText]]
+        buffer_radius = LinearUnit(parameters[7].valueAsText)
+        sampling_interval = LinearUnit("35 Feet")
+        min_watershed_size = ArealUnit(parameters[8].valueAsText).to_unit(watershed_area_unit).area if parameters[8].value is not None else None
         full_valley_file = parameters[9].valueAsText
         low_lying_file = parameters[10].valueAsText
         remove = parameters[11].value
+
+        log("creating watershed size thresholds")
+        threshold_low = ArealUnit("25 SquareKilometers").to_unit(watershed_area_unit).area
+        threshold_high = ArealUnit("250 SquareKilometers").to_unit(watershed_area_unit).area
 
         # set analysis extent
         if extent:
@@ -205,7 +210,7 @@ class VBET(object):
         arcpy.analysis.PairwiseBuffer(
             in_features=streams,
             out_feature_class=scratch_buffer,
-            buffer_distance_or_field=buffer_radius,
+            buffer_distance_or_field=str(buffer_radius),
             dissolve_option="NONE",
             dissolve_field=None,
             method="GEODESIC",
@@ -225,12 +230,15 @@ class VBET(object):
         # optionally create REM
         if rem is None:
             log("calculating relative elevation model")
-            rem = relative_elevation_model(active_map, dem, extent, streams, buffer_radius, "35 Feet", resolve=True)
-
-        # get threshold watershed sizes in km^2
-        log("creating watershed size thresholds")
-        threshold_low = 25 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
-        threshold_high = 250 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
+            rem = relative_elevation_model(
+                active_map=active_map,
+                dem_raster=dem,
+                extent=extent,
+                stream_layer=streams,
+                buffer_radius=buffer_radius,
+                sampling_interval=sampling_interval,
+                resolve=True
+            )
 
         # set watershed size boundaries
         queries = [
