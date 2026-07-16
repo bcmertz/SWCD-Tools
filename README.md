@@ -579,7 +579,9 @@ cd SWCD-Tools/
 git clone git@github.com:bcmertz/arcpy-typestubs.git arcpy
 ```
 
-This project uses the [Gentoo LLM policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy) and kindly asks contributors to refrain from submitting LLM generated code.
+This project kindly asks contributors to refrain from submitting LLM generated code. If you don't have capacity to program without LLMs, creating a [new issue](https://github.com/bcmertz/SWCD-Tools/issues/new) with your desired change is welcomed :).
+
+If you want to learn more about the issues with LLMs in open source and society, a good starting point is [Why not LLMs?](https://codeberg.org/ethical-foss/open-slopware/src/branch/main/why_not_llms.md#ties-to-the-war-industrial-complex) by `ethical-foss`.
 
 # License [↑](#table-of-contents)
 
