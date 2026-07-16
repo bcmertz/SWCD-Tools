@@ -153,7 +153,7 @@ class BaseUnit:
 class LinearUnit(BaseUnit):
     def __init__(self: Self, input: str):
         length, unit_str, *rest = input.split(" ")
-        if rest is not None:
+        if rest:
             unit_str += " " + " ".join(rest)
             unit_str = LINEAR_UNITS_MAP[unit_str]
         super().__init__(amount=float(length), unit=LINEAR_UNITS[unit_str])
@@ -221,7 +221,7 @@ class LinearUnit(BaseUnit):
 class ArealUnit(BaseUnit):
     def __init__(self: Self, input: str):
         area, unit_str, *rest = input.split(" ")
-        if rest is not None:
+        if rest:
             unit_str += " " + " ".join(rest)
             unit_str = AREAL_UNITS_MAP[unit_str]
         super().__init__(amount=float(area), unit=AREAL_UNITS[unit_str])
