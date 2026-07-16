@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log, raster_and_layer, convert_area
+from ..helpers import license, empty_workspace, reload_module, log, warn, raster_and_layer, ArealUnit, LinearUnit
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -162,8 +162,8 @@ class BufferPotential:
 
         log("reading in parameters")
         stream = parameters[0].value
-        min_width = parameters[1].valueAsText
-        min_acres, _ = convert_area(parameters[2].valueAsText, "AcresUS").split(" ")
+        min_width = LinearUnit(parameters[1].valueAsText)
+        min_area = ArealUnit(parameters[2].valueAsText)
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         land_use_raster, _ = raster_and_layer(parameters[5].value)
@@ -187,7 +187,7 @@ class BufferPotential:
 
         # pairwise buffer stream
         log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, min_width, "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, str(min_width), "ALL", "", "GEODESIC", "")
 
         # clip land uses to buffer
         log("extracting land use data inside buffer area")
@@ -240,11 +240,11 @@ class BufferPotential:
 
         # calculate acreage
         log("calculating acreage of planting areas")
-        arcpy.management.AddField(scratch_dissolve, "Acres", "FLOAT", 2, 2)
-        arcpy.management.CalculateGeometryAttributes(scratch_dissolve, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        arcpy.management.AddField(scratch_dissolve, min_area.unit, "FLOAT", 2, 2)
+        arcpy.management.CalculateGeometryAttributes(scratch_dissolve, geometry_property=[[min_area.unit, "AREA_GEODESIC"]], area_unit=min_area.full_unit())
 
         # drop acreage < threshold
-        sql_query = "Acres >= {}".format(min_acres)
+        sql_query = "{} >= {}".format(min_area.unit, min_area.area)
         arcpy.analysis.Select(scratch_dissolve, output_file, sql_query)
 
         # add output to map
