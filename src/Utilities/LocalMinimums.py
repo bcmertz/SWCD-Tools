@@ -13,7 +13,7 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, convert_length, Z_UNITS
+from ..helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 

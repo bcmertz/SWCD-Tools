@@ -11,7 +11,7 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer, convert_length
+from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
