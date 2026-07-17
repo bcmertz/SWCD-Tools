@@ -10,7 +10,6 @@ import arcpy
 import numpy as np
 from scipy.spatial import Delaunay
 from numpy.lib.recfunctions import structured_to_unstructured as stu
-from .logging import log
 
 # modified from https://github.com/Dan-Patterson/numpy_geometry/blob/master/arcpro_npg/npg/npg/npg_arc_npg.py#L639
 def fc_to_numpy_array(in_fc):
