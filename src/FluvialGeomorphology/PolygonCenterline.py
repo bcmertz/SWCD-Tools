@@ -8,8 +8,6 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-import os
-import math
 import arcpy
 import numpy as np
 from scipy.spatial import Delaunay
