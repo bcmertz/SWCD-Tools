@@ -177,6 +177,7 @@ class LinearUnit(BaseUnit):
         self.unit = output_unit
         return self
     def full_unit(self: Self) -> str:
+        """Return full string description of LINEAR_UNIT stored in LINEAR_UNITS_MAP."""
         unit = self.unit
         for key, value in LINEAR_UNITS_MAP.items():
             if value == unit:
@@ -245,6 +246,7 @@ class ArealUnit(BaseUnit):
         self.unit = output_unit
         return self
     def full_unit(self: Self) -> str:
+        """Return full string description of AREAL_UNIT stored in AREAL_UNITS_MAP."""
         unit = self.unit
         for key, value in AREAL_UNITS_MAP.items():
             if value == unit:
