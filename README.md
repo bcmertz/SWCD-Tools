@@ -73,7 +73,7 @@ Each tool will verify you have the proper licenses needed. Not all tools require
 			- unzip the folder into a folder where you want it to live
 2. Add toolbox to ArcGIS Pro
     - ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
-    	- select `SWCD Tools.pyt` from cloned repository
+    	- select `src/SWCD Tools.pyt` from cloned repository
 
 # Project Structure [↑](#table-of-contents)
 ```
