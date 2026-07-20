@@ -74,24 +74,15 @@ class CalculateEFH2:
         param5.filter.list = []
 
         param6 = arcpy.Parameter(
-            displayName="Acres Field",
-            name="acres_field",
+            displayName="Land Use Field",
+            name="land_use_field",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
         param6.filter.type = "ValueList"
         param6.filter.list = []
 
-        param7 = arcpy.Parameter(
-            displayName="Land Use Field",
-            name="land_use_field",
-            datatype="GPString",
-            parameterType="Required",
-            direction="Input")
-        param7.filter.type = "ValueList"
-        param7.filter.list = []
-
-        params = [param0, param1, param2, param3, param4, param5, param6, param7]
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def updateParameters(self, parameters):
@@ -118,25 +109,20 @@ class CalculateEFH2:
                 parameters[4].enabled = True
                 parameters[5].enabled = True
                 parameters[6].enabled = True
-                parameters[7].enabled = True
                 fields = [f.name for f in arcpy.ListFields(parameters[3].value)]
                 parameters[4].filter.list = fields
                 parameters[5].filter.list = fields
                 parameters[6].filter.list = fields
-                parameters[7].filter.list = fields
                 if "hydgrpdcd" in fields:
                     parameters[4].value = "hydgrpdcd"
                 if "RCN" in fields:
                     parameters[5].value = "RCN"
-                if "Acres" in fields:
-                    parameters[6].value = "Acres"
                 if "LandUse" in fields:
-                    parameters[7].value = "LandUse"
+                    parameters[6].value = "LandUse"
             else:
                 parameters[4].enabled = False
                 parameters[5].enabled = False
                 parameters[6].enabled = False
-                parameters[7].enabled = False
 
         return
 
@@ -164,8 +150,7 @@ class CalculateEFH2:
         rcn_layer = parameters[3].value
         hsg_field = parameters[4].value
         rcn_field = parameters[5].value
-        acres_field = parameters[6].value
-        land_use_field = parameters[7].value
+        land_use_field = parameters[6].value
 
         # utils
         watershed_layer_id = arcpy.ValidateTableName(rcn_layer.name)
@@ -213,6 +198,7 @@ class CalculateEFH2:
 
         # add acres field and calculate
         log("calculating rcn acres")
+        acres_field = "acres"
         if acres_field not in [f.name for f in arcpy.ListFields(rcn_layer)]:
             arcpy.management.AddField(rcn_layer, acres_field, "FLOAT", field_precision=255, field_scale=2)
         arcpy.management.CalculateGeometryAttributes(rcn_layer, geometry_property=[[acres_field, "AREA_GEODESIC"]], area_unit="ACRES_US")
