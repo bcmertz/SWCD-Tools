@@ -377,7 +377,7 @@ This example shows an example of output tiled areas, and how the AgTile protocol
 
 This tool finds optimal rasters for Image Differencing analysis based off of historic precipitation data.
 
-For detailed information on finding and downloading appropriate data sources for this analysis please see [Image Differencing Documentation](<./Image Differencing Data Sources.md>).
+For detailed information on finding and downloading appropriate data sources for this analysis please see [Image Differencing Documentation](<./docs/Image Differencing Data Sources.md>).
 
 <span>
 <img src="/assets/readme_examples/image_differencing_setup_dry.png" alt="image of SWIR raster in dry conditions" height="250" />
@@ -508,7 +508,7 @@ This tool tries to assume nothing about your layer files or folder structure. Th
 
 Additionally, you may want to edit the default Soil Group Worksheet template to have your County name or other data.
 
-For full instructions see [here](<./Ag Assessment Instructions.md>).
+For full instructions see [here](<./docs/Ag Assessment Instructions.md>).
 
 ### 1. Delineate Parcels [↑](#table-of-contents)
 
