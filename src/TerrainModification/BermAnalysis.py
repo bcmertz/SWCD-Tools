@@ -188,11 +188,10 @@ class BermAnalysis(object):
         berms = parameters[5].value
         # optionally specify berm height
         supply_berm_height_bool = parameters[6].value
-        berm_unit = LINEAR_UNITS.Feet
+        berm_unit = LINEAR_UNITS["Feet"]
         if supply_berm_height_bool:
-            berm_height_unit = LinearUnit(parameters[7].valueAsText)
-            berm_height = berm_height_unit.length
-            berm_unit = berm_height_unit.unit
+            berm_measurement = LinearUnit(parameters[7].valueAsText)
+            berm_unit = berm_measurement.unit
         # optionally specify contour interval
         contour_bool = parameters[8].value
         contour_interval = LinearUnit(parameters[9].valueAsText).to_unit(z_unit).length if contour_bool else None
@@ -406,13 +405,13 @@ class BermAnalysis(object):
                             in_value_raster=dem,
                             statistics_type="RANGE",
                         )
-                        berm_height = LinearUnit(berm_raster.maximum, z_unit).to_unit(berm_unit).length
-                        log("berm height: ", berm_height, berm_unit)
+                        berm_measurement = LinearUnit(berm_raster.maximum, z_unit).to_unit(berm_unit)
+                        log("berm height: ", berm_measurement)
 
                 # add height to berm
-                if berm_height is not None:
+                if berm_measurement:
                     log("adding berm height to berm feature attribute table")
-                    berm[1] = berm_height
+                    berm[1] = berm_measurement.height
                     cursor.updateRow(berm)
 
         # cleanup
