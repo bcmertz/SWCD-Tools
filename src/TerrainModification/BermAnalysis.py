@@ -11,7 +11,8 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer
+from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, \
+    set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer, LINEAR_UNITS, LinearUnit
 from ..helpers import setup_environment as setup
 from ..helpers import validate_spatial_reference as validate
 
@@ -122,7 +123,7 @@ class BermAnalysis(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit:
+                if z_unit is not None:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
@@ -178,23 +179,21 @@ class BermAnalysis(object):
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = LINEAR_UNITS[parameters[1].value]
         fill_depressions = parameters[2].value
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         berms = parameters[5].value
         # optionally specify berm height
         supply_berm_height_bool = parameters[6].value
-        berm_height, berm_unit, berm_z_factor = None, None, None
+        berm_unit = LINEAR_UNITS.FeetUS
         if supply_berm_height_bool:
-            berm_height, berm_unit = parameters[7].valueAsText.split(" ")
-            berm_height = float(berm_height)
-        else:
-            berm_unit = "FeetUS"
-        berm_z_factor = arcpy.LinearUnitConversionFactor(z_unit, berm_unit)
+            berm_height_unit = LinearUnit(parameters[7].valueAsText)
+            berm_height = berm_height_unit.length
+            berm_unit = berm_height_unit.unit
         # optionally specify contour interval
         contour_bool = parameters[8].value
-        contour_interval = float(convert_length(parameters[9].valueAsText, z_unit).split(" ")[0]) if contour_bool else None
+        contour_interval = LinearUnit(parameters[9].valueAsText).to_unit(z_unit).length if contour_bool else None
         contour_output = parameters[10].valueAsText
 
         # set analysis extent
@@ -280,7 +279,7 @@ class BermAnalysis(object):
                         statistics_type="MINIMUM",
                     )
                     out_raster.save(scratch_dem_mask)
-                    berm_elevation = out_raster.minimum + berm_height / berm_z_factor
+                    berm_elevation = LinearUnit("{} {}".format(out_raster.minimum)).to_unit(berm_unit).length
 
                     # clip original dem to berm area
                     log("clipping dem to berm")
@@ -404,7 +403,7 @@ class BermAnalysis(object):
                             in_value_raster=dem,
                             statistics_type="RANGE",
                         )
-                        berm_height = berm_raster.maximum * berm_z_factor
+                        berm_height = LinearUnit("{} {}".format(berm_raster.maximum, z_unit)).to_unit(berm_unit).length
                         log("berm height: ", berm_height, berm_unit)
 
                 # add height to berm
