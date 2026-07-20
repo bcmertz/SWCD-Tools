@@ -2,15 +2,25 @@
 name = "SWCD-Tools"
 version = "0.1.0"
 readme = "README.md"
-requires-python = ">3.11"
-
-[tool.uv]
-exclude-newer = "1 month"
+requires-python = ">=3.11"
 
 [dependency-groups]
 dev = [
     "ty>=0.0.24",
 ]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.uv]
+exclude-newer = "30 days"
 
 [tool.ty.environment]
 python-version = "3.11"
