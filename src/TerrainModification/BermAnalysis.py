@@ -186,7 +186,7 @@ class BermAnalysis(object):
         berms = parameters[5].value
         # optionally specify berm height
         supply_berm_height_bool = parameters[6].value
-        berm_unit = LINEAR_UNITS.FeetUS
+        berm_unit = LINEAR_UNITS.Feet
         if supply_berm_height_bool:
             berm_height_unit = LinearUnit(parameters[7].valueAsText)
             berm_height = berm_height_unit.length
