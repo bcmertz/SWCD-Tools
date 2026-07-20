@@ -176,6 +176,8 @@ class BermAnalysis(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        spatial_reference_name = active_map.spatialReference.name
+        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
@@ -209,11 +211,6 @@ class BermAnalysis(object):
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_berm = arcpy.CreateScratchName("berm", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_raster_calculator = arcpy.CreateScratchName("calc", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
-
-        # get spatial reference
-        log("finding spatial reference")
-        spatial_reference_name = active_map.spatialReference.name
-        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
 
         log("creating output feature classes")
         # create flooded area output
