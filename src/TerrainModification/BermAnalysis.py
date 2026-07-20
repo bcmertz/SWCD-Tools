@@ -279,7 +279,7 @@ class BermAnalysis(object):
                         statistics_type="MINIMUM",
                     )
                     out_raster.save(scratch_dem_mask)
-                    berm_elevation = LinearUnit("{} {}".format(out_raster.minimum)).to_unit(berm_unit).length
+                    berm_elevation = LinearUnit(out_raster.minimum, z_unit).to_unit(berm_unit).length
 
                     # clip original dem to berm area
                     log("clipping dem to berm")
@@ -403,7 +403,7 @@ class BermAnalysis(object):
                             in_value_raster=dem,
                             statistics_type="RANGE",
                         )
-                        berm_height = LinearUnit("{} {}".format(berm_raster.maximum, z_unit)).to_unit(berm_unit).length
+                        berm_height = LinearUnit(berm_raster.maximum, z_unit).to_unit(berm_unit).length
                         log("berm height: ", berm_height, berm_unit)
 
                 # add height to berm
