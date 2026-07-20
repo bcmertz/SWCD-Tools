@@ -239,6 +239,12 @@ class BermAnalysis(object):
         berm_height_field = "height"
         if berm_height_field not in [f.name for f in arcpy.ListFields(berms)]:
             arcpy.management.AddField(berms, berm_height_field, "FLOAT", field_precision=255, field_scale=2)
+        arcpy.management.AlterField(
+            in_table=berms,
+            field=berm_height_field,
+            new_field_alias="Berm Height ({})".format(berm_unit),
+        )
+
 
         # get OID field name for berm fc
         oid_field = get_oid(berms)
