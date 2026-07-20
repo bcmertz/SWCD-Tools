@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, ArealUnit, LINEAR_UNITS, AREAL_UNITS
+from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, ArealUnit, AREAL_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -185,7 +185,7 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        num_acres = ArealUnit(parameters[9].valueAsText).to_unit(AREAL_UNITS["AcresUS"]).area if parameters[9].value else None
+        min_area = ArealUnit(parameters[9].valueAsText) if parameters[9].value else None
 
         # set analysis extent
         if extent:
@@ -223,13 +223,15 @@ class DecisionTree(object):
         arcpy.analysis.PairwiseIntersect([scratch_land_use_polygon, soils], scratch_intersect, join_attributes="ALL")
 
         # add acres field and calculate
-        log("calculating acreage")
-        if "Acres" not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
+        log("calculating acreage and removing small features")
+        threshold = ArealUnit(1, "Acres").to_unit(min_area.unit)
+        area_field_name = threshold.unit
+        if area_field_name not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
             arcpy.management.AddField(scratch_intersect, "Acres", "FLOAT", 2, 2)
-        arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[[area_field_name, "AREA_GEODESIC"]], area_unit=threshold.full_unit())
 
         # remove small features
-        sql_query = "Acres >= 1.0"
+        sql_query = "{} >= {}".format(area_field_name, threshold.area)
         arcpy.analysis.Select(scratch_intersect, scratch_soils_area, sql_query)
 
         # calculate drainage class
@@ -289,18 +291,18 @@ class DecisionTree(object):
         log("finding output polygons")
         drainage = 1
         slope = 0
-        output_acres = 0
-        if num_acres:
+        output_area = 0
+        if min_area is not None:
             # if we know the number of tiled acres in the analysis area then iterate to find the combination
             # of slope and drainge that produces the output
-            while output_acres < num_acres:
+            while output_area < min_area.area:
                 # select output features
                 sql_query = "{} <= {} And {} <= {}".format(output_slope_field, slope, output_drainage_field, drainage)
                 arcpy.analysis.Select(scratch_joined, scratch_output, where_clause=sql_query)
 
                 # find sum of acreage
-                sum_acres = round(sum([float(row[0]) for row in arcpy.da.SearchCursor(scratch_output, "Acres")]),2)
-                output_acres = sum_acres
+                sum_acres = round(sum([float(row[0]) for row in arcpy.da.SearchCursor(scratch_output, area_field_name)]),2)
+                output_area = sum_acres
 
                 # core AgTile methodology
                 # prefers poor drainage to shallow slopes
@@ -308,7 +310,7 @@ class DecisionTree(object):
                     slope += 1
                 else:
                     if drainage == 7:
-                        log("failed to find {} acres of potential tile drained field in the study area".format(num_acres))
+                        log("failed to find {} of potential tile drained field in the study area".format(str(min_area)))
                         break
                     else:
                         drainage += 1
