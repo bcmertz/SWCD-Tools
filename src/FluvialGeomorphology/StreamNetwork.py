@@ -298,7 +298,7 @@ class StreamNetwork(object):
         if watershed_size_bool:
             # convert flow_accumulation raster to watershed_size_units
             log("calculating output watershed size attribute")
-            cell_size = float(cell_area(dem, watershed_size_unit).split(" ")[0])
+            cell_size = cell_area(dem, watershed_size_unit).area
             watershed_size = flow_accumulation * cell_size
 
             # zonal statistics

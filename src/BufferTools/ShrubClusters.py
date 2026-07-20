@@ -10,7 +10,7 @@
 import math
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log
+from helpers import license, empty_workspace, reload_module, log, LinearUnit
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -92,8 +92,8 @@ class ShrubClusters:
         log("reading in parameters")
         area = parameters[0].value
         output_file = parameters[1].valueAsText
-        width, width_unit = parameters[2].valueAsText.split(" ")
-        width = float(width) / 2
+        cluster_width = LinearUnit(parameters[2].valueAsText)
+        cluster_width.length = cluster_width.length / 2
 
         number = parameters[3].value
         geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
@@ -106,10 +106,10 @@ class ShrubClusters:
 
         # create buffer inside the planting area
         log("buffer output area")
-        buffer_width = -width
+        buffer_width = cluster_width * -1
         if geom_type == "ENVELOPE":
             buffer_width = buffer_width*math.sqrt(2)
-        arcpy.analysis.PairwiseBuffer(area, scratch_area, "{} {}".format(buffer_width, width_unit))
+        arcpy.analysis.PairwiseBuffer(area, scratch_area, str(buffer_width))
 
         # create point locations
         log("creating shrub cluster point locations")
@@ -128,7 +128,7 @@ class ShrubClusters:
         arcpy.analysis.Buffer(
             in_features=scratch_points,
             out_feature_class=scratch_buffer,
-            buffer_distance_or_field="{} {}".format(width, width_unit),
+            buffer_distance_or_field=str(cluster_width),
         )
 
         # make square around buffer

@@ -9,11 +9,11 @@
 
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer
+from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer, LinearUnit
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius, sampling_interval, resolve):
+def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius: LinearUnit, sampling_interval: LinearUnit, resolve: bool):
     # set analysis extent
     if extent:
         arcpy.env.extent = extent
@@ -37,7 +37,7 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
     # pairwise buffer stream
     # can't do flat end caps using analysis buffer tool instead because a sinousoidal stream will create heavy artifacts in the buffer
     log("creating buffer polygon around stream")
-    arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, buffer_radius, "ALL", "", "GEODESIC", "")
+    arcpy.analysis.PairwiseBuffer(scratch_stream_layer, scratch_stream_buffer, str(buffer_radius), "ALL", "", "GEODESIC", "")
 
     # clip dem to buffer
     log("clipping DEM to buffer")
@@ -45,7 +45,7 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
 
     # generate points along line
     log("generating points along stream")
-    arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", sampling_interval, "", "END_POINTS", "NO_CHAINAGE")
+    arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", str(sampling_interval), "", "END_POINTS", "NO_CHAINAGE")
 
     # extract values to points
     log("adding elevation data to stream line points")
@@ -54,8 +54,7 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
     idw_raster = None
     arcpy.env.cellSize = dem_raster_clip
     arcpy.env.extent = scratch_stream_buffer
-    buffer_radius, buffer_radius_unit = buffer_radius.split(" ")
-    max_distance = 1.5 * int(buffer_radius) * arcpy.LinearUnitConversionFactor(buffer_radius_unit, active_map.mapUnits)
+    max_distance = (buffer_radius * 1.5).to_unit(active_map.mapUnits).length
     num_points = 12
     search_radius = arcpy.sa.RadiusVariable(num_points, max_distance)
     if resolve:
@@ -201,9 +200,9 @@ class RelativeElevationModel(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
-        buffer_radius = parameters[4].valueAsText
-        sampling_interval = parameters[5].valueAsText
-        resolve = parameters[6].value
+        buffer_radius = LinearUnit(parameters[4].valueAsText)
+        sampling_interval = LinearUnit(parameters[5].valueAsText)
+        resolve: bool = parameters[6].value
 
         # calculate REM
         rem = relative_elevation_model(active_map, dem, extent, stream_layer, buffer_radius, sampling_interval, resolve)
