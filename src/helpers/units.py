@@ -103,7 +103,7 @@ SPATIAL_TO_LINEAR = {
 }
 
 # z-units available to rasters for VCS
-Z_UNITS = list(SPATIAL_TO_LINEAR.values())
+Z_UNITS = list(SPATIAL_TO_LINEAR.keys())
 
 
 def get_z_unit(fc) -> LINEAR_UNITS | None:

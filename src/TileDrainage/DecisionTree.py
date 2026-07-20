@@ -177,7 +177,7 @@ class DecisionTree(object):
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = LINEAR_UNITS[parameters[1].value]
+        z_unit = parameters[1].value
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         soils = parameters[4].value

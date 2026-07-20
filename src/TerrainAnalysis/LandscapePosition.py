@@ -121,7 +121,7 @@ class LandscapePosition(object):
         # read in parameters
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = LINEAR_UNITS[parameters[1].value]
+        z_unit = parameters[1].value
         extent = parameters[2].value
         radius_small = LinearUnit(parameters[3].valueAsText).to_unit(map_unit).length
         radius_large = LinearUnit(parameters[4].valueAsText).to_unit(map_unit).length
