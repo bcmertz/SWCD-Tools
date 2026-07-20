@@ -9,7 +9,7 @@
 import os
 import arcpy
 
-from helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer
+from helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer, LinearUnit
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -105,7 +105,7 @@ class BurnCulverts(object):
         culverts = parameters[4].value
         desc = arcpy.Describe(culverts)
         spatial_reference = desc.spatialReference
-        distance = float(convert_length(parameters[5].valueAsText, linear_unit).split(" ")[0])
+        distance = LinearUnit(parameters[5].valueAsText).to_unit(linear_unit).length
 
         # set analysis extent
         if extent:

@@ -133,8 +133,8 @@ class LocalMinimums:
         dem, _ = raster_and_layer(parameters[1].value)
         z_unit = LINEAR_UNITS[parameters[2].value]
         extent = parameters[3].value
-        search_interval = parameters[4].valueAsText
-        threshold = float(convert_length(parameters[5].valueAsText, z_linear_unit).split(" ")[0])
+        search_interval = LinearUnit(parameters[4].valueAsText)
+        threshold = LinearUnit(parameters[5].valueAsText).to_unit(z_unit).length
         output_file = parameters[6].valueAsText
 
         # create scratch layers
@@ -150,7 +150,7 @@ class LocalMinimums:
 
         # generate points along line
         log("generate points along line")
-        arcpy.edit.Densify(scratch_line, "DISTANCE", search_interval)
+        arcpy.edit.Densify(scratch_line, "DISTANCE", str(search_interval))
 
         # iterate through lines and points
         log("finding local minimums")

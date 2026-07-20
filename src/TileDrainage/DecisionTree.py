@@ -185,7 +185,7 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        num_acres = float(convert_area(parameters[9].valueAsText, "AcresUS").split(" ")[0]) if parameters[9].value else None
+        num_acres = ArealUnit(parameters[9].valueAsText).to_unit(AREAL_UNITS["AcresUS"]).area if parameters[9].value else None
 
         # set analysis extent
         if extent:
