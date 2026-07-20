@@ -8,6 +8,7 @@
 
 import arcpy
 from typing import Self
+from functools import singledispatchmethod
 from enum import StrEnum
 
 # inferred from https://developers.arcgis.com/rest/services-reference/enterprise/gp-data-types/#gplinearunit
@@ -150,12 +151,34 @@ class BaseUnit:
         return self
 
 class LinearUnit(BaseUnit):
-    def __init__(self: Self, input: str):
-        length, unit_str, *rest = input.split(" ")
+    # this project's type checker ty doesn't support singledispatchmethod yet :/
+    # (https://github.com/astral-sh/ty/issues/2805)
+    @singledispatchmethod
+    def __init__(self, input):
+        """Accepts distance and unit either:
+        1) Separately:
+           - LinearUnit(4, "Feet")
+           - LinearUnit(5, "International Feet")
+           - LinearUnit(4, LINEAR_UNITS.FeetInt)
+        2) Together:
+           - LinearUnit("4 Feet")
+           - LinearUnit("5 International Feet")
+        """
+        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: LINEAR_UNITS. Received {}".format(input))
+    @__init__.register
+    def _(self, quantity: str):
+        length, unit, *rest = quantity.split(" ")
         if rest:
-            unit_str += " " + " ".join(rest)
-            unit_str = LINEAR_UNITS_MAP[unit_str]
-        super().__init__(amount=float(length), unit=LINEAR_UNITS[unit_str])
+            unit += " " + " ".join(rest)
+            unit = LINEAR_UNITS_MAP[unit]
+        super().__init__(amount=float(length), unit=LINEAR_UNITS[unit])
+    @__init__.register
+    def _(self, length: int | float, unit: str | LINEAR_UNITS):
+        unit, *rest = unit.split(" ")
+        if rest:
+            unit += " " + " ".join(rest)
+            unit = LINEAR_UNITS_MAP[unit]
+        super().__init__(amount=length, unit=LINEAR_UNITS[unit])
     @property
     def length(self) -> int | float:
         return self.amount
@@ -219,12 +242,34 @@ class LinearUnit(BaseUnit):
         return self
 
 class ArealUnit(BaseUnit):
-    def __init__(self: Self, input: str):
-        area, unit_str, *rest = input.split(" ")
+    # this project's type checker ty doesn't support singledispatchmethod yet :/
+    # (https://github.com/astral-sh/ty/issues/2805)
+    @singledispatchmethod
+    def __init__(self, input):
+        """Accepts area and unit either:
+        1) Separately:
+           - ArealUnit(4, "Acres")
+           - ArealUnit(5, "International Acres")
+           - ArealUnit(4, LINEAR_UNITS.Acres)
+        2) Together:
+           - ArealUnit("4 Acres")
+           - ArealUnit("5 International Acres")
+        """
+        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: AREAL_UNITS. Received {}".format(input))
+    @__init__.register
+    def _(self, quantity: str):
+        area, unit, *rest = quantity.split(" ")
         if rest:
-            unit_str += " " + " ".join(rest)
-            unit_str = AREAL_UNITS_MAP[unit_str]
-        super().__init__(amount=float(area), unit=AREAL_UNITS[unit_str])
+            unit += " " + " ".join(rest)
+            unit = AREAL_UNITS_MAP[unit]
+        super().__init__(amount=float(area), unit=AREAL_UNITS[unit])
+    @__init__.register
+    def _(self, area: int | float, unit: str | AREAL_UNITS):
+        unit, *rest = unit.split(" ")
+        if rest:
+            unit += " " + " ".join(rest)
+            unit = AREAL_UNITS_MAP[unit]
+        super().__init__(amount=area, unit=AREAL_UNITS[unit])
     @property
     def area(self) -> int | float:
         return self.amount
