@@ -12,8 +12,8 @@ import json
 import arcpy
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
-from ..helpers import license, reload_module, log, warn, empty_workspace
-from ..helpers import setup_environment as setup
+from helpers import license, reload_module, log, warn, empty_workspace
+from helpers import setup_environment as setup
 
 class Restart(object):
     def __init__(self):

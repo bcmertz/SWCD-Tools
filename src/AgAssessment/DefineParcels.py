@@ -14,9 +14,9 @@ import pathlib
 import openpyxl
 import platform
 
-from ..helpers import license, sanitize, reload_module, log, error
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, sanitize, reload_module, log, error
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 AG_ASSESSMENT_GDB_NAME = "Ag Assessment"
 

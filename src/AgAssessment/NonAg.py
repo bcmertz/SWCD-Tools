@@ -11,9 +11,9 @@ import json
 import arcpy
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
-from ..helpers import license, reload_module, log, warn, error
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, warn, error
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class NonAg(object):
     def __init__(self):

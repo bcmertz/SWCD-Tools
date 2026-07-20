@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from src.BufferTools import *
-from src.FluvialGeomorphology import *
-from src.Hydrology import *
-from src.TerrainAnalysis import *
-from src.TerrainModification import *
-from src.TileDrainage import *
-from src.Utilities import *
-from src.AgAssessment import *
+from AgAssessment import *
+from BufferTools import *
+from FluvialGeomorphology import *
+from Hydrology import *
+from TerrainAnalysis import *
+from TerrainModification import *
+from TileDrainage import *
+from Utilities import *
 
 class Toolbox(object):
     def __init__(self):
@@ -38,9 +38,6 @@ class Toolbox(object):
             SubBasinDelineation,
             WatershedDelineation,
             WatershedSize,
-            BermAnalysis,
-            DamRemoval,
-            BurnCulverts,
             StreamPowerIndex,
             LandscapePosition,
             VBET,
@@ -48,6 +45,9 @@ class Toolbox(object):
             RelativeElevationModel,
             PotentialWetlands,
             TopographicPositionIndex,
+            BermAnalysis,
+            DamRemoval,
+            BurnCulverts,
             DecisionTree,
             ImageDifferencingSetup,
             ImageDifferencing,

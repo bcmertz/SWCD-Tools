@@ -10,8 +10,8 @@ import os
 import arcpy
 import platform
 
-from ..helpers import license, reload_module, log
-from ..helpers import setup_environment as setup
+from helpers import license, reload_module, log
+from helpers import setup_environment as setup
 
 class ExportLayouts(object):
     def __init__(self):

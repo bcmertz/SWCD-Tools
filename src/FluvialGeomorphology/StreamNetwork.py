@@ -9,10 +9,10 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, empty_workspace, cell_area, reload_module,\
+from helpers import license, get_oid, empty_workspace, cell_area, reload_module,\
     log, set_required_parameter, raster_and_layer, AREAL_UNITS, AREAL_UNITS_MAP, ArealUnit, LinearUnit
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class StreamNetwork(object):
     def __init__(self):

@@ -10,9 +10,9 @@ import os
 import json
 import platform
 
-from ..helpers import license, reload_module, log
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class Export(object):
     def __init__(self):

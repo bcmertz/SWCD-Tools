@@ -34,6 +34,3 @@ python-version = "3.11"
 [tool.ty.rules]
 unresolved-import = "ignore"
 unresolved-attribute = "ignore"
-
-[tool.ty.src]
-include = ["src"]

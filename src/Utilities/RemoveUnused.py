@@ -16,9 +16,9 @@
 import arcpy
 import os
 
-from ..helpers import license, reload_module, log, warn
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, warn
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class RemoveUnused(object):
     project = arcpy.mp.ArcGISProject("Current")

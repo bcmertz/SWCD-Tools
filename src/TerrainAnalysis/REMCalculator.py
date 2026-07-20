@@ -9,9 +9,9 @@
 
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius, sampling_interval, resolve):
     # set analysis extent

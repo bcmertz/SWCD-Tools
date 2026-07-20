@@ -7,9 +7,9 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, reload_module, log, AREAL_UNITS_MAP, AREAL_UNITS, cell_area, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, AREAL_UNITS_MAP, AREAL_UNITS, cell_area, raster_and_layer
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class WatershedSize:
     def __init__(self):

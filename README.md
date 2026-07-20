@@ -90,11 +90,11 @@ SWCD-Tools/
 │   ├── TerrainModification/     # terrain modifying tools for planning and pre-conditionining DEMs
 │   ├── TileDrainage/            # tile drainage detection toolbox
 │   ├── Utilities/               # misc quality of life utilities
-│   └── helpers/                 # helper tools for use by other tools
+│   ├── helpers/                 # helper tools for use by other tools
+│   ├── SWCD Tools.*.pyt.xml     # tool metadata including parameter descriptions
+│   └── SWCD Tools.pyt           # main entry-point to project
 ├── LICENSE                      # license
-├── README.md                    # readme
-├── SWCD Tools.*.pyt.xml         # tool metadata including parameter descriptions
-└── SWCD Tools.pyt               # main entry-point to project
+└── README.md                    # readme
 ```
 
 # Overview of tools [↑](#table-of-contents)

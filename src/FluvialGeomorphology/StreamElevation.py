@@ -10,9 +10,9 @@ import os
 import arcpy
 import platform
 
-from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, empty_workspace, reload_module, log, get_linear_unit, raster_and_layer
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class StreamElevation(object):
     def __init__(self):

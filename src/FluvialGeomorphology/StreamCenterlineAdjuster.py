@@ -10,9 +10,9 @@ import math
 import arcpy
 
 from .GenerateCrossSections import transect_line
-from ..helpers import license, reload_module, log, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, raster_and_layer
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class LeastAction(object):
     def __init__(self):

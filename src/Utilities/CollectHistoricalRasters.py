@@ -8,8 +8,8 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log
-from ..helpers import setup_environment as setup
+from helpers import license, reload_module, log
+from helpers import setup_environment as setup
 
 class CollectRasters:
     def __init__(self):

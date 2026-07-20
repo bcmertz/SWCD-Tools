@@ -8,10 +8,10 @@
 
 import arcpy
 
-from ..TerrainAnalysis import relative_elevation_model
-from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, ArealUnit, LinearUnit
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from TerrainAnalysis import relative_elevation_model
+from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, ArealUnit, LinearUnit
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class VBET(object):
     def __init__(self):

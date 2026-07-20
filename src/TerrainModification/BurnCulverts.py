@@ -9,9 +9,9 @@
 import os
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class BurnCulverts(object):
     def __init__(self):

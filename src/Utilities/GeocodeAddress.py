@@ -9,8 +9,8 @@
 import os
 import arcpy
 
-from ..helpers import license, reload_module, log, warn
-from ..helpers import setup_environment as setup
+from helpers import license, reload_module, log, warn
+from helpers import setup_environment as setup
 
 class GeocodeAddress(object):
     def __init__(self):
