@@ -10,26 +10,6 @@ import arcpy
 from typing import Self
 from enum import StrEnum
 
-def get_z_unit(fc) -> str | None:
-    """Get z unit from spatial reference."""
-    # find z unit of spatial reference vertical coordinate system
-    desc = arcpy.Describe(fc)
-    if desc.spatialReference.VCS:
-        return desc.spatialReference.VCS.linearUnitName
-
-    return None
-
-
-def get_linear_unit(fc) -> str | None:
-    """Find linear unit from spatial reference."""
-    # find linear unit from spatial reference
-    try:
-        desc = arcpy.Describe(fc)
-        return desc.spatialReference.linearUnitName
-    except Exception:
-        return fc.spatialReference.linearUnitName
-
-
 # inferred from https://developers.arcgis.com/rest/services-reference/enterprise/gp-data-types/#gplinearunit
 # but accuracy is unclear since they only give "esriFeet" and other placeholders
 # to test accuracy every GPLinearUnit was logged in a script
@@ -122,8 +102,27 @@ SPATIAL_TO_LINEAR = {
 }
 
 # z-units available to rasters for VCS
-Z_UNITS = list(SPATIAL_TO_LINEAR.keys())
+Z_UNITS = list(SPATIAL_TO_LINEAR.values())
 
+
+def get_z_unit(fc) -> LINEAR_UNITS | None:
+    """Get z unit from spatial reference."""
+    # find z unit of spatial reference vertical coordinate system
+    desc = arcpy.Describe(fc)
+    if desc.spatialReference.VCS:
+        return LINEAR_UNITS[SPATIAL_TO_LINEAR[desc.spatialReference.VCS.linearUnitName]]
+
+    return None
+
+
+def get_linear_unit(fc) -> LINEAR_UNITS | None:
+    """Find linear unit from spatial reference."""
+    # find linear unit from spatial reference
+    try:
+        desc = arcpy.Describe(fc)
+        return LINEAR_UNITS[desc.spatialReference.linearUnitName]
+    except Exception:
+        return LINEAR_UNITS[fc.spatialReference.linearUnitName]
 
 class BaseUnit:
     def __init__(self: Self, amount: float | int, unit: LINEAR_UNITS | AREAL_UNITS):
