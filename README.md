@@ -47,10 +47,8 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Local Minimums](#1-local-minimums-)
  	- [Geocode Address](#2-geocode-address-tool-)
   	- [Export Layouts](#3-export-layouts-)
-    - [Contour Polygon](#4-contour-polygon-)
-    - [Slope Polygon](#5-slope-polygon-)
- 	- [Historical Imagery](#6-historical-imagery-)
- 	- [Remove Unused](#7-remove-unused-)
+ 	- [Historical Imagery](#4-historical-imagery-)
+ 	- [Remove Unused](#5-remove-unused-)
 - [Contributing](#contributing-)
 - [License](#license-)
 
@@ -474,33 +472,13 @@ Uses [NY GIS Address Geocoder](https://gis.ny.gov/address-geocoder) to take an a
 
 Quality of life tool to select which layouts to export and to where
 
-### 4. Contour Polygon [↑](#table-of-contents)
-
-Contour tool with ability to limit analysis to inside a given polygon
-
-<span>
-<img src="./assets/readme_examples/contour_after.png" alt="after image showing a hillshade and a polygon with red 10' contour lines inside the polygon" height="400"/>
-</span>
-
-Example showing output 10' contours in polygon.
-
-### 5. Slope Polygon [↑](#table-of-contents)
-
-Slope tool with ability to limit analysis to inside a given polygon
-
-<span>
-<img src="./assets/readme_examples/slope_after.png" alt="after image showing a green-red slope raster inside a polygon" height="400"/>
-</span>
-
-Example showing output slope raster in polygon.
-
-### 6. Historical Imagery [↑](#table-of-contents)
+### 4. Historical Imagery [↑](#table-of-contents)
 
 Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
 
-### 7. Remove Unused [↑](#table-of-contents)
+### 5. Remove Unused [↑](#table-of-contents)
 
-Remove feature classes unused in any projet maps from a given workspace (geodatabse, folder, etc).
+Remove feature classes unused in any project maps from a given workspace (geodatabse, folder, etc).
 
 ## Automated Agricultural Assessment [↑](#table-of-contents)
 
