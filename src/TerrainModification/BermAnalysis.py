@@ -411,7 +411,7 @@ class BermAnalysis(object):
                 # add height to berm
                 if berm_measurement:
                     log("adding berm height to berm feature attribute table")
-                    berm[1] = berm_measurement.height
+                    berm[1] = berm_measurement.length
                     cursor.updateRow(berm)
 
         # cleanup
