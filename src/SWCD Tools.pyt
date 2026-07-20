@@ -52,8 +52,6 @@ class Toolbox(object):
             ImageDifferencingSetup,
             ImageDifferencing,
             ImageDifferencingClouds,
-            SlopePolygon,
-            ContourPolygon,
             ExportLayouts,
             LocalMinimums,
             GeocodeAddress,

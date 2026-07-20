@@ -7,19 +7,15 @@
 # --------------------------------------------------------------------------------
 
 from .CollectHistoricalRasters import CollectRasters
-from .ContourPolygon import ContourPolygon
 from .ExportLayouts import ExportLayouts
 from .GeocodeAddress import GeocodeAddress
 from .LocalMinimums import LocalMinimums
-from .SlopePolygon import SlopePolygon
 from .RemoveUnused import RemoveUnused
 
 __all__ = [
     "CollectRasters",
-    "ContourPolygon",
     "ExportLayouts",
     "GeocodeAddress",
     "LocalMinimums",
-    "SlopePolygon",
     "RemoveUnused",
 ]
