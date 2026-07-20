@@ -12,7 +12,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ty>=0.0.24",
+    "ty>=0.0.51",
 ]
 
 [build-system]
