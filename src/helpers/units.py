@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------------------
 
 import arcpy
+from copy import copy
 from typing import Self
 from functools import singledispatchmethod
 from enum import StrEnum
@@ -135,20 +136,24 @@ class BaseUnit:
         return "{} {}".format(self.amount, self.base_unit)
     def __mul__(self: Self, scalar: int | float) -> Self:
         # Multiply
-        self.amount *= scalar
-        return self
+        out = copy(self)
+        out.amount *= scalar
+        return out
     def __truediv__(self: Self, divisor: int | float) -> Self:
         # Divide
-        self.amount *= divisor
-        return self
+        out = copy(self)
+        out.amount /= divisor
+        return out
     def __mod__(self: Self, divisor: int | float) -> Self:
         # Modulo
-        self.amount %= divisor
-        return self
+        out = copy(self)
+        out.amount %= divisor
+        return out
     def __floordiv__(self: Self, divisor: int | float) -> Self:
         # Integer division
-        self.amount  = self.amount // divisor
-        return self
+        out = copy(self)
+        out.amount  = out.amount // divisor
+        return out
 
 class LinearUnit(BaseUnit):
     # this project's type checker ty doesn't support singledispatchmethod yet :/
@@ -234,12 +239,14 @@ class LinearUnit(BaseUnit):
         return self.length >= other_length
     def __add__(self: Self, other: Self) -> Self:
         other_length = other.length * arcpy.LinearUnitConversionFactor(other.unit, self.unit)
-        self.length += other_length
-        return self
+        out = copy(self)
+        out.length += other_length
+        return out
     def __sub__(self: Self, other: Self) -> Self:
         other_length = other.length * arcpy.LinearUnitConversionFactor(other.unit, self.unit)
-        self.length -= other_length
-        return self
+        out = copy(self)
+        out.length -= other_length
+        return out
 
 class ArealUnit(BaseUnit):
     # this project's type checker ty doesn't support singledispatchmethod yet :/
@@ -325,9 +332,11 @@ class ArealUnit(BaseUnit):
         return self.area >= other_area
     def __add__(self: Self, other: Self) -> Self:
         other_area = other.area * arcpy.ArealUnitConversionFactor(other.unit, self.unit)
-        self.area += other_area
-        return self
+        out = copy(self)
+        out.area += other_area
+        return out
     def __sub__(self: Self, other: Self) -> Self:
         other_area = other.area * arcpy.ArealUnitConversionFactor(other.unit, self.unit)
-        self.area -= other_area
-        return self
+        out = copy(self)
+        out.area -= other_area
+        return out
