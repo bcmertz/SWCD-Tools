@@ -7,11 +7,11 @@
 # -----------------------------------------------------------------------------------
 
 import arcpy
-from enum import Enum
+from enum import StrEnum
 
 from .units import LINEAR_TO_AREAL, SPATIAL_TO_LINEAR, LinearUnit, ArealUnit, LINEAR_UNITS, AREAL_UNITS
 
-class PIXEL_TYPE(Enum):
+class PIXEL_TYPE(StrEnum):
     U1="1_BIT",
     U2 = "2_BIT"
     U4 = "4_BIT"
