@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_z_unit, Z_UNITS, reload_module, log, raster_and_layer
+from helpers import license, get_z_unit, Z_UNITS, reload_module, log, raster_and_layer, LINEAR_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -105,7 +105,7 @@ class ContourPolygon(object):
 
         # get parameters
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = LINEAR_UNITS[parameters[1].value]
         polygon = parameters[2].value
         output_file = parameters[3].valueAsText
         contour_interval, contour_unit = parameters[4].valueAsText.split(" ")

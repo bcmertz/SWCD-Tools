@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_z_unit, reload_module, log, raster_and_layer, Z_UNITS
+from helpers import license, get_z_unit, reload_module, log, raster_and_layer, Z_UNITS, LINEAR_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -102,7 +102,7 @@ class StreamPowerIndex(object):
 
         # read in parameters
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = LINEAR_UNITS[parameters[1].value]
         extent = parameters[2].value
         stream = parameters[3].value
         output_file = parameters[4].valueAsText

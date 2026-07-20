@@ -13,7 +13,7 @@ import platform
 import openpyxl
 import datetime
 
-from helpers import license, get_oid, get_z_unit, get_linear_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
+from helpers import license, get_oid, get_z_unit, get_linear_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, LINEAR_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -159,7 +159,7 @@ class CalculateEFH2:
         # read in parameters
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = LINEAR_UNITS[parameters[1].value]
         output_folder_path = parameters[2].valueAsText
         rcn_layer = parameters[3].value
         hsg_field = parameters[4].value
