@@ -116,7 +116,7 @@ def get_z_unit(fc) -> LINEAR_UNITS | None:
     return None
 
 
-def get_linear_unit(fc) -> LINEAR_UNITS | None:
+def get_linear_unit(fc) -> LINEAR_UNITS:
     """Find linear unit from spatial reference."""
     # find linear unit from spatial reference
     try:
