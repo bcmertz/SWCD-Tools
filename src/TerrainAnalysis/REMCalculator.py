@@ -205,7 +205,15 @@ class RelativeElevationModel(object):
         resolve: bool = parameters[6].value
 
         # calculate REM
-        rem = relative_elevation_model(active_map, dem, extent, stream_layer, buffer_radius, sampling_interval, resolve)
+        rem = relative_elevation_model(
+            active_map=active_map,
+            dem_raster=dem,
+            extent=extent,
+            stream_layer=stream_layer,
+            buffer_radius=buffer_radius,
+            sampling_interval=sampling_interval,
+            resolve=resolve,
+        )
         log("saving REM output")
         rem.save(output_file)
 

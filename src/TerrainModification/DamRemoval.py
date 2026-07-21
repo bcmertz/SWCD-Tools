@@ -302,7 +302,15 @@ class DamRemoval(object):
                 # create transect
                 transect = transect_line(centerline_polyline, shape, transect_width)
                 # interpolate elevations
-                tmp_points = self.interpolateElevations(transect, scratch_mosaic_raster, elev, transect_width, transect_point_spacing, scratch_transect_points, scratch_transect_elev_points)
+                tmp_points = self.interpolateElevations(
+                    transect=transect,
+                    dem_raster=scratch_mosaic_raster,
+                    lowpoint_elev=elev,
+                    transect_width=transect_width,
+                    transect_point_spacing=transect_point_spacing,
+                    scratch_transect_points=scratch_transect_points,
+                    scratch_transect_elev_points=scratch_transect_elev_points,
+                )
                 # add points to list of new points
                 new_points = new_points + tmp_points
 
