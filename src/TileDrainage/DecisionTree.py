@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, ArealUnit, AREAL_UNITS
+from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, ArealUnit
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
