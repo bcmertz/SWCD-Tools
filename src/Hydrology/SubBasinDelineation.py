@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, cells_per_area, reload_module, log, warn, raster_and_layer
+from helpers import license, cells_per_area, reload_module, log, warn, raster_and_layer, ArealUnit
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -72,7 +72,7 @@ class SubBasinDelineation(object):
         # read in parameters
         dem, _ = raster_and_layer(parameters[0].value)
         watershed = parameters[1].value
-        threshold = parameters[2].valueAsText
+        threshold = ArealUnit(parameters[2].valueAsText)
 
         # threshold in number of raster cells
         # assume 1m^2 cell, threshold ~8 acres in number of cells
