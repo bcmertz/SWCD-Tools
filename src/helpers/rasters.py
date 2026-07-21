@@ -29,8 +29,8 @@ def pixel_type(raster) -> PIXEL_TYPE:
     return PIXEL_TYPE[raster.pixelType]
 
 def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> ArealUnit:
-    """Return the cell size of a RASTER as a GPArealUnit. User can specify unit AREA_UNITS
-    for output GPArealUnit to be in."""
+    """Return the cell size of a RASTER as a ArealUnit. User can specify unit AREA_UNITS
+    for output ArealUnit to be in."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
@@ -51,8 +51,8 @@ def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> ArealUnit:
     return area
 
 def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> LinearUnit:
-    """Return the average cell length of a RASTER as a GPLinearUnit. User can specify
-    unit LINEAR_UNITS for output GPLinearUnit to be in."""
+    """Return the average cell length of a RASTER as a LinearUnit. User can specify
+    unit LINEAR_UNITS for output LinearUnit to be in."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
@@ -73,7 +73,7 @@ def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> LinearUnit:
 
 
 def cells_per_area(raster, area: ArealUnit) -> int:
-    """Convert GPArealUnit AREA to the number of cells in the RASTER it is equivalent to."""
+    """Convert ArealUnit to the number of cells in the RASTER it is equivalent to."""
     raster_cell_area = cell_area(raster)
     cell_size = raster_cell_area.area
     cell_unit = raster_cell_area.unit
@@ -86,7 +86,7 @@ def cells_per_area(raster, area: ArealUnit) -> int:
     return int(num_cells)
 
 def cells_per_length(raster, length: LinearUnit) -> int:
-    """Convert GPLinearUnit LENGTH to the number of cells in the RASTER it is equivalent to."""
+    """Convert LinearUnit to the number of cells in the RASTER it is equivalent to."""
     raster_cell_length = cell_length(raster)
     cell_size = raster_cell_length.length
     cell_unit = raster_cell_length.unit
