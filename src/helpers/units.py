@@ -18,56 +18,52 @@ from enum import StrEnum
 #
 # map arcpy GPLinearUnit to parameter display representation
 LINEAR_UNITS_MAP = {
-    "Unknown" : "Unknown",
-    "International Inches" : "InchesInt",
-    "US Survey Inches" : "Inches",
-    "International Feet" : "FeetInt",
-    "US Survey Feet" : "Feet",
-    "International Yards" : "YardsInt",
-    "US Survey Yards" : "Yards",
-    "Statute Miles" : "MilesInt",
-    "US Survey Miles" : "Miles",
-    "Millimeters" : "Millimeters",
-    "Centimeters" : "Centimeters",
-    "Decimeters" : "Decimeters",
-    "Meters" : "Meters",
-    "Kilometers" : "Kilometers",
-    "US Survey Nautical Miles" : "NauticalMiles",
-    "International Nautical Miles" : "NauticalMilesInt",
-    "Points" : "Points",
-    "Decimal Degrees" : "DecimalDegrees",
+    "Unknown": "Unknown",
+    "International Inches": "InchesInt",
+    "US Survey Inches": "Inches",
+    "International Feet": "FeetInt",
+    "US Survey Feet": "Feet",
+    "International Yards": "YardsInt",
+    "US Survey Yards": "Yards",
+    "Statute Miles": "MilesInt",
+    "US Survey Miles": "Miles",
+    "Millimeters": "Millimeters",
+    "Centimeters": "Centimeters",
+    "Decimeters": "Decimeters",
+    "Meters": "Meters",
+    "Kilometers": "Kilometers",
+    "US Survey Nautical Miles": "NauticalMiles",
+    "International Nautical Miles": "NauticalMilesInt",
+    "Points": "Points",
+    "Decimal Degrees": "DecimalDegrees",
 }
-LINEAR_UNITS = StrEnum("LINEAR_UNITS", {
-    i: i for i in LINEAR_UNITS_MAP.values()
-})
+LINEAR_UNITS = StrEnum("LINEAR_UNITS", {i: i for i in LINEAR_UNITS_MAP.values()})
 
 
 # https://developers.arcgis.com/rest/services-reference/enterprise/gp-data-types/#gparealunit
 #
 # map arcpy GPArealUnit to parameter display representation
 AREAL_UNITS_MAP = {
-    "Unknown" : "Unknown",
-    "Square International Inches" : "SquareInches",
-    "Square US Inches" : "SquareInchesUS",
-    "Square International Feet" : "SquareFeet",
-    "Square US Feet" : "SquareFeetUS",
-    "Square International Yards" : "SquareYards",
-    "Square US Yards" : "SquareYardsUS",
-    "International Acres" : "Acres",
-    "US Survey Acres" : "AcresUS",
-    "Square Statute Miles" : "SquareMiles",
-    "Square US Survey Miles" : "SquareMilesUS",
-    "Square Millimeters" : "SquareMillimeters",
-    "Square Centimeters" : "SquareCentimeters",
-    "Square Decimeters" : "SquareDecimeters",
-    "Square Meters" : "SquareMeters",
-    "Square Kilometers" : "SquareKilometers",
-    "Ares" : "Ares",
-    "Hectares" : "Hectares",
+    "Unknown": "Unknown",
+    "Square International Inches": "SquareInches",
+    "Square US Inches": "SquareInchesUS",
+    "Square International Feet": "SquareFeet",
+    "Square US Feet": "SquareFeetUS",
+    "Square International Yards": "SquareYards",
+    "Square US Yards": "SquareYardsUS",
+    "International Acres": "Acres",
+    "US Survey Acres": "AcresUS",
+    "Square Statute Miles": "SquareMiles",
+    "Square US Survey Miles": "SquareMilesUS",
+    "Square Millimeters": "SquareMillimeters",
+    "Square Centimeters": "SquareCentimeters",
+    "Square Decimeters": "SquareDecimeters",
+    "Square Meters": "SquareMeters",
+    "Square Kilometers": "SquareKilometers",
+    "Ares": "Ares",
+    "Hectares": "Hectares",
 }
-AREAL_UNITS = StrEnum("AREAL_UNITS", {
-    i: i for i in AREAL_UNITS_MAP.values()
-})
+AREAL_UNITS = StrEnum("AREAL_UNITS", {i: i for i in AREAL_UNITS_MAP.values()})
 
 
 # mapping of GPLinearUnit to GPArealUnit (square units)
@@ -152,7 +148,7 @@ class BaseUnit:
     def __floordiv__(self: Self, divisor: int | float) -> Self:
         # Integer division
         out = copy(self)
-        out.amount  = out.amount // divisor
+        out.amount = out.amount // divisor
         return out
 
 class LinearUnit(BaseUnit):

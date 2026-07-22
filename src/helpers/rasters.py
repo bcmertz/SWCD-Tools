@@ -9,10 +9,18 @@
 import arcpy
 from enum import StrEnum
 
-from .units import LINEAR_TO_AREAL, SPATIAL_TO_LINEAR, LinearUnit, ArealUnit, LINEAR_UNITS, AREAL_UNITS
+from .units import (
+    LINEAR_TO_AREAL,
+    SPATIAL_TO_LINEAR,
+    LinearUnit,
+    ArealUnit,
+    LINEAR_UNITS,
+    AREAL_UNITS,
+)
+
 
 class PIXEL_TYPE(StrEnum):
-    U1="1_BIT",
+    U1 = "1_BIT"
     U2 = "2_BIT"
     U4 = "4_BIT"
     S8 = "8_BIT_SIGNED"
@@ -24,9 +32,11 @@ class PIXEL_TYPE(StrEnum):
     F32 = "32_BIT_FLOAT"
     F64 = "64_BIT"
 
+
 def pixel_type(raster) -> PIXEL_TYPE:
     """Return the the string representation of the raster pixel type."""
     return PIXEL_TYPE[raster.pixelType]
+
 
 def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> ArealUnit:
     """Return the cell size of a RASTER as a ArealUnit. User can specify unit AREA_UNITS
@@ -40,7 +50,7 @@ def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> ArealUnit:
     # Cell size in the X and Y axis
     cellsize_y = desc_raster.meanCellHeight
     cellsize_x = desc_raster.meanCellWidth
-    area=cellsize_x * cellsize_y
+    area = cellsize_x * cellsize_y
 
     # output area
     area = ArealUnit(area, square_unit)
@@ -49,6 +59,7 @@ def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> ArealUnit:
         area = area.to_unit(to_unit)
 
     return area
+
 
 def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> LinearUnit:
     """Return the average cell length of a RASTER as a LinearUnit. User can specify
@@ -84,6 +95,7 @@ def cells_per_area(raster, area: ArealUnit) -> int:
     # find number of cells
     num_cells = area_size_in_cell_units / cell_size
     return int(num_cells)
+
 
 def cells_per_length(raster, length: LinearUnit) -> int:
     """Convert LinearUnit to the number of cells in the RASTER it is equivalent to."""
