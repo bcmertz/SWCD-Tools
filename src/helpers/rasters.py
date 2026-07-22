@@ -43,7 +43,7 @@ def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> ArealUnit:
     area=cellsize_x * cellsize_y
 
     # output area
-    area = ArealUnit("{} {}".format(area, square_unit))
+    area = ArealUnit(area, square_unit)
 
     if to_unit is not None:
         area = area.to_unit(to_unit)
@@ -64,7 +64,7 @@ def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> LinearUnit:
     average_length = (cellsize_y + cellsize_x) / 2
 
     # output length
-    length = LinearUnit("{} {}".format(average_length, linear_unit))
+    length = LinearUnit(average_length, linear_unit)
 
     if to_unit is not None:
         length = length.to_unit(to_unit)
