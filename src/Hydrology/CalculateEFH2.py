@@ -13,7 +13,7 @@ import platform
 import openpyxl
 import datetime
 
-from helpers import license, get_oid, get_z_unit, get_linear_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
+from helpers import license, get_oid, get_z_unit, get_linear_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, LINEAR_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -93,7 +93,7 @@ class CalculateEFH2:
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit is not None:
+                if z_unit is not LINEAR_UNITS.Unknown:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:

@@ -96,21 +96,22 @@ LINEAR_TO_AREAL = {
 SPATIAL_TO_LINEAR = {
     "Meter": "Meters",
     "Foot_US": "Feet",
-    "Foot": "FeetInt"
+    "Foot": "FeetInt",
+    "Unknown": "Unknown",
 }
 
 # z-units available to rasters for VCS
-Z_UNITS = list(SPATIAL_TO_LINEAR.keys())
+Z_UNITS = list(set(SPATIAL_TO_LINEAR.keys()) - LINEAR_UNITS.Unkown)
 
 
-def get_z_unit(fc) -> LINEAR_UNITS | None:
+def get_z_unit(fc) -> LINEAR_UNITS:
     """Get z unit from spatial reference."""
     # find z unit of spatial reference vertical coordinate system
     desc = arcpy.Describe(fc)
     if desc.spatialReference.VCS:
         return LINEAR_UNITS[SPATIAL_TO_LINEAR[desc.spatialReference.VCS.linearUnitName]]
 
-    return None
+    return LINEAR_UNITS.Unknown
 
 
 def get_linear_unit(fc) -> LINEAR_UNITS:

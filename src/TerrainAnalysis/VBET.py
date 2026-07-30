@@ -9,7 +9,7 @@
 import arcpy
 
 from TerrainAnalysis import relative_elevation_model
-from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, ArealUnit, LinearUnit
+from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, ArealUnit, LinearUnit, LINEAR_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -132,7 +132,7 @@ class VBET(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit is not None:
+                if z_unit is not LINEAR_UNITS.Unknown:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
