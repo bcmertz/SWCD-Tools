@@ -45,6 +45,11 @@ from .units import (
     ArealUnit,
 )
 
+from .features import (
+    fc_to_geometry,
+    geometry_to_fc,
+)
+
 __all__ = [
     "get_oid",
     "add_layer_to_group",
@@ -83,4 +88,6 @@ __all__ = [
     "voronoi",
     "voronoi_fc",
     "triangle_csc",
+    "fc_to_geometry",
+    "geometry_to_fc",
 ]

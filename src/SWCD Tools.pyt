@@ -42,6 +42,7 @@ class Toolbox(object):
             LandscapePosition,
             VBET,
             TopographicWetness,
+            ContourTree,
             RelativeElevationModel,
             PotentialWetlands,
             TopographicPositionIndex,
