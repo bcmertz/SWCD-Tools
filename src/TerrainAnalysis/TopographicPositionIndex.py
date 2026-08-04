@@ -67,6 +67,7 @@ class TopographicPositionIndex(object):
             datatype="GPSANeighborhood",
             parameterType="Optional",
             direction="Input")
+        param2.value = arcpy.sa.NbrRectangle(7, 7, "MAP")
 
         param3 = arcpy.Parameter(
             displayName="Output Features",
