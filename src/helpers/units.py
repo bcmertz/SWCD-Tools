@@ -91,23 +91,11 @@ class LINEAR_UNITS(UNITS):
     Points = "Points"
     DecimalDegrees = "Decimal Degrees"
 
-    def to_areal(self):
+    def to_areal(self) -> 'AREAL_UNITS':
         return AREAL_UNITS[LINEAR_TO_AREAL[self.name]]
 
-    def to_spatial(self):
+    def to_spatial(self) -> 'SPATIAL_UNITS':
         return SPATIAL_UNITS[SPATIAL_TO_LINEAR[self.name]]
-
-
-class SPATIAL_UNITS(UNITS):
-    Meter = auto()
-    Foot_US = auto()
-    Foot = auto()
-
-    def to_areal(self):
-        return AREAL_UNITS[LINEAR_TO_AREAL[SPATIAL_TO_LINEAR[self.name]]]
-
-    def to_linear(self):
-        return LINEAR_UNITS[SPATIAL_TO_LINEAR[self.name]]
 
 
 # https://developers.arcgis.com/rest/services-reference/enterprise/gp-data-types/#gparealunit
@@ -133,13 +121,26 @@ class AREAL_UNITS(UNITS):
     Ares = "Ares"
     Hectares = "Hectares"
 
-    def to_linear(self):
+    def to_linear(self) -> LINEAR_UNITS:
         unit = self.name
         for key, value in LINEAR_TO_AREAL.items():
             if value == unit:
                 unit = key
                 break
         return LINEAR_UNITS[unit]
+
+
+class SPATIAL_UNITS(UNITS):
+    Meter = auto()
+    Foot_US = auto()
+    Foot = auto()
+
+    def to_areal(self) -> AREAL_UNITS:
+        return AREAL_UNITS[LINEAR_TO_AREAL[SPATIAL_TO_LINEAR[self.name]]]
+
+    def to_linear(self) -> LINEAR_UNITS:
+        return LINEAR_UNITS[SPATIAL_TO_LINEAR[self.name]]
+
 
 
 def get_z_unit(fc) -> SPATIAL_UNITS | None:
