@@ -11,7 +11,7 @@ from enum import StrEnum
 
 from .units import (
     get_linear_unit,
-    Length,
+    Distance,
     Area,
     LINEAR_UNITS,
     AREAL_UNITS,
@@ -60,7 +60,7 @@ def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> Area:
     return area
 
 
-def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> Length:
+def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> Distance:
     """Return the average cell length of a RASTER as a LENGTH. User can specify
     unit LINEAR_UNITS for output LENGTH to be in."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
@@ -74,7 +74,7 @@ def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> Length:
     average_length = (cellsize_y + cellsize_x) / 2
 
     # output length
-    length = Length(average_length, linear_unit)
+    length = Distance(average_length, linear_unit)
 
     if to_unit is not None:
         length = length.to_unit(to_unit)
@@ -96,8 +96,8 @@ def cells_per_area(raster, area: Area) -> int:
     return int(num_cells)
 
 
-def cells_per_length(raster, length: Length) -> int:
-    """Convert Length to the number of cells in the RASTER it is equivalent to."""
+def cells_per_length(raster, length: Distance) -> int:
+    """Convert Distance to the number of cells in the RASTER it is equivalent to."""
     raster_cell_length = cell_length(raster)
     cell_size = raster_cell_length.length
     cell_unit = raster_cell_length.unit
