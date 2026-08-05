@@ -147,7 +147,7 @@ def get_z_unit(fc) -> SPATIAL_UNITS | None:
     # find z unit of spatial reference vertical coordinate system
     desc = arcpy.Describe(fc)
     if desc.spatialReference.VCS:
-        SPATIAL_UNITS[desc.spatialReference.VCS.linearUnitName]
+        return SPATIAL_UNITS[desc.spatialReference.VCS.linearUnitName]
 
     return None
 
