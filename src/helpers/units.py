@@ -52,7 +52,6 @@ class UNITS(StrEnum):
     # Note: only applies to function invocation (eg - LINEAR_UNITS() not LINEAR_UNITS[])
     @classmethod
     def _missing_(cls, value):
-        value = value.lower()
         for member in cls:
             if member.value == value or member.name == value:
                 return member
@@ -161,6 +160,7 @@ def get_linear_unit(fc) -> LINEAR_UNITS:
     except Exception:
         return LINEAR_UNITS[fc.spatialReference.linearUnitName]
 
+
 class BaseAmount:
     def __init__(self: Self, amount: float | int, unit: LINEAR_UNITS | AREAL_UNITS):
         self.amount = amount
@@ -207,13 +207,13 @@ class Distance(BaseAmount):
         raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: LINEAR_UNITS. Received {}".format(input))
     @__init__.register
     def _(self, length: int | float, unit: str | LINEAR_UNITS):
-        super().__init__(amount=length, unit=LINEAR_UNITS[unit])
+        super().__init__(amount=length, unit=LINEAR_UNITS(unit))
     @__init__.register
     def _(self, quantity: str):
         length, unit, *rest = quantity.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-        super().__init__(amount=float(length), unit=LINEAR_UNITS[unit])
+        super().__init__(amount=float(length), unit=LINEAR_UNITS(unit))
     @property
     def length(self) -> int | float:
         return self.amount
@@ -223,7 +223,7 @@ class Distance(BaseAmount):
         return
     @property
     def unit(self) -> LINEAR_UNITS:
-        return LINEAR_UNITS[self.base_unit]
+        return LINEAR_UNITS(self.base_unit)
     @unit.setter
     def unit(self: Self, unit: LINEAR_UNITS) -> None:
         self.base_unit = unit
