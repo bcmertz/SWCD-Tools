@@ -10,7 +10,7 @@
 import arcpy
 
 from helpers import license, get_oid, empty_workspace, cell_area, reload_module,\
-    log, set_required_parameter, raster_and_layer, AREAL_UNITS, AREAL_UNITS_MAP, ArealUnit, LinearUnit
+    log, set_required_parameter, raster_and_layer, AREAL_UNITS, AREAL_UNITS_MAP, Area, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -181,7 +181,7 @@ class StreamNetwork(object):
         extent = parameters[1].value
         # parameters[2] is just a toggle for updateParameters to visualize what the user is doing
         stream = parameters[3].value
-        threshold = ArealUnit(parameters[4].valueAsText) if parameters[4].value is not None else None
+        threshold = Area(parameters[4].valueAsText) if parameters[4].value is not None else None
         keep_fields = parameters[5].valueAsText.split(";") if parameters[5].value is not None else None
         # read in areal unit and map it's pretty string to the arcpy representation
         watershed_size_bool = parameters[6].value
@@ -227,7 +227,7 @@ class StreamNetwork(object):
 
             # snap stream initiation point to highest flow accumulation within snap_dist
             log("snap existing stream initiation points to flow accumulation model")
-            snap_dist = LinearUnit("200 Feet").to_unit(active_map.spatialReference.linearUnitName)
+            snap_dist = Distance("200 Feet").to_unit(active_map.spatialReference.linearUnitName)
 
             stream_initiations_raster = arcpy.sa.SnapPourPoint(
                 in_pour_point_data=scratch_end_points,

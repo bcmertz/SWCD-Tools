@@ -12,7 +12,7 @@
 import arcpy
 
 from helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, \
-    set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer, LINEAR_UNITS, LinearUnit, SPATIAL_TO_LINEAR
+    set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer, LINEAR_UNITS, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -190,11 +190,11 @@ class BermAnalysis(object):
         supply_berm_height_bool = parameters[6].value
         berm_unit = LINEAR_UNITS["Feet"]
         if supply_berm_height_bool:
-            berm_measurement = LinearUnit(parameters[7].valueAsText)
+            berm_measurement = Distance(parameters[7].valueAsText)
             berm_unit = berm_measurement.unit
         # optionally specify contour interval
         contour_bool = parameters[8].value
-        contour_interval = LinearUnit(parameters[9].valueAsText).to_unit(z_unit).length if contour_bool else None
+        contour_interval = Distance(parameters[9].valueAsText).to_unit(z_unit).length if contour_bool else None
         contour_output = parameters[10].valueAsText
 
         # set analysis extent
@@ -281,7 +281,7 @@ class BermAnalysis(object):
                         statistics_type="MINIMUM",
                     )
                     out_raster.save(scratch_dem_mask)
-                    berm_elevation = LinearUnit(out_raster.minimum, z_unit).to_unit(berm_unit).length
+                    berm_elevation = Distance(out_raster.minimum, z_unit).to_unit(berm_unit).length
 
                     # clip original dem to berm area
                     log("clipping dem to berm")
@@ -405,7 +405,7 @@ class BermAnalysis(object):
                             in_value_raster=dem,
                             statistics_type="RANGE",
                         )
-                        berm_measurement = LinearUnit(berm_raster.maximum, z_unit).to_unit(berm_unit)
+                        berm_measurement = Distance(berm_raster.maximum, z_unit).to_unit(berm_unit)
                         log("berm height: ", berm_measurement)
 
                 # add height to berm

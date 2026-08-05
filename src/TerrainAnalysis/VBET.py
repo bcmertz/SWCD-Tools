@@ -9,7 +9,8 @@
 import arcpy
 
 from TerrainAnalysis import relative_elevation_model
-from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, ArealUnit, LinearUnit
+from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, \
+    Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, Area, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -183,16 +184,16 @@ class VBET(object):
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
         watershed_area_unit = AREAL_UNITS[AREAL_UNITS_MAP[parameters[6].valueAsText]]
-        buffer_radius = LinearUnit(parameters[7].valueAsText)
-        sampling_interval = LinearUnit("35 Feet")
-        min_watershed_size = ArealUnit(parameters[8].valueAsText).to_unit(watershed_area_unit).area if parameters[8].value is not None else None
+        buffer_radius = Distance(parameters[7].valueAsText)
+        sampling_interval = Distance("35 Feet")
+        min_watershed_size = Area(parameters[8].valueAsText).to_unit(watershed_area_unit).area if parameters[8].value is not None else None
         full_valley_file = parameters[9].valueAsText
         low_lying_file = parameters[10].valueAsText
         remove = parameters[11].value
 
         log("creating watershed size thresholds")
-        threshold_low = ArealUnit("25 SquareKilometers").to_unit(watershed_area_unit).area
-        threshold_high = ArealUnit("250 SquareKilometers").to_unit(watershed_area_unit).area
+        threshold_low = Area("25 SquareKilometers").to_unit(watershed_area_unit).area
+        threshold_high = Area("250 SquareKilometers").to_unit(watershed_area_unit).area
 
         # set analysis extent
         if extent:

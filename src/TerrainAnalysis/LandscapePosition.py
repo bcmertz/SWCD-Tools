@@ -10,7 +10,7 @@
 import arcpy
 
 from TerrainAnalysis import topographic_position_index
-from helpers import license, reload_module, log, get_z_unit, raster_and_layer, Z_UNITS, LinearUnit, LINEAR_UNITS
+from helpers import license, reload_module, log, get_z_unit, raster_and_layer, Z_UNITS, Distance, LINEAR_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -123,8 +123,8 @@ class LandscapePosition(object):
         dem, _ = raster_and_layer(parameters[0].value)
         z_unit = parameters[1].value
         extent = parameters[2].value
-        radius_small = LinearUnit(parameters[3].valueAsText).to_unit(map_unit).length
-        radius_large = LinearUnit(parameters[4].valueAsText).to_unit(map_unit).length
+        radius_small = Distance(parameters[3].valueAsText).to_unit(map_unit).length
+        radius_large = Distance(parameters[4].valueAsText).to_unit(map_unit).length
         output_file = parameters[5].valueAsText
 
         # set analysis extent

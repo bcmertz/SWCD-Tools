@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, ArealUnit
+from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, Area, SPATIAL_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -185,7 +185,7 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        min_area = ArealUnit(parameters[9].valueAsText) if parameters[9].value else None
+        min_area = Area(parameters[9].valueAsText) if parameters[9].value else None
 
         # set analysis extent
         if extent:
@@ -224,7 +224,7 @@ class DecisionTree(object):
 
         # add acres field and calculate
         log("calculating acreage and removing small features")
-        threshold = ArealUnit(1, "Acres").to_unit(min_area.unit)
+        threshold = Area(1, "Acres").to_unit(min_area.unit)
         area_field_name = threshold.unit
         if area_field_name not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
             arcpy.management.AddField(scratch_intersect, "Acres", "FLOAT", 2, 2)

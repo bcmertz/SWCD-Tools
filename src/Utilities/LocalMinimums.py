@@ -14,7 +14,7 @@
 import arcpy
 
 from helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, \
-    LINEAR_UNITS, LinearUnit, SPATIAL_TO_LINEAR
+    LINEAR_UNITS, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -132,10 +132,10 @@ class LocalMinimums:
         log("reading in parameters")
         line = parameters[0].value
         dem, _ = raster_and_layer(parameters[1].value)
-        z_unit = LINEAR_UNITS[SPATIAL_TO_LINEAR[parameters[2].value]]
+        z_unit = LINEAR_UNITS[parameters[2].value]
         extent = parameters[3].value
-        search_interval = LinearUnit(parameters[4].valueAsText)
-        threshold = LinearUnit(parameters[5].valueAsText).to_unit(z_unit).length
+        search_interval = Distance(parameters[4].valueAsText)
+        threshold = Distance(parameters[5].valueAsText).to_unit(z_unit).length
         output_file = parameters[6].valueAsText
 
         # create scratch layers

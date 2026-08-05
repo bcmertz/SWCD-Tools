@@ -37,7 +37,7 @@ from .units import (
     LINEAR_UNITS,
     SPATIAL_UNITS,
     AREAL_UNITS,
-    Length,
+    Distance,
     Area,
 )
 
