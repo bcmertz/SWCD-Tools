@@ -10,7 +10,7 @@ import arcpy
 from copy import copy
 from typing import Self
 from functools import singledispatchmethod
-from enum import StrEnum, auto
+from enum import StrEnum
 
 
 # mapping of GPLinearUnit to GPArealUnit (square units)
@@ -97,7 +97,6 @@ class LINEAR_UNITS(UNITS):
     def to_spatial(self) -> 'SPATIAL_UNITS':
         return SPATIAL_UNITS[SPATIAL_TO_LINEAR[self.name]]
 
-
 # https://developers.arcgis.com/rest/services-reference/enterprise/gp-data-types/#gparealunit
 #
 # map arcpy GPArealUnit to parameter display representation
@@ -131,9 +130,9 @@ class AREAL_UNITS(UNITS):
 
 
 class SPATIAL_UNITS(UNITS):
-    Meter = auto()
-    Foot_US = auto()
-    Foot = auto()
+    Meter = "Meter"
+    Foot_US = "Foot_US"
+    Foot = "Foot"
 
     def to_areal(self) -> AREAL_UNITS:
         return AREAL_UNITS[LINEAR_TO_AREAL[SPATIAL_TO_LINEAR[self.name]]]
