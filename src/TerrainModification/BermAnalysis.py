@@ -11,8 +11,8 @@
 
 import arcpy
 
-from helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, \
-    set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer, LINEAR_UNITS, Distance
+from helpers import license, get_oid, pixel_type, get_z_unit, empty_workspace, sanitize, set_required_parameter,\
+    reload_module, log, warn, is_empty, raster_and_layer, LINEAR_UNITS, Distance, SPATIAL_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -38,7 +38,7 @@ class BermAnalysis(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Fill existing depressions?",
@@ -181,7 +181,7 @@ class BermAnalysis(object):
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = LINEAR_UNITS[SPATIAL_TO_LINEAR[parameters[1].value]]
+        z_unit = SPATIAL_UNITS[parameters[1].value].to_linear()
         fill_depressions = parameters[2].value
         extent = parameters[3].value
         output_file = parameters[4].valueAsText

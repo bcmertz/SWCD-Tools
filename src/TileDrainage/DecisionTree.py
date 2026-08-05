@@ -8,7 +8,8 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, Area, SPATIAL_UNITS
+from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
+    SPATIAL_UNITS, Area
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -34,7 +35,7 @@ class DecisionTree(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -177,7 +178,7 @@ class DecisionTree(object):
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = SPATIAL_UNITS[parameters[1].value]
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         soils = parameters[4].value
