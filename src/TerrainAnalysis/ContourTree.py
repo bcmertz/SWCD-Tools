@@ -6,12 +6,10 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-import os
-
 import arcpy
 
-from helpers import license, empty_workspace, set_required_parameter, reload_module, log, warn, \
-    LINEAR_UNITS, Z_UNITS, get_z_unit, raster_and_layer, LINEAR_UNITS, LinearUnit, fc_to_geometry
+from helpers import license, empty_workspace, reload_module, log, fc_to_geometry, geometry_to_fc, \
+    LINEAR_UNITS, SPATIAL_UNITS, get_z_unit, raster_and_layer, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -37,7 +35,7 @@ class ContourTree:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -112,17 +110,17 @@ class ContourTree:
         # read in parameters
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = LINEAR_UNITS[parameters[1].valueAsText]
+        z_unit = SPATIAL_UNITS[parameters[1].valueAsText].to_linear()
         extent = parameters[2].value
-        contour_interval = LinearUnit(parameters[3].valueAsText).to_unit(z_unit).length
+        contour_interval = Distance(parameters[3].valueAsText).to_unit(z_unit).length
         output_file = parameters[4].valueAsText
 
         # set extent
         if extent is not None:
             arcpy.env.extent = extent
 
-        # # create scratch layers
-        # log("creating scratch layers")
+        # create scratch layers
+        log("creating scratch layers")
         scratch_contour = arcpy.CreateScratchName("scratch_contour", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_poly = arcpy.CreateScratchName("scratch_poly", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
         # scratch_line = arcpy.CreateScratchName("scratch_line", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
@@ -142,14 +140,18 @@ class ContourTree:
         # arcpy.management.FeatureToLine(scratch_poly, output_file)
 
         old_contours = fc_to_geometry(scratch_contour, ["SHAPE@", "Contour"])
+        log(len(old_contours))
 
         polygons = [[arcpy.Polygon(geo.getPart()), elev] for geo, elev in old_contours]
+        log(len(polygons))
 
         new_contours = [[arcpy.Polyline(geo.getPart()), elev] for geo, elev in polygons if geo.partCount > 0]
+        log(len(new_contours))
 
         closed_contours = [i for i, j in zip(old_contours, new_contours) if i[0] == j[0]]
+        log(len(closed_contours))
 
-        out_name = scratch_contour.split("\\")[-1]
+        out_name = output_file.split("\\")[-1]
 
         output_file = arcpy.management.CreateFeatureclass(env_path, out_name, "POLYLINE", spatial_reference=spatial_reference)
         arcpy.management.AddField(output_file, "Contour", "LONG")
@@ -157,26 +159,32 @@ class ContourTree:
             for closed_contour in closed_contours:
                 cursor.insertRow(closed_contour)
 
-        log("adding results to map")
-        active_map.addDataFromPath(output_file)
-        return
-
-
-        # get setof objectIDs
-        log("getting spatial relationships")
-        info = {}
-        with arcpy.da.SearchCursor(output_file, field_names=['OID@', 'SHAPE@']) as lines:
-            for line in lines:
-                oid = line[0]
-                shape = line[1]
-                polygon = arcpy.Polygon(shape.getPart())
-                oids_within = [row[0] for row in arcpy.da.SearchCursor(output_file, field_names=['OID@'], spatial_filter=polygon, spatial_relationship="CONTAINS")]
-                info[oid] = oids_within
-        log(info)
+        # # get setof objectIDs
+        # log("getting spatial relationships")
+        # # {
+        # #    ID: {
+        # #        ids_within: [ID, ID, ID],
+        # #        contour: #,
+        # #    }
+        # # }
+        # info = {}
+        # with arcpy.da.SearchCursor(output_file, field_names=['OID@', 'SHAPE@', 'Contour']) as lines:
+        #     for line in lines:
+        #         oid = line[0]
+        #         shape = line[1]
+        #         contour = line[2]
+        #         polygon = arcpy.Polygon(shape.getPart())
+        #         ids_within = [row[0] for row in arcpy.da.SearchCursor(output_file, field_names=['OID@'], spatial_filter=polygon, spatial_relationship="CONTAINS")]
+        #         info[oid] = {
+        #             "ids_within": ids_within,
+        #             "contour": contour,
+        #         }
+        # log(info)
 
         # add results to map
         log("adding results to map")
         active_map.addDataFromPath(output_file)
+        return
 
         # cleanup
         log("deleting unneeded data")
