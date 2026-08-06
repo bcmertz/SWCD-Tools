@@ -107,7 +107,6 @@ class BurnCulverts(object):
         desc = arcpy.Describe(culverts)
         spatial_reference = desc.spatialReference
         distance = Distance(parameters[5].valueAsText)
-        log(linear_unit, distance.unit)
         distance = distance.to_unit(linear_unit).length
 
         # set analysis extent

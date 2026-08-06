@@ -1,6 +1,22 @@
 # -----------------------------------------------------------------------------------------
 # Name:        Units
-# Purpose:     This package provides various convenience functions for working arcpy units
+#
+# Purpose:     The missing ArcGIS Pro units package. This package provides various convenience functions for working arcpy units
+#              Much of this is motivated by the strange behavior and conventions of arcpy.LinearUnitConversionFactor
+#              and arcpy.ArealUnitConversionFactor. These built-ins provide the standard interface for converting between
+#              linear and areal units in ArcGIS Pro but have poorly defined behavior in terms of what units are all allowed
+#              and how they are structured.
+#
+#              For example: arcpy.LinearUnitConversionFactor takes US feet as [Foot US, FootUS, Foot, Feet]
+#              but not [US Survey Feet, Foot_US]. The documentation only specifies FeetUS as valid.
+#              To make matters worse, the documentation for spatial units on raster vertical coordinate systems
+#              and some geoprocessing tools like arcpy.sa.Slope specifies Foot_US as the proper format but takes many other
+#              formats which aren't specified, including "US Survey Feet". Finally, GPLinearUnit parameters takes US Survey Feet
+#              but returns Feet.
+#
+#              This package handles this complexity by rigidly defining LINEAR_UNITS, AREAL_UNITS, and SPATIAL_UNITS classes
+#              and provides methods for converting between them. This is ingested by Distance and Area classes which provide
+#              unit and amount of linear and areal measurements, as well as methods to convert and do math with these measurements.
 #
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
@@ -46,10 +62,22 @@ SPATIAL_TO_LINEAR = {
     "Foot": "FeetInt",
 }
 
+
 class UNITS(StrEnum):
-    """TODO."""
     # Handle the name or value of a unit being passed at creation time
     # Note: only applies to function invocation (eg - LINEAR_UNITS() not LINEAR_UNITS[])
+    #       so you can do LINEAR_UNITS(value | name | LINEAR_UNITS) but only names in LINEAR_UNITS[name]
+    #
+    ## yes
+    # LINEAR_UNITS("FeetInt")
+    # LINEAR_UNITS("International Feet")
+    # LINEAR_UNITS(LINEAR_UNITS.FeetInt)
+    # LINEAR_UNITS["FeetInt"]
+    # LINEAR_UNITS.FeetInt
+    #
+    ## no
+    # LINEAR_UNITS["International Feet"]
+    # LINEAR_UNITS[LINEAR_UNITS.FeetInt]
     @classmethod
     def _missing_(cls, value):
         for member in cls:
@@ -204,7 +232,7 @@ class Distance(BaseAmount):
            - Distance("4 Feet")
            - Distance("5 International Feet")
         """
-        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: LINEAR_UNITS. Received {}".format(input))
+        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: str | LINEAR_UNITS. Received {}".format(input))
     @__init__.register
     def _(self, length: int | float, unit: str | LINEAR_UNITS):
         super().__init__(amount=length, unit=LINEAR_UNITS(unit))
@@ -284,7 +312,7 @@ class Area(BaseAmount):
            - Area("4 Acres")
            - Area("5 International Acres")
         """
-        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: AREAL_UNITS. Received {}".format(input))
+        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: str | AREAL_UNITS. Received {}".format(input))
     @__init__.register
     def _(self, area: int | float, unit: str | AREAL_UNITS):
         super().__init__(amount=area, unit=AREAL_UNITS[unit])
