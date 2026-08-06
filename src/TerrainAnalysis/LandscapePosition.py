@@ -116,7 +116,7 @@ class LandscapePosition(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
-        map_unit = LINEAR_UNITS[active_map.mapUnits]
+        map_unit = SPATIAL_UNITS[active_map.mapUnits].to_linear()
 
         # read in parameters
         log("reading in parameters")

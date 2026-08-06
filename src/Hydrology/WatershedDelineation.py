@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, reload_module, log, raster_and_layer, LINEAR_UNITS, Distance
+from helpers import license, get_oid, reload_module, log, raster_and_layer, SPATIAL_UNITS, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -85,7 +85,7 @@ class WatershedDelineation(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
-        map_unit = LINEAR_UNITS[active_map.mapUnits]
+        map_unit = SPATIAL_UNITS[active_map.mapUnits].to_linear()
 
         # read in parameters
         dem, _ = raster_and_layer(parameters[0].value)

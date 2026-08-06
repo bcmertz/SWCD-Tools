@@ -10,7 +10,8 @@
 import arcpy
 
 from FluvialGeomorphology import transect_line
-from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error, raster_and_layer, Distance
+from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error, raster_and_layer,\
+    Distance, SPATIAL_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -183,7 +184,7 @@ class DamRemoval(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
-        map_unit = active_map.mapUnits
+        map_unit = SPATIAL_UNITS[active_map.mapUnits].to_linear()
 
         dem, dem_layer = raster_and_layer(parameters[0].value)
         if dem_layer:
