@@ -44,7 +44,7 @@ def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> Area:
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
     linear_unit = get_linear_unit(raster)
-    square_unit = AREAL_UNITS[linear_unit.to_areal()]
+    square_unit = AREAL_UNITS(linear_unit.to_areal())
 
     # Cell size in the X and Y axis
     cellsize_y = desc_raster.meanCellHeight
