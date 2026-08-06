@@ -183,7 +183,7 @@ class VBET(object):
         rem, _ = raster_and_layer(parameters[3].value) if parameters[3].value is not None else (None, None)
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
-        watershed_area_unit = AREAL_UNITS[parameters[6].valueAsText]
+        watershed_area_unit = AREAL_UNITS(parameters[6].valueAsText)
         buffer_radius = Distance(parameters[7].valueAsText)
         sampling_interval = Distance("35 Feet")
         min_watershed_size = Area(parameters[8].valueAsText).to_unit(watershed_area_unit).area if parameters[8].value is not None else None

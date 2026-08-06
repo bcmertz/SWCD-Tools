@@ -78,7 +78,7 @@ class WatershedSize:
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
-        areal_unit = AREAL_UNITS[parameters[2].valueAsText]
+        areal_unit = AREAL_UNITS(parameters[2].valueAsText)
         output_file = parameters[3].valueAsText
 
         # set analysis extent
