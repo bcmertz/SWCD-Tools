@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from helpers import license, reload_module, log, AREAL_UNITS_MAP, AREAL_UNITS, cell_area, raster_and_layer
+from helpers import license, reload_module, log, AREAL_UNITS, cell_area, raster_and_layer
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -41,7 +41,7 @@ class WatershedSize:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param2.filter.list = [i for i in AREAL_UNITS_MAP.keys()]
+        param2.filter.list = list(AREAL_UNITS)
         param2.value = "US Survey Acres"
 
         param3 = arcpy.Parameter(
@@ -78,7 +78,7 @@ class WatershedSize:
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
-        areal_unit = AREAL_UNITS[AREAL_UNITS_MAP[parameters[2].valueAsText]]
+        areal_unit = AREAL_UNITS[parameters[2].valueAsText]
         output_file = parameters[3].valueAsText
 
         # set analysis extent

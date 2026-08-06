@@ -9,11 +9,11 @@
 
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer, LinearUnit
+from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius: LinearUnit, sampling_interval: LinearUnit, resolve: bool):
+def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius: Distance, sampling_interval: Distance, resolve: bool):
     # set analysis extent
     if extent:
         arcpy.env.extent = extent
@@ -200,8 +200,8 @@ class RelativeElevationModel(object):
         extent = parameters[1].value
         output_file = parameters[2].valueAsText
         stream_layer = parameters[3].value
-        buffer_radius = LinearUnit(parameters[4].valueAsText)
-        sampling_interval = LinearUnit(parameters[5].valueAsText)
+        buffer_radius = Distance(parameters[4].valueAsText)
+        sampling_interval = Distance(parameters[5].valueAsText)
         resolve: bool = parameters[6].value
 
         # calculate REM

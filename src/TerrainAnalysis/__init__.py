@@ -16,6 +16,7 @@ from .TopographicPositionIndex import (
 )
 from .LandscapePosition import LandscapePosition
 from .VBET import VBET
+from .ContourTree import ContourTree
 
 __all__ = [
     "PotentialWetlands",
@@ -27,4 +28,5 @@ __all__ = [
     "topographic_position_index",
     "LandscapePosition",
     "VBET",
+    "ContourTree"
 ]

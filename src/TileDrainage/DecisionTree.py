@@ -8,7 +8,8 @@
 
 import arcpy
 
-from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, ArealUnit, LINEAR_UNITS
+from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
+    SPATIAL_UNITS, Area
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -34,7 +35,7 @@ class DecisionTree(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -117,7 +118,7 @@ class DecisionTree(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit is not LINEAR_UNITS.Unknown:
+                if z_unit is not None:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
@@ -177,7 +178,7 @@ class DecisionTree(object):
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = SPATIAL_UNITS[parameters[1].value]
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         soils = parameters[4].value
@@ -185,7 +186,7 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        min_area = ArealUnit(parameters[9].valueAsText) if parameters[9].value else None
+        min_area = Area(parameters[9].valueAsText) if parameters[9].value else None
 
         # set analysis extent
         if extent:
@@ -224,7 +225,7 @@ class DecisionTree(object):
 
         # add acres field and calculate
         log("calculating acreage and removing small features")
-        threshold = ArealUnit(1, "Acres").to_unit(min_area.unit)
+        threshold = Area(1, "Acres").to_unit(min_area.unit)
         area_field_name = threshold.unit
         if area_field_name not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
             arcpy.management.AddField(scratch_intersect, "Acres", "FLOAT", 2, 2)

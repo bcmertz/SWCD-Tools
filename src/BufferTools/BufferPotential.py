@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, warn, raster_and_layer, ArealUnit, LinearUnit
+from helpers import license, empty_workspace, reload_module, log, warn, raster_and_layer, Area, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -162,8 +162,8 @@ class BufferPotential:
 
         log("reading in parameters")
         stream = parameters[0].value
-        min_width = LinearUnit(parameters[1].valueAsText)
-        min_area = ArealUnit(parameters[2].valueAsText)
+        min_width = Distance(parameters[1].valueAsText)
+        min_area = Area(parameters[2].valueAsText)
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         land_use_raster, _ = raster_and_layer(parameters[5].value)

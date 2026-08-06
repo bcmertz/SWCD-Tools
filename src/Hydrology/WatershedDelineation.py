@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, reload_module, log, raster_and_layer, LINEAR_UNITS, LinearUnit
+from helpers import license, get_oid, reload_module, log, raster_and_layer, LINEAR_UNITS, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -91,7 +91,7 @@ class WatershedDelineation(object):
         dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
         pour_points = parameters[2].value
-        snap_adjustment = LinearUnit(parameters[3].valueAsText).to_unit(map_unit).length
+        snap_adjustment = Distance(parameters[3].valueAsText).to_unit(map_unit).length
         output_file = parameters[4].valueAsText
 
         # set analysis extent

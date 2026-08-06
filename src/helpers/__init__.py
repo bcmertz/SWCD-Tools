@@ -34,15 +34,16 @@ from .geometry import (
 from .units import (
     get_z_unit,
     get_linear_unit,
-    Z_UNITS,
-    LINEAR_TO_AREAL,
-    SPATIAL_TO_LINEAR,
-    LINEAR_UNITS_MAP,
-    AREAL_UNITS_MAP,
     LINEAR_UNITS,
+    SPATIAL_UNITS,
     AREAL_UNITS,
-    LinearUnit,
-    ArealUnit,
+    Distance,
+    Area,
+)
+
+from .features import (
+    fc_to_geometry,
+    geometry_to_fc,
 )
 
 __all__ = [
@@ -68,19 +69,17 @@ __all__ = [
     "empty_workspace",
     "get_z_unit",
     "get_linear_unit",
-    "Z_UNITS",
-    "LINEAR_UNITS_MAP",
-    "AREAL_UNITS_MAP",
-    "LINEAR_TO_AREAL",
-    "SPATIAL_TO_LINEAR",
     "LINEAR_UNITS",
+    "SPATIAL_UNITS",
     "AREAL_UNITS",
-    "LinearUnit",
-    "ArealUnit",
+    "Length",
+    "Area",
     "fc_to_numpy_array",
     "bbox",
     "delaunay_fc",
     "voronoi",
     "voronoi_fc",
     "triangle_csc",
+    "fc_to_geometry",
+    "geometry_to_fc",
 ]

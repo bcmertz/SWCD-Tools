@@ -9,7 +9,8 @@
 import arcpy
 
 from TerrainAnalysis import relative_elevation_model
-from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS_MAP, AREAL_UNITS, ArealUnit, LinearUnit, LINEAR_UNITS
+from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, \
+    SPATIAL_UNITS, AREAL_UNITS, Area, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -35,7 +36,7 @@ class VBET(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -75,7 +76,7 @@ class VBET(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param6.filter.list = [i for i in AREAL_UNITS_MAP.keys()]
+        param6.filter.list = list(AREAL_UNITS)
 
         param7 = arcpy.Parameter(
             displayName="Buffer Radius",
@@ -132,7 +133,7 @@ class VBET(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit is not LINEAR_UNITS.Unknown:
+                if z_unit is not None:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
@@ -177,22 +178,22 @@ class VBET(object):
         # read in parameters
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = SPATIAL_UNITS[parameters[1].valueAsText]
         extent = parameters[2].value
         rem, _ = raster_and_layer(parameters[3].value) if parameters[3].value is not None else (None, None)
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
-        watershed_area_unit = AREAL_UNITS[AREAL_UNITS_MAP[parameters[6].valueAsText]]
-        buffer_radius = LinearUnit(parameters[7].valueAsText)
-        sampling_interval = LinearUnit("35 Feet")
-        min_watershed_size = ArealUnit(parameters[8].valueAsText).to_unit(watershed_area_unit).area if parameters[8].value is not None else None
+        watershed_area_unit = AREAL_UNITS[parameters[6].valueAsText]
+        buffer_radius = Distance(parameters[7].valueAsText)
+        sampling_interval = Distance("35 Feet")
+        min_watershed_size = Area(parameters[8].valueAsText).to_unit(watershed_area_unit).area if parameters[8].value is not None else None
         full_valley_file = parameters[9].valueAsText
         low_lying_file = parameters[10].valueAsText
         remove = parameters[11].value
 
         log("creating watershed size thresholds")
-        threshold_low = ArealUnit("25 SquareKilometers").to_unit(watershed_area_unit).area
-        threshold_high = ArealUnit("250 SquareKilometers").to_unit(watershed_area_unit).area
+        threshold_low = Area("25 SquareKilometers").to_unit(watershed_area_unit).area
+        threshold_high = Area("250 SquareKilometers").to_unit(watershed_area_unit).area
 
         # set analysis extent
         if extent:

@@ -10,7 +10,7 @@
 import math
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, LinearUnit
+from helpers import license, empty_workspace, reload_module, log, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -92,7 +92,7 @@ class ShrubClusters:
         log("reading in parameters")
         area = parameters[0].value
         output_file = parameters[1].valueAsText
-        cluster_width = LinearUnit(parameters[2].valueAsText) / 2
+        cluster_width = Distance(parameters[2].valueAsText) / 2
         number = parameters[3].value
         geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
 

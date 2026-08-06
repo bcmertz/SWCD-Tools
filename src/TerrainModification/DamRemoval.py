@@ -10,7 +10,7 @@
 import arcpy
 
 from FluvialGeomorphology import transect_line
-from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error, raster_and_layer, LinearUnit
+from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error, raster_and_layer, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -109,13 +109,13 @@ class DamRemoval(object):
         """Set whether the tool is licensed to execute."""
         return license(['Spatial'])
 
-    def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width: LinearUnit, transect_point_spacing: LinearUnit, scratch_transect_points, scratch_transect_elev_points):
+    def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width: Distance, transect_point_spacing: Distance, scratch_transect_points, scratch_transect_elev_points):
         '''return points along transect with elevations
         transect - arcpy.PolyLine() object
         dem_raster - elevation raster
         lowpoint_elev - elevation of streamline, considered lowpoint of constructed surface
-        transect_width - LinearUnit width of a given transect
-        transect_point_spacing - LinearUnit spacing between points on transect
+        transect_width - Distance width of a given transect
+        transect_point_spacing - Distance spacing between points on transect
         scratch_transect_points - scratch layer for transect points
         scratch_transect_elev_points - scratch layer for transect points with elevations
         '''
@@ -192,9 +192,9 @@ class DamRemoval(object):
         output_file = parameters[2].valueAsText
         centerline = parameters[3].value
         pond = parameters[4].value
-        transect_spacing = LinearUnit(parameters[5].valueAsText).to_unit(map_unit)
-        transect_point_spacing = LinearUnit(parameters[6].valueAsText).to_unit(map_unit)
-        transect_width = LinearUnit(parameters[7].valueAsText)
+        transect_spacing = Distance(parameters[5].valueAsText).to_unit(map_unit)
+        transect_point_spacing = Distance(parameters[6].valueAsText).to_unit(map_unit)
+        transect_width = Distance(parameters[7].valueAsText)
 
         # create scratch layers
         scratch_centerline = arcpy.CreateScratchName("centerline", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)

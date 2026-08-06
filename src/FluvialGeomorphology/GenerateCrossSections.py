@@ -10,15 +10,15 @@ import os
 import math
 import arcpy
 
-from helpers import license, reload_module, log, empty_workspace, LinearUnit, LINEAR_UNITS
+from helpers import license, reload_module, log, empty_workspace, Distance, LINEAR_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-def generate_transects(line, interval: LinearUnit, width: LinearUnit):
+def generate_transects(line, interval: Distance, width: Distance):
     """ Generate transects of length WIDTH along a LINE at a given INTERVAL.
     line - arcpy.PolyLine() object
-    interval - LinearUnit
-    width - LinearUnit
+    interval - Distance
+    width - Distance
     """
     transects = []
 
@@ -36,11 +36,11 @@ def generate_transects(line, interval: LinearUnit, width: LinearUnit):
 
     return transects
 
-def transect_line(line, point, transect_width: LinearUnit):
+def transect_line(line, point, transect_width: Distance):
     """Returns a transect to LINE at POINT of length TRANSECT_WIDTH.
     line - arcpy.PolyLine() object
     point - arcpy.Point() object
-    transect_width - LinearUnit
+    transect_width - Distance
     """
 
     # epsilon
@@ -162,8 +162,8 @@ class GenerateCrossSections(object):
         output_file = parameters[2].valueAsText
         out_name = output_file.split("\\")[-1]
         out_dir = os.path.dirname(output_file)
-        width = LinearUnit(parameters[3].valueAsText)
-        interval = LinearUnit(parameters[4].valueAsText)
+        width = Distance(parameters[3].valueAsText)
+        interval = Distance(parameters[4].valueAsText)
         remove = parameters[5].value
 
         # create scratch layers

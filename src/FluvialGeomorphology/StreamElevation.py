@@ -10,7 +10,7 @@ import os
 import arcpy
 import platform
 
-from helpers import license, empty_workspace, reload_module, log, raster_and_layer, LinearUnit
+from helpers import license, empty_workspace, reload_module, log, raster_and_layer, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -144,7 +144,7 @@ class StreamElevation(object):
         keep_fields = parameters[3].valueAsText.split(";") if parameters[3].value else []
         dem, _ = raster_and_layer(parameters[4].value)
         watershed = parameters[5].value
-        point_spacing = LinearUnit(parameters[6].valueAsText)
+        point_spacing = Distance(parameters[6].valueAsText)
         output_file = parameters[7].valueAsText
 
         # create scratch layers

@@ -13,8 +13,8 @@
 
 import arcpy
 
-from helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS, \
-    LINEAR_UNITS, LinearUnit, SPATIAL_TO_LINEAR
+from helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
+    SPATIAL_UNITS, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -53,7 +53,7 @@ class LocalMinimums:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param2.filter.list = Z_UNITS
+        param2.filter.list = list(SPATIAL_UNITS)
 
         param3 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -105,7 +105,7 @@ class LocalMinimums:
         if not parameters[1].hasBeenValidated:
             if parameters[1].value:
                 z_unit = get_z_unit(parameters[1].value)
-                if z_unit is not LINEAR_UNITS.Unknown:
+                if z_unit is not None:
                     parameters[2].enabled = False
                     parameters[2].value = z_unit
                 else:
@@ -132,10 +132,10 @@ class LocalMinimums:
         log("reading in parameters")
         line = parameters[0].value
         dem, _ = raster_and_layer(parameters[1].value)
-        z_unit = LINEAR_UNITS[SPATIAL_TO_LINEAR[parameters[2].value]]
+        z_unit = SPATIAL_UNITS[parameters[2].value].to_linear()
         extent = parameters[3].value
-        search_interval = LinearUnit(parameters[4].valueAsText)
-        threshold = LinearUnit(parameters[5].valueAsText).to_unit(z_unit).length
+        search_interval = Distance(parameters[4].valueAsText)
+        threshold = Distance(parameters[5].valueAsText).to_unit(z_unit).length
         output_file = parameters[6].valueAsText
 
         # create scratch layers
