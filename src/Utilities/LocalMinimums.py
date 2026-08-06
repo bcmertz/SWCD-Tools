@@ -105,7 +105,7 @@ class LocalMinimums:
         if not parameters[1].hasBeenValidated:
             if parameters[1].value:
                 z_unit = get_z_unit(parameters[1].value)
-                if z_unit is not LINEAR_UNITS.Unknown:
+                if z_unit is not None:
                     parameters[2].enabled = False
                     parameters[2].value = z_unit
                 else:
