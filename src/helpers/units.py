@@ -189,7 +189,7 @@ def get_linear_unit(fc) -> LINEAR_UNITS:
     desc = arcpy.Describe(fc)
     data_type =  desc.dataType
 
-    if data_type == "RasterLayer" | data_type == "RasterDataset":
+    if (data_type == "RasterLayer") | (data_type == "RasterDataset"):
         try:
             return SPATIAL_UNITS[desc.spatialReference.linearUnitName].to_linear()
         except Exception:
