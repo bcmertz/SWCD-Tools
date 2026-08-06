@@ -259,7 +259,7 @@ class PotentialWetlands(object):
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         max_slope = parameters[4].value
-        twi_raster, _ = raster_and_layer(parameters[5].value)
+        twi_raster, _ = raster_and_layer(parameters[5].value)if parameters[5].value is not None else (None, None)
         min_twi = parameters[6].value
         soils_shapefile = parameters[7].value
         soils_hsg_field = parameters[8].value
@@ -372,7 +372,7 @@ class PotentialWetlands(object):
         )
 
         # exclude polygons with TWI max less than min_twi
-        if twi_raster:
+        if twi_raster is not None:
             # zonal stats as table
             log("finding max TWI in each polygon")
             dissolve_oid = get_oid(scratch_dissolve)
@@ -398,7 +398,7 @@ class PotentialWetlands(object):
         lyr = active_map.addDataFromPath(output_file)
 
         # set symbology based off of average TWI
-        if twi_raster and lyr.isFeatureLayer:
+        if twi_raster is not None and lyr.isFeatureLayer:
             log("setting output layer symbology")
             sym = lyr.symbology
             try:
