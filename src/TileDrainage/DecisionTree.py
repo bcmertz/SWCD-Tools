@@ -229,7 +229,7 @@ class DecisionTree(object):
         area_field_name = threshold.unit
         if area_field_name not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
             arcpy.management.AddField(scratch_intersect, "Acres", "FLOAT", 2, 2)
-        arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[[area_field_name, "AREA_GEODESIC"]], area_unit=threshold.full_unit())
+        arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[[area_field_name, "AREA_GEODESIC"]], area_unit=threshold.unit.display())
 
         # remove small features
         sql_query = "{} >= {}".format(area_field_name, threshold.area)

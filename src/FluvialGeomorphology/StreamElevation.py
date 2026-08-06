@@ -175,7 +175,7 @@ class StreamElevation(object):
         arcpy.management.CalculateGeometryAttributes(
             in_features=scratch_streams,
             geometry_property=[[field_name, "LENGTH_GEODESIC"]],
-            length_unit=point_spacing.full_unit(),
+            length_unit=point_spacing.unit.display(),
             coordinate_format="SAME_AS_INPUT"
         )
 
