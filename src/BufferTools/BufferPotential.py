@@ -238,10 +238,10 @@ class BufferPotential:
             multi_part="SINGLE_PART",
         )
 
-        # calculate acreage
-        log("calculating acreage of planting areas")
+        # calculate area
+        log("calculating area of planting areas")
         arcpy.management.AddField(scratch_dissolve, min_area.unit, "FLOAT", 2, 2)
-        arcpy.management.CalculateGeometryAttributes(scratch_dissolve, geometry_property=[[min_area.unit, "AREA_GEODESIC"]], area_unit=min_area.unit.display())
+        arcpy.management.CalculateGeometryAttributes(scratch_dissolve, geometry_property=[[str(min_area.unit), "AREA_GEODESIC"]], area_unit=min_area.unit.display())
 
         # drop acreage < threshold
         sql_query = "{} >= {}".format(min_area.unit, min_area.area)
