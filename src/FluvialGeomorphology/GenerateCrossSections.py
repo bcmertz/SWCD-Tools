@@ -10,7 +10,7 @@ import os
 import math
 import arcpy
 
-from helpers import license, reload_module, log, empty_workspace, Distance, LINEAR_UNITS
+from helpers import license, reload_module, log, empty_workspace, Distance, LINEAR_UNITS, SPATIAL_UNITS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -51,8 +51,8 @@ def transect_line(line, point, transect_width: Distance):
     geom = point[0]
     distance = point[1]
     spatial_reference = line.spatialReference
-    line_unit = spatial_reference.linearUnitName
-    transect_length = transect_width.to_unit(LINEAR_UNITS[line_unit]).length
+    line_unit = SPATIAL_UNITS[spatial_reference.linearUnitName].to_linear()
+    transect_length = transect_width.to_unit(line_unit).length
 
     # get points immediately before and after midpoint
     before = line.positionAlongLine(distance-e, False)
