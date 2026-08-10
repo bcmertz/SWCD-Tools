@@ -9,8 +9,8 @@
 
 import arcpy
 
-from helpers import license, get_oid, empty_workspace, cell_area, reload_module,\
-    log, set_required_parameter, raster_and_layer, AREAL_UNITS, Area, Distance
+from helpers import license, get_oid, empty_workspace, cell_area, reload_module, log,\
+    error, set_required_parameter, raster_and_layer, is_empty, AREAL_UNITS, Area, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -294,8 +294,9 @@ class StreamNetwork(object):
             log("creating stream feature")
             arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, "SIMPLIFY")
 
-        # add watershed size information if requested
-        if watershed_size_bool:
+        if is_empty(scratch_feature):
+            error("Warning: empty output created. Ensure stream initiation data and DEM are valid in study area selected.")
+        elif watershed_size_bool:
             # convert flow_accumulation raster to watershed_size_units
             log("calculating output watershed size attribute")
             cell_size = cell_area(dem, watershed_size_unit).area
