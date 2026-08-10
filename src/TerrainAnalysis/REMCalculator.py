@@ -45,6 +45,7 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
 
     # generate points along line
     log("generating points along stream")
+    sampling_interval = sampling_interval.to_unit(active_map.mapUnits)
     arcpy.management.GeneratePointsAlongLines(scratch_stream_layer, scratch_stream_points, "DISTANCE", str(sampling_interval), "", "END_POINTS", "NO_CHAINAGE")
 
     # extract values to points
