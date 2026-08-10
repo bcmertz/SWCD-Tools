@@ -32,3 +32,7 @@ def geometry_to_fc(geo: list[arcpy.Geometry], fc: str, spatial_reference: arcpy.
             cursor.insertRow([g])
 
     return out_fc
+
+def is_empty(fc):
+    """Return boolean representing if the feature class is empty."""
+    return int(arcpy.management.GetCount(fc)[0]) == 0
