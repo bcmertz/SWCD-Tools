@@ -6,7 +6,7 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-from .layers import get_oid, add_layer_to_group, is_empty
+from .layers import get_oid, add_layer_to_group
 from .logging import log, warn, error
 from .parameter import (
     validate_spatial_reference,
@@ -44,6 +44,7 @@ from .units import (
 from .features import (
     fc_to_geometry,
     geometry_to_fc,
+    is_empty,
 )
 
 __all__ = [
