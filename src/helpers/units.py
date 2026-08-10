@@ -281,9 +281,10 @@ class Distance(BaseAmount):
         return
     def to_unit(self: Self, output_unit: LINEAR_UNITS) -> Self:
         """Convert Distance to output_unit factoring in length size."""
-        self.length = self.length * arcpy.LinearUnitConversionFactor(str(self.unit), str(output_unit))
-        self.unit = output_unit
-        return self
+        out = copy(self)
+        out.length = self.length * arcpy.LinearUnitConversionFactor(str(self.unit), str(output_unit))
+        out.unit = output_unit
+        return out
     def __eq__(self: Self, other) -> bool:
         # Equals
         if not isinstance(other, Distance):
@@ -368,9 +369,10 @@ class Area(BaseAmount):
         return
     def to_unit(self: Self, output_unit: AREAL_UNITS) -> Self:
         """Convert Distance to output_unit factoring in area size."""
-        self.area = self.area * arcpy.ArealUnitConversionFactor(str(self.unit), str(output_unit))
-        self.unit = output_unit
-        return self
+        out = copy(self)
+        out.area = self.area * arcpy.ArealUnitConversionFactor(str(self.unit), str(output_unit))
+        out.unit = output_unit
+        return out
     def __eq__(self: Self, other) -> bool:
         # Equals
         if not isinstance(other, Area):

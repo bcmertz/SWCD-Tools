@@ -121,8 +121,8 @@ class DamRemoval(object):
         scratch_transect_elev_points - scratch layer for transect points with elevations
         '''
         linear_unit = get_linear_unit(transect)
-        transect_width.to_unit(linear_unit)
-        transect_point_spacing.to_unit(linear_unit)
+        transect_width = transect_width.to_unit(linear_unit)
+        transect_point_spacing = transect_point_spacing.to_unit(linear_unit)
 
         arcpy.management.GeneratePointsAlongLines(transect, scratch_transect_points, "DISTANCE", str(transect_point_spacing), "", "END_POINTS", "ADD_CHAINAGE")
         arcpy.sa.ExtractValuesToPoints(scratch_transect_points, dem_raster, scratch_transect_elev_points, "NONE", "VALUE_ONLY")
