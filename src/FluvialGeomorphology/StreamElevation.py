@@ -230,8 +230,6 @@ class StreamElevation(object):
                     length = to_nodes[to_node]
                     downstream_length = downstream_length + length
                     return process_lengths(to_node, downstream_length)
-                else:
-                    return
         for end_node in end_nodes:
             process_lengths(end_node_id=end_node, downstream_length=0)
 
