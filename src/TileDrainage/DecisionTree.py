@@ -199,11 +199,11 @@ class DecisionTree(object):
         scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_joined = arcpy.CreateScratchName("scratch_joined", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         zonal_stats = arcpy.CreateScratchName("zonal_stats", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_land_use = arcpy.CreateScratchName("land_use", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
         zonal_stats_poly = arcpy.CreateScratchName("zonal_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
-        scratch_land_use: arcpy.Raster
         existing_values: list[str]
         log(land_use_field)
         with arcpy.da.SearchCursor(land_use_raster, land_use_field) as cursor:
@@ -212,7 +212,8 @@ class DecisionTree(object):
         if len(land_use_values) != 0:
             sql_query = ' Or '.join("'{}' = '{}'".format(land_use_field, value) for value in land_use_values)
             log(sql_query)
-            scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
+            out_lu = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
+            out_lu.save(scratch_land_use)
         else:
             warn("no valid land uses found in area, please try again with land uses found in analysis area")
             return
