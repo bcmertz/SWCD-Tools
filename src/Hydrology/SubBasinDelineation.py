@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, cells_per_area, reload_module, log, warn, raster_and_layer, Area
+from helpers import license, cells_per_area, reload_module, log, warn, raster_and_layer, Area, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -60,7 +60,7 @@ class SubBasinDelineation(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     @reload_module(__name__)
     def execute(self, parameters, messages):

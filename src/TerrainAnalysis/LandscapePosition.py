@@ -10,7 +10,7 @@
 import arcpy
 
 from .TopographicPositionIndex import topographic_position_index
-from helpers import license, reload_module, log, get_z_unit, raster_and_layer, SPATIAL_UNITS, Distance
+from helpers import license, reload_module, log, get_z_unit, raster_and_layer, SPATIAL_UNITS, Distance, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -74,7 +74,7 @@ class LandscapePosition(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateParameters(self, parameters):
         # find z unit of raster based on vertical coordinate system

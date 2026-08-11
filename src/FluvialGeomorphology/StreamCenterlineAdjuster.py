@@ -10,7 +10,7 @@ import math
 import arcpy
 
 from .GenerateCrossSections import transect_line
-from helpers import license, reload_module, log, raster_and_layer, Distance
+from helpers import license, reload_module, log, raster_and_layer, Distance, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -116,7 +116,7 @@ class LeastAction(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Foundation'])
+        return license([EXTENSIONS.Foundation])
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""

@@ -7,7 +7,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, warn, raster_and_layer, Area, Distance
+from helpers import license, empty_workspace, reload_module, log, warn, raster_and_layer, Area, Distance, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -106,7 +106,7 @@ class BufferPotential:
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateParameters(self, parameters):
         # default buffer width
