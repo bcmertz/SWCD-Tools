@@ -10,7 +10,7 @@ import arcpy
 
 from TerrainAnalysis import relative_elevation_model
 from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, \
-    SPATIAL_UNITS, AREAL_UNITS, Area, Distance
+    SPATIAL_UNITS, AREAL_UNITS, Area, Distance, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -123,7 +123,7 @@ class VBET(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial', 'ImageAnalyst', 'Foundation'])
+        return license([EXTENSIONS.Spatial, EXTENSIONS.ImageAnalyst, EXTENSIONS.Foundation])
 
     def updateParameters(self, parameters):
         # find z unit of raster based on vertical coordinate system

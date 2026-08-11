@@ -8,7 +8,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from helpers import license, empty_workspace, get_oid, reload_module, log, min_cell_path, raster_and_layer
+from helpers import license, empty_workspace, get_oid, reload_module, log, min_cell_path, raster_and_layer, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -67,7 +67,7 @@ class StreambankDetection:
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     @reload_module(__name__)
     def execute(self, parameters, messages):

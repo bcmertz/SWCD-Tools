@@ -13,8 +13,6 @@ from .units import (
     get_linear_unit,
     Distance,
     Area,
-    LINEAR_UNITS,
-    AREAL_UNITS,
 )
 
 

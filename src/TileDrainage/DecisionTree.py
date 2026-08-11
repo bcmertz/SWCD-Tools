@@ -9,7 +9,7 @@
 import arcpy
 
 from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
-    SPATIAL_UNITS, Area, warn
+    SPATIAL_UNITS, Area, warn, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -108,7 +108,7 @@ class DecisionTree(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateParameters(self, parameters):
         # find z unit of raster based on vertical coordinate system

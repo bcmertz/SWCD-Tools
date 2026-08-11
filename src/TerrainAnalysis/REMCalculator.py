@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer, Distance
+from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer, Distance, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -178,7 +178,7 @@ class RelativeElevationModel(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateParameters(self, parameters):
         # default buffer radius

@@ -35,7 +35,7 @@ from .rasters import (
     min_cell_path,
     pixel_type,
 )
-from .tool import empty_workspace, license, reload_module, setup_environment
+from .tool import EXTENSIONS, empty_workspace, license, reload_module, setup_environment
 from .units import (
     AREAL_UNITS,
     LINEAR_UNITS,
@@ -48,6 +48,7 @@ from .units import (
 
 __all__ = [
     "AREAL_UNITS",
+    "EXTENSIONS",
     "LINEAR_UNITS",
     "SPATIAL_UNITS",
     "Area",

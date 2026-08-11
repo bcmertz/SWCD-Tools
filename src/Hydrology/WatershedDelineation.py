@@ -8,7 +8,7 @@
 
 import arcpy
 
-from helpers import license, get_oid, reload_module, log, raster_and_layer, SPATIAL_UNITS, Distance
+from helpers import license, get_oid, reload_module, log, raster_and_layer, SPATIAL_UNITS, Distance, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -66,7 +66,7 @@ class WatershedDelineation(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateParameters(self, parameters):
         # Default snap pour point adjustment value

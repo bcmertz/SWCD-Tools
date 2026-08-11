@@ -9,7 +9,7 @@
 
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, raster_and_layer
+from helpers import license, empty_workspace, reload_module, log, raster_and_layer, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -113,7 +113,8 @@ class RunoffCurveNumber:
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
+
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""

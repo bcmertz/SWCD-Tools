@@ -6,8 +6,11 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
+
 import string
+
 import arcpy
+
 
 def validate_spatial_reference(parameters):
     """Ensure all parameters that need a spatial reference have a valid spatial reference.
@@ -51,7 +54,6 @@ def validate_spatial_reference(parameters):
         else:
             param.setWarningMessage(warning_message)
 
-    return
 
 # This helper is used in various other tools to make an optional parameter required while enabled.
 def set_required_parameter(toggle, parameter) -> None:
@@ -59,7 +61,6 @@ def set_required_parameter(toggle, parameter) -> None:
     if toggle and not parameter.value:
         parameter.setIDMessage("ERROR", 530)
 
-    return
 
 def sanitize(text):
     """Return a sanitized file path string."""

@@ -14,7 +14,7 @@ import openpyxl
 import datetime
 
 from helpers import license, get_oid, get_z_unit, get_linear_unit, empty_workspace, reload_module, log, \
-    raster_and_layer, SPATIAL_UNITS
+    raster_and_layer, SPATIAL_UNITS, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -134,7 +134,7 @@ class CalculateEFH2:
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
