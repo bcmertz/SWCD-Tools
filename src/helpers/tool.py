@@ -9,7 +9,7 @@
 
 import os
 import sys
-from enum import StrEnum, auto
+from enum import StrEnum
 from functools import wraps
 from importlib import import_module
 
@@ -21,40 +21,40 @@ import arcpy
 # from https://doc.esri.com/en/arcgis-pro/latest/arcpy/functions/checkextension.html
 class EXTENSIONS(StrEnum):
     DDD = "3D" # ArcGIS 3D Analyst extension
-    Aeronautical = auto() # ArcGIS Aviation Charting
-    Airports = auto() # ArcGIS Aviation Airports
-    ArcScan = auto() # ArcScan
-    Bathymetry = auto() # ArcGIS Bathymetry
-    BusinessPrem = auto() # ArcGIS Business Analyst
-    DataReviewer = auto() # ArcGIS Data Reviewer
-    DataInteroperability = auto() # ArcGIS Data Interoperability extension for Desktop
-    Defense = auto() # ArcGIS Topographic Mapping
-    Foundation = auto() # ArcGIS Topographic Mapping
-    GeoStats = auto() # ArcGIS Geostatistical Analyst extension
-    Indoors = auto() # ArcGIS Indoors
-    ImageAnalyst = auto() # Image Analyst
-    JTX = auto() # ArcGIS Workflow Manager (Classic) Desktop
-    LocationReferencing = auto() # ArcGIS Pipeline Referencing or ArcGIS Roads and Highways
-    LocateXT = auto() # LocateXT
-    Nautical = auto() # ArcGIS Maritime
-    Network = auto() # ArcGIS Network Analyst extension
-    Publisher = auto() # ArcGIS Publisher
-    Schematics = auto() # ArcGIS Schematics extension
-    SMPAsiaPacific = auto() # StreetMap Premium Asia Pacific
-    SMPEurope = auto() # StreetMap Premium Europe
-    SMPJapan = auto() # StreetMap Premium Japan
-    SMPLatinAmerica = auto() # StreetMap Premium Latin America
-    SMPMiddleEastAfrica = auto() # StreetMap Premium Middle East Africa
-    SMPNorthAmerica = auto() # StreetMap Premium North America
-    Spatial = auto() # ArcGIS Spatial Analyst extension
-    Tracking = auto() # ArcGIS Tracking Analyst extension
-    OCSWCD = auto() # internal Otsego County SWCD tools
+    Aeronautical = "Aeronautical" # ArcGIS Aviation Charting
+    Airports = "Airports" # ArcGIS Aviation Airports
+    ArcScan = "ArcScan" # ArcScan
+    Bathymetry = "Bathymetry" # ArcGIS Bathymetry
+    BusinessPrem = "BusinessPrem" # ArcGIS Business Analyst
+    DataReviewer = "DataReviewer" # ArcGIS Data Reviewer
+    DataInteroperability = "DataInteroperability" # ArcGIS Data Interoperability extension for Desktop
+    Defense = "Defense" # ArcGIS Topographic Mapping
+    Foundation = "Foundation" # ArcGIS Topographic Mapping
+    GeoStats = "GeoStats" # ArcGIS Geostatistical Analyst extension
+    Indoors = "Indoors" # ArcGIS Indoors
+    ImageAnalyst = "ImageAnalyst" # Image Analyst
+    JTX = "JTX" # ArcGIS Workflow Manager (Classic) Desktop
+    LocationReferencing = "LocationReferencing" # ArcGIS Pipeline Referencing or ArcGIS Roads and Highways
+    LocateXT = "LocateXT" # LocateXT
+    Nautical = "Nautical" # ArcGIS Maritime
+    Network = "Network" # ArcGIS Network Analyst extension
+    Publisher = "Publisher" # ArcGIS Publisher
+    Schematics = "Schematics" # ArcGIS Schematics extension
+    SMPAsiaPacific = "SMPAsiaPacific" # StreetMap Premium Asia Pacific
+    SMPEurope = "SMPEurope" # StreetMap Premium Europe
+    SMPJapan = "SMPJapan" # StreetMap Premium Japan
+    SMPLatinAmerica = "SMPLatinAmerica" # StreetMap Premium Latin America
+    SMPMiddleEastAfrica = "SMPMiddleEastAfrica" # StreetMap Premium Middle East Africa
+    SMPNorthAmerica = "SMPNorthAmerica" # StreetMap Premium North America
+    Spatial = "Spatial" # ArcGIS Spatial Analyst extension
+    Tracking = "Tracking" # ArcGIS Tracking Analyst extension
+    OCSWCD = "OCSWCD" # internal Otsego County SWCD tools
 
 class EXTENSION_STATUS(StrEnum):
-    Available = auto()
-    Unavailable = auto()
-    Failed = auto()
-    NotLicensed = auto()
+    Available = "Available"
+    Unavailable = "Unavailable"
+    Failed = "Failed"
+    NotLicensed = "NotLicensed"
 
 # only needed for spatial analyst, but potential image analyst, ddd or others if
 # we end up using them
