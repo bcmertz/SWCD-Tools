@@ -99,7 +99,7 @@ class WatershedSize:
 
         # convert flow accumulation from number of cells to area units
         log("calculating watershed size")
-        cell_size = cell_area(dem, areal_unit).area
+        cell_size = cell_area(dem).to_unit(areal_unit).area
         watershed_size = flow_accumulation * cell_size
 
         # save output to file

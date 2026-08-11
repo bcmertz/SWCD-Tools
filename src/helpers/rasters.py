@@ -37,14 +37,13 @@ def pixel_type(raster) -> PIXEL_TYPE:
     return PIXEL_TYPE[raster.pixelType]
 
 
-def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> Area:
-    """Return the cell size of a RASTER as an AREA. User can specify unit AREA_UNITS
-    for output AREA to be in."""
+def cell_area(raster) -> Area:
+    """Return the cell size of a RASTER as an AREA."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
     linear_unit = get_linear_unit(raster)
-    square_unit = AREAL_UNITS(linear_unit.to_areal())
+    square_unit = linear_unit.to_areal()
 
     # Cell size in the X and Y axis
     cellsize_y = desc_raster.meanCellHeight
@@ -54,15 +53,11 @@ def cell_area(raster, to_unit: AREAL_UNITS | None = None) -> Area:
     # output area
     area = Area(area, square_unit)
 
-    if to_unit is not None:
-        area = area.to_unit(to_unit)
-
     return area
 
 
-def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> Distance:
-    """Return the average cell length of a RASTER as a LENGTH. User can specify
-    unit LINEAR_UNITS for output LENGTH to be in."""
+def cell_length(raster) -> Distance:
+    """Return the average cell length of a RASTER as a LENGTH."""
     # Note: throws an error if not a raster, this is desirable and shouldn't be used on
     # data types other than a raster
     desc_raster = arcpy.Describe(raster)
@@ -75,9 +70,6 @@ def cell_length(raster, to_unit: LINEAR_UNITS | None = None) -> Distance:
 
     # output length
     length = Distance(average_length, linear_unit)
-
-    if to_unit is not None:
-        length = length.to_unit(to_unit)
 
     return length
 

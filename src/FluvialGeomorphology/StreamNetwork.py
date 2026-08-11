@@ -282,7 +282,7 @@ class StreamNetwork(object):
         else:
             # convert flow accumulation from number of cells to threshold area units
             log("calculating watershed size")
-            cell_size = cell_area(dem, threshold.unit).area
+            cell_size = cell_area(dem).to_unit(threshold.unit).area
             watershed_size = flow_accumulation * cell_size
 
             # con
@@ -296,10 +296,10 @@ class StreamNetwork(object):
 
         if is_empty(scratch_feature):
             error("Warning: empty output created. Ensure stream initiation data and DEM are valid in study area selected.")
-        elif watershed_size_bool:
+        elif watershed_size_bool and (watershed_size_unit is not None):
             # convert flow_accumulation raster to watershed_size_units
             log("calculating output watershed size attribute")
-            cell_size = cell_area(dem, watershed_size_unit).area
+            cell_size = cell_area(dem).to_unit(watershed_size_unit).area
             watershed_size = flow_accumulation * cell_size
 
             # zonal statistics
