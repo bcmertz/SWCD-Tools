@@ -184,7 +184,7 @@ class DecisionTree(object):
         soils = parameters[4].value
         soils_drainage_field = parameters[5].value
         land_use_raster = parameters[6].value
-        land_use_field = parameters[7].value
+        land_use_field = parameters[7].valueAsText
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
         min_area = Area(parameters[9].valueAsText) if parameters[9].value is not None else None
 
@@ -205,11 +205,13 @@ class DecisionTree(object):
         log("extracting desired land uses")
         scratch_land_use: arcpy.Raster
         existing_values: list[str]
+        log(land_use_field)
         with arcpy.da.SearchCursor(land_use_raster, land_use_field) as cursor:
             existing_values = sorted({row[0] for row in cursor})
         land_use_values = [ i for i in land_use_values if i in existing_values ]
         if len(land_use_values) != 0:
-            sql_query = ' Or '.join("{} = {}".format(land_use_field, value) for value in land_use_values)
+            sql_query = ' Or '.join("'{}' = '{}'".format(land_use_field, value) for value in land_use_values)
+            log(sql_query)
             scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
         else:
             log("no valid land uses found in area, please try again with land uses found in analysis area")
