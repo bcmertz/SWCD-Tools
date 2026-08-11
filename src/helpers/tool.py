@@ -143,7 +143,6 @@ def __empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
     for fc in ws_contents:
         arcpy.management.Delete(fc)
 
-    return
 
 def empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
     """Delete everything in a given workspace except for KEEP paths."""
@@ -181,5 +180,3 @@ def empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
 
         else:
             __empty_workspace(ws_path, keep)
-
-    return
