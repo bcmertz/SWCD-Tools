@@ -109,7 +109,6 @@ def voronoi(delaunay):
 #
 # modified from https://gist.github.com/letmaik/8803860 and
 # https://stackoverflow.com/questions/10650645/python-calculate-voronoi-tesselation-from-scipys-delaunay-triangulation-in-3d/15783581#15783581
-# licensed under CC BY-SA 3.0
 def voronoi_fc(delaunay_fc, out_fc):
     """Find voronoi polygon feature class from input."""
     spatial_ref = arcpy.Describe(delaunay_fc).spatialReference
@@ -133,7 +132,6 @@ def voronoi_fc(delaunay_fc, out_fc):
 # triangle circumcenter
 #
 # modified from https://stackoverflow.com/questions/10650645/python-calculate-voronoi-tesselation-from-scipys-delaunay-triangulation-in-3d/15783581#15783581
-# licensed under CC BY-SA 3.0
 def triangle_csc(pts):
     """Find circumcenter coordinates of triangle."""
     rows, _ = pts.shape
