@@ -9,6 +9,7 @@ from TerrainModification import *
 from TileDrainage import *
 from Utilities import *
 
+
 class Toolbox(object):
     def __init__(self):
         """Define the toolbox (the name of the toolbox is the name of the
@@ -32,7 +33,6 @@ class Toolbox(object):
             StreambankDetection,
             StreamElevation,
             GenerateCrossSections,
-            PolygonCenterline,
             CalculateEFH2,
             RunoffCurveNumber,
             SubBasinDelineation,
@@ -42,7 +42,6 @@ class Toolbox(object):
             LandscapePosition,
             VBET,
             TopographicWetness,
-            ContourTree,
             RelativeElevationModel,
             PotentialWetlands,
             TopographicPositionIndex,

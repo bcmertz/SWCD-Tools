@@ -11,14 +11,6 @@ from .features import (
     geometry_to_fc,
     is_empty,
 )
-from .geometry import (
-    bbox,
-    delaunay_fc,
-    fc_to_numpy_array,
-    triangle_csc,
-    voronoi,
-    voronoi_fc,
-)
 from .layers import add_layer_to_group, get_oid
 from .logging import error, log, warn
 from .parameter import (
@@ -54,16 +46,13 @@ __all__ = [
     "Distance",
     "Length",
     "add_layer_to_group",
-    "bbox",
     "cell_area",
     "cell_length",
     "cells_per_area",
     "cells_per_length",
-    "delaunay_fc",
     "empty_workspace",
     "error",
     "fc_to_geometry",
-    "fc_to_numpy_array",
     "geometry_to_fc",
     "get_linear_unit",
     "get_oid",
@@ -78,9 +67,6 @@ __all__ = [
     "sanitize",
     "set_required_parameter",
     "setup_environment",
-    "triangle_csc",
     "validate_spatial_reference",
-    "voronoi",
-    "voronoi_fc",
     "warn",
 ]
