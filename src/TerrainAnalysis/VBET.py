@@ -8,10 +8,11 @@
 
 import arcpy
 
-from ..TerrainAnalysis import relative_elevation_model
-from ..helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, Z_UNITS, AREAL_UNITS, AREAL_UNITS_MAP
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from TerrainAnalysis import relative_elevation_model
+from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, \
+    SPATIAL_UNITS, AREAL_UNITS, Area, Distance
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class VBET(object):
     def __init__(self):
@@ -35,7 +36,7 @@ class VBET(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -75,7 +76,7 @@ class VBET(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param6.filter.list = AREAL_UNITS
+        param6.filter.list = list(AREAL_UNITS)
 
         param7 = arcpy.Parameter(
             displayName="Buffer Radius",
@@ -132,7 +133,7 @@ class VBET(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit:
+                if z_unit is not None:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
@@ -177,17 +178,22 @@ class VBET(object):
         # read in parameters
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = SPATIAL_UNITS[parameters[1].valueAsText]
         extent = parameters[2].value
         rem, _ = raster_and_layer(parameters[3].value) if parameters[3].value is not None else (None, None)
         streams = parameters[4].value
         watershed_size_field = parameters[5].valueAsText
-        watershed_area_unit = AREAL_UNITS_MAP[parameters[6].valueAsText]
-        buffer_radius = parameters[7].valueAsText
-        min_watershed_size, min_watershed_unit =  parameters[8].valueAsText.split(" ") if parameters[8].value is not None else (None, None)
+        watershed_area_unit = AREAL_UNITS(parameters[6].valueAsText)
+        buffer_radius = Distance(parameters[7].valueAsText)
+        sampling_interval = Distance("35 Feet")
+        min_watershed_size = Area(parameters[8].valueAsText).to_unit(watershed_area_unit).area if parameters[8].value is not None else None
         full_valley_file = parameters[9].valueAsText
         low_lying_file = parameters[10].valueAsText
         remove = parameters[11].value
+
+        log("creating watershed size thresholds")
+        threshold_low = Area("25 SquareKilometers").to_unit(watershed_area_unit).area
+        threshold_high = Area("250 SquareKilometers").to_unit(watershed_area_unit).area
 
         # set analysis extent
         if extent:
@@ -198,13 +204,14 @@ class VBET(object):
         log("creating scratch layers")
         scratch_buffer = arcpy.CreateScratchName("buffer", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_area = arcpy.CreateScratchName("area", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        max_scratch = arcpy.CreateScratchName("max", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
 
         # buffer streams, each stream segment a separate buffer segment
         log("creating buffer around stream lines")
         arcpy.analysis.PairwiseBuffer(
             in_features=streams,
             out_feature_class=scratch_buffer,
-            buffer_distance_or_field=buffer_radius,
+            buffer_distance_or_field=str(buffer_radius),
             dissolve_option="NONE",
             dissolve_field=None,
             method="GEODESIC",
@@ -224,15 +231,15 @@ class VBET(object):
         # optionally create REM
         if rem is None:
             log("calculating relative elevation model")
-            rem = relative_elevation_model(active_map, dem, extent, streams, buffer_radius, "35 Feet", resolve=True)
-
-        # get threshold watershed sizes in km^2
-        log("creating watershed size thresholds")
-        threshold_low = 25 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
-        threshold_high = 250 * arcpy.ArealUnitConversionFactor("SquareKilometers", watershed_area_unit)
-        if min_watershed_size is not None:
-            log("limiting watershed size")
-            min_watershed_size = float(min_watershed_size) * arcpy.ArealUnitConversionFactor(min_watershed_unit, watershed_area_unit)
+            rem = relative_elevation_model(
+                active_map=active_map,
+                dem_raster=dem,
+                extent=extent,
+                stream_layer=streams,
+                buffer_radius=buffer_radius,
+                sampling_interval=sampling_interval,
+                resolve=True
+            )
 
         # set watershed size boundaries
         queries = [
@@ -294,14 +301,14 @@ class VBET(object):
             cellsize_type = "MinOf",
 	    ignore_nodata = True,
         )
-        max_stats = arcpy.management.CalculateStatistics(max_raster)
+        max_raster.save(max_scratch)
 
         # threshold to full valley bottom and low-lying valley bottom
         #
         # full valley bottom = 0.65, low lying valley bottom = 0.85
         log("thresholding output probability to find full valley bottom and low-lying valley bottom areas")
-        full_valley = arcpy.sa.Con(max_stats, 1, where_clause="VALUE >= 0.65")
-        low_lying = arcpy.sa.Con(max_stats, 1, where_clause="VALUE >= 0.85")
+        full_valley = arcpy.sa.Con(max_scratch, 1, where_clause="VALUE >= 0.65")
+        low_lying = arcpy.sa.Con(max_scratch, 1, where_clause="VALUE >= 0.85")
 
         # polygonize outputs
         log("converting outputs to polygons")

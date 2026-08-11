@@ -8,9 +8,10 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
+    SPATIAL_UNITS, Area, warn
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class DecisionTree(object):
     def __init__(self):
@@ -34,7 +35,7 @@ class DecisionTree(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -117,7 +118,7 @@ class DecisionTree(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit:
+                if z_unit is not None:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
@@ -177,18 +178,15 @@ class DecisionTree(object):
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = SPATIAL_UNITS[parameters[1].value]
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         soils = parameters[4].value
         soils_drainage_field = parameters[5].value
         land_use_raster = parameters[6].value
-        land_use_field = parameters[7].value
+        land_use_field = parameters[7].valueAsText
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        num_acres, num_acres_unit = "", ""
-        if parameters[9].value:
-            num_acres, num_acres_unit = parameters[9].valueAsText.split(" ")
-            num_acres = float(num_acres) * arcpy.ArealUnitConversionFactor(num_acres_unit, "AcresUS")
+        min_area = Area(parameters[9].valueAsText) if parameters[9].value is not None else None
 
         # set analysis extent
         if extent:
@@ -201,20 +199,24 @@ class DecisionTree(object):
         scratch_output = arcpy.CreateScratchName("scratch_output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_joined = arcpy.CreateScratchName("scratch_joined", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         zonal_stats = arcpy.CreateScratchName("zonal_stats", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
+        scratch_land_use = arcpy.CreateScratchName("land_use", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
         zonal_stats_poly = arcpy.CreateScratchName("zonal_poly", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
-        scratch_land_use = None
-        existing_values = []
+        existing_values: list[str]
+        log(land_use_field)
         with arcpy.da.SearchCursor(land_use_raster, land_use_field) as cursor:
             existing_values = sorted({row[0] for row in cursor})
         land_use_values = [ i for i in land_use_values if i in existing_values ]
         if len(land_use_values) != 0:
-            sql_query = ' Or '.join("{} = {}".format(land_use_field, value) for value in land_use_values)
-            scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
+            sql_query = ' Or '.join("'{}' = '{}'".format(land_use_field, value) for value in land_use_values)
+            log(sql_query)
+            out_lu = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
+            out_lu.save(scratch_land_use)
+            arcpy.management.CalculateStatistics(scratch_land_use)
         else:
-            log("no valid land uses found in area, please try again with land uses found in analysis area")
+            warn("no valid land uses found in area, please try again with land uses found in analysis area")
             return
 
         # convert land usage output to polygon
@@ -226,13 +228,15 @@ class DecisionTree(object):
         arcpy.analysis.PairwiseIntersect([scratch_land_use_polygon, soils], scratch_intersect, join_attributes="ALL")
 
         # add acres field and calculate
-        log("calculating acreage")
-        if "Acres" not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
+        log("calculating acreage and removing small features")
+        threshold = Area(1, "Acres").to_unit(min_area.unit)
+        area_field_name = threshold.unit
+        if area_field_name not in [f.name for f in arcpy.ListFields(scratch_intersect)]:
             arcpy.management.AddField(scratch_intersect, "Acres", "FLOAT", 2, 2)
-        arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[[area_field_name, "AREA_GEODESIC"]], area_unit=threshold.unit.display())
 
         # remove small features
-        sql_query = "Acres >= 1.0"
+        sql_query = "{} >= {}".format(area_field_name, threshold.area)
         arcpy.analysis.Select(scratch_intersect, scratch_soils_area, sql_query)
 
         # calculate drainage class
@@ -292,18 +296,18 @@ class DecisionTree(object):
         log("finding output polygons")
         drainage = 1
         slope = 0
-        output_acres = 0
-        if num_acres:
+        output_area = 0
+        if min_area is not None:
             # if we know the number of tiled acres in the analysis area then iterate to find the combination
             # of slope and drainge that produces the output
-            while output_acres < num_acres:
+            while output_area < min_area.area:
                 # select output features
                 sql_query = "{} <= {} And {} <= {}".format(output_slope_field, slope, output_drainage_field, drainage)
                 arcpy.analysis.Select(scratch_joined, scratch_output, where_clause=sql_query)
 
                 # find sum of acreage
-                sum_acres = round(sum([float(row[0]) for row in arcpy.da.SearchCursor(scratch_output, "Acres")]),2)
-                output_acres = sum_acres
+                sum_acres = round(sum([float(row[0]) for row in arcpy.da.SearchCursor(scratch_output, area_field_name)]),2)
+                output_area = sum_acres
 
                 # core AgTile methodology
                 # prefers poor drainage to shallow slopes
@@ -311,7 +315,7 @@ class DecisionTree(object):
                     slope += 1
                 else:
                     if drainage == 7:
-                        log("failed to find {} acres of potential tile drained field in the study area".format(num_acres))
+                        log("failed to find {} of potential tile drained field in the study area".format(str(min_area)))
                         break
                     else:
                         drainage += 1

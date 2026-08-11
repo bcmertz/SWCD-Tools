@@ -10,9 +10,9 @@ import math
 import arcpy
 
 from .GenerateCrossSections import transect_line
-from ..helpers import license, reload_module, log, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, raster_and_layer, Distance
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class LeastAction(object):
     def __init__(self):
@@ -135,9 +135,8 @@ class LeastAction(object):
         extent = parameters[1].value
         streams = parameters[2].value
         output_file = parameters[3].valueAsText
-        distance = parameters[4].valueAsText
-        distance, distance_unit = distance.split(" ")
-        transect_length = "{} {}".format(float(distance) * 2, distance_unit)
+        distance = Distance(parameters[4].valueAsText)
+        transect_length = distance * 2
 
         # set analysis extent
         if extent:

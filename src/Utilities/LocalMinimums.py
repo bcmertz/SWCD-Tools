@@ -13,9 +13,10 @@
 
 import arcpy
 
-from ..helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, Z_UNITS
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
+    SPATIAL_UNITS, Distance
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class LocalMinimums:
     def __init__(self):
@@ -52,7 +53,7 @@ class LocalMinimums:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param2.filter.list = Z_UNITS
+        param2.filter.list = list(SPATIAL_UNITS)
 
         param3 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -104,7 +105,7 @@ class LocalMinimums:
         if not parameters[1].hasBeenValidated:
             if parameters[1].value:
                 z_unit = get_z_unit(parameters[1].value)
-                if z_unit:
+                if z_unit is not None:
                     parameters[2].enabled = False
                     parameters[2].value = z_unit
                 else:
@@ -127,18 +128,14 @@ class LocalMinimums:
         # Setup
         log("setting up project")
         project, active_map = setup()
-        spatial_reference_name = active_map.spatialReference.name
-        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
-        arcpy.env.outputCoordinateSystem = spatial_reference
 
         log("reading in parameters")
         line = parameters[0].value
         dem, _ = raster_and_layer(parameters[1].value)
-        z_linear_unit = parameters[2].value
+        z_unit = SPATIAL_UNITS[parameters[2].value].to_linear()
         extent = parameters[3].value
-        search_interval = parameters[4].valueAsText
-        threshold, threshold_unit = parameters[5].valueAsText.split(" ")
-        threshold = float(threshold) * arcpy.LinearUnitConversionFactor(threshold_unit, z_linear_unit)
+        search_interval = Distance(parameters[4].valueAsText)
+        threshold = Distance(parameters[5].valueAsText).to_unit(z_unit).length
         output_file = parameters[6].valueAsText
 
         # create scratch layers
@@ -154,7 +151,7 @@ class LocalMinimums:
 
         # generate points along line
         log("generate points along line")
-        arcpy.edit.Densify(scratch_line, "DISTANCE", search_interval)
+        arcpy.edit.Densify(scratch_line, "DISTANCE", str(search_interval))
 
         # iterate through lines and points
         log("finding local minimums")
@@ -238,8 +235,7 @@ class LocalMinimums:
             if len(local_minimums) > 0:
                 log("copying points to feature class")
                 arcpy.management.CopyFeatures(local_minimums, output_file)
-                #log("defining spatial reference of feature")
-                #arcpy.management.DefineProjection(output_file,spatial_reference)
+
                 log("adding minimums to map")
                 active_map.addDataFromPath(output_file)
             else:

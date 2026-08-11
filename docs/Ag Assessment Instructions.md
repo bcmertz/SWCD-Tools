@@ -51,8 +51,8 @@
     - Can be same or different from current ArcGIS project
 
 <span>
-<img src="/assets/readme_examples/ag_delineate.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID" height="350"/>
-<img src="/assets/readme_examples/ag_delineate_split.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID split into its various land uses" height="350"/>
+<img src="../assets/readme_examples/ag_delineate.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID" height="350"/>
+<img src="../assets/readme_examples/ag_delineate_split.png" alt="Image showing aerial view of a black parcel line resulting from delineating a farm using parcel ID split into its various land uses" height="350"/>
 </span>
 
 - Split parcels into land uses
@@ -63,9 +63,9 @@
   - Run the tool and proceed to the next land use or step
 
 <span>
-<img src="/assets/readme_examples/ag_agland.png" alt="Aerial view of a split up parcel with the agricultural areas outlined red" height="280"/>
-<img src="/assets/readme_examples/ag_nonag.png" alt="Aerial view of a split up parcel with the non-agricultural areas outlined blue" height="280"/>
-<img src="/assets/readme_examples/ag_forest.png" alt="Aerial view of a split up parcel with the forest areas outlined green" height="280"/>
+<img src="../assets/readme_examples/ag_agland.png" alt="Aerial view of a split up parcel with the agricultural areas outlined red" height="280"/>
+<img src="../assets/readme_examples/ag_nonag.png" alt="Aerial view of a split up parcel with the non-agricultural areas outlined blue" height="280"/>
+<img src="../assets/readme_examples/ag_forest.png" alt="Aerial view of a split up parcel with the forest areas outlined green" height="280"/>
 </span>
 
 - Process

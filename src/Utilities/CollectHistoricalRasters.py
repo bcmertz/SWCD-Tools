@@ -8,8 +8,8 @@
 
 import arcpy
 
-from ..helpers import license, reload_module, log
-from ..helpers import setup_environment as setup
+from helpers import license, reload_module, log
+from helpers import setup_environment as setup
 
 class CollectRasters:
     def __init__(self):
@@ -77,7 +77,7 @@ class CollectRasters:
                                 new_lyr_cim = new_lyr.getDefinition('V3')
                                 new_lyr_cim.expanded = False
                                 new_lyr.setDefinition(new_lyr_cim)
-                            except:
+                            except Exception:
                                 pass
 
         return

@@ -10,9 +10,9 @@ import os
 import arcpy
 import platform
 
-from ..helpers import license, empty_workspace, reload_module, log, get_linear_unit, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, empty_workspace, reload_module, log, raster_and_layer, Distance, SPATIAL_UNITS
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class StreamElevation(object):
     def __init__(self):
@@ -136,6 +136,7 @@ class StreamElevation(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        map_unit = SPATIAL_UNITS[active_map.mapUnits].to_linear()
 
         # read in parameters
         streams = parameters[0].value
@@ -144,9 +145,7 @@ class StreamElevation(object):
         keep_fields = parameters[3].valueAsText.split(";") if parameters[3].value else []
         dem, _ = raster_and_layer(parameters[4].value)
         watershed = parameters[5].value
-        linear_unit = get_linear_unit(streams)
-        point_spacing = parameters[6].valueAsText
-        point_spacing_unit = point_spacing.split(" ")[1]
+        point_spacing = Distance(parameters[6].valueAsText).to_unit(map_unit)
         output_file = parameters[7].valueAsText
 
         # create scratch layers
@@ -177,7 +176,7 @@ class StreamElevation(object):
         arcpy.management.CalculateGeometryAttributes(
             in_features=scratch_streams,
             geometry_property=[[field_name, "LENGTH_GEODESIC"]],
-            length_unit="FEET_US",
+            length_unit=point_spacing.unit.display(),
             coordinate_format="SAME_AS_INPUT"
         )
 
@@ -231,14 +230,12 @@ class StreamElevation(object):
                     length = to_nodes[to_node]
                     downstream_length = downstream_length + length
                     return process_lengths(to_node, downstream_length)
-                else:
-                    return
         for end_node in end_nodes:
             process_lengths(end_node_id=end_node, downstream_length=0)
 
         # generate points along line
         log("generate data points along lines")
-        arcpy.management.GeneratePointsAlongLines(scratch_streams, scratch_points, "DISTANCE", point_spacing, Include_End_Points="END_POINTS", Add_Chainage_Fields="ADD_CHAINAGE")
+        arcpy.management.GeneratePointsAlongLines(scratch_streams, scratch_points, "DISTANCE", str(point_spacing), Include_End_Points="END_POINTS", Add_Chainage_Fields="ADD_CHAINAGE")
 
         # extract values to points
         log("extract elevations at data points")
@@ -248,7 +245,7 @@ class StreamElevation(object):
         log("add downstream length to data points")
         with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", to_node_field]) as cursor:
             for row in cursor:
-                orig_len = row[0] * arcpy.LinearUnitConversionFactor(linear_unit, point_spacing_unit)
+                orig_len = row[0]
                 to_node = row[1]
                 row[0] = orig_len + dag[to_node]["downstream_length"]
                 cursor.updateRow(row)

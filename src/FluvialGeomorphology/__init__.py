@@ -6,22 +6,22 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-from .StreamCenterlineAdjuster import LeastAction
-from .StreamElevation import StreamElevation
-from .StreamNetwork import StreamNetwork
-from .StreambankDetection import StreambankDetection
 from .GenerateCrossSections import (
     GenerateCrossSections,
     generate_transects,
     transect_line,
 )
+from .StreambankDetection import StreambankDetection
+from .StreamCenterlineAdjuster import LeastAction
+from .StreamElevation import StreamElevation
+from .StreamNetwork import StreamNetwork
 
 __all__ = [
+    "GenerateCrossSections",
     "LeastAction",
     "StreamElevation",
     "StreamNetwork",
     "StreambankDetection",
-    "GenerateCrossSections",
     "generate_transects",
     "transect_line",
 ]

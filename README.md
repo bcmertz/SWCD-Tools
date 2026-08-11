@@ -47,10 +47,8 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Local Minimums](#1-local-minimums-)
  	- [Geocode Address](#2-geocode-address-tool-)
   	- [Export Layouts](#3-export-layouts-)
-    - [Contour Polygon](#4-contour-polygon-)
-    - [Slope Polygon](#5-slope-polygon-)
- 	- [Historical Imagery](#6-historical-imagery-)
- 	- [Remove Unused](#7-remove-unused-)
+ 	- [Historical Imagery](#4-historical-imagery-)
+ 	- [Remove Unused](#5-remove-unused-)
 - [Contributing](#contributing-)
 - [License](#license-)
 
@@ -73,13 +71,14 @@ Each tool will verify you have the proper licenses needed. Not all tools require
 			- unzip the folder into a folder where you want it to live
 2. Add toolbox to ArcGIS Pro
     - ArcGIS Pro: Catalog -> Toolboxes -> Add Toolbox
-    	- select `SWCD Tools.pyt` from cloned repository
+    	- select `src/SWCD Tools.pyt` from cloned repository
 
 # Project Structure [↑](#table-of-contents)
 ```
 SWCD-Tools/
 ├── assets/                      # various static assets for use by tools
 │   ├── readme_examples/         # contains before and after images of tools for documentation
+├── docs/                        # documentation of tools
 ├── src/                         # folder containing all python tools and helpers
 │   ├── AgAssessment/            # automated agricultural value assessment tools
 │   ├── BufferTools/             # riparian forest buffer planting planning
@@ -89,11 +88,11 @@ SWCD-Tools/
 │   ├── TerrainModification/     # terrain modifying tools for planning and pre-conditionining DEMs
 │   ├── TileDrainage/            # tile drainage detection toolbox
 │   ├── Utilities/               # misc quality of life utilities
-│   └── helpers/                 # helper tools for use by other tools
+│   ├── helpers/                 # helper tools for use by other tools
+│   ├── SWCD Tools.*.pyt.xml     # tool metadata including parameter descriptions
+│   └── SWCD Tools.pyt           # main entry-point to project
 ├── LICENSE                      # license
-├── README.md                    # readme
-├── SWCD Tools.*.pyt.xml         # tool metadata including parameter descriptions
-└── SWCD Tools.pyt               # main entry-point to project
+└── README.md                    # readme
 ```
 
 # Overview of tools [↑](#table-of-contents)
@@ -377,7 +376,7 @@ This example shows an example of output tiled areas, and how the AgTile protocol
 
 This tool finds optimal rasters for Image Differencing analysis based off of historic precipitation data.
 
-For detailed information on finding and downloading appropriate data sources for this analysis please see [Image Differencing Documentation](<./Image Differencing Data Sources.md>).
+For detailed information on finding and downloading appropriate data sources for this analysis please see [Image Differencing Documentation](<./docs/Image Differencing Data Sources.md>).
 
 <span>
 <img src="/assets/readme_examples/image_differencing_setup_dry.png" alt="image of SWIR raster in dry conditions" height="250" />
@@ -473,33 +472,13 @@ Uses [NY GIS Address Geocoder](https://gis.ny.gov/address-geocoder) to take an a
 
 Quality of life tool to select which layouts to export and to where
 
-### 4. Contour Polygon [↑](#table-of-contents)
-
-Contour tool with ability to limit analysis to inside a given polygon
-
-<span>
-<img src="./assets/readme_examples/contour_after.png" alt="after image showing a hillshade and a polygon with red 10' contour lines inside the polygon" height="400"/>
-</span>
-
-Example showing output 10' contours in polygon.
-
-### 5. Slope Polygon [↑](#table-of-contents)
-
-Slope tool with ability to limit analysis to inside a given polygon
-
-<span>
-<img src="./assets/readme_examples/slope_after.png" alt="after image showing a green-red slope raster inside a polygon" height="400"/>
-</span>
-
-Example showing output slope raster in polygon.
-
-### 6. Historical Imagery [↑](#table-of-contents)
+### 4. Historical Imagery [↑](#table-of-contents)
 
 Only for in-house use since it depends on a very specific file structure and historical imagery raster structure
 
-### 7. Remove Unused [↑](#table-of-contents)
+### 5. Remove Unused [↑](#table-of-contents)
 
-Remove feature classes unused in any projet maps from a given workspace (geodatabse, folder, etc).
+Remove feature classes unused in any project maps from a given workspace (geodatabse, folder, etc).
 
 ## Automated Agricultural Assessment [↑](#table-of-contents)
 
@@ -508,7 +487,7 @@ This tool tries to assume nothing about your layer files or folder structure. Th
 
 Additionally, you may want to edit the default Soil Group Worksheet template to have your County name or other data.
 
-For full instructions see [here](<./Ag Assessment Instructions.md>).
+For full instructions see [here](<./docs/Ag Assessment Instructions.md>).
 
 ### 1. Delineate Parcels [↑](#table-of-contents)
 

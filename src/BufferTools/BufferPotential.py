@@ -7,9 +7,9 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, empty_workspace, reload_module, log, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, empty_workspace, reload_module, log, warn, raster_and_layer, Area, Distance
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class BufferPotential:
     def __init__(self):
@@ -162,9 +162,8 @@ class BufferPotential:
 
         log("reading in parameters")
         stream = parameters[0].value
-        min_width = parameters[1].valueAsText
-        min_acres, min_acres_unit = parameters[2].valueAsText.split(" ")
-        min_acres = float(min_acres) * arcpy.ArealUnitConversionFactor(min_acres_unit, "AcresUS")
+        min_width = Distance(parameters[1].valueAsText)
+        min_area = Area(parameters[2].valueAsText)
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         land_use_raster, _ = raster_and_layer(parameters[5].value)
@@ -188,7 +187,7 @@ class BufferPotential:
 
         # pairwise buffer stream
         log("creating buffer polygon around stream")
-        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, min_width, "ALL", "", "GEODESIC", "")
+        arcpy.analysis.PairwiseBuffer(stream, scratch_stream_buffer, str(min_width), "ALL", "", "GEODESIC", "")
 
         # clip land uses to buffer
         log("extracting land use data inside buffer area")
@@ -211,7 +210,7 @@ class BufferPotential:
                     land_use_sql_query += " Or {} = '{}'".format(land_use_field, value)
             scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster_clip, land_use_sql_query)
         else:
-            log("no valid land uses found in area, please try again with land uses found in analysis area")
+            warn("no valid land uses found in area, please try again with land uses found in analysis area")
             return
 
         # convert land usage output to polygon
@@ -239,13 +238,13 @@ class BufferPotential:
             multi_part="SINGLE_PART",
         )
 
-        # calculate acreage
-        log("calculating acreage of planting areas")
-        arcpy.management.AddField(scratch_dissolve, "Acres", "FLOAT", 2, 2)
-        arcpy.management.CalculateGeometryAttributes(scratch_dissolve, geometry_property=[["Acres", "AREA_GEODESIC"]], area_unit="ACRES_US")
+        # calculate area
+        log("calculating area of planting areas")
+        arcpy.management.AddField(scratch_dissolve, min_area.unit, "FLOAT", 2, 2)
+        arcpy.management.CalculateGeometryAttributes(scratch_dissolve, geometry_property=[[str(min_area.unit), "AREA_GEODESIC"]], area_unit=min_area.unit.display())
 
         # drop acreage < threshold
-        sql_query = "Acres >= {}".format(min_acres)
+        sql_query = "{} >= {}".format(min_area.unit, min_area.area)
         arcpy.analysis.Select(scratch_dissolve, output_file, sql_query)
 
         # add output to map

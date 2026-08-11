@@ -9,9 +9,9 @@
 
 import arcpy
 
-from ..helpers import license, cells_per_area, reload_module, log, warn, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, cells_per_area, reload_module, log, warn, raster_and_layer, Area
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class SubBasinDelineation(object):
     def __init__(self):
@@ -72,7 +72,7 @@ class SubBasinDelineation(object):
         # read in parameters
         dem, _ = raster_and_layer(parameters[0].value)
         watershed = parameters[1].value
-        threshold = parameters[2].valueAsText
+        threshold = Area(parameters[2].valueAsText)
 
         # threshold in number of raster cells
         # assume 1m^2 cell, threshold ~8 acres in number of cells
@@ -80,7 +80,7 @@ class SubBasinDelineation(object):
         try:
             # find threshold in number of cells
             num_cells = cells_per_area(dem, threshold)
-        except:
+        except Exception:
             warn("failed to find raster linear unit, stream initiation threshold may be calculated incorrectly")
 
         # clip DEM raster to the watershed

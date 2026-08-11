@@ -12,9 +12,9 @@ import pathlib
 import openpyxl
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
-from ..helpers import sanitize, license, set_required_parameter, reload_module, log, warn, error
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import sanitize, license, set_required_parameter, reload_module, log, warn, error
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class Process(object):
     def __init__(self):
@@ -139,7 +139,7 @@ class Process(object):
             m = None
             try:
                 m = project.listMaps(parcel)[0]
-            except:
+            except Exception:
                 warn("unable to find map for {}, results may be incomplete".format(parcel))
                 continue
 
@@ -151,7 +151,7 @@ class Process(object):
             try:
                 lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
-            except:
+            except Exception:
                 warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
                 continue
 

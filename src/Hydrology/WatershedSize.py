@@ -7,9 +7,9 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from ..helpers import license, reload_module, log, AREAL_UNITS, AREAL_UNITS_MAP, cell_area, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, AREAL_UNITS, cell_area, raster_and_layer
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class WatershedSize:
     def __init__(self):
@@ -41,7 +41,7 @@ class WatershedSize:
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param2.filter.list = AREAL_UNITS
+        param2.filter.list = list(AREAL_UNITS)
         param2.value = "US Survey Acres"
 
         param3 = arcpy.Parameter(
@@ -78,8 +78,7 @@ class WatershedSize:
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
         extent = parameters[1].value
-        # read in areal unit and map it's pretty string to the arcpy representation
-        areal_unit = AREAL_UNITS_MAP[parameters[2].valueAsText]
+        areal_unit = AREAL_UNITS(parameters[2].valueAsText)
         output_file = parameters[3].valueAsText
 
         # set analysis extent
@@ -100,7 +99,7 @@ class WatershedSize:
 
         # convert flow accumulation from number of cells to area units
         log("calculating watershed size")
-        cell_size = float(cell_area(dem, areal_unit).split(" ")[0])
+        cell_size = cell_area(dem).to_unit(areal_unit).area
         watershed_size = flow_accumulation * cell_size
 
         # save output to file

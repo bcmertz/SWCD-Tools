@@ -7,18 +7,18 @@
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
 #
-#              Unclear what license this tool should fall under. Assumed AGPL v3
+#              Unclear what license this tool should fall under. Assumed CCAI
 #              due to no code being taken from alex6H just inspiration, but to be
 #              safe this tool shouldn't be used for commercial purposes to comply
-#              with the original tool's CC-SA-NA license. TODO: figure out if this is true
+#              with the original tool's CC-SA-NA license. See GPL/CC compatibility.
 # --------------------------------------------------------------------------------
 
 import arcpy
 import os
 
-from ..helpers import license, reload_module, log
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, warn
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class RemoveUnused(object):
     project = arcpy.mp.ArcGISProject("Current")
@@ -37,6 +37,7 @@ class RemoveUnused(object):
             displayName="Workspace",
             name="workspace",
             datatype="DEWorkspace",
+            multiValue="True",
             parameterType="Required",
             direction="Input")
 
@@ -58,19 +59,23 @@ class RemoveUnused(object):
         # find unused
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
-                workspace = parameters[0].value
-                options = set()
-
-                # get all filepaths from workspace
-                for dirpath, dirnames, filenames in arcpy.da.Walk(workspace):
-                    for filename in filenames:
-                        fc = os.path.join(dirpath, filename)
-                        options.add(fc)
-
-                # remove all used filepaths
+                used = set()
                 maps = self.project.listMaps()
                 for m in maps:
-                    options = options - set(l.dataSource for l in m.listLayers() if l.supports("DATASOURCE"))
+                    for layer in m.listLayers():
+                        if layer.supports("DATASOURCE"):
+                            used.add(layer.dataSource)
+                options = set()
+                workspaces = parameters[0].valueAsText.replace("'","").split(";")
+                for workspace in workspaces:
+                    # get all filepaths from workspace
+                    for dirpath, _, filenames in arcpy.da.Walk(workspace):
+                        for filename in filenames:
+                            fc = os.path.join(dirpath, filename)
+                            options.add(fc)
+
+                # remove all used filepaths
+                options = options - used
 
                 parameters[1].filter.list = list(options)
             else:
@@ -100,7 +105,10 @@ class RemoveUnused(object):
 
         log("deleting unused data")
         for fc in unused:
-            arcpy.management.Delete(fc)
+            try:
+                arcpy.management.Delete(fc)
+            except Exception:
+                warn("Could not delete {}".format(fc))
 
         # save and exit program successfully
         log("saving project")

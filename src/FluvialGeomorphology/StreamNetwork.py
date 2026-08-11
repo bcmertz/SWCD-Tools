@@ -9,10 +9,10 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, empty_workspace, convert_length, cell_area, reload_module,\
-    log, set_required_parameter, raster_and_layer, AREAL_UNITS, AREAL_UNITS_MAP
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_oid, empty_workspace, cell_area, reload_module, log,\
+    error, set_required_parameter, raster_and_layer, is_empty, AREAL_UNITS, Area, Distance
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class StreamNetwork(object):
     def __init__(self):
@@ -90,8 +90,8 @@ class StreamNetwork(object):
             datatype="GPString",
             parameterType="Optional",
             direction="Input")
-        param7.filter.list = AREAL_UNITS
-        param7.value = "Square US Survey Miles"
+        param7.filter.list = list(AREAL_UNITS)
+        param7.value = AREAL_UNITS.SquareMilesUS
 
         param8 = arcpy.Parameter(
             displayName="Output Features",
@@ -181,11 +181,11 @@ class StreamNetwork(object):
         extent = parameters[1].value
         # parameters[2] is just a toggle for updateParameters to visualize what the user is doing
         stream = parameters[3].value
-        threshold_size, threshold_unit = parameters[4].valueAsText.split(" ") if parameters[4].value is not None else (None, None) # TODO: verify (None, None) is correct
+        threshold = Area(parameters[4].valueAsText) if parameters[4].value is not None else None
         keep_fields = parameters[5].valueAsText.split(";") if parameters[5].value is not None else None
         # read in areal unit and map it's pretty string to the arcpy representation
         watershed_size_bool = parameters[6].value
-        watershed_size_unit = AREAL_UNITS_MAP[parameters[7].valueAsText]
+        watershed_size_unit = AREAL_UNITS(parameters[7].valueAsText) if parameters[7].value is not None else None
         output_file = parameters[8].valueAsText
 
         # set analysis extent
@@ -227,12 +227,12 @@ class StreamNetwork(object):
 
             # snap stream initiation point to highest flow accumulation within snap_dist
             log("snap existing stream initiation points to flow accumulation model")
-            snap_dist = convert_length("200 Feet", active_map.spatialReference.linearUnitName)
+            snap_dist = Distance("200 Feet").to_unit(active_map.spatialReference.linearUnitName)
 
             stream_initiations_raster = arcpy.sa.SnapPourPoint(
                 in_pour_point_data=scratch_end_points,
                 in_accumulation_raster=flow_accumulation,
-                snap_distance=snap_dist, # TODO: choose reasonable distance to look for initiation points
+                snap_distance=str(snap_dist), # TODO: choose reasonable distance to look for initiation points, user option?
             )
 
             # convert stream initiation raster to points
@@ -270,7 +270,7 @@ class StreamNetwork(object):
                     join_type="KEEP_ALL",
                     field_mapping=field_mapping,
                     match_option="CLOSEST",
-                    search_radius="25 Meters", # TODO: consider non-hardcoded alternative
+                    search_radius="25 Meters", # TODO: consider non-hardcoded alternative, user option same as above?
                 )
 
                 # remove `Join_Count` and `TARGET_FID` fields
@@ -282,23 +282,24 @@ class StreamNetwork(object):
         else:
             # convert flow accumulation from number of cells to threshold area units
             log("calculating watershed size")
-            cell_size = float(cell_area(dem, threshold_unit).split(" ")[0])
+            cell_size = cell_area(dem).to_unit(threshold.unit).area
             watershed_size = flow_accumulation * cell_size
 
             # con
             log("applying watershed size threshold")
-            sql_query = "VALUE > {}".format(threshold_size)
+            sql_query = "VALUE > {}".format(threshold.area)
             con_accumulation = arcpy.sa.Con(watershed_size, 1, "", sql_query)
 
             # stream to feature
             log("creating stream feature")
             arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, "SIMPLIFY")
 
-        # add watershed size information if requested
-        if watershed_size_bool:
+        if is_empty(scratch_feature):
+            error("Warning: empty output created. Ensure stream initiation data and DEM are valid in study area selected.")
+        elif watershed_size_bool and (watershed_size_unit is not None):
             # convert flow_accumulation raster to watershed_size_units
             log("calculating output watershed size attribute")
-            cell_size = float(cell_area(dem, watershed_size_unit).split(" ")[0])
+            cell_size = cell_area(dem).to_unit(watershed_size_unit).area
             watershed_size = flow_accumulation * cell_size
 
             # zonal statistics

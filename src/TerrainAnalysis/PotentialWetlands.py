@@ -9,9 +9,10 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, get_z_unit, empty_workspace, set_required_parameter, reload_module, log, raster_and_layer, Z_UNITS
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_oid, get_z_unit, empty_workspace, set_required_parameter, reload_module, \
+    log, warn, raster_and_layer, SPATIAL_UNITS
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class PotentialWetlands(object):
     def __init__(self):
@@ -35,7 +36,7 @@ class PotentialWetlands(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Analysis Area",
@@ -226,7 +227,7 @@ class PotentialWetlands(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit:
+                if z_unit is not None:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
@@ -254,11 +255,11 @@ class PotentialWetlands(object):
         project, active_map = setup()
 
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = SPATIAL_UNITS[parameters[1].value]
         extent = parameters[2].value
         output_file = parameters[3].valueAsText
         max_slope = parameters[4].value
-        twi_raster, _ = raster_and_layer(parameters[5].value)
+        twi_raster, _ = raster_and_layer(parameters[5].value)if parameters[5].value is not None else (None, None)
         min_twi = parameters[6].value
         soils_shapefile = parameters[7].value
         soils_hsg_field = parameters[8].value
@@ -371,7 +372,7 @@ class PotentialWetlands(object):
         )
 
         # exclude polygons with TWI max less than min_twi
-        if twi_raster:
+        if twi_raster is not None:
             # zonal stats as table
             log("finding max TWI in each polygon")
             dissolve_oid = get_oid(scratch_dissolve)
@@ -397,7 +398,7 @@ class PotentialWetlands(object):
         lyr = active_map.addDataFromPath(output_file)
 
         # set symbology based off of average TWI
-        if twi_raster and lyr.isFeatureLayer:
+        if twi_raster is not None and lyr.isFeatureLayer:
             log("setting output layer symbology")
             sym = lyr.symbology
             try:
@@ -416,8 +417,8 @@ class PotentialWetlands(object):
                 sym.renderer.classificationField = field_name
                 sym.renderer.colorRamp = project.listColorRamps('Blues (3 Classes)')[0]
                 lyr.symbology = sym
-            except:
-                log("could not set output symbology properly")
+            except Exception:
+                warn("could not set output symbology properly")
 
         # cleanup
         log("deleting unneeded data")

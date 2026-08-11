@@ -10,24 +10,23 @@ import os
 import math
 import arcpy
 
-from ..helpers import license, reload_module, log, empty_workspace
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, reload_module, log, empty_workspace, Distance, LINEAR_UNITS, SPATIAL_UNITS
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
-def generate_transects(line, interval, width):
+def generate_transects(line, interval: Distance, width: Distance):
     """ Generate transects of length WIDTH along a LINE at a given INTERVAL.
     line - arcpy.PolyLine() object
-    interval - <GPLinearUnit>
-    width - <GPLinearUnit>
+    interval - Distance
+    width - Distance
     """
-    interval, interval_unit = interval.split(" ")
     transects = []
 
     # positionAlongLine fails to get start point dist=0 if using geodesic=True
     # so we use geodesic=False which uses Meters as linear unit instead of line unit
-    interval = int(float(interval) * arcpy.LinearUnitConversionFactor(interval_unit, "Meters"))
-    length = line.getLength("GEODESIC", units="Meters")
-    for dist in range(0, int(length)+interval, interval):
+    interval_distance = int(interval.to_unit(LINEAR_UNITS["Meters"]).length)
+    distance = int(line.getLength("GEODESIC", units="Meters"))
+    for dist in range(0, distance + interval_distance, interval_distance):
         # get point at distance
         point = line.positionAlongLine(dist, geodesic=False)[0]
 
@@ -37,11 +36,11 @@ def generate_transects(line, interval, width):
 
     return transects
 
-def transect_line(line, point, transect_width):
+def transect_line(line, point, transect_width: Distance):
     """Returns a transect to LINE at POINT of length TRANSECT_WIDTH.
     line - arcpy.PolyLine() object
     point - arcpy.Point() object
-    transect_width - <GPLinearUnit>
+    transect_width - Distance
     """
 
     # epsilon
@@ -52,9 +51,8 @@ def transect_line(line, point, transect_width):
     geom = point[0]
     distance = point[1]
     spatial_reference = line.spatialReference
-    line_unit = spatial_reference.linearUnitName
-    transect_length, transect_length_unit = transect_width.split(" ")
-    transect_length = float(transect_length) * arcpy.LinearUnitConversionFactor(transect_length_unit, line_unit)
+    line_unit = SPATIAL_UNITS[spatial_reference.linearUnitName].to_linear()
+    transect_length = transect_width.to_unit(line_unit).length
 
     # get points immediately before and after midpoint
     before = line.positionAlongLine(distance-e, False)
@@ -164,8 +162,8 @@ class GenerateCrossSections(object):
         output_file = parameters[2].valueAsText
         out_name = output_file.split("\\")[-1]
         out_dir = os.path.dirname(output_file)
-        width = parameters[3].valueAsText
-        interval = parameters[4].valueAsText
+        width = Distance(parameters[3].valueAsText)
+        interval = Distance(parameters[4].valueAsText)
         remove = parameters[5].value
 
         # create scratch layers

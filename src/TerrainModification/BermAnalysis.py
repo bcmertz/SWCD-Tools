@@ -11,9 +11,10 @@
 
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, get_z_unit, Z_UNITS, empty_workspace, sanitize, set_required_parameter, reload_module, log, warn, is_empty, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_oid, pixel_type, get_z_unit, empty_workspace, sanitize, set_required_parameter,\
+    reload_module, log, warn, is_empty, raster_and_layer, LINEAR_UNITS, Distance, SPATIAL_UNITS
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class BermAnalysis(object):
     def __init__(self):
@@ -37,7 +38,7 @@ class BermAnalysis(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param1.filter.list = Z_UNITS
+        param1.filter.list = list(SPATIAL_UNITS)
 
         param2 = arcpy.Parameter(
             displayName="Fill existing depressions?",
@@ -122,7 +123,7 @@ class BermAnalysis(object):
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 z_unit = get_z_unit(parameters[0].value)
-                if z_unit:
+                if z_unit is not None:
                     parameters[1].enabled = False
                     parameters[1].value = z_unit
                 else:
@@ -175,31 +176,26 @@ class BermAnalysis(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        spatial_reference_name = active_map.spatialReference.name
+        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
 
         log("reading in parameters")
         dem, _ = raster_and_layer(parameters[0].value)
-        z_unit = parameters[1].value
+        z_unit = SPATIAL_UNITS[parameters[1].value].to_linear()
         fill_depressions = parameters[2].value
         extent = parameters[3].value
         output_file = parameters[4].valueAsText
         berms = parameters[5].value
         # optionally specify berm height
         supply_berm_height_bool = parameters[6].value
-        berm_height, berm_unit, berm_z_factor = None, None, None
+        berm_unit = LINEAR_UNITS["Feet"]
         if supply_berm_height_bool:
-            berm_height, berm_unit = parameters[7].valueAsText.split(" ")
-            berm_height = float(berm_height)
-        else:
-            berm_unit = "FeetUS"
-        berm_z_factor = arcpy.LinearUnitConversionFactor(z_unit, berm_unit)
+            berm_measurement = Distance(parameters[7].valueAsText)
+            berm_unit = berm_measurement.unit
         # optionally specify contour interval
         contour_bool = parameters[8].value
-        contour_interval, contour_unit, contour_output = "", "", ""
-        if contour_bool:
-            contour_interval, contour_unit = parameters[9].valueAsText.split(" ")
-            contour_interval = float(contour_interval)
-            contour_z_factor = arcpy.LinearUnitConversionFactor(z_unit, contour_unit)
-            contour_output = parameters[10].valueAsText
+        contour_interval = Distance(parameters[9].valueAsText).to_unit(z_unit).length if contour_bool else None
+        contour_output = parameters[10].valueAsText
 
         # set analysis extent
         arcpy.env.extent = extent
@@ -214,11 +210,6 @@ class BermAnalysis(object):
         scratch_output = arcpy.CreateScratchName("output", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_berm = arcpy.CreateScratchName("berm", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
         scratch_raster_calculator = arcpy.CreateScratchName("calc", data_type="RasterDataset", workspace=arcpy.env.scratchGDB)
-
-        # get spatial reference
-        log("finding spatial reference")
-        spatial_reference_name = active_map.spatialReference.name
-        spatial_reference = arcpy.SpatialReference(spatial_reference_name)
 
         log("creating output feature classes")
         # create flooded area output
@@ -247,6 +238,12 @@ class BermAnalysis(object):
         berm_height_field = "height"
         if berm_height_field not in [f.name for f in arcpy.ListFields(berms)]:
             arcpy.management.AddField(berms, berm_height_field, "FLOAT", field_precision=255, field_scale=2)
+        arcpy.management.AlterField(
+            in_table=berms,
+            field=berm_height_field,
+            new_field_alias="Berm Height ({})".format(berm_unit),
+        )
+
 
         # get OID field name for berm fc
         oid_field = get_oid(berms)
@@ -257,7 +254,7 @@ class BermAnalysis(object):
             selection_tuple = tuple(selection_set)
             selection = "("+",".join([str(i) for i in selection_tuple])+")"
             expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oid_field),selection)
-        except:
+        except Exception:
             expression = "*"
 
         # iterate through berms
@@ -284,7 +281,7 @@ class BermAnalysis(object):
                         statistics_type="MINIMUM",
                     )
                     out_raster.save(scratch_dem_mask)
-                    berm_elevation = out_raster.minimum + berm_height / berm_z_factor
+                    berm_elevation = Distance(out_raster.minimum, z_unit).to_unit(berm_unit).length
 
                     # clip original dem to berm area
                     log("clipping dem to berm")
@@ -360,7 +357,6 @@ class BermAnalysis(object):
                         out_polyline_features=scratch_contour,
                         contour_interval=contour_interval,
                         base_contour=0,
-                        z_factor=contour_z_factor,
                     )
 
                     # append contour outputs contour_output
@@ -409,13 +405,13 @@ class BermAnalysis(object):
                             in_value_raster=dem,
                             statistics_type="RANGE",
                         )
-                        berm_height = berm_raster.maximum * berm_z_factor
-                        log("berm height: ", berm_height, berm_unit)
+                        berm_measurement = Distance(berm_raster.maximum, z_unit).to_unit(berm_unit)
+                        log("berm height: ", berm_measurement)
 
                 # add height to berm
-                if berm_height is not None:
+                if berm_measurement:
                     log("adding berm height to berm feature attribute table")
-                    berm[1] = berm_height
+                    berm[1] = berm_measurement.length
                     cursor.updateRow(berm)
 
         # cleanup

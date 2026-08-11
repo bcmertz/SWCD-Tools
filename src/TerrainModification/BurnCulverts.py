@@ -9,9 +9,10 @@
 import os
 import arcpy
 
-from ..helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer
-from ..helpers import setup_environment as setup
-from ..helpers import validate_spatial_reference as validate
+from helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer, \
+    Distance, SPATIAL_UNITS
+from helpers import setup_environment as setup
+from helpers import validate_spatial_reference as validate
 
 class BurnCulverts(object):
     def __init__(self):
@@ -93,6 +94,7 @@ class BurnCulverts(object):
         # Setup
         log("setting up project")
         project, active_map = setup()
+        linear_unit = SPATIAL_UNITS[active_map.spatialReference.linearUnitName].to_linear()
 
         # read in parameters
         dem, dem_layer = raster_and_layer(parameters[0].value)
@@ -104,9 +106,7 @@ class BurnCulverts(object):
         culverts = parameters[4].value
         desc = arcpy.Describe(culverts)
         spatial_reference = desc.spatialReference
-        distance, distance_unit = parameters[5].valueAsText.split(" ")
-        linear_unit = active_map.spatialReference.linearUnitName
-        distance = float(distance) * arcpy.LinearUnitConversionFactor(distance_unit, linear_unit)
+        distance = Distance(parameters[5].valueAsText).to_unit(linear_unit).length
 
         # set analysis extent
         if extent:
@@ -162,6 +162,8 @@ class BurnCulverts(object):
         # NOTE: can't use builtin pointtoline because we only have two points per line :(
         lines = []
         with arcpy.da.SearchCursor(scratch_points_merge, ["SHAPE@XY", "grid_code"], sql_clause=(None, "ORDER BY grid_code")) as points:
+            # store points as {grid_code: [point]} and lines as {grid_code: arcpy.Polyline}
+            # not super elegant data structure and could be done better with two separate data structures with static types
             point_dict = {}
             for point in points:
                 x, y = point[0]
@@ -194,12 +196,11 @@ class BurnCulverts(object):
         # set elev to 0
         with arcpy.da.UpdateCursor(scratch_stream_buffer, [elevation_field]) as cursor:
             for point in cursor:
-                point[0] = 0 # TODO: find way to get the elevation value without a fill - downstream elev?
+                point[0] = 0 # TODO: find way to get the elevation value if the user doesn't fill output (use downstream elev? fill locally?)
                 cursor.updateRow(point)
 
         # polygon to raster
         arcpy.conversion.PolygonToRaster(scratch_stream_buffer,elevation_field,scratch_burned_raster, cellsize=1)
-
 
         # fill output raster
         if fill_depressions:
