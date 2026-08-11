@@ -9,8 +9,8 @@
 
 import arcpy
 
-from TerrainAnalysis import topographic_position_index
-from helpers import license, reload_module, log, get_z_unit, raster_and_layer, SPATIAL_UNITS, Distance, LINEAR_UNITS
+from .TopographicPositionIndex import topographic_position_index
+from helpers import license, reload_module, log, get_z_unit, raster_and_layer, SPATIAL_UNITS, Distance
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
