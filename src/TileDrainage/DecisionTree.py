@@ -186,7 +186,7 @@ class DecisionTree(object):
         land_use_raster = parameters[6].value
         land_use_field = parameters[7].value
         land_use_values = parameters[8].valueAsText.replace("'","").split(";")
-        min_area = Area(parameters[9].valueAsText) if parameters[9].value else None
+        min_area = Area(parameters[9].valueAsText) if parameters[9].value is not None else None
 
         # set analysis extent
         if extent:
