@@ -9,29 +9,72 @@
 
 import os
 import sys
+from enum import StrEnum, auto
 from functools import wraps
 from importlib import import_module
+
 from packaging.version import Version
+
 import arcpy
+
+
+# from https://doc.esri.com/en/arcgis-pro/latest/arcpy/functions/checkextension.html
+class EXTENSIONS(StrEnum):
+    DDD = "3D" # ArcGIS 3D Analyst extension
+    Aeronautical = auto() # ArcGIS Aviation Charting
+    Airports = auto() # ArcGIS Aviation Airports
+    ArcScan = auto() # ArcScan
+    Bathymetry = auto() # ArcGIS Bathymetry
+    BusinessPrem = auto() # ArcGIS Business Analyst
+    DataReviewer = auto() # ArcGIS Data Reviewer
+    DataInteroperability = auto() # ArcGIS Data Interoperability extension for Desktop
+    Defense = auto() # ArcGIS Topographic Mapping
+    Foundation = auto() # ArcGIS Topographic Mapping
+    GeoStats = auto() # ArcGIS Geostatistical Analyst extension
+    Indoors = auto() # ArcGIS Indoors
+    ImageAnalyst = auto() # Image Analyst
+    JTX = auto() # ArcGIS Workflow Manager (Classic) Desktop
+    LocationReferencing = auto() # ArcGIS Pipeline Referencing or ArcGIS Roads and Highways
+    LocateXT = auto() # LocateXT
+    Nautical = auto() # ArcGIS Maritime
+    Network = auto() # ArcGIS Network Analyst extension
+    Publisher = auto() # ArcGIS Publisher
+    Schematics = auto() # ArcGIS Schematics extension
+    SMPAsiaPacific = auto() # StreetMap Premium Asia Pacific
+    SMPEurope = auto() # StreetMap Premium Europe
+    SMPJapan = auto() # StreetMap Premium Japan
+    SMPLatinAmerica = auto() # StreetMap Premium Latin America
+    SMPMiddleEastAfrica = auto() # StreetMap Premium Middle East Africa
+    SMPNorthAmerica = auto() # StreetMap Premium North America
+    Spatial = auto() # ArcGIS Spatial Analyst extension
+    Tracking = auto() # ArcGIS Tracking Analyst extension
+    OCSWCD = auto() # internal Otsego County SWCD tools
+
+class EXTENSION_STATUS(StrEnum):
+    Available = auto()
+    Unavailable = auto()
+    Failed = auto()
+    NotLicensed = auto()
 
 # only needed for spatial analyst, but potential image analyst, ddd or others if
 # we end up using them
 # https://pro.arcgis.com/en/pro-app/3.3/arcpy/functions/checkextension.htm
-def license(licenses=[], version_required=""):
+def license(licenses: list[EXTENSIONS] | None = None, version_required: str = ""):
     """Verify the required licenses are installed."""
     try:
         if version_required:
             v_installed = arcpy.GetInstallInfo()['Version']
             if Version(v_installed) < Version(version_required):
                 return False
-        for l in licenses:
-            if l == "OSWCD_GIS":
-                if not os.path.exists("G:\\GIS"):
-                    return False
-            else:
-                status = arcpy.CheckExtension(l)
-                if status != "Available":
-                    return False
+        if licenses is not None:
+            for l in licenses:
+                if l == EXTENSIONS.OCSWCD:
+                    if not os.path.exists("G:\\GIS"):
+                        return False
+                else:
+                    status = arcpy.CheckExtension(l)
+                    if status != EXTENSION_STATUS.Available:
+                        return False
         return True
     except Exception:
         return False

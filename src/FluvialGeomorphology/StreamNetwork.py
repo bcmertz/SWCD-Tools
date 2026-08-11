@@ -10,7 +10,7 @@
 import arcpy
 
 from helpers import license, get_oid, empty_workspace, cell_area, reload_module, log,\
-    error, set_required_parameter, raster_and_layer, is_empty, AREAL_UNITS, Area, Distance
+    error, set_required_parameter, raster_and_layer, is_empty, AREAL_UNITS, Area, Distance, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -152,7 +152,7 @@ class StreamNetwork(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateMessages(self, parameters):
         "Modify the messages created by internal validation for each tool parameter."""

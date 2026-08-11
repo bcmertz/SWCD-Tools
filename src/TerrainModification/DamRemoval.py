@@ -11,7 +11,7 @@ import arcpy
 
 from FluvialGeomorphology import transect_line
 from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error, raster_and_layer,\
-    Distance, SPATIAL_UNITS
+    Distance, SPATIAL_UNITS, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -108,7 +108,7 @@ class DamRemoval(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def interpolateElevations(self, transect, dem_raster, lowpoint_elev, transect_width: Distance, transect_point_spacing: Distance, scratch_transect_points, scratch_transect_elev_points):
         '''return points along transect with elevations

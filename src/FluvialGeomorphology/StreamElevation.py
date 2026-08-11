@@ -10,7 +10,7 @@ import os
 import arcpy
 import platform
 
-from helpers import license, empty_workspace, reload_module, log, raster_and_layer, Distance, SPATIAL_UNITS
+from helpers import license, empty_workspace, reload_module, log, raster_and_layer, Distance, SPATIAL_UNITS, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -123,7 +123,7 @@ class StreamElevation(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Foundation', 'Spatial'])
+        return license([EXTENSIONS.Spatial, EXTENSIONS.Foundation])
 
     def updateMessages(self, parameters):
         "Modify the messages created by internal validation for each tool parameter."""
