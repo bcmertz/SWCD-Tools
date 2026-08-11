@@ -19,7 +19,6 @@ from .VBET import VBET
 
 __all__ = [
     "VBET",
-    "ContourTree",
     "LandscapePosition",
     "PotentialWetlands",
     "RelativeElevationModel",
