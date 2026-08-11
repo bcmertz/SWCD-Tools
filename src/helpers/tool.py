@@ -128,14 +128,15 @@ def reload_module(name, force=True):
         return wrapper
     return reload_module
 
-def __empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
+def __empty_workspace(ws_path: str, keep: list[str] | None = None) -> None:
     """License:  Modification of work in NRCS Engineering Tools 2.0 (no license present)
                  Assumed to fall under this project's license: GNU Affero General Public
                  License v3."""
+    keep = keep or []
     tup = tuple(keep)
     ws_contents = []
 
-    for dirpath, dirnames, filenames in arcpy.da.Walk(ws_path):
+    for dirpath, _, filenames in arcpy.da.Walk(ws_path):
         for filename in filenames:
             file = os.path.join(dirpath, filename)
             if file not in tup:
@@ -144,8 +145,9 @@ def __empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
         arcpy.management.Delete(fc)
 
 
-def empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
+def empty_workspace(ws_path: str, keep: list[str] | None = None) -> None:
     """Delete everything in a given workspace except for KEEP paths."""
+    keep = keep or []
     if len(keep) > 0:
         __empty_workspace(ws_path, keep)
     else:
