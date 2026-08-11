@@ -9,7 +9,7 @@
 import arcpy
 
 from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
-    SPATIAL_UNITS, Area
+    SPATIAL_UNITS, Area, warn
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -214,7 +214,7 @@ class DecisionTree(object):
             log(sql_query)
             scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
         else:
-            log("no valid land uses found in area, please try again with land uses found in analysis area")
+            warn("no valid land uses found in area, please try again with land uses found in analysis area")
             return
 
         # convert land usage output to polygon
