@@ -214,6 +214,7 @@ class DecisionTree(object):
             log(sql_query)
             out_lu = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
             out_lu.save(scratch_land_use)
+            arcpy.management.CalculateStatistics(scratch_land_use)
         else:
             warn("no valid land uses found in area, please try again with land uses found in analysis area")
             return
