@@ -9,29 +9,72 @@
 
 import os
 import sys
+from enum import StrEnum
 from functools import wraps
 from importlib import import_module
+
 from packaging.version import Version
+
 import arcpy
+
+
+# from https://doc.esri.com/en/arcgis-pro/latest/arcpy/functions/checkextension.html
+class EXTENSIONS(StrEnum):
+    DDD = "3D" # ArcGIS 3D Analyst extension
+    Aeronautical = "Aeronautical" # ArcGIS Aviation Charting
+    Airports = "Airports" # ArcGIS Aviation Airports
+    ArcScan = "ArcScan" # ArcScan
+    Bathymetry = "Bathymetry" # ArcGIS Bathymetry
+    BusinessPrem = "BusinessPrem" # ArcGIS Business Analyst
+    DataReviewer = "DataReviewer" # ArcGIS Data Reviewer
+    DataInteroperability = "DataInteroperability" # ArcGIS Data Interoperability extension for Desktop
+    Defense = "Defense" # ArcGIS Topographic Mapping
+    Foundation = "Foundation" # ArcGIS Topographic Mapping
+    GeoStats = "GeoStats" # ArcGIS Geostatistical Analyst extension
+    Indoors = "Indoors" # ArcGIS Indoors
+    ImageAnalyst = "ImageAnalyst" # Image Analyst
+    JTX = "JTX" # ArcGIS Workflow Manager (Classic) Desktop
+    LocationReferencing = "LocationReferencing" # ArcGIS Pipeline Referencing or ArcGIS Roads and Highways
+    LocateXT = "LocateXT" # LocateXT
+    Nautical = "Nautical" # ArcGIS Maritime
+    Network = "Network" # ArcGIS Network Analyst extension
+    Publisher = "Publisher" # ArcGIS Publisher
+    Schematics = "Schematics" # ArcGIS Schematics extension
+    SMPAsiaPacific = "SMPAsiaPacific" # StreetMap Premium Asia Pacific
+    SMPEurope = "SMPEurope" # StreetMap Premium Europe
+    SMPJapan = "SMPJapan" # StreetMap Premium Japan
+    SMPLatinAmerica = "SMPLatinAmerica" # StreetMap Premium Latin America
+    SMPMiddleEastAfrica = "SMPMiddleEastAfrica" # StreetMap Premium Middle East Africa
+    SMPNorthAmerica = "SMPNorthAmerica" # StreetMap Premium North America
+    Spatial = "Spatial" # ArcGIS Spatial Analyst extension
+    Tracking = "Tracking" # ArcGIS Tracking Analyst extension
+    OCSWCD = "OCSWCD" # internal Otsego County SWCD tools
+
+class EXTENSION_STATUS(StrEnum):
+    Available = "Available"
+    Unavailable = "Unavailable"
+    Failed = "Failed"
+    NotLicensed = "NotLicensed"
 
 # only needed for spatial analyst, but potential image analyst, ddd or others if
 # we end up using them
 # https://pro.arcgis.com/en/pro-app/3.3/arcpy/functions/checkextension.htm
-def license(licenses=[], version_required=""):
+def license(licenses: list[EXTENSIONS] | None = None, version_required: str = ""):
     """Verify the required licenses are installed."""
     try:
         if version_required:
             v_installed = arcpy.GetInstallInfo()['Version']
             if Version(v_installed) < Version(version_required):
                 return False
-        for l in licenses:
-            if l == "OSWCD_GIS":
-                if not os.path.exists("G:\\GIS"):
-                    return False
-            else:
-                status = arcpy.CheckExtension(l)
-                if status != "Available":
-                    return False
+        if licenses is not None:
+            for l in licenses:
+                if l == EXTENSIONS.OCSWCD:
+                    if not os.path.exists("G:\\GIS"):
+                        return False
+                else:
+                    status = arcpy.CheckExtension(l)
+                    if status != EXTENSION_STATUS.Available:
+                        return False
         return True
     except Exception:
         return False
@@ -85,14 +128,15 @@ def reload_module(name, force=True):
         return wrapper
     return reload_module
 
-def __empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
+def __empty_workspace(ws_path: str, keep: list[str] | None = None) -> None:
     """License:  Modification of work in NRCS Engineering Tools 2.0 (no license present)
                  Assumed to fall under this project's license: GNU Affero General Public
                  License v3."""
+    keep = keep or []
     tup = tuple(keep)
     ws_contents = []
 
-    for dirpath, dirnames, filenames in arcpy.da.Walk(ws_path):
+    for dirpath, _, filenames in arcpy.da.Walk(ws_path):
         for filename in filenames:
             file = os.path.join(dirpath, filename)
             if file not in tup:
@@ -100,10 +144,10 @@ def __empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
     for fc in ws_contents:
         arcpy.management.Delete(fc)
 
-    return
 
-def empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
+def empty_workspace(ws_path: str, keep: list[str] | None = None) -> None:
     """Delete everything in a given workspace except for KEEP paths."""
+    keep = keep or []
     if len(keep) > 0:
         __empty_workspace(ws_path, keep)
     else:
@@ -138,5 +182,3 @@ def empty_workspace(ws_path: str, keep: list[str]=[]) -> None:
 
         else:
             __empty_workspace(ws_path, keep)
-
-    return

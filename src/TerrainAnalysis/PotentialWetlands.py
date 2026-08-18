@@ -10,7 +10,7 @@
 import arcpy
 
 from helpers import license, get_oid, get_z_unit, empty_workspace, set_required_parameter, reload_module, \
-    log, warn, raster_and_layer, SPATIAL_UNITS
+    log, warn, raster_and_layer, SPATIAL_UNITS, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -149,7 +149,7 @@ class PotentialWetlands(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateParameters(self, parameters):
         # default maximum slope value

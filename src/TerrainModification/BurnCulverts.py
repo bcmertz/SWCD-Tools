@@ -10,7 +10,7 @@ import os
 import arcpy
 
 from helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer, \
-    Distance, SPATIAL_UNITS
+    Distance, SPATIAL_UNITS, EXTENSIONS
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
@@ -81,7 +81,7 @@ class BurnCulverts(object):
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
