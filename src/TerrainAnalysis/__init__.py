@@ -6,6 +6,7 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
+from .ContourTree import ContourTree
 from .LandscapePosition import LandscapePosition
 from .PotentialWetlands import PotentialWetlands
 from .REMCalculator import RelativeElevationModel, relative_elevation_model
@@ -19,6 +20,7 @@ from .VBET import VBET
 
 __all__ = [
     "VBET",
+    "ContourTree",
     "LandscapePosition",
     "PotentialWetlands",
     "RelativeElevationModel",
