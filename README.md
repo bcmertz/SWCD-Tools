@@ -355,8 +355,8 @@ Implementation of the Valley Bottom Extract Tool originally defined by [Gilbert 
 VBET produces outputs like below:
 
 <span>
-<img src="./assets/readme_examples/vbet_after1.png" alt="output VBET data 1 showing polygon bordering stream line." width="300"/>
-<img src="./assets/readme_examples/vbet_after2.png" alt="output VBET data 2 showing polygon bordering stream line." width="300"/>
+<img src="./assets/readme_examples/vbet_after1.png" alt="output VBET data 1 showing polygon bordering stream line." height="300"/>
+<img src="./assets/readme_examples/vbet_after2.png" alt="output VBET data 2 showing polygon bordering stream line." height="300"/>
 </span>
 
 The second image shows a large watershed VBET output (low-lying) in the green and FEMA floodplains in red.
