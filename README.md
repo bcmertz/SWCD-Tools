@@ -348,9 +348,9 @@ Implementation of the Valley Bottom Extract Tool originally defined by [Gilbert 
 
 | Watershed Size  | Valley Bottom Probability | 
 |-------|-----|
-| Small \(<25 km^2\) | $$e^{-0.12*s} + \dfrac{1}{e^{-3.653+1.04 * h}}$$  |
-| Medium \(25 - 250 km^2\)    | $$e^{-0.2*s} + \dfrac{1}{e^{-3.86+0.717 * h}}$$  |
-| Large \(>250 km^2\)  | $$e^{-0.3*s} + \dfrac{1}{e^{-3.652+0.432 * h}}$$  |
+| Small ($$<25 km^2$$) | $$e^{-0.12*s} + \dfrac{1}{e^{-3.653+1.04 * h}}$$  |
+| Medium ($$25 - 250 km^2$$)    | $$e^{-0.2*s} + \dfrac{1}{e^{-3.86+0.717 * h}}$$  |
+| Large ($$>250 km^2$$) | $$e^{-0.3*s} + \dfrac{1}{e^{-3.652+0.432 * h}}$$  |
 
 VBET produces outputs like below:
 
