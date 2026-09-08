@@ -344,11 +344,13 @@ This shows landscape position classification compared to a topographic map.
 
 ### 7. Valley Bottom Extraction Tool (VBET) [↑](#table-of-contents)
 
-Implementation of the Valley Bottom Extract Tool originally defined by [Gilbert et al 2016](http://dx.doi.org/10.1016/j.cageo.2016.07.014). It finds valley bottoms by calculating low slope low relative elevation landforms along streams. The VBET tool has varying thresholds based off of watershed size as follows:
+Implementation of the Valley Bottom Extract Tool originally defined by [Gilbert et al 2016](http://dx.doi.org/10.1016/j.cageo.2016.07.014). It finds valley bottoms by calculating low slope low relative elevation landforms along streams. The VBET tool has varying thresholds based off of watershed size, and is calculated with parameters slope `s` and height above nearest drainage `h`.
 
-<span>
-<img src="./assets/readme_examples/vbet_thresholds.png" alt="Chart showing vbet calculation thresholds" width="600"/>
-</span>
+| Watershed Size  | Valley Bottom Probability | 
+|-------|-----|
+| Small \(<25 km^2\) | $$e^{-0.12*s} + \dfrac{1}{e^{-3.653+1.04 * h}}$$  |
+| Medium \(25 - 250 km^2\)    | $$e^{-0.2*s} + \dfrac{1}{e^{-3.86+0.717 * h}}$$  |
+| Large \(>250 km^2\)  | $$e^{-0.3*s} + \dfrac{1}{e^{-3.652+0.432 * h}}$$  |
 
 VBET produces outputs like below:
 
