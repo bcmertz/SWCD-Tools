@@ -12,15 +12,21 @@
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
-
-import os
 import math
-import arcpy
+import os
 import platform
 
-from helpers import license, empty_workspace, set_required_parameter, reload_module, log, warn
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+import arcpy
+from helpers.logging import log, warn
+from helpers.parameter import set_required_parameter
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import (
+    empty_workspace,
+    license,
+    reload_module,
+)
+from helpers.tool import setup_environment as setup
+
 
 class PointPlots:
     def __init__(self):
