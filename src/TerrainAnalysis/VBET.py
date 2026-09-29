@@ -17,7 +17,7 @@ from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance, get_z_unit
 from TerrainAnalysis import relative_elevation_model
 
 
-class VBET(object):
+class VBET:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Valley Bottom Extraction Tool (VBET)"
@@ -161,13 +161,11 @@ class VBET(object):
         if parameters[7].value is None:
             parameters[7].value = "1000 Meters"
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, _):
@@ -246,10 +244,10 @@ class VBET(object):
 
         # set watershed size boundaries
         queries = [
-            "{} > {} and {} < {}".format(watershed_size_field, min_watershed_size, watershed_size_field,threshold_low)\
-            if min_watershed_size is not None else "{} < {}".format(watershed_size_field,threshold_low),
-            "{} > {} And {} < {}".format(watershed_size_field,threshold_low,watershed_size_field,threshold_high),
-            "{} > {}".format(watershed_size_field,threshold_high)
+            f"{watershed_size_field} > {min_watershed_size} and {watershed_size_field} < {threshold_low}"\
+            if min_watershed_size is not None else f"{watershed_size_field} < {threshold_low}",
+            f"{watershed_size_field} > {threshold_low} And {watershed_size_field} < {threshold_high}",
+            f"{watershed_size_field} > {threshold_high}"
         ]
 
         # iterate through each buffer size (<25km^2, 25-250km^2, >250km^2)
@@ -376,5 +374,3 @@ class VBET(object):
         # cleanup
         log("deleting unneeded data")
         empty_workspace(arcpy.env.scratchGDB, keep=[])
-
-        return

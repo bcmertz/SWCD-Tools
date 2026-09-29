@@ -18,7 +18,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import SPATIAL_UNITS, Distance, get_linear_unit
 
 
-class DamRemoval(object):
+class DamRemoval:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Dam Removal"
@@ -102,12 +102,10 @@ class DamRemoval(object):
         if parameters[6].value is None:
             parameters[6].value = "10 FeetUS"
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""

@@ -39,7 +39,7 @@ def topographic_position_index(dem, neighborhood):
     #return TPI raster
     return tpi_norm
 
-class TopographicPositionIndex(object):
+class TopographicPositionIndex:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Topographic Position Index (TPI)"
@@ -94,7 +94,6 @@ class TopographicPositionIndex(object):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -135,5 +134,3 @@ class TopographicPositionIndex(object):
         # save project
         log("saving project")
         project.save()
-
-        return

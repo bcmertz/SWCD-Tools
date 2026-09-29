@@ -27,7 +27,7 @@ from helpers.tool import setup_environment as setup
 AG_ASSESSMENT_GDB_NAME = "Ag Assessment"
 
 
-class DefineParcels(object):
+class DefineParcels:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "1. Define Parcels"
@@ -173,7 +173,6 @@ class DefineParcels(object):
                 parameters[4].value = f
             if name == "agdist":
                 parameters[5].value = f
-        return
 
     def updateParameters(self, parameters):
         # get Parcel Id, SWIS, Municipality, Address, and Ag District fields
@@ -202,13 +201,11 @@ class DefineParcels(object):
         if parameters[11].value is None:
              parameters[11].value = "NY"
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -221,7 +218,7 @@ class DefineParcels(object):
         log("setting up project")
         project, active_map = setup()
         project_dir = project.homeFolder
-        cache_file_path = "{}/.ag_cache.json".format(project_dir)
+        cache_file_path = f"{project_dir}/.ag_cache.json"
 
         # Parameters
         log("reading in parameters")
@@ -241,7 +238,7 @@ class DefineParcels(object):
         output_folder = parameters[13].valueAsText
 
         # create geodatabase if it doesn't exist
-        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        db_path = f"{project.homeFolder}\\{AG_ASSESSMENT_GDB_NAME}.gdb"
         if not arcpy.Exists(db_path):
             arcpy.management.CreateFileGDB(project.homeFolder, AG_ASSESSMENT_GDB_NAME, "CURRENT")
         arcpy.env.workspace = db_path
@@ -288,22 +285,22 @@ class DefineParcels(object):
         layouts = []
 
         for tax_id_num in tax_id_nums:
-            layer_name = "{}_{}".format(last_name, tax_id_num)
+            layer_name = f"{last_name}_{tax_id_num}"
             sanitized_name = sanitize(layer_name)
-            parcel_path = "{}\\{}".format(arcpy.env.workspace, sanitized_name)
+            parcel_path = f"{arcpy.env.workspace}\\{sanitized_name}"
 
             # create new map and make it active
             maps = project.listMaps(tax_id_num)
             if len(maps) > 0:
                 continue
 
-            log("creating map for {}".format(tax_id_num))
+            log(f"creating map for {tax_id_num}")
             new_map = project.copyItem(orig_map, tax_id_num)
             new_map.openView()
             cam = project.activeView.camera
 
             # create a new layout
-            log("creating layout for {}".format(tax_id_num))
+            log(f"creating layout for {tax_id_num}")
             new_layout = project.copyItem(orig_layout, tax_id_num)
             layouts.append(new_layout)
             new_layout.openView()
@@ -321,41 +318,41 @@ class DefineParcels(object):
                 pass
 
             # create sql expression to select correct parcel
-            sql_expr="{} = '{}'".format(parcel_layer_field, tax_id_num)
+            sql_expr=f"{parcel_layer_field} = '{tax_id_num}'"
 
             # create parcel layer and add it to the map
-            log("adding parcel {}".format(tax_id_num))
+            log(f"adding parcel {tax_id_num}")
             feat = arcpy.management.MakeFeatureLayer(parcel_layer, layer_name, sql_expr)
             arcpy.management.MultipartToSinglepart(feat, parcel_path)
             lyr = new_map.addDataFromPath(parcel_path)
             lyr.name = layer_name
 
             # update parcel symbology
-            log("updating layer symbology {}".format(tax_id_num))
+            log(f"updating layer symbology {tax_id_num}")
             sym = lyr.symbology
             sym.renderer.symbol.applySymbolFromGallery("Black Outline (2 pts)")
             lyr.symbology = sym
 
             # Create soil group worksheets for each layout
-            log("creating soil group worksheet for {}".format(tax_id_num))
-            sgw_path = r'{}\{}.xlsx'.format(output_folder, new_layout.name)
+            log(f"creating soil group worksheet for {tax_id_num}")
+            sgw_path = rf'{output_folder}\{new_layout.name}.xlsx'
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
             shutil.copyfile(sgw_template, sgw_path)
 
             # set SWIS code in layout
-            log("finding property values for {}".format(tax_id_num))
+            log(f"finding property values for {tax_id_num}")
             swis_box = new_layout.listElements("TEXT_ELEMENT", "SWIS")[0]
             swis_value = [row[0] for row in arcpy.da.SearchCursor(parcel_path, swis_field)][0]
-            swis_box.text = "SWIS: {}".format(swis_value)
+            swis_box.text = f"SWIS: {swis_value}"
 
             # set name in layout
             name_box = new_layout.listElements("TEXT_ELEMENT", "Name")[0]
-            name_box.text = "{}, {}".format(last_name, first_name)
+            name_box.text = f"{last_name}, {first_name}"
 
             # set municipality in layout
             municipality_box = new_layout.listElements("TEXT_ELEMENT", "Municipality")[0]
             municipality_value = [row[0] for row in arcpy.da.SearchCursor(parcel_path, municipality_field)][0]
-            municipality_box.text = "{}".format(municipality_value)
+            municipality_box.text = f"{municipality_value}"
 
             # get property address info
             location_value = [row[0] for row in arcpy.da.SearchCursor(parcel_path, address_field)][0]
@@ -366,7 +363,7 @@ class DefineParcels(object):
                 agdist_value = "x"
 
             # set SWIS, municipality, tax map identifier, etc in soil group worksheet
-            log("writing values to soil group worksheet {}".format(tax_id_num))
+            log(f"writing values to soil group worksheet {tax_id_num}")
             sgw_workbook = openpyxl.load_workbook(sgw_path)
             ws = sgw_workbook['SGW']
             ws['D24'] = swis_value
@@ -386,7 +383,7 @@ class DefineParcels(object):
             del ws
 
             # zoom to layer in map object
-            log("zooming map to {}".format(tax_id_num))
+            log(f"zooming map to {tax_id_num}")
             ext = arcpy.Describe(lyr).extent
             cam.setExtent(ext)
 
@@ -401,7 +398,7 @@ class DefineParcels(object):
         # export parcel layouts to folder
         log("exporting layouts")
         for layout in layouts:
-            layout_file_path = "{}\\{}.pdf".format(output_folder, layout.name)
+            layout_file_path = f"{output_folder}\\{layout.name}.pdf"
             layout.exportToPDF(layout_file_path)
 
         # remove unused layout

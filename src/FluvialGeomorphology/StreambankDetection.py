@@ -67,7 +67,6 @@ class StreambankDetection:
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -150,5 +149,3 @@ class StreambankDetection:
         # save program successfully
         log("saving project")
         project.save()
-
-        return

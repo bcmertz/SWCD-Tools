@@ -18,7 +18,7 @@ from helpers.tool import license, reload_module
 from helpers.tool import setup_environment as setup
 
 
-class ImageDifferencingSetup(object):
+class ImageDifferencingSetup:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Image Differencing - Setup"
@@ -95,12 +95,10 @@ class ImageDifferencingSetup(object):
         if parameters[4].value is None:
             parameters[4].value = 3
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -132,7 +130,7 @@ class ImageDifferencingSetup(object):
         # TX - Collection category: "T1" for Tier 1 (highest quality), "T2" for Tier 2
         # * band or product identifier
         log("collecting all unique SWIR dataset dates")
-        swir_files = glob.glob("{}/*_SR_B6.tif".format(swir_folder))
+        swir_files = glob.glob(f"{swir_folder}/*_SR_B6.tif")
 
         # read in all precip data to dictionary
         log("reading in precipitation data")
@@ -166,16 +164,16 @@ class ImageDifferencingSetup(object):
                 log("{} raster not in precipitation data, discarding".format(date.strftime("%m/%d/%Y")))
                 continue
 
-            if path in swir_data.keys():
+            if path in swir_data:
                 swir_data[path].append(data)
             else:
                 swir_data[path] = [data]
 
         # sort precipitation data for each path and moisture conditions
-        log("{} unique satellite paths detected".format(len(swir_data.keys())))
-        for key in swir_data.keys():
+        log(f"{len(swir_data.keys())} unique satellite paths detected")
+        for key in swir_data:
             # create group layers for each landsat path
-            raster_group = active_map.createGroupLayer("SWIR Data - path: {}".format(key))
+            raster_group = active_map.createGroupLayer(f"SWIR Data - path: {key}")
 
             # sort dry and wet dates for each path
             sorted_wet = sorted(swir_data[key], key=lambda x: x["wet"], reverse=True)
@@ -185,17 +183,17 @@ class ImageDifferencingSetup(object):
             num = user_num
             if num > len(sorted_wet):
                 num = len(sorted_wet)
-                log("not enough rasters with precipitation data for landsat path '{}' to output {} requested rasters".format(path, num))
+                log(f"not enough rasters with precipitation data for landsat path '{path}' to output {num} requested rasters")
 
-            log("adding path {} SWIR rasters to map".format(key))
+            log(f"adding path {key} SWIR rasters to map")
             for i in range(num, 0, -1):
                 wet_day = sorted_wet[i-1]["date"]
                 wet_day_formatted = wet_day.strftime("%Y%m%d")
-                wet_raster = glob.glob("{}/*{}_{}*SR_B6.tif".format(swir_folder, key, wet_day_formatted))[0]
+                wet_raster = glob.glob(f"{swir_folder}/*{key}_{wet_day_formatted}*SR_B6.tif")[0]
 
                 dry_day = sorted_dry[i-1]["date"]
                 dry_day_formatted = dry_day.strftime("%Y%m%d")
-                dry_raster = glob.glob("{}/*{}_{}*SR_B6.tif".format(swir_folder, key, dry_day_formatted))[0]
+                dry_raster = glob.glob(f"{swir_folder}/*{key}_{dry_day_formatted}*SR_B6.tif")[0]
 
                 wet_fc = active_map.addDataFromPath(wet_raster)
                 dry_fc = active_map.addDataFromPath(dry_raster)
@@ -208,5 +206,3 @@ class ImageDifferencingSetup(object):
         # save project
         log("saving project")
         project.save()
-
-        return

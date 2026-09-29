@@ -22,7 +22,7 @@ from helpers.tool import setup_environment as setup
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
 
 
-class Restart(object):
+class Restart:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Restart - clear out existing project info"
@@ -51,15 +51,14 @@ class Restart(object):
     def updateParameters(self, parameters):
         project = arcpy.mp.ArcGISProject("Current")
         project_dir = project.homeFolder
-        cache_file_path = "{}/.ag_cache.json".format(project_dir)
+        cache_file_path = f"{project_dir}/.ag_cache.json"
         if not os.path.exists(cache_file_path):
             parameters[0].enabled = False
             parameters[0].value = False
-        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        db_path = f"{project.homeFolder}\\{AG_ASSESSMENT_GDB_NAME}.gdb"
         if not arcpy.Exists(db_path):
             parameters[1].enabled = False
             parameters[1].value = False
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -72,7 +71,7 @@ class Restart(object):
         log("setting up project")
         project, active_map = setup()
         project_dir = project.homeFolder
-        cache_file_path = "{}/.ag_cache.json".format(project_dir)
+        cache_file_path = f"{project_dir}/.ag_cache.json"
 
         # Parameters
         log("reading in parameters")
@@ -100,7 +99,7 @@ class Restart(object):
                 try:
                     lyt = project.listLayouts(parcel)[0]
                 except Exception:
-                    warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
+                    warn(f"couldn't find layout for parcel {parcel}, results may be incomplete")
                     continue
 
                 # delete map
@@ -111,7 +110,7 @@ class Restart(object):
                 try:
                     m = project.listMaps(parcel)[0]
                 except Exception:
-                    warn("unable to find map for parcel {}, results may be incomplete".format(parcel))
+                    warn(f"unable to find map for parcel {parcel}, results may be incomplete")
                     continue
 
                 # delete map
@@ -123,13 +122,13 @@ class Restart(object):
 
         if workspace_bool:
             # check if project geodatabase exists
-            db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+            db_path = f"{project.homeFolder}\\{AG_ASSESSMENT_GDB_NAME}.gdb"
             if arcpy.Exists(db_path):
                 # clear out feature classes from workspace
                 log("clearing out feature classes from project workspace")
                 empty_workspace(db_path)
             else:
-                log("project geodatabase {} does not exist, nothing to delete".format(db_path))
+                log(f"project geodatabase {db_path} does not exist, nothing to delete")
 
         # cleanup
         log("saving project")

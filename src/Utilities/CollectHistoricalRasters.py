@@ -58,7 +58,7 @@ class CollectRasters:
                 with arcpy.da.SearchCursor(lyr, ("FULLPATH","IMAGENAME"), spatial_filter=extent) as cursor:
                     for row in cursor:
                         # get raster filepath from attributes
-                        path = "{}\{}".format(row[0], row[1])
+                        path = rf"{row[0]}\{row[1]}"
                         # make a nice name
                         lyr_name = row[1].split(".")[0] + " " + year
                         # prevent adding existing maps
@@ -80,5 +80,3 @@ class CollectRasters:
                                 new_lyr.setDefinition(new_lyr_cim)
                             except Exception:
                                 pass
-
-        return

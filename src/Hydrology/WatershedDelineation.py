@@ -16,7 +16,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import SPATIAL_UNITS, Distance
 
 
-class WatershedDelineation(object):
+class WatershedDelineation:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Watershed Delineation"
@@ -77,11 +77,9 @@ class WatershedDelineation(object):
         if parameters[3].value is None:
             parameters[3].value = "10 Meters"
 
-        return
 
     def updateMessages(self, parameters):
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -136,5 +134,3 @@ class WatershedDelineation(object):
         # save and exit program successfully
         log("saving project")
         project.save()
-
-        return

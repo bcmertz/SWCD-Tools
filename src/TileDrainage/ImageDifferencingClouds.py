@@ -14,7 +14,7 @@ from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
 from helpers.tool import setup_environment as setup
 
 
-class ImageDifferencingClouds(object):
+class ImageDifferencingClouds:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Image Differencing - Cloud and Shadow Removal"
@@ -57,7 +57,6 @@ class ImageDifferencingClouds(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -111,5 +110,3 @@ class ImageDifferencingClouds(object):
         # save project
         log("saving project")
         project.save()
-
-        return

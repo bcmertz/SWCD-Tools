@@ -21,7 +21,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import LINEAR_UNITS, SPATIAL_UNITS, Distance, get_z_unit
 
 
-class BermAnalysis(object):
+class BermAnalysis:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Berm Analysis"
@@ -164,7 +164,6 @@ class BermAnalysis(object):
                 parameters[10].enabled = False
                 parameters[10].value = None # clear its value so we don't overwrite existing features while disabled
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
@@ -173,7 +172,6 @@ class BermAnalysis(object):
         set_required_parameter(parameters[8].value, parameters[10])
 
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -246,7 +244,7 @@ class BermAnalysis(object):
         arcpy.management.AlterField(
             in_table=berms,
             field=berm_height_field,
-            new_field_alias="Berm Height ({})".format(berm_unit),
+            new_field_alias=f"Berm Height ({berm_unit})",
         )
 
 
@@ -258,7 +256,7 @@ class BermAnalysis(object):
             selection_set = berms.getSelectionSet()
             selection_tuple = tuple(selection_set)
             selection = "("+",".join([str(i) for i in selection_tuple])+")"
-            expression = "{0} IN{1}".format(arcpy.AddFieldDelimiters(berms,oid_field),selection)
+            expression = f"{arcpy.AddFieldDelimiters(berms,oid_field)} IN{selection}"
         except Exception:
             expression = "*"
 
@@ -267,11 +265,11 @@ class BermAnalysis(object):
             for berm in cursor:
                 # log to user
                 oid_value = berm[0]
-                log("-------------- processing berm, ID: {} --------------".format(oid_value))
+                log(f"-------------- processing berm, ID: {oid_value} --------------")
 
                 # make a temporary feature layer to store the berm for zonal analysis
                 log("creating temporary berm feature for analysis")
-                where_clause = '"{}" = {}'.format(oid_field, oid_value)
+                where_clause = f'"{oid_field}" = {oid_value}'
                 arcpy.analysis.Select(berms, scratch_berm, where_clause)
 
                 # if berm height is supplied, add it to the lowest elevation to get the flat berm elevation
@@ -304,7 +302,7 @@ class BermAnalysis(object):
                         in_conditional_raster=scratch_dem_mask,
                         in_true_raster_or_constant=scratch_dem_mask,
                         in_false_raster_or_constant=berm_elevation,
-                        where_clause="VALUE > {}".format(berm_elevation)
+                        where_clause=f"VALUE > {berm_elevation}"
                     )
                     output_raster.save(scratch_zonal_statistics)
                 else:
@@ -402,7 +400,7 @@ class BermAnalysis(object):
                         cluster_tolerance=None
                     )
                     if is_empty(scratch_effective_berm):
-                        warn("berm ID {} created no backwatered area, cannot calculate height".format(oid_value))
+                        warn(f"berm ID {oid_value} created no backwatered area, cannot calculate height")
                     else:
                         berm_raster = arcpy.sa.ZonalStatistics(
                             in_zone_data=scratch_effective_berm,
@@ -432,5 +430,3 @@ class BermAnalysis(object):
         # save project
         log("saving project")
         project.save()
-
-        return

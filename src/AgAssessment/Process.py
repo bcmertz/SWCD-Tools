@@ -24,7 +24,7 @@ from helpers.tool import setup_environment as setup
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
 
 
-class Process(object):
+class Process:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "3. Process"
@@ -72,7 +72,6 @@ class Process(object):
             parameters[1].value = "MUSYM"
         if "MUKEY" in fields:
             parameters[2].value = "MUKEY"
-        return
 
     def updateParameters(self, parameters):
         # get soils MUSYM nad MUKEY field
@@ -95,7 +94,6 @@ class Process(object):
                         self.set_dependent_layers(parameters)
                         break
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
@@ -104,7 +102,6 @@ class Process(object):
         set_required_parameter(parameters[0].value, parameters[2])
 
         validate(parameters)
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -117,7 +114,7 @@ class Process(object):
         log("setting up project")
         project, active_map = setup()
         project_dir = project.homeFolder
-        cache_file_path = "{}/.ag_cache.json".format(project_dir)
+        cache_file_path = f"{project_dir}/.ag_cache.json"
 
         # read in json
         log("reading in cache")
@@ -134,9 +131,9 @@ class Process(object):
         soils_mukey = parameters[2].value
 
         # check for geodatabase and set it as workspace
-        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        db_path = f"{project.homeFolder}\\{AG_ASSESSMENT_GDB_NAME}.gdb"
         if not arcpy.Exists(db_path):
-            error("Ag assessment geodatase {} does not exist. Please start over with step 1.".format(db_path))
+            error(f"Ag assessment geodatase {db_path} does not exist. Please start over with step 1.")
         arcpy.env.workspace = db_path
 
         # collect layouts to be able to close and redisplay later
@@ -148,7 +145,7 @@ class Process(object):
             try:
                 m = project.listMaps(parcel)[0]
             except Exception:
-                warn("unable to find map for {}, results may be incomplete".format(parcel))
+                warn(f"unable to find map for {parcel}, results may be incomplete")
                 continue
 
             # Clear selection
@@ -160,7 +157,7 @@ class Process(object):
                 lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
             except Exception:
-                warn("couldn't find layout for parcel {}, results may be incomplete".format(parcel))
+                warn(f"couldn't find layout for parcel {parcel}, results may be incomplete")
                 continue
 
             # Helper variables
@@ -169,7 +166,7 @@ class Process(object):
             tables = []
 
             # Start work
-            log("processing {}".format(parcel))
+            log(f"processing {parcel}")
             lyrs = m.listLayers()
             lyr_types = set()
             for lyr in lyrs:
@@ -191,12 +188,12 @@ class Process(object):
                 lyr_types.add(lyr_type)
 
                 # Create clip layer
-                new_layer_name = "{}_{}".format(lyr_type, parcel)
-                new_layer_path = "{}\\{}_soils".format(arcpy.env.workspace, sanitize(new_layer_name))
+                new_layer_name = f"{lyr_type}_{parcel}"
+                new_layer_path = f"{arcpy.env.workspace}\\{sanitize(new_layer_name)}_soils"
                 arcpy.analysis.Clip(soil_layer, lyr, new_layer_path)
 
                 # Dissolve duplicate MUSYMs
-                dissolve_layer_path = "{}\\{}_soils_dissolved".format(arcpy.env.workspace, sanitize(new_layer_name))
+                dissolve_layer_path = f"{arcpy.env.workspace}\\{sanitize(new_layer_name)}_soils_dissolved"
                 arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,soils_mukey])
 
                 # Add to map
@@ -206,7 +203,7 @@ class Process(object):
 
                 # Add acreage field
                 if "Acres" not in [f.name for f in arcpy.ListFields(new_layer.dataSource)]:
-                    field_alias = "{} Acres".format(lyr_type)
+                    field_alias = f"{lyr_type} Acres"
                     arcpy.management.AddField(new_layer, "Acres", "FLOAT", 2, 2, field_alias=field_alias)
 
                 # Calculate geometry
@@ -223,7 +220,7 @@ class Process(object):
                 new_layer.showLabels = True
                 label_class = new_layer.listLabelClasses()[0]
                 label_class.visible = True
-                label_class.expression = "$feature.{}".format(soils_musym)
+                label_class.expression = f"$feature.{soils_musym}"
 
                 l_cim = new_layer.getDefinition('V3')
                 lc = l_cim.labelClasses[0]
@@ -246,9 +243,9 @@ class Process(object):
                 new_layer.setDefinition(l_cim)
 
                 # Get soils layer attribute table and export / extract needed fields for layout
-                table_path = "{}\\{}".format(arcpy.env.workspace, "{}_ExportTable".format(sanitize(new_layer_name)))
+                table_path = "{}\\{}".format(arcpy.env.workspace, f"{sanitize(new_layer_name)}_ExportTable")
                 arcpy.conversion.ExportTable(new_layer.name, table_path)
-                arcpy.management.DeleteField(table_path, ["{}".format(soils_musym), "Acres", "{}".format(soils_mukey)], "KEEP_FIELDS")
+                arcpy.management.DeleteField(table_path, [f"{soils_musym}", "Acres", f"{soils_mukey}"], "KEEP_FIELDS")
 
                 # Add soils table export to the given map
                 soils_table = arcpy.mp.Table(table_path)
@@ -273,13 +270,13 @@ class Process(object):
                 project.closeViews("LAYOUTS")
 
             # Reorder layers so soils layers are last
-            log("reordering layers for {}".format(parcel))
+            log(f"reordering layers for {parcel}")
             for soils_layer in soils_layers:
                 for use_layer in use_layers:
                     m.moveLayer(use_layer, soils_layer, "AFTER")
 
             # Remove unused layout tables
-            log("removing unused tables for {}".format(parcel))
+            log(f"removing unused tables for {parcel}")
             uses = {'Agland', 'Forest', 'NonAg'}
             for i in uses:
                 if i not in lyr_types:
@@ -289,7 +286,7 @@ class Process(object):
                         lyt.deleteElement(tbl_remove)
 
             # Display wanted legend items only
-            log("removing unused legend items for {}".format(parcel))
+            log(f"removing unused legend items for {parcel}")
             legend = lyt.listElements("LEGEND_ELEMENT")[0]
             legend_items = legend.items
             use_layer_names = [ i.name for i in use_layers ]
@@ -300,8 +297,8 @@ class Process(object):
                     item.visible = False
 
             # Populate soil group worksheet with values from tables
-            log("filling out {} soil group worksheet".format(parcel))
-            sgw_path = "{}\\{}.xlsx".format(output_folder, lyt.name)
+            log(f"filling out {parcel} soil group worksheet")
+            sgw_path = f"{output_folder}\\{lyt.name}.xlsx"
             sgw_path = pathlib.PureWindowsPath(sgw_path).as_posix()
             sgw_workbook = openpyxl.load_workbook(sgw_path)
             ws = sgw_workbook['SGW']
@@ -317,17 +314,17 @@ class Process(object):
 
                         if "agland" in table_name:
                             if idx < 24:
-                                soil_cell = 'A{}'.format(34 + idx)
-                                area_cell = 'H{}'.format(34 + idx)
-                                mukey_cell = 'F{}'.format(34 + idx)
+                                soil_cell = f'A{34 + idx}'
+                                area_cell = f'H{34 + idx}'
+                                mukey_cell = f'F{34 + idx}'
                                 ws[soil_cell] = musym
                                 ws[mukey_cell] = mukey
                                 ws[area_cell] = acres
                             else:
                                 # overflow
-                                soil_cell = 'N{}'.format(9 + idx)
-                                area_cell = 'U{}'.format(9 + idx)
-                                mukey_cell = 'S{}'.format(9 + idx)
+                                soil_cell = f'N{9 + idx}'
+                                area_cell = f'U{9 + idx}'
+                                mukey_cell = f'S{9 + idx}'
                                 ws[soil_cell] = musym
                                 ws[mukey_cell] = mukey
                                 ws[area_cell] = acres
@@ -352,5 +349,3 @@ class Process(object):
         log("saving project")
         project.save()
         del project
-
-        return

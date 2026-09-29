@@ -130,7 +130,6 @@ class RunoffCurveNumber:
             if parameters[4].message == warning_message:
               parameters[4].clearMessage()
 
-        return
 
     def updateParameters(self, parameters):
         # get soils field
@@ -175,7 +174,6 @@ class RunoffCurveNumber:
                 parameters[8].enabled = False
                 parameters[9].enabled = False
 
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -235,7 +233,7 @@ class RunoffCurveNumber:
         arcpy.management.CalculateField(
             in_table=output_fc,
             field="RCN",
-            expression="calculate_value(!{}!, !{}!,!{}!,!{}!,!{}!)".format(hsg_field, rcn_field_a,rcn_field_b,rcn_field_c,rcn_field_d),
+            expression=f"calculate_value(!{hsg_field}!, !{rcn_field_a}!,!{rcn_field_b}!,!{rcn_field_c}!,!{rcn_field_d}!)",
             expression_type="PYTHON3",
             code_block="""def calculate_value(hsg, rcna, rcnb, rcnc, rcnd):
                 if hsg == "A":
@@ -274,5 +272,3 @@ class RunoffCurveNumber:
         # save project
         log("saving project")
         project.save()
-
-        return

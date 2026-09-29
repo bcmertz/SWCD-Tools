@@ -134,12 +134,10 @@ class CalculateEFH2:
                 parameters[5].enabled = False
                 parameters[6].enabled = False
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -168,7 +166,7 @@ class CalculateEFH2:
         # create scratch layers
         log("creating scratch layers")
         scratch_watershed = arcpy.CreateScratchName("scratch_watershed", data_type="DEFeatureClass", workspace=arcpy.env.scratchGDB)
-        scratch_table =arcpy.CreateUniqueName("zonalstatistics_{}".format(watershed_layer_id))
+        scratch_table =arcpy.CreateUniqueName(f"zonalstatistics_{watershed_layer_id}")
 
         # dissolve RCN boundaries to find watershed boundary
         log("dissolve RCN boundaries")
@@ -217,7 +215,7 @@ class CalculateEFH2:
         # setup hydrology worksheet locations
         log("creating hydrology worksheet")
         hydrology_worksheet = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'Hydrology Data Form.xlsx')
-        output_worksheet_path = '{}\{}_hydrology.xlsx'.format(output_folder_path, watershed_layer_id)
+        output_worksheet_path = rf'{output_folder_path}\{watershed_layer_id}_hydrology.xlsx'
         output_worksheet_path = pathlib.PureWindowsPath(output_worksheet_path).as_posix()
 
         # fill out hydrology worksheet
@@ -264,5 +262,3 @@ class CalculateEFH2:
             # open hydrology worksheet folder
             log("opening hydrology worksheet folder")
             os.startfile(output_folder_path)
-
-        return

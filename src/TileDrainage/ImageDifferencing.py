@@ -46,7 +46,7 @@ landsat_qa_map = {
     56916: "Cirrus cloud or shadow",
 }
 
-class ImageDifferencing(object):
+class ImageDifferencing:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Image Differencing"
@@ -165,7 +165,6 @@ class ImageDifferencing(object):
                 parameters[8].enabled = False
                 parameters[8].value = None # clear its value so we don't overwrite existing features while disabled
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
@@ -173,7 +172,6 @@ class ImageDifferencing(object):
         set_required_parameter(parameters[7].value, parameters[8])
 
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -223,9 +221,9 @@ class ImageDifferencing(object):
         if len(land_use_values) != 0:
             for value in land_use_values:
                 if sql_query == "":
-                    sql_query = "{} = '{}'".format(land_use_field, value)
+                    sql_query = f"{land_use_field} = '{value}'"
                 else:
-                    sql_query += " Or {} = '{}'".format(land_use_field, value)
+                    sql_query += f" Or {land_use_field} = '{value}'"
         else:
             log("no valid land uses, please rerun")
             return
@@ -254,7 +252,7 @@ class ImageDifferencing(object):
                 #          LC08_L2SP_015030_20250812_20250821_02_T1_SR_B6.TIF
                 #
                 # get QA rasters for wet and dry
-                log("finding {} and dry Landsat QA PIXEL layers".format(prefix))
+                log(f"finding {prefix} and dry Landsat QA PIXEL layers")
                 qa_raster = arcpy.Raster(raster.catalogPath[:-9]+"QA_PIXEL.tif")
 
                 log("extracting non-land QA attributes")
@@ -262,17 +260,17 @@ class ImageDifferencing(object):
                 extract_qa = arcpy.sa.ExtractByAttributes(qa_raster, qa_query)
 
                 # converting output to polygon
-                log("converting {} cloud output to polygon".format(prefix))
+                log(f"converting {prefix} cloud output to polygon")
                 arcpy.conversion.RasterToPolygon(extract_qa, scratch, "SIMPLIFY")
 
                 # add description field
                 value_field = 'gridcode'
-                log("calculating {} cloud layer descriptions".format(prefix))
+                log(f"calculating {prefix} cloud layer descriptions")
                 arcpy.management.Dissolve(scratch, output, value_field)
                 arcpy.management.CalculateField(
                     in_table=output,
                     field="Description",
-                    expression="calculate_value(!{}!,{})".format(value_field, landsat_qa_map),
+                    expression=f"calculate_value(!{value_field}!,{landsat_qa_map})",
                     expression_type="PYTHON3",
                     code_block="""def calculate_value(gridcode, landsat_qa_map):
                     desc = landsat_qa_map.get(gridcode)
@@ -285,7 +283,7 @@ class ImageDifferencing(object):
                 )
 
                 # add to map
-                log("adding {} cloud and shadow layer to map and updating symbology".format(prefix))
+                log(f"adding {prefix} cloud and shadow layer to map and updating symbology")
                 output = active_map.addDataFromPath(output)
 
                 # update symbology

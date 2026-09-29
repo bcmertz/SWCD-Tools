@@ -15,7 +15,7 @@ from helpers.tool import license, reload_module
 from helpers.tool import setup_environment as setup
 
 
-class ExportLayouts(object):
+class ExportLayouts:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Export Layouts"
@@ -65,11 +65,9 @@ class ExportLayouts(object):
         # Export layouts
         for layout in project_layouts:
             if layout.name in layouts:
-                layout_file_path = "{}\{}.pdf".format(file_path, layout.name)
+                layout_file_path = rf"{file_path}\{layout.name}.pdf"
                 layout.exportToPDF(layout_file_path)
 
         if platform.system() == "Windows":
             # Open project folder
             os.startfile(file_path)
-
-        return

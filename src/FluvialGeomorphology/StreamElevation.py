@@ -128,7 +128,6 @@ class StreamElevation:
         # default point spacing
         if parameters[6].value is None:
             parameters[6].value = "50 FeetUS"
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -137,7 +136,6 @@ class StreamElevation:
     def updateMessages(self, parameters):
         "Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -280,5 +278,3 @@ class StreamElevation:
         # save and exit program successfully
         log("saving project")
         project.save()
-
-        return

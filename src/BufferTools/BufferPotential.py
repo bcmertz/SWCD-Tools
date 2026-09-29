@@ -157,12 +157,10 @@ class BufferPotential:
             else:
                 parameters[9].enabled = False
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -216,9 +214,9 @@ class BufferPotential:
         if len(land_use_values) != 0:
             for value in land_use_values:
                 if land_use_sql_query == "":
-                    land_use_sql_query = "{} = '{}'".format(land_use_field, value)
+                    land_use_sql_query = f"{land_use_field} = '{value}'"
                 else:
-                    land_use_sql_query += " Or {} = '{}'".format(land_use_field, value)
+                    land_use_sql_query += f" Or {land_use_field} = '{value}'"
             scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster_clip, land_use_sql_query)
         else:
             warn("no valid land uses found in area, please try again with land uses found in analysis area")
@@ -255,7 +253,7 @@ class BufferPotential:
         arcpy.management.CalculateGeometryAttributes(scratch_dissolve, geometry_property=[[str(min_area.unit), "AREA_GEODESIC"]], area_unit=min_area.unit.display())
 
         # drop acreage < threshold
-        sql_query = "{} >= {}".format(min_area.unit, min_area.area)
+        sql_query = f"{min_area.unit} >= {min_area.area}"
         arcpy.analysis.Select(scratch_dissolve, output_file, sql_query)
 
         # add output to map

@@ -22,7 +22,7 @@ from helpers.tool import license, reload_module
 from helpers.tool import setup_environment as setup
 
 
-class RemoveUnused(object):
+class RemoveUnused:
     project = arcpy.mp.ArcGISProject("Current")
 
     def __init__(self):
@@ -84,7 +84,6 @@ class RemoveUnused(object):
                 parameters[1].value = None
                 parameters[1].filter.list = []
 
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -93,7 +92,6 @@ class RemoveUnused(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -110,10 +108,8 @@ class RemoveUnused(object):
             try:
                 arcpy.management.Delete(fc)
             except Exception:
-                warn("Could not delete {}".format(fc))
+                warn(f"Could not delete {fc}")
 
         # save and exit program successfully
         log("saving project")
         project.save()
-
-        return

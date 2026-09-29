@@ -14,7 +14,7 @@ from helpers.tool import license, reload_module
 from helpers.tool import setup_environment as setup
 
 
-class GeocodeAddress(object):
+class GeocodeAddress:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Geocode Address (NY)"
@@ -75,12 +75,12 @@ class GeocodeAddress(object):
         log("geolocating addresses")
         points = {}
         for address in addresses:
-            geocoding_candidates = locator.geocode("{}".format(address), False)
+            geocoding_candidates = locator.geocode(f"{address}", False)
 
             out_loc = None
             if len(geocoding_candidates) == 0:
                 # return warning
-                warn("Warning: Couldn't find any matches for address '{}'".format(address))
+                warn(f"Warning: Couldn't find any matches for address '{address}'")
                 continue
             else:
                 out_loc = geocoding_candidates[0]
@@ -107,4 +107,3 @@ class GeocodeAddress(object):
         # save project
         log("saving project")
         project.save()
-        return
