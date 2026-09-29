@@ -109,7 +109,7 @@ class Process:
         return license()
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -142,7 +142,6 @@ class Process:
         log("iterating through parcels and processing")
         for parcel in parcels:
             # find map of parcel
-            m = None
             try:
                 m = project.listMaps(parcel)[0]
             except Exception:
@@ -153,7 +152,6 @@ class Process:
             m.clearSelection()
 
             # find layout
-            lyt = None
             try:
                 lyt = project.listLayouts(parcel)[0]
                 layouts.append(lyt)
@@ -171,9 +169,6 @@ class Process:
             lyrs = m.listLayers()
             lyr_types = set()
             for lyr in lyrs:
-                # Update symbology
-                lyr_type = ""
-
                 # find layer types
                 if "Agland" == lyr.name:
                     use_layers.append(lyr)

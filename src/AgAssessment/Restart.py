@@ -66,7 +66,7 @@ class Restart:
         return license()
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -83,7 +83,6 @@ class Restart:
         if maps_bool:
             # read in json
             log("reading in cache - cache will be deleted once maps and layouts are deleted")
-            cache = {}
             try:
                 with open(cache_file_path) as file:
                     cache = json.load(file)
@@ -96,7 +95,6 @@ class Restart:
             log("clearing out ag assessment maps and layouts")
             for parcel in parcels:
                 # find layout
-                lyt = None
                 try:
                     lyt = project.listLayouts(parcel)[0]
                 except Exception:
@@ -107,7 +105,6 @@ class Restart:
                 project.deleteItem(lyt)
 
                 # find map of parcel
-                m = None
                 try:
                     m = project.listMaps(parcel)[0]
                 except Exception:

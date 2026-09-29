@@ -62,7 +62,7 @@ class StreambankDetection:
         params = [param0, param1, param2, param3]
         return params
 
-    def updateParameters(self, parameters):
+    def updateParameters(self, _parameters):
         return
 
     def updateMessages(self, parameters):
@@ -74,7 +74,7 @@ class StreambankDetection:
         return license([EXTENSIONS.Spatial])
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")

@@ -42,7 +42,7 @@ class NonAg:
         validate(parameters)
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, _parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -66,7 +66,6 @@ class NonAg:
         log("iterating through maps and delineating nonag land")
         for parcel in parcels:
             # find map of parcel
-            m = None
             try:
                 m = project.listMaps(parcel)[0]
             except Exception:
@@ -74,7 +73,6 @@ class NonAg:
                 continue
 
             # get parcel layer or drop off of map
-            parcel_lyr = None
             try:
                 parcel_lyr = m.listLayers(f"*_{parcel}")[0]
             except Exception:

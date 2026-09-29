@@ -164,7 +164,7 @@ class BufferPotential:
         validate(parameters)
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -206,7 +206,6 @@ class BufferPotential:
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
-        scratch_land_use = None
         land_use_sql_query = ""
         existing_values = []
         with arcpy.da.SearchCursor(land_use_raster_clip, land_use_field) as cursor:

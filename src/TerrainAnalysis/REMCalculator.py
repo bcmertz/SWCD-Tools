@@ -57,7 +57,6 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
     log("adding elevation data to stream line points")
     arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem_raster_clip, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
 
-    idw_raster = None
     arcpy.env.cellSize = dem_raster_clip
     arcpy.env.extent = scratch_stream_buffer
     max_distance = (buffer_radius * 1.5).to_unit(active_map.mapUnits).length

@@ -48,11 +48,11 @@ class GeocodeAddress:
         params = [param0, param1]
         return params
 
-    def updateParameters(self, parameters):
+    def updateParameters(self, _parameters):
         return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # setup
         log("setting up project")
@@ -78,7 +78,6 @@ class GeocodeAddress:
         for address in addresses:
             geocoding_candidates = locator.geocode(f"{address}", False)
 
-            out_loc = None
             if len(geocoding_candidates) == 0:
                 # return warning
                 warn(f"Warning: Couldn't find any matches for address '{address}'")

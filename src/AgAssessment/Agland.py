@@ -43,7 +43,7 @@ class Agland:
         validate(parameters)
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, _parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -67,7 +67,6 @@ class Agland:
         log("iterating through parcels and delineated agland")
         for parcel in parcels:
             # find map of parcel
-            m = None
             try:
                 m = project.listMaps(parcel)[0]
             except Exception:
@@ -75,7 +74,6 @@ class Agland:
                 continue
 
             # get parcel layer or drop off of map
-            parcel_lyr = None
             try:
                 parcel_lyr = m.listLayers(f"*_{parcel}")[0]
             except Exception:
