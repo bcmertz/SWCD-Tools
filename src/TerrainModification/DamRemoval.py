@@ -8,12 +8,15 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
-
 from FluvialGeomorphology import transect_line
-from helpers import license, pixel_type, get_linear_unit, empty_workspace, reload_module, log, error, raster_and_layer,\
-    Distance, SPATIAL_UNITS, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from helpers.logging import error, log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.rasters import pixel_type
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import SPATIAL_UNITS, Distance, get_linear_unit
+
 
 class DamRemoval(object):
     def __init__(self):

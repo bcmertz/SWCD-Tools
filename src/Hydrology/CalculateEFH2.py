@@ -6,17 +6,26 @@
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
+import datetime
 import os
-import arcpy
 import pathlib
 import platform
-import openpyxl
-import datetime
 
-from helpers import license, get_oid, get_z_unit, get_linear_unit, empty_workspace, reload_module, log, \
-    raster_and_layer, SPATIAL_UNITS, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+import openpyxl
+
+import arcpy
+from helpers.layers import get_oid
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import (
+    SPATIAL_UNITS,
+    get_linear_unit,
+    get_z_unit,
+)
+
 
 class CalculateEFH2:
     def __init__(self):

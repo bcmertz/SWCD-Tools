@@ -8,10 +8,14 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+from helpers.layers import get_oid
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import Distance
 
-from helpers import license, empty_workspace, reload_module, log, get_oid, raster_and_layer, Distance, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
 def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffer_radius: Distance, sampling_interval: Distance, resolve: bool):
     # set analysis extent

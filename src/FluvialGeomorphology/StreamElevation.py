@@ -20,7 +20,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import Distance, SPATIAL_UNITS
+from helpers.units import SPATIAL_UNITS, Distance
 
 
 class StreamElevation:

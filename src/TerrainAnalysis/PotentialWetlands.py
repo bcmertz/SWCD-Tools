@@ -8,11 +8,14 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+from helpers.layers import get_oid
+from helpers.logging import log, warn
+from helpers.parameter import raster_and_layer, set_required_parameter
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import SPATIAL_UNITS, get_z_unit
 
-from helpers import license, get_oid, get_z_unit, empty_workspace, set_required_parameter, reload_module, \
-    log, warn, raster_and_layer, SPATIAL_UNITS, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
 class PotentialWetlands(object):
     def __init__(self):

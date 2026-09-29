@@ -15,7 +15,7 @@ import shutil
 import openpyxl
 
 import arcpy
-from helpers.logging import error, log, warn
+from helpers.logging import error, log
 from helpers.parameter import sanitize
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
