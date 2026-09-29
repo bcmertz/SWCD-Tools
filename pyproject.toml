@@ -35,7 +35,14 @@ python-version = "3.11"
 unresolved-import = "ignore"
 unresolved-attribute = "ignore"
 
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
+
 [tool.ruff.lint]
 ignore = [
-    "SIM208"
+    "SIM208",
 ]
