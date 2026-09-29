@@ -8,11 +8,15 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import SPATIAL_UNITS, Distance, get_z_unit
 
 from .TopographicPositionIndex import topographic_position_index
-from helpers import license, reload_module, log, get_z_unit, raster_and_layer, SPATIAL_UNITS, Distance, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+
 
 class LandscapePosition(object):
     def __init__(self):

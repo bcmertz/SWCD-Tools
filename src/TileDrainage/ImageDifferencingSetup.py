@@ -8,12 +8,15 @@
 # --------------------------------------------------------------------------------------------------
 
 import glob
-import arcpy
 from datetime import datetime, timedelta
 
-from helpers import license, reload_module, log, add_layer_to_group
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+import arcpy
+from helpers.layers import add_layer_to_group
+from helpers.logging import log
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import license, reload_module
+from helpers.tool import setup_environment as setup
+
 
 class ImageDifferencingSetup(object):
     def __init__(self):

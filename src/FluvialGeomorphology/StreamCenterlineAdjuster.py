@@ -7,12 +7,21 @@
 # --------------------------------------------------------------------------------
 
 import math
+
 import arcpy
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import (
+    EXTENSIONS,
+    license,
+    reload_module,
+)
+from helpers.tool import setup_environment as setup
+from helpers.units import Distance
 
 from .GenerateCrossSections import transect_line
-from helpers import license, reload_module, log, raster_and_layer, Distance, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+
 
 class LeastAction(object):
     def __init__(self):

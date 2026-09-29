@@ -12,11 +12,13 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import SPATIAL_UNITS, Distance, get_z_unit
 
-from helpers import license, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
-    SPATIAL_UNITS, Distance
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
 class LocalMinimums:
     def __init__(self):

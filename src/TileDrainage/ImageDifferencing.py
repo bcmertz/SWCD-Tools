@@ -8,10 +8,11 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
-
-from helpers import license, reload_module, log, set_required_parameter, empty_workspace, raster_and_layer, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from helpers.logging import log
+from helpers.parameter import raster_and_layer, set_required_parameter
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
 
 # Landsat 8-9 qa_pixel bands have a 16bit binary raster of values describing
 # the cloud coverage in a give 3x3 cell window.

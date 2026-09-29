@@ -8,10 +8,12 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, license, reload_module
+from helpers.tool import setup_environment as setup
 
-from helpers import license, reload_module, log, raster_and_layer, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
 def topographic_position_index(dem, neighborhood):
     """Calculate Topographic Position Index for a given DEM and neighborhood."""

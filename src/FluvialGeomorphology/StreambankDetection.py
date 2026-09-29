@@ -7,10 +7,14 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 import arcpy
+from helpers.layers import get_oid
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.rasters import min_cell_path
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
 
-from helpers import license, empty_workspace, get_oid, reload_module, log, min_cell_path, raster_and_layer, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
 class StreambankDetection:
     def __init__(self):
