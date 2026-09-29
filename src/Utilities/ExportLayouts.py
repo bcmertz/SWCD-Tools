@@ -7,11 +7,13 @@
 # --------------------------------------------------------------------------------
 
 import os
-import arcpy
 import platform
 
-from helpers import license, reload_module, log
-from helpers import setup_environment as setup
+import arcpy
+from helpers.logging import log
+from helpers.tool import license, reload_module
+from helpers.tool import setup_environment as setup
+
 
 class ExportLayouts(object):
     def __init__(self):

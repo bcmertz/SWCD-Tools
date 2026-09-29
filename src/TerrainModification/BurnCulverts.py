@@ -7,12 +7,17 @@
 # --------------------------------------------------------------------------------
 
 import os
-import arcpy
 
-from helpers import license, get_oid, pixel_type, empty_workspace, reload_module, log, raster_and_layer, \
-    Distance, SPATIAL_UNITS, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+import arcpy
+from helpers.layers import get_oid
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.rasters import pixel_type
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import SPATIAL_UNITS, Distance
+
 
 class BurnCulverts(object):
     def __init__(self):

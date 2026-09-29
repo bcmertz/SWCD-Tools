@@ -7,11 +7,14 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+from helpers.layers import get_oid
+from helpers.logging import log, warn
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import SPATIAL_UNITS, Area, get_z_unit
 
-from helpers import license, get_oid, get_z_unit, empty_workspace, reload_module, log, raster_and_layer, \
-    SPATIAL_UNITS, Area, warn, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
 class DecisionTree(object):
     def __init__(self):

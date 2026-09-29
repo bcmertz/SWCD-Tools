@@ -13,12 +13,14 @@
 #              with the original tool's CC-SA-NA license. See GPL/CC compatibility.
 # --------------------------------------------------------------------------------
 
-import arcpy
 import os
 
-from helpers import license, reload_module, log, warn
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+import arcpy
+from helpers.logging import log, warn
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import license, reload_module
+from helpers.tool import setup_environment as setup
+
 
 class RemoveUnused(object):
     project = arcpy.mp.ArcGISProject("Current")

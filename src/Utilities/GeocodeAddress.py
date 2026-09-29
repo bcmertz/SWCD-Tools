@@ -7,10 +7,12 @@
 # --------------------------------------------------------------------------------
 
 import os
-import arcpy
 
-from helpers import license, reload_module, log, warn
-from helpers import setup_environment as setup
+import arcpy
+from helpers.logging import log, warn
+from helpers.tool import license, reload_module
+from helpers.tool import setup_environment as setup
+
 
 class GeocodeAddress(object):
     def __init__(self):

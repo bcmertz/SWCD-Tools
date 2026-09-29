@@ -7,13 +7,20 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-import os
 import json
+import os
+
 import arcpy
+from helpers.logging import log, warn
+from helpers.tool import (
+    empty_workspace,
+    license,
+    reload_module,
+)
+from helpers.tool import setup_environment as setup
 
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
-from helpers import license, reload_module, log, warn, empty_workspace
-from helpers import setup_environment as setup
+
 
 class Restart(object):
     def __init__(self):
