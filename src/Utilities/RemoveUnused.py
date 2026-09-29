@@ -41,7 +41,8 @@ class RemoveUnused:
             datatype="DEWorkspace",
             multiValue="True",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
 
         # unused
         param1 = arcpy.Parameter(
@@ -50,7 +51,8 @@ class RemoveUnused:
             datatype="GPString",
             parameterType="Required",
             multiValue="True",
-            direction="Input")
+            direction="Input",
+        )
         param1.filter.type = "ValueList"
         param1.filter.list = []
 
@@ -68,7 +70,7 @@ class RemoveUnused:
                         if layer.supports("DATASOURCE"):
                             used.add(layer.dataSource)
                 options = set()
-                workspaces = parameters[0].valueAsText.replace("'","").split(";")
+                workspaces = parameters[0].valueAsText.replace("'", "").split(";")
                 for workspace in workspaces:
                     # get all filepaths from workspace
                     for dirpath, _, filenames in arcpy.da.Walk(workspace):
@@ -83,7 +85,6 @@ class RemoveUnused:
             else:
                 parameters[1].value = None
                 parameters[1].filter.list = []
-
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -101,7 +102,7 @@ class RemoveUnused:
         project, active_map = setup()
 
         # read in parameters
-        unused = parameters[1].valueAsText.replace("'","").split(";")
+        unused = parameters[1].valueAsText.replace("'", "").split(";")
 
         log("deleting unused data")
         for fc in unused:

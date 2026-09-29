@@ -218,10 +218,10 @@ class BaseAmount:
         self.base_unit = unit
 
     def __str__(self) -> str:
-        return "{} {}".format(self.amount, self.base_unit)
+        return f"{self.amount} {self.base_unit}"
 
     def __repr__(self) -> str:
-        return "{} {}".format(self.amount, self.base_unit)
+        return f"{self.amount} {self.base_unit}"
 
     def __mul__(self: Self, scalar: int | float) -> Self:
         # Multiply
@@ -291,7 +291,6 @@ class Distance(BaseAmount):
     @length.setter
     def length(self: Self, value: int | float) -> None:
         self.amount = value
-        return
 
     @property
     def unit(self) -> LINEAR_UNITS:
@@ -388,26 +387,30 @@ class Area(BaseAmount):
             super().__init__(amount=float(area), unit=AREAL_UNITS(unit))
         else:
             super().__init__(amount=float(area), unit=AREAL_UNITS[unit])
+
     @property
     def area(self) -> int | float:
         return self.amount
+
     @area.setter
     def area(self: Self, value: int | float) -> None:
         self.amount = value
-        return
+
     @property
     def unit(self) -> AREAL_UNITS:
         return AREAL_UNITS(self.base_unit)
+
     @unit.setter
     def unit(self: Self, unit: AREAL_UNITS) -> None:
         self.base_unit = unit
-        return
+
     def to_unit(self: Self, output_unit: AREAL_UNITS) -> Self:
         """Convert Distance to output_unit factoring in area size."""
         out = copy(self)
         out.area = self.area * arcpy.ArealUnitConversionFactor(str(self.unit), str(output_unit))
         out.unit = output_unit
         return out
+
     def __eq__(self: Self, other) -> bool:
         # Equals
         if not isinstance(other, Area):
@@ -415,30 +418,37 @@ class Area(BaseAmount):
         else:
             other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
             return self.area == other_area
+
     def __ne__(self: Self, other) -> bool:
         # Not equals
         return not self.__eq__(other)
+
     def __lt__(self: Self, other: Self) -> bool:
         # Less than
         other_area = other.length * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
         return self.length < other_area
+
     def __gt__(self: Self, other: Self) -> bool:
         # Greater than
         other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
         return self.area > other_area
+
     def __le__(self: Self, other: Self) -> bool:
         # Less or equal
         other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
         return self.area <= other_area
+
     def __ge__(self: Self, other: Self) -> bool:
         # Greater or equal
         other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
         return self.area >= other_area
+
     def __add__(self: Self, other: Self) -> Self:
         other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
         out = copy(self)
         out.area += other_area
         return out
+
     def __sub__(self: Self, other: Self) -> Self:
         other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
         out = copy(self)
