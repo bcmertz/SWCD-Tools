@@ -7,12 +7,15 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
-
+from helpers.features import is_empty
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance, get_z_unit
 from TerrainAnalysis import relative_elevation_model
-from helpers import license, reload_module, log, empty_workspace, get_z_unit, is_empty, raster_and_layer, \
-    SPATIAL_UNITS, AREAL_UNITS, Area, Distance, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+
 
 class VBET(object):
     def __init__(self):

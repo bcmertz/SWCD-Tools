@@ -6,15 +6,24 @@
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
-
 import arcpy
+from helpers.features import is_empty
+from helpers.layers import get_oid
+from helpers.logging import error, log
+from helpers.parameter import raster_and_layer, set_required_parameter
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.rasters import cell_area
+from helpers.tool import (
+    EXTENSIONS,
+    empty_workspace,
+    license,
+    reload_module,
+)
+from helpers.tool import setup_environment as setup
+from helpers.units import AREAL_UNITS, Area, Distance
 
-from helpers import license, get_oid, empty_workspace, cell_area, reload_module, log,\
-    error, set_required_parameter, raster_and_layer, is_empty, AREAL_UNITS, Area, Distance, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
-class StreamNetwork(object):
+class StreamNetwork:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Calculate Stream Network"

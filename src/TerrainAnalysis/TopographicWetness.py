@@ -7,11 +7,15 @@
 # --------------------------------------------------------------------------------
 
 import math
-import arcpy
 
-from helpers import license, get_z_unit, reload_module, log, raster_and_layer, SPATIAL_UNITS, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+import arcpy
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import EXTENSIONS, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import SPATIAL_UNITS, get_z_unit
+
 
 class TopographicWetness(object):
     def __init__(self):

@@ -8,10 +8,14 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+from helpers.logging import log, warn
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.rasters import cells_per_area
+from helpers.tool import EXTENSIONS, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import Area
 
-from helpers import license, cells_per_area, reload_module, log, warn, raster_and_layer, Area, EXTENSIONS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
 
 class SubBasinDelineation(object):
     def __init__(self):

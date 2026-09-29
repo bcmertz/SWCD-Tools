@@ -6,13 +6,16 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-import os
 import math
-import arcpy
+import os
 
-from helpers import license, reload_module, log, empty_workspace, Distance, LINEAR_UNITS, SPATIAL_UNITS
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+import arcpy
+from helpers.logging import log
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
+from helpers.units import LINEAR_UNITS, SPATIAL_UNITS, Distance
+
 
 def generate_transects(line, interval: Distance, width: Distance):
     """ Generate transects of length WIDTH along a LINE at a given INTERVAL.

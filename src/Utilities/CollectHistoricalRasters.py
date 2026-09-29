@@ -7,9 +7,10 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+from helpers.logging import log
+from helpers.tool import EXTENSIONS, license, reload_module
+from helpers.tool import setup_environment as setup
 
-from helpers import license, reload_module, log, EXTENSIONS
-from helpers import setup_environment as setup
 
 class CollectRasters:
     def __init__(self):
