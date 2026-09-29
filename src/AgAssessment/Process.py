@@ -46,7 +46,8 @@ class Process:
             name="soils_musym_field",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param1.filter.type = "ValueList"
         param1.filter.list = []
 
@@ -55,7 +56,8 @@ class Process:
             name="soils_mukey_field",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param2.filter.type = "ValueList"
         param2.filter.list = []
 
@@ -93,7 +95,6 @@ class Process:
                         parameters[0].value = lyr.longName
                         self.set_dependent_layers(parameters)
                         break
-
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
@@ -194,7 +195,7 @@ class Process:
 
                 # Dissolve duplicate MUSYMs
                 dissolve_layer_path = f"{arcpy.env.workspace}\\{sanitize(new_layer_name)}_soils_dissolved"
-                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym,soils_mukey])
+                arcpy.management.Dissolve(new_layer_path, dissolve_layer_path, [soils_musym, soils_mukey])
 
                 # Add to map
                 new_layer = m.addDataFromPath(dissolve_layer_path)

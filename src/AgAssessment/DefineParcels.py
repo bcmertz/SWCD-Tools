@@ -41,7 +41,8 @@ class DefineParcels:
             name="parcels",
             datatype="GPFeatureLayer",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param0.filter.list = ["Polygon"]
 
         param1 = arcpy.Parameter(
@@ -49,7 +50,8 @@ class DefineParcels:
             name="parcel_id_field",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param1.filter.type = "ValueList"
         param1.filter.list = []
 
@@ -58,7 +60,8 @@ class DefineParcels:
             name="swis_field",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param2.filter.type = "ValueList"
         param2.filter.list = []
 
@@ -67,7 +70,8 @@ class DefineParcels:
             name="municipality_field",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param3.filter.type = "ValueList"
         param3.filter.list = []
 
@@ -76,7 +80,8 @@ class DefineParcels:
             name="address_field",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param4.filter.type = "ValueList"
         param4.filter.list = []
 
@@ -85,7 +90,8 @@ class DefineParcels:
             name="ag_dist_field",
             datatype="GPString",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+        )
         param5.filter.type = "ValueList"
         param5.filter.list = []
 

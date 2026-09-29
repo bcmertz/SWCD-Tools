@@ -97,8 +97,8 @@ class Forest:
 
             # update symbology
             sym = lyr.symbology
-            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
-            sym.renderer.symbol.outlineColor = {'RGB' : [85, 255, 0, 100]}
+            sym.renderer.symbol.color = {"RGB": [0, 0, 0, 0]}
+            sym.renderer.symbol.outlineColor = {"RGB": [85, 255, 0, 100]}
             sym.renderer.symbol.size = 3
             lyr.symbology = sym
 

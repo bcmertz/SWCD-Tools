@@ -22,12 +22,12 @@
 #              Full license in LICENSE file.
 # -----------------------------------------------------------------------------------------
 
-import arcpy
 from copy import copy
-from typing import Self
-from functools import singledispatchmethod
 from enum import StrEnum
+from functools import singledispatchmethod
+from typing import Self
 
+import arcpy
 
 # mapping of GPLinearUnit to GPArealUnit (square units)
 # not all units have a mapping
@@ -84,18 +84,25 @@ class UNITS(StrEnum):
             if (member.value == value) | (member.name == value):
                 return member
         return None
+
     def __eq__(self, other):
         return (self.name == other) | (self.value == other)
+
     def __ne__(self, other):
         return not self.__eq__(other)
+
     def __str__(self):
         return self.name
+
     def __repr__(self):
         return self.name
+
     def __iter__(self):
         return [i.name for i in LINEAR_UNITS]
+
     def display(self):
         return self.value
+
 
 # inferred from https://developers.arcgis.com/rest/services-reference/enterprise/gp-data-types/#gplinearunit
 # but accuracy is unclear since they only give "esriFeet" and other placeholders
@@ -122,11 +129,12 @@ class LINEAR_UNITS(UNITS):
     Points = "Points"
     DecimalDegrees = "Decimal Degrees"
 
-    def to_areal(self) -> 'AREAL_UNITS':
+    def to_areal(self) -> "AREAL_UNITS":
         return AREAL_UNITS[LINEAR_TO_AREAL[self.name]]
 
-    def to_spatial(self) -> 'SPATIAL_UNITS':
+    def to_spatial(self) -> "SPATIAL_UNITS":
         return SPATIAL_UNITS[SPATIAL_TO_LINEAR[self.name]]
+
 
 # https://developers.arcgis.com/rest/services-reference/enterprise/gp-data-types/#gparealunit
 #
@@ -172,7 +180,6 @@ class SPATIAL_UNITS(UNITS):
         return LINEAR_UNITS[SPATIAL_TO_LINEAR[self.name]]
 
 
-
 def get_z_unit(fc) -> SPATIAL_UNITS | None:
     """Get z unit from spatial reference."""
     # find z unit of spatial reference vertical coordinate system
@@ -209,30 +216,37 @@ class BaseAmount:
     def __init__(self: Self, amount: float | int, unit: LINEAR_UNITS | AREAL_UNITS):
         self.amount = amount
         self.base_unit = unit
+
     def __str__(self) -> str:
         return "{} {}".format(self.amount, self.base_unit)
+
     def __repr__(self) -> str:
         return "{} {}".format(self.amount, self.base_unit)
+
     def __mul__(self: Self, scalar: int | float) -> Self:
         # Multiply
         out = copy(self)
         out.amount *= scalar
         return out
+
     def __truediv__(self: Self, divisor: int | float) -> Self:
         # Divide
         out = copy(self)
         out.amount /= divisor
         return out
+
     def __mod__(self: Self, divisor: int | float) -> Self:
         # Modulo
         out = copy(self)
         out.amount %= divisor
         return out
+
     def __floordiv__(self: Self, divisor: int | float) -> Self:
         # Integer division
         out = copy(self)
         out.amount = out.amount // divisor
         return out
+
 
 class Distance(BaseAmount):
     # this project's type checker ty doesn't support singledispatchmethod yet :/
@@ -248,7 +262,10 @@ class Distance(BaseAmount):
            - Distance("4 Feet")
            - Distance("5 International Feet")
         """
-        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: str | LINEAR_UNITS. Received {}".format(input))
+        raise TypeError(
+            f"Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: str | LINEAR_UNITS. Received {input}"
+        )
+
     @__init__.register
     def _(self, length: int | float, unit: str | LINEAR_UNITS):
         unit, *rest = unit.split(" ")
@@ -257,6 +274,7 @@ class Distance(BaseAmount):
             super().__init__(amount=length, unit=LINEAR_UNITS(unit))
         else:
             super().__init__(amount=length, unit=LINEAR_UNITS[unit])
+
     @__init__.register
     def _(self, quantity: str):
         length, unit, *rest = quantity.split(" ")
@@ -265,26 +283,31 @@ class Distance(BaseAmount):
             super().__init__(amount=float(length), unit=LINEAR_UNITS(unit))
         else:
             super().__init__(amount=float(length), unit=LINEAR_UNITS[unit])
+
     @property
     def length(self) -> int | float:
         return self.amount
+
     @length.setter
     def length(self: Self, value: int | float) -> None:
         self.amount = value
         return
+
     @property
     def unit(self) -> LINEAR_UNITS:
         return LINEAR_UNITS(self.base_unit)
+
     @unit.setter
     def unit(self: Self, unit: LINEAR_UNITS) -> None:
         self.base_unit = unit
-        return
+
     def to_unit(self: Self, output_unit: LINEAR_UNITS) -> Self:
         """Convert Distance to output_unit factoring in length size."""
         out = copy(self)
         out.length = self.length * arcpy.LinearUnitConversionFactor(str(self.unit), str(output_unit))
         out.unit = output_unit
         return out
+
     def __eq__(self: Self, other) -> bool:
         # Equals
         if not isinstance(other, Distance):
@@ -292,35 +315,43 @@ class Distance(BaseAmount):
         else:
             other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
             return self.length == other_length
+
     def __ne__(self: Self, other) -> bool:
         # Not equals
         return not self.__eq__(other)
+
     def __lt__(self: Self, other: Self) -> bool:
         # Less than
         other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
         return self.length < other_length
+
     def __gt__(self: Self, other: Self) -> bool:
         # Greater than
         other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
         return self.length > other_length
+
     def __le__(self: Self, other: Self) -> bool:
         # Less or equal
         other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
         return self.length <= other_length
+
     def __ge__(self: Self, other: Self) -> bool:
         # Greater or equal
         other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
         return self.length >= other_length
+
     def __add__(self: Self, other: Self) -> Self:
         other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
         out = copy(self)
         out.length += other_length
         return out
+
     def __sub__(self: Self, other: Self) -> Self:
         other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
         out = copy(self)
         out.length -= other_length
         return out
+
 
 class Area(BaseAmount):
     # this project's type checker ty doesn't support singledispatchmethod yet :/
@@ -336,7 +367,10 @@ class Area(BaseAmount):
            - Area("4 Acres")
            - Area("5 International Acres")
         """
-        raise TypeError("Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: str | AREAL_UNITS. Received {}".format(input))
+        raise TypeError(
+            f"Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: str | AREAL_UNITS. Received {input}"
+        )
+
     @__init__.register
     def _(self, area: int | float, unit: str | AREAL_UNITS):
         unit, *rest = unit.split(" ")
@@ -345,6 +379,7 @@ class Area(BaseAmount):
             super().__init__(amount=area, unit=AREAL_UNITS(unit))
         else:
             super().__init__(amount=area, unit=AREAL_UNITS[unit])
+
     @__init__.register
     def _(self, quantity: str):
         area, unit, *rest = quantity.split(" ")

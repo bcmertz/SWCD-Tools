@@ -98,8 +98,8 @@ class NonAg:
 
             # update symbology
             sym = lyr.symbology
-            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
-            sym.renderer.symbol.outlineColor = {'RGB' : [0, 112, 255, 100]}
+            sym.renderer.symbol.color = {"RGB": [0, 0, 0, 0]}
+            sym.renderer.symbol.outlineColor = {"RGB": [0, 112, 255, 100]}
             sym.renderer.symbol.size = 3
             lyr.symbology = sym
 
