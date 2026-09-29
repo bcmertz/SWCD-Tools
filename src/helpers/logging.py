@@ -15,7 +15,6 @@ def log(*args):
     for arg in args:
         out_str += str(arg) + " "
     arcpy.AddMessage(out_str + "\n")  # and newline and print
-    return
 
 
 def warn(*args):
@@ -24,7 +23,6 @@ def warn(*args):
     for arg in args:
         out_str += str(arg) + " "
     arcpy.AddWarning(out_str + "\n")  # and newline and print
-    return
 
 
 def error(*args):
@@ -33,4 +31,3 @@ def error(*args):
     for arg in args:
         out_str += str(arg) + " "
     arcpy.AddError(out_str + "\n")  # and newline and print
-    return
