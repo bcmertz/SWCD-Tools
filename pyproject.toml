@@ -45,3 +45,5 @@ ignore = [
     "E501",
     "RUF015",
 ]
+
+extend-select = ["ARG"]
