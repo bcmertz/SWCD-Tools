@@ -256,14 +256,13 @@ class RunoffCurveNumber:
         log("setting runoff layer symbology")
         if lyr.isFeatureLayer:
             sym = lyr.symbology
-            if hasattr(sym, 'renderer'):
-              if sym.renderer.type == 'SimpleRenderer':
-                sym.updateRenderer('GraduatedColorsRenderer')
-                sym.renderer.breakCount = 5
-                sym.renderer.classificationMethod = 'NaturalBreaks'
-                sym.renderer.classificationField = 'RCN'
-                sym.renderer.colorRamp = project.listColorRamps('Orange-Red (5 Classes)')[0]
-                lyr.symbology = sym
+            if hasattr(sym, 'renderer') and sym.renderer.type == 'SimpleRenderer':
+              sym.updateRenderer('GraduatedColorsRenderer')
+              sym.renderer.breakCount = 5
+              sym.renderer.classificationMethod = 'NaturalBreaks'
+              sym.renderer.classificationField = 'RCN'
+              sym.renderer.colorRamp = project.listColorRamps('Orange-Red (5 Classes)')[0]
+              lyr.symbology = sym
 
         # cleanup
         log("deleting unneeded data")

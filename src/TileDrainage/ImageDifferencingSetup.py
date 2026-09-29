@@ -142,7 +142,7 @@ class ImageDifferencingSetup:
 
         # find SWIR image collection paths and dates
         log("collecting SWIR rasters and calculating precipitation stats")
-        swir_data = dict()
+        swir_data = {}
         for i in swir_files:
             path = i.split("_")[-7]
             date = i.split("_")[-6]

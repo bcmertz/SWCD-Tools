@@ -132,9 +132,9 @@ class PointPlots:
             log("Buffer less than 0.5 acres, please assess 100% of the buffer without point plots")
         else:
             if acreage >= 0.5 and acreage < 3:
-                num = int(math.ceil(acreage * 2))
+                num = math.ceil(acreage * 2)
             elif acreage >= 3:
-                num = int(math.ceil(acreage * 1))
+                num = math.ceil(acreage * 1)
 
             try:
                 # create buffer inside the planting area
@@ -149,7 +149,7 @@ class PointPlots:
                 warn(f"Failed to create {num} point plots with a radius of {radius} feet. It is likely because the buffer is too narrow to fit all of the point plots.")
 
                 radius = 11.8
-                num = int(math.ceil(acreage * 10))
+                num = math.ceil(acreage * 10)
 
                 log(f"Trying again to make {num} point plots with a radius of {radius} feet.")
 

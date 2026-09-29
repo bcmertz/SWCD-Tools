@@ -41,7 +41,7 @@ class CollectRasters:
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, orig_map = setup()
+        _project, orig_map = setup()
 
         # reading in parameters
         extent = parameters[0].value

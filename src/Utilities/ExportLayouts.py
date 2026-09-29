@@ -56,7 +56,7 @@ class ExportLayouts:
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
 
         file_path = parameters[1].valueAsText
         layouts = parameters[0].valueAsText.replace("'", "").split(";")

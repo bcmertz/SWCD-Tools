@@ -43,7 +43,7 @@ class Export:
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
         project_dir = project.homeFolder
         cache_file_path = f"{project_dir}/.ag_cache.json"
 

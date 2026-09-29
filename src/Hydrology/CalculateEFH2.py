@@ -148,7 +148,7 @@ class CalculateEFH2:
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
 
         # read in parameters
         log("reading in parameters")

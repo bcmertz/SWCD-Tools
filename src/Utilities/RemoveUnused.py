@@ -99,7 +99,7 @@ class RemoveUnused:
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
 
         # read in parameters
         unused = parameters[1].valueAsText.replace("'", "").split(";")

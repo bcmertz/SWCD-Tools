@@ -189,7 +189,7 @@ class PotentialWetlands:
                     for row in cursor:
                         if row[0] is not None:
                             values.add(row[0])
-                values = sorted(list(values))
+                values = sorted(values)
                 parameters[9].filter.list = values
             else:
                 parameters[9].enabled = False
