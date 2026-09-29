@@ -9,9 +9,9 @@
 import json
 import pathlib
 
+import arcpy
 import openpyxl
 
-import arcpy
 from helpers.logging import error, log, warn
 from helpers.parameter import sanitize, set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate

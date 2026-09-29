@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.layers import get_oid
 from helpers.logging import log, warn
 from helpers.parameter import raster_and_layer, set_required_parameter

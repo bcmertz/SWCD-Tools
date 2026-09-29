@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from FluvialGeomorphology import transect_line
 from helpers.logging import error, log
 from helpers.parameter import raster_and_layer

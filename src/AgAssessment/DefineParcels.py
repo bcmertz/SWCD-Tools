@@ -12,9 +12,9 @@ import pathlib
 import platform
 import shutil
 
+import arcpy
 import openpyxl
 
-import arcpy
 from helpers.logging import error, log
 from helpers.parameter import sanitize
 from helpers.parameter import validate_spatial_reference as validate

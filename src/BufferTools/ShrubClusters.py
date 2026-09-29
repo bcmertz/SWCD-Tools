@@ -10,6 +10,7 @@
 import math
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
