@@ -7,6 +7,7 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.features import is_empty
 from helpers.logging import log
 from helpers.parameter import raster_and_layer

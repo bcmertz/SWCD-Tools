@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer, set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate

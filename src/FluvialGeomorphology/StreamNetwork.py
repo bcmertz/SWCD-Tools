@@ -7,6 +7,7 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 import arcpy
+
 from helpers.features import is_empty
 from helpers.layers import get_oid
 from helpers.logging import error, log

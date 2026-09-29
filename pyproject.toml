@@ -4,7 +4,6 @@ version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "arcpy>=3.3",
     "numpy>=1.24.3",
     "openpyxl>=3.0.10",
     "packaging>=23.2",
@@ -39,6 +38,7 @@ possibly-missing-submodule = "ignore"
 
 [tool.ruff]
 line-length = 100
+src = ["src"]
 
 [tool.ruff.format]
 indent-style = "space"

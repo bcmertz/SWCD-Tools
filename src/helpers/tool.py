@@ -13,9 +13,8 @@ from enum import StrEnum
 from functools import wraps
 from importlib import import_module
 
-from packaging.version import Version
-
 import arcpy
+from packaging.version import Version
 
 
 # from https://doc.esri.com/en/arcgis-pro/latest/arcpy/functions/checkextension.html
