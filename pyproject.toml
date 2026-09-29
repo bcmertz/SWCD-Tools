@@ -35,6 +35,7 @@ python-version = "3.11" # target 3.11 for arcpy >=3.3 compatibility
 [tool.ty.rules]
 unresolved-import = "ignore"
 unresolved-attribute = "ignore"
+possibly-missing-submodule = "ignore"
 
 [tool.ruff]
 line-length = 100
