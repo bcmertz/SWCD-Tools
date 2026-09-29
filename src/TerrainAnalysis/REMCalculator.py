@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.layers import get_oid
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
@@ -56,7 +57,6 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
     log("adding elevation data to stream line points")
     arcpy.sa.ExtractValuesToPoints(scratch_stream_points, dem_raster_clip, scratch_stream_elev_points, "NONE", "VALUE_ONLY")
 
-    idw_raster = None
     arcpy.env.cellSize = dem_raster_clip
     arcpy.env.extent = scratch_stream_buffer
     max_distance = (buffer_radius * 1.5).to_unit(active_map.mapUnits).length
@@ -109,7 +109,7 @@ def relative_elevation_model(active_map, dem_raster, extent, stream_layer, buffe
     return rem
 
 
-class RelativeElevationModel(object):
+class RelativeElevationModel:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Relative Elevation Model (REM)"
@@ -178,7 +178,6 @@ class RelativeElevationModel(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -191,7 +190,6 @@ class RelativeElevationModel(object):
         # default simpling interval
         if parameters[5].value is None:
             parameters[5].value = "25 Feet"
-        return
 
     @reload_module(__name__)
     def execute(self, parameters, messages):
@@ -236,8 +234,8 @@ class RelativeElevationModel(object):
                 sym.updateColorizer("RasterStretchColorizer")
             sym.colorizer.stretchType = "MinimumMaximum"
             sym.colorizer.colorRamp = project.listColorRamps('Spectrum By Wavelength-Full Bright')[0]
-            sym.colorizer.minLabel = "{}".format(min_value)
-            sym.colorizer.maxLabel = "{}".format(max_value)
+            sym.colorizer.minLabel = f"{min_value}"
+            sym.colorizer.maxLabel = f"{max_value}"
             rem_raster.symbology = sym
         cim_layer = rem_raster.getDefinition("V3")
         cim_layer.colorizer.statsType = 'GlobalStats'
@@ -255,5 +253,3 @@ class RelativeElevationModel(object):
         # save project
         log("saving project")
         project.save()
-
-        return

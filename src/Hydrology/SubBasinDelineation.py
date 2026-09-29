@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log, warn
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -17,7 +18,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import Area
 
 
-class SubBasinDelineation(object):
+class SubBasinDelineation:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Sub-Basin Delineation"
@@ -55,19 +56,17 @@ class SubBasinDelineation(object):
         # Default stream threshold value
         if parameters[2].value is None:
             parameters[2].value = "8 AcresUS"
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([EXTENSIONS.Spatial])
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -105,7 +104,7 @@ class SubBasinDelineation(object):
 
         # con
         log("converting raster to stream network")
-        sql_query = "VALUE > {}".format(num_cells)
+        sql_query = f"VALUE > {num_cells}"
         con_accumulation_scratch = arcpy.sa.Con(flow_accumulation_scratch, 1, "", sql_query)
 
         # stream link
@@ -118,7 +117,7 @@ class SubBasinDelineation(object):
 
         # stream to feature
         log("creating stream feature")
-        stream_feature_path = "{}\\stream_to_feature".format(arcpy.env.workspace)
+        stream_feature_path = f"{arcpy.env.workspace}\\stream_to_feature"
         stream_feature = arcpy.sa.StreamToFeature(con_accumulation_scratch, flow_direction_scratch, stream_feature_path, True)
         stream_feature = active_map.addDataFromPath(stream_feature)
         sym = stream_feature.symbology
@@ -129,7 +128,7 @@ class SubBasinDelineation(object):
 
         # watershed raster to polyon
         log("converting watershed to polygon")
-        watershed_polygon_path = "{}\\watershed_polygon".format(arcpy.env.workspace)
+        watershed_polygon_path = f"{arcpy.env.workspace}\\watershed_polygon"
         watershed_polygon = arcpy.conversion.RasterToPolygon(watershed, watershed_polygon_path, create_multipart_features=True)
         watershed_polygon = active_map.addDataFromPath(watershed_polygon)
         sym = watershed_polygon.symbology
@@ -141,5 +140,3 @@ class SubBasinDelineation(object):
         # save and exit program successfully
         log("saving project")
         project.save()
-
-        return

@@ -10,6 +10,7 @@
 import json
 
 import arcpy
+
 from helpers.logging import error, log, warn
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
@@ -21,7 +22,7 @@ from helpers.tool import setup_environment as setup
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
 
 
-class Agland(object):
+class Agland:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "2a. Delineate Agland"
@@ -40,21 +41,20 @@ class Agland(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, _parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
         project_dir = project.homeFolder
-        cache_file_path = "{}/.ag_cache.json".format(project_dir)
+        cache_file_path = f"{project_dir}/.ag_cache.json"
 
         # check for geodatabase and set it as workspace
-        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        db_path = f"{project.homeFolder}\\{AG_ASSESSMENT_GDB_NAME}.gdb"
         if not arcpy.Exists(db_path):
-            error("Ag assessment geodatase {} does not exist. Please start over with step 1.".format(db_path))
+            error(f"Ag assessment geodatase {db_path} does not exist. Please start over with step 1.")
         arcpy.env.workspace = db_path
 
         # read in json
@@ -67,19 +67,17 @@ class Agland(object):
         log("iterating through parcels and delineated agland")
         for parcel in parcels:
             # find map of parcel
-            m = None
             try:
                 m = project.listMaps(parcel)[0]
             except Exception:
-                warn("unable to find map for {}, results may be incomplete".format(parcel))
+                warn(f"unable to find map for {parcel}, results may be incomplete")
                 continue
 
             # get parcel layer or drop off of map
-            parcel_lyr = None
             try:
-                parcel_lyr = m.listLayers("*_{}".format(parcel))[0]
+                parcel_lyr = m.listLayers(f"*_{parcel}")[0]
             except Exception:
-                warn("no appropriate parcel layer found for {}, results may be incomplete".format(parcel))
+                warn(f"no appropriate parcel layer found for {parcel}, results may be incomplete")
                 continue
 
             # check how many pieces are selected
@@ -90,7 +88,7 @@ class Agland(object):
             # construct layer name and path
             parcel_lyr_path = parcel_lyr.dataSource
             layer_name = "Agland"
-            layer_path = "{}_Agland".format(parcel_lyr_path)
+            layer_path = f"{parcel_lyr_path}_Agland"
 
             # export shape to new feature class
             arcpy.conversion.ExportFeatures(parcel_lyr, layer_path)
@@ -99,8 +97,8 @@ class Agland(object):
 
             # update symbology
             sym = lyr.symbology
-            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
-            sym.renderer.symbol.outlineColor = {'RGB' : [255, 0, 0, 100]}
+            sym.renderer.symbol.color = {"RGB": [0, 0, 0, 0]}
+            sym.renderer.symbol.outlineColor = {"RGB": [255, 0, 0, 100]}
             sym.renderer.symbol.size = 3
             lyr.symbology = sym
 
@@ -111,4 +109,3 @@ class Agland(object):
         log("cleaning up")
         project.save()
         del project
-        return

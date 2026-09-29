@@ -9,6 +9,7 @@
 import os
 
 import arcpy
+
 from helpers.layers import get_oid
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
@@ -19,7 +20,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import SPATIAL_UNITS, Distance
 
 
-class BurnCulverts(object):
+class BurnCulverts:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Burn Culverts into DEM"
@@ -91,10 +92,9 @@ class BurnCulverts(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -134,7 +134,7 @@ class BurnCulverts(object):
         # nearby culverts that are part of the same filled area.
         # example: lower road upstream of high elevation road will fill incorrectly
         log("buffering culverts")
-        arcpy.analysis.PairwiseBuffer(culverts, scratch_culvert_buffer, "{} {}".format(distance/2, linear_unit))
+        arcpy.analysis.PairwiseBuffer(culverts, scratch_culvert_buffer, f"{distance/2} {linear_unit}")
 
         # find high flow accumulations entering buffer
         log("finding point upstream of culvert")
@@ -258,5 +258,3 @@ class BurnCulverts(object):
         # save and exit program successfully
         log("saving project")
         project.save()
-
-        return

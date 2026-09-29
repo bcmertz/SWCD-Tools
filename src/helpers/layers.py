@@ -8,9 +8,11 @@
 
 import arcpy
 
+
 def get_oid(layer):
     """Return the object ID of a given layer."""
     return arcpy.Describe(layer).OIDFieldName
+
 
 def add_layer_to_group(active_map, group, layer, hide=False):
     """Add layer to group, remove old layer, return new layer."""

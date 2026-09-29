@@ -7,6 +7,7 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 import arcpy
+
 from helpers.features import is_empty
 from helpers.layers import get_oid
 from helpers.logging import error, log
@@ -157,7 +158,6 @@ class StreamNetwork:
                 parameters[7].enabled = False
                 parameters[7].value = None
 
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -176,10 +176,9 @@ class StreamNetwork:
         # toggle watershed size unit
         set_required_parameter(parameters[6].value, parameters[7])
 
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -296,7 +295,7 @@ class StreamNetwork:
 
             # con
             log("applying watershed size threshold")
-            sql_query = "VALUE > {}".format(threshold.area)
+            sql_query = f"VALUE > {threshold.area}"
             con_accumulation = arcpy.sa.Con(watershed_size, 1, "", sql_query)
 
             # stream to feature
@@ -337,7 +336,7 @@ class StreamNetwork:
                     field_name = field.name
             with arcpy.da.SearchCursor(scratch_max, field_name) as cursor:
                 unique_vals = sorted({row[0] for row in cursor})
-            sql_query = ' Or '.join("Value = {}".format(str(v)) for v in unique_vals)
+            sql_query = ' Or '.join(f"Value = {v!s}" for v in unique_vals)
             watershed_size = arcpy.sa.SetNull(watershed_size, watershed_size, where_clause=sql_query)
 
             # set max values to null and recalculate max values for output
@@ -368,7 +367,7 @@ class StreamNetwork:
                 in_table=output_file,
                 field=field_name,
                 new_field_name="watershed",
-                new_field_alias="Max Total Drainage Area ({})".format(watershed_size_unit),
+                new_field_alias=f"Max Total Drainage Area ({watershed_size_unit})",
             )
         else:
             # copy output to feature class
@@ -386,5 +385,3 @@ class StreamNetwork:
         # cleanup
         log("deleting unneeded data")
         empty_workspace(arcpy.env.scratchGDB, keep=[])
-
-        return
