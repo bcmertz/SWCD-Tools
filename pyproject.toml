@@ -37,11 +37,12 @@ unresolved-import = "ignore"
 unresolved-attribute = "ignore"
 
 [tool.ruff]
-line-length = 120
+line-length = 100
 
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "double"
+skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
 ignore = [
