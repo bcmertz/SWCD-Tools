@@ -37,7 +37,7 @@ unresolved-import = "ignore"
 unresolved-attribute = "ignore"
 
 [tool.ruff]
-line-length = 320
+line-length = 120
 
 [tool.ruff.format]
 indent-style = "space"
@@ -47,4 +47,5 @@ quote-style = "double"
 ignore = [
     "SIM208",
     "PYI041",
+    "E501",
 ]
