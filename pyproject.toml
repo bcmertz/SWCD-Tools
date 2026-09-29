@@ -4,6 +4,7 @@ version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "arcpy>=3.3",
     "numpy>=1.24.3",
     "openpyxl>=3.0.10",
     "packaging>=23.2",
@@ -29,7 +30,7 @@ where = ["src"]
 exclude-newer = "30 days"
 
 [tool.ty.environment]
-python-version = "3.11"
+python-version = "3.11" # target 3.11 for arcpy >=3.3 compatibility
 
 [tool.ty.rules]
 unresolved-import = "ignore"
