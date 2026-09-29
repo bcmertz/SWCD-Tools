@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.layers import get_oid
 from helpers.logging import log, warn
 from helpers.parameter import raster_and_layer, set_required_parameter
@@ -17,7 +18,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import SPATIAL_UNITS, get_z_unit
 
 
-class PotentialWetlands(object):
+class PotentialWetlands:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Model Potential Wetlands"
@@ -189,7 +190,7 @@ class PotentialWetlands(object):
                     for row in cursor:
                         if row[0] is not None:
                             values.add(row[0])
-                values = sorted(list(values))
+                values = sorted(values)
                 parameters[9].filter.list = values
             else:
                 parameters[9].enabled = False
@@ -240,7 +241,6 @@ class PotentialWetlands(object):
                 parameters[1].enabled = False
                 parameters[1].value = None
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
@@ -248,10 +248,9 @@ class PotentialWetlands(object):
         set_required_parameter(parameters[5].value, parameters[6])
 
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -294,8 +293,8 @@ class PotentialWetlands(object):
         scratch_slope = arcpy.sa.Slope(dem, "PERCENT_RISE", "", "GEODESIC", z_unit)
 
         # slopes < max_slope percent
-        log("selecting slopes less than or equal to {}%".format(max_slope))
-        slope_sql_query = "VALUE <= {}".format(max_slope)
+        log(f"selecting slopes less than or equal to {max_slope}%")
+        slope_sql_query = f"VALUE <= {max_slope}"
         scratch_low_slope = arcpy.sa.Con(scratch_slope, scratch_slope, "", slope_sql_query)
 
         # convert con output to int
@@ -320,19 +319,18 @@ class PotentialWetlands(object):
         for hsg in hsg_values:
             hsg = hsg.replace("'", "")
             if hsg_sql_query == "":
-                hsg_sql_query = "{} = '{}'".format(soils_hsg_field, hsg)
+                hsg_sql_query = f"{soils_hsg_field} = '{hsg}'"
             else:
-                hsg_sql_query += " Or {} = '{}'".format(soils_hsg_field, hsg)
+                hsg_sql_query += f" Or {soils_hsg_field} = '{hsg}'"
         arcpy.analysis.Select(scratch_soils_area, scratch_hsg_soils, hsg_sql_query)
 
         # clip land use raster
-        log("clipping land use raster to valid soils area and slope less than or equal to {}%".format(max_slope))
+        log(f"clipping land use raster to valid soils area and slope less than or equal to {max_slope}%")
         out_land_use = arcpy.sa.ExtractByMask(land_use_raster, scratch_hsg_soils, "INSIDE", "MINOF")
         out_land_use.save(land_use_raster_clip)
 
         # select viable land uses from land use raster
         log("extracting desired land uses")
-        scratch_land_use = None
         land_use_sql_query = ""
         existing_values = []
         with arcpy.da.SearchCursor(land_use_raster_clip, land_use_field) as cursor:
@@ -341,9 +339,9 @@ class PotentialWetlands(object):
         if len(land_use_values) != 0:
             for value in land_use_values:
                 if land_use_sql_query == "":
-                    land_use_sql_query = "{} = '{}'".format(land_use_field, value)
+                    land_use_sql_query = f"{land_use_field} = '{value}'"
                 else:
-                    land_use_sql_query += " Or {} = '{}'".format(land_use_field, value)
+                    land_use_sql_query += f" Or {land_use_field} = '{value}'"
             scratch_land_use = arcpy.sa.ExtractByAttributes(land_use_raster_clip, land_use_sql_query)
         else:
             log("no valid land uses found in area, please try again with land uses found in analysis area")
@@ -390,7 +388,7 @@ class PotentialWetlands(object):
             )
 
             # drop < min_twi
-            twi_sql_query = "MEAN >= {}".format(min_twi)
+            twi_sql_query = f"MEAN >= {min_twi}"
             arcpy.analysis.Select(scratch_dissolve, output_file, twi_sql_query)
         else:
             log("copying potential wetland features to output feature class")

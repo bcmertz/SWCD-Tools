@@ -17,6 +17,7 @@ import os
 import platform
 
 import arcpy
+
 from helpers.logging import log, warn
 from helpers.parameter import set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate
@@ -81,7 +82,6 @@ class PointPlots:
         set_required_parameter(parameters[2].value, parameters[3])
 
         validate(parameters)
-        return
 
     def updateParameters(self, parameters):
         # toggle asking for coordinate output path
@@ -90,10 +90,9 @@ class PointPlots:
                 parameters[3].enabled = True
             else:
                 parameters[3].enabled = False
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -134,34 +133,34 @@ class PointPlots:
             log("Buffer less than 0.5 acres, please assess 100% of the buffer without point plots")
         else:
             if acreage >= 0.5 and acreage < 3:
-                num = int(math.ceil(acreage * 2))
+                num = math.ceil(acreage * 2)
             elif acreage >= 3:
-                num = int(math.ceil(acreage * 1))
+                num = math.ceil(acreage * 1)
 
             try:
                 # create buffer inside the planting area
                 log("buffer output area")
-                arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, "{} Feet".format(-radius))
+                arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, f"{-radius} Feet")
 
                 # create random plot centers
                 log("create sampling locations")
-                arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance="{} Feet".format(radius*2))
+                arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance=f"{radius*2} Feet")
 
             except Exception:
-                warn("Failed to create {} point plots with a radius of {} feet. It is likely because the buffer is too narrow to fit all of the point plots.".format(num, radius))
+                warn(f"Failed to create {num} point plots with a radius of {radius} feet. It is likely because the buffer is too narrow to fit all of the point plots.")
 
                 radius = 11.8
-                num = int(math.ceil(acreage * 10))
+                num = math.ceil(acreage * 10)
 
-                log("Trying again to make {} point plots with a radius of {} feet.".format(num, radius))
+                log(f"Trying again to make {num} point plots with a radius of {radius} feet.")
 
                 # create buffer inside the planting area
                 log("buffer output area")
-                arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, "{} Feet".format(-radius))
+                arcpy.analysis.PairwiseBuffer(scratch_dissolve, scratch_buffer, f"{-radius} Feet")
 
                 # create random plot centers
                 log("create sampling locations")
-                arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance="{} Feet".format(radius*2))
+                arcpy.management.CreateSpatialSamplingLocations(scratch_buffer, output_points, sampling_method="STRAT_POLY", strata_id_field=None, strata_count_method="PROP_AREA", num_samples=num, geometry_type="POINT", min_distance=f"{radius*2} Feet")
 
             # add data to map
             log("add data to map")
@@ -179,7 +178,7 @@ class PointPlots:
 
                 # export attribute table to csv at path
                 log("exporting point plot coordinates")
-                arcpy.conversion.ExportTable(output_points, r"{}/point_plots.csv".format(output_coords))
+                arcpy.conversion.ExportTable(output_points, rf"{output_coords}/point_plots.csv")
 
 
                 if platform.system() == "Windows":
@@ -194,5 +193,3 @@ class PointPlots:
         # save
         log("saving project")
         project.save()
-
-        return

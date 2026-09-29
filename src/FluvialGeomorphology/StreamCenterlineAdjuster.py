@@ -9,6 +9,7 @@
 import math
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -23,7 +24,7 @@ from helpers.units import Distance
 from .GenerateCrossSections import transect_line
 
 
-class LeastAction(object):
+class LeastAction:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Stream Centerline Adjuster"
@@ -88,7 +89,7 @@ class LeastAction(object):
         num_vertices = len(densified_transect[0])
         mid_index = int((num_vertices - 1)/2) # always round number because user supplies search distance: transect width = 2x search distance
         mid_vertex = densified_transect[0][mid_index]
-        stream_coord = "{} {}".format(mid_vertex.X, mid_vertex.Y)
+        stream_coord = f"{mid_vertex.X} {mid_vertex.Y}"
         stream_elev_result = arcpy.management.GetCellValue(dem_raster, stream_coord)
         stream_elev = float(stream_elev_result.getOutput(0))
 
@@ -102,7 +103,7 @@ class LeastAction(object):
         point_tmp = ""
 
         for vertex in densified_transect[0]:
-            coord = "{} {}".format(vertex.X, vertex.Y)
+            coord = f"{vertex.X} {vertex.Y}"
             elev_result = arcpy.management.GetCellValue(dem_raster, coord)
             elev = float(elev_result.getOutput(0))
             delta_elev = stream_elev - elev # positive number is a good adjustment
@@ -120,7 +121,7 @@ class LeastAction(object):
 
         return point_tmp
 
-    def updateParameters(self, parameters):
+    def updateParameters(self, _parameters):
         return
 
     def isLicensed(self):
@@ -130,10 +131,9 @@ class LeastAction(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -157,7 +157,7 @@ class LeastAction(object):
 
         # clip streams to analysis area
         log("creating output stream feature class")
-        env_path = r"{}".format(arcpy.env.workspace)
+        env_path = rf"{arcpy.env.workspace}"
         new_stream_line_path = output_file
         new_stream_line_name = new_stream_line_path.split("\\")[-1]
         new_stream_line = arcpy.management.CreateFeatureclass(env_path, new_stream_line_name, "POLYLINE", spatial_reference=spatial_reference)
@@ -201,7 +201,7 @@ class LeastAction(object):
                     arcpy.SetProgressorPosition()
 
                 # add optimized reach to output
-                log("adding optimized reach {} of {} to output".format(i, n))
+                log(f"adding optimized reach {i} of {n} to output")
                 new_stream_line = arcpy.Polyline(new_stream_line_arr)
                 cursor.updateRow([new_stream_line])
 
@@ -236,5 +236,3 @@ class LeastAction(object):
         # save project
         log("saving project")
         project.save()
-
-        return

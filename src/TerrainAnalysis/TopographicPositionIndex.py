@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -39,7 +40,7 @@ def topographic_position_index(dem, neighborhood):
     #return TPI raster
     return tpi_norm
 
-class TopographicPositionIndex(object):
+class TopographicPositionIndex:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Topographic Position Index (TPI)"
@@ -87,17 +88,16 @@ class TopographicPositionIndex(object):
         """Set whether the tool is licensed to execute."""
         return license([EXTENSIONS.Spatial])
 
-    def updateParameters(self, parameters):
+    def updateParameters(self, _parameters):
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -135,5 +135,3 @@ class TopographicPositionIndex(object):
         # save project
         log("saving project")
         project.save()
-
-        return

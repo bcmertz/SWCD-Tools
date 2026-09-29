@@ -10,6 +10,7 @@
 import math
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
@@ -82,19 +83,17 @@ class ShrubClusters:
         if parameters[4].value is None:
             parameters[4].value = "Square"
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
 
         log("reading in parameters")
         area = parameters[0].value
@@ -138,7 +137,7 @@ class ShrubClusters:
         )
 
         # make square around buffer
-        log("creating {} {} shrub clusters".format(int(number), parameters[4].valueAsText.lower()))
+        log(f"creating {int(number)} {parameters[4].valueAsText.lower()} shrub clusters")
         arcpy.management.MinimumBoundingGeometry(
             in_features=scratch_buffer,
             out_feature_class=output_file,
@@ -155,5 +154,3 @@ class ShrubClusters:
         # save
         log("saving project")
         project.save()
-
-        return

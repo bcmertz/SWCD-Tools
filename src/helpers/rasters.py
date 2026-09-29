@@ -6,13 +6,14 @@
 #              Full license in LICENSE file.
 # -----------------------------------------------------------------------------------
 
-import arcpy
 from enum import StrEnum
 
+import arcpy
+
 from .units import (
-    get_linear_unit,
-    Distance,
     Area,
+    Distance,
+    get_linear_unit,
 )
 
 

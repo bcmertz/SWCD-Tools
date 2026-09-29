@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -130,7 +131,6 @@ class RunoffCurveNumber:
             if parameters[4].message == warning_message:
               parameters[4].clearMessage()
 
-        return
 
     def updateParameters(self, parameters):
         # get soils field
@@ -175,10 +175,9 @@ class RunoffCurveNumber:
                 parameters[8].enabled = False
                 parameters[9].enabled = False
 
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -235,7 +234,7 @@ class RunoffCurveNumber:
         arcpy.management.CalculateField(
             in_table=output_fc,
             field="RCN",
-            expression="calculate_value(!{}!, !{}!,!{}!,!{}!,!{}!)".format(hsg_field, rcn_field_a,rcn_field_b,rcn_field_c,rcn_field_d),
+            expression=f"calculate_value(!{hsg_field}!, !{rcn_field_a}!,!{rcn_field_b}!,!{rcn_field_c}!,!{rcn_field_d}!)",
             expression_type="PYTHON3",
             code_block="""def calculate_value(hsg, rcna, rcnb, rcnc, rcnd):
                 if hsg == "A":
@@ -258,14 +257,13 @@ class RunoffCurveNumber:
         log("setting runoff layer symbology")
         if lyr.isFeatureLayer:
             sym = lyr.symbology
-            if hasattr(sym, 'renderer'):
-              if sym.renderer.type == 'SimpleRenderer':
-                sym.updateRenderer('GraduatedColorsRenderer')
-                sym.renderer.breakCount = 5
-                sym.renderer.classificationMethod = 'NaturalBreaks'
-                sym.renderer.classificationField = 'RCN'
-                sym.renderer.colorRamp = project.listColorRamps('Orange-Red (5 Classes)')[0]
-                lyr.symbology = sym
+            if hasattr(sym, 'renderer') and sym.renderer.type == 'SimpleRenderer':
+              sym.updateRenderer('GraduatedColorsRenderer')
+              sym.renderer.breakCount = 5
+              sym.renderer.classificationMethod = 'NaturalBreaks'
+              sym.renderer.classificationField = 'RCN'
+              sym.renderer.colorRamp = project.listColorRamps('Orange-Red (5 Classes)')[0]
+              lyr.symbology = sym
 
         # cleanup
         log("deleting unneeded data")
@@ -274,5 +272,3 @@ class RunoffCurveNumber:
         # save project
         log("saving project")
         project.save()
-
-        return

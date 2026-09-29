@@ -7,6 +7,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -15,7 +16,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import SPATIAL_UNITS, get_z_unit
 
 
-class StreamPowerIndex(object):
+class StreamPowerIndex:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Stream Power Index (SPI)"
@@ -89,15 +90,13 @@ class StreamPowerIndex(object):
                 parameters[1].enabled = False
                 parameters[1].value = None
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -159,5 +158,3 @@ class StreamPowerIndex(object):
         # save and exit program successfully
         log("saving project")
         project.save()
-
-        return
