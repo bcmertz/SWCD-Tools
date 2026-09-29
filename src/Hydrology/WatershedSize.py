@@ -6,6 +6,7 @@
 #              Full license in LICENSE file, or at <https://www.gnu.org/licenses/>
 # --------------------------------------------------------------------------------
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -59,20 +60,19 @@ class WatershedSize:
         params = [param0, param1, param2, param3]
         return params
 
-    def updateParameters(self, parameters):
+    def updateParameters(self, _parameters):
         return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
         return license([EXTENSIONS.Spatial])
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -117,5 +117,3 @@ class WatershedSize:
         # save program successfully
         log("saving project")
         project.save()
-
-        return

@@ -10,6 +10,7 @@ import math
 import os
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import empty_workspace, license, reload_module
@@ -73,7 +74,7 @@ def transect_line(line, point, transect_width: Distance):
     transect = arcpy.Polyline(arcpy.Array((first_tran_point.firstPoint, last_tran_point.firstPoint)), spatial_reference)
     return transect
 
-class GenerateCrossSections(object):
+class GenerateCrossSections:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Generate Cross-Sections"
@@ -141,7 +142,6 @@ class GenerateCrossSections(object):
         if parameters[4].value is None:
             parameters[4].value = "100 FeetUS"
 
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -150,10 +150,9 @@ class GenerateCrossSections(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -195,7 +194,7 @@ class GenerateCrossSections(object):
         # generating transects
         log("generating transects")
         n = len([row[0] for row in arcpy.da.SearchCursor(scratch_streams, ["SHAPE@"])])
-        log("iterating through {} stream lines".format(n))
+        log(f"iterating through {n} stream lines")
         with arcpy.da.SearchCursor(scratch_streams, ["SHAPE@"]) as stream_cursor:
             with arcpy.da.InsertCursor(transects_fc, ["SHAPE@"]) as transect_cursor:
                 for stream_line in stream_cursor:
@@ -267,5 +266,3 @@ class GenerateCrossSections(object):
         # save project
         log("saving project")
         project.save()
-
-        return

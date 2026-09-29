@@ -10,12 +10,13 @@ import os
 import platform
 
 import arcpy
+
 from helpers.logging import log
 from helpers.tool import license, reload_module
 from helpers.tool import setup_environment as setup
 
 
-class ExportLayouts(object):
+class ExportLayouts:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Export Layouts"
@@ -52,11 +53,11 @@ class ExportLayouts(object):
         return params
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
 
         file_path = parameters[1].valueAsText
         layouts = parameters[0].valueAsText.replace("'", "").split(";")
@@ -65,11 +66,9 @@ class ExportLayouts(object):
         # Export layouts
         for layout in project_layouts:
             if layout.name in layouts:
-                layout_file_path = "{}\{}.pdf".format(file_path, layout.name)
+                layout_file_path = rf"{file_path}\{layout.name}.pdf"
                 layout.exportToPDF(layout_file_path)
 
         if platform.system() == "Windows":
             # Open project folder
             os.startfile(file_path)
-
-        return

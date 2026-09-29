@@ -9,6 +9,7 @@
 import json
 
 import arcpy
+
 from helpers.logging import error, log, warn
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
@@ -20,7 +21,7 @@ from helpers.tool import setup_environment as setup
 from .DefineParcels import AG_ASSESSMENT_GDB_NAME
 
 
-class NonAg(object):
+class NonAg:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "2b. Delineate NonAg"
@@ -39,21 +40,20 @@ class NonAg(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, _parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
         project_dir = project.homeFolder
-        cache_file_path = "{}/.ag_cache.json".format(project_dir)
+        cache_file_path = f"{project_dir}/.ag_cache.json"
 
         # check for geodatabase and set it as workspace
-        db_path = "{}\\{}.gdb".format(project.homeFolder, AG_ASSESSMENT_GDB_NAME)
+        db_path = f"{project.homeFolder}\\{AG_ASSESSMENT_GDB_NAME}.gdb"
         if not arcpy.Exists(db_path):
-            error("Ag assessment geodatase {} does not exist. Please start over with step 1.".format(db_path))
+            error(f"Ag assessment geodatase {db_path} does not exist. Please start over with step 1.")
         arcpy.env.workspace = db_path
 
         # read in json
@@ -66,19 +66,17 @@ class NonAg(object):
         log("iterating through maps and delineating nonag land")
         for parcel in parcels:
             # find map of parcel
-            m = None
             try:
                 m = project.listMaps(parcel)[0]
             except Exception:
-                warn("unable to find map for {}, results may be incomplete".format(parcel))
+                warn(f"unable to find map for {parcel}, results may be incomplete")
                 continue
 
             # get parcel layer or drop off of map
-            parcel_lyr = None
             try:
-                parcel_lyr = m.listLayers("*_{}".format(parcel))[0]
+                parcel_lyr = m.listLayers(f"*_{parcel}")[0]
             except Exception:
-                warn("no appropriate parcel layer found for {}, results may be incomplete".format(parcel))
+                warn(f"no appropriate parcel layer found for {parcel}, results may be incomplete")
                 continue
 
             # check how many pieces are selected
@@ -90,7 +88,7 @@ class NonAg(object):
             parcel_lyr_path = parcel_lyr.dataSource
             layer_name = "NonAg"
             # layer_name = "NonAg_{}".format(sanitize(parcel)[-4:])
-            layer_path = "{}_NonAg".format(parcel_lyr_path)
+            layer_path = f"{parcel_lyr_path}_NonAg"
 
             # export shape to new feature class
             arcpy.conversion.ExportFeatures(parcel_lyr, layer_path)
@@ -99,8 +97,8 @@ class NonAg(object):
 
             # update symbology
             sym = lyr.symbology
-            sym.renderer.symbol.color = {'RGB' : [0, 0, 0, 0]}
-            sym.renderer.symbol.outlineColor = {'RGB' : [0, 112, 255, 100]}
+            sym.renderer.symbol.color = {"RGB": [0, 0, 0, 0]}
+            sym.renderer.symbol.outlineColor = {"RGB": [0, 112, 255, 100]}
             sym.renderer.symbol.size = 3
             lyr.symbology = sym
 
@@ -111,5 +109,3 @@ class NonAg(object):
         log("cleaning up")
         project.save()
         del project
-
-        return

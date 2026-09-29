@@ -7,6 +7,7 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.layers import get_oid
 from helpers.logging import log, warn
 from helpers.parameter import raster_and_layer
@@ -16,7 +17,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import SPATIAL_UNITS, Area, get_z_unit
 
 
-class DecisionTree(object):
+class DecisionTree:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Decision Tree Calculation"
@@ -165,15 +166,13 @@ class DecisionTree(object):
             else:
                 parameters[8].enabled = False
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -213,7 +212,7 @@ class DecisionTree(object):
             existing_values = sorted({row[0] for row in cursor})
         land_use_values = [ i for i in land_use_values if i in existing_values ]
         if len(land_use_values) != 0:
-            sql_query = ' Or '.join("'{}' = '{}'".format(land_use_field, value) for value in land_use_values)
+            sql_query = ' Or '.join(f"'{land_use_field}' = '{value}'" for value in land_use_values)
             log(sql_query)
             out_lu = arcpy.sa.ExtractByAttributes(land_use_raster, sql_query)
             out_lu.save(scratch_land_use)
@@ -239,7 +238,7 @@ class DecisionTree(object):
         arcpy.management.CalculateGeometryAttributes(scratch_intersect, geometry_property=[[area_field_name, "AREA_GEODESIC"]], area_unit=threshold.unit.display())
 
         # remove small features
-        sql_query = "{} >= {}".format(area_field_name, threshold.area)
+        sql_query = f"{area_field_name} >= {threshold.area}"
         arcpy.analysis.Select(scratch_intersect, scratch_soils_area, sql_query)
 
         # calculate drainage class
@@ -248,7 +247,7 @@ class DecisionTree(object):
         arcpy.management.CalculateField(
             in_table=scratch_soils_area,
             field=output_drainage_field,
-            expression="calculate_value(!{}!)".format(soils_drainage_field),
+            expression=f"calculate_value(!{soils_drainage_field}!)",
             expression_type="PYTHON3",
             code_block="""def calculate_value(drainage):
                 if drainage == "Very poorly drained":
@@ -305,7 +304,7 @@ class DecisionTree(object):
             # of slope and drainge that produces the output
             while output_area < min_area.area:
                 # select output features
-                sql_query = "{} <= {} And {} <= {}".format(output_slope_field, slope, output_drainage_field, drainage)
+                sql_query = f"{output_slope_field} <= {slope} And {output_drainage_field} <= {drainage}"
                 arcpy.analysis.Select(scratch_joined, scratch_output, where_clause=sql_query)
 
                 # find sum of acreage
@@ -318,7 +317,7 @@ class DecisionTree(object):
                     slope += 1
                 else:
                     if drainage == 7:
-                        log("failed to find {} of potential tile drained field in the study area".format(str(min_area)))
+                        log(f"failed to find {min_area!s} of potential tile drained field in the study area")
                         break
                     else:
                         drainage += 1
@@ -330,7 +329,7 @@ class DecisionTree(object):
 
             # select output features
             log("create output")
-            sql_query = "{} <= {} And {} <= {}".format(output_slope_field, slope, output_drainage_field, drainage)
+            sql_query = f"{output_slope_field} <= {slope} And {output_drainage_field} <= {drainage}"
             arcpy.analysis.Select(scratch_joined, scratch_output, where_clause=sql_query)
 
         # create output feature class

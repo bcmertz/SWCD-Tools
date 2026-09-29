@@ -7,6 +7,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log
 from helpers.tool import EXTENSIONS, license, reload_module
 from helpers.tool import setup_environment as setup
@@ -37,11 +38,11 @@ class CollectRasters:
         return license([EXTENSIONS.OCSWCD])
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, orig_map = setup()
+        _project, orig_map = setup()
 
         # reading in parameters
         extent = parameters[0].value
@@ -58,7 +59,7 @@ class CollectRasters:
                 with arcpy.da.SearchCursor(lyr, ("FULLPATH","IMAGENAME"), spatial_filter=extent) as cursor:
                     for row in cursor:
                         # get raster filepath from attributes
-                        path = "{}\{}".format(row[0], row[1])
+                        path = rf"{row[0]}\{row[1]}"
                         # make a nice name
                         lyr_name = row[1].split(".")[0] + " " + year
                         # prevent adding existing maps
@@ -80,5 +81,3 @@ class CollectRasters:
                                 new_lyr.setDefinition(new_lyr_cim)
                             except Exception:
                                 pass
-
-        return

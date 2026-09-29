@@ -6,12 +6,12 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
 
-from .ShrubClusters import ShrubClusters
-from .PointPlots import PointPlots
 from .BufferPotential import BufferPotential
+from .PointPlots import PointPlots
+from .ShrubClusters import ShrubClusters
 
 __all__ = [
-    "ShrubClusters",
-    "PointPlots",
     "BufferPotential",
+    "PointPlots",
+    "ShrubClusters",
 ]

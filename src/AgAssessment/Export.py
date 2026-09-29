@@ -19,7 +19,7 @@ from helpers.tool import (
 from helpers.tool import setup_environment as setup
 
 
-class Export(object):
+class Export:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "4. Export Layouts"
@@ -37,16 +37,15 @@ class Export(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, _parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, active_map = setup()
+        project, _active_map = setup()
         project_dir = project.homeFolder
-        cache_file_path = "{}/.ag_cache.json".format(project_dir)
+        cache_file_path = f"{project_dir}/.ag_cache.json"
 
         # read in json
         log("reading in cache")
@@ -61,12 +60,10 @@ class Export(object):
         layouts = project.listLayouts()
         for layout in layouts:
             if layout.name in parcels:
-                layout_file_path = "{}\{}.pdf".format(output_folder, layout.name)
+                layout_file_path = rf"{output_folder}\{layout.name}.pdf"
                 layout.exportToPDF(layout_file_path)
 
         if platform.system() == "Windows":
             # Open project folder
             log("opening project folder")
             os.startfile(output_folder)
-
-        return

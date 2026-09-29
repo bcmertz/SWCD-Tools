@@ -10,6 +10,7 @@ import os
 import platform
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -128,7 +129,6 @@ class StreamElevation:
         # default point spacing
         if parameters[6].value is None:
             parameters[6].value = "50 FeetUS"
-        return
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -137,10 +137,9 @@ class StreamElevation:
     def updateMessages(self, parameters):
         "Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -280,5 +279,3 @@ class StreamElevation:
         # save and exit program successfully
         log("saving project")
         project.save()
-
-        return

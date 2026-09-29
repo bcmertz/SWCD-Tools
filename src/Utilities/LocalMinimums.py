@@ -12,6 +12,7 @@
 # --------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -117,15 +118,13 @@ class LocalMinimums:
                 parameters[2].enabled = False
                 parameters[2].value = None
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -173,7 +172,7 @@ class LocalMinimums:
                 for i in range(num_vertices):
                     # get current vertex and elevation
                     vertex = sub_line[0][0][i]
-                    coord = "{} {}".format(vertex.X, vertex.Y)
+                    coord = f"{vertex.X} {vertex.Y}"
                     elev_cur = arcpy.management.GetCellValue(dem, coord)
                     elev_cur = float(elev_cur.getOutput(0))
 
@@ -250,5 +249,3 @@ class LocalMinimums:
         # save
         log("saving project")
         project.save()
-
-        return

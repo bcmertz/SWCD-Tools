@@ -8,6 +8,7 @@
 # --------------------------------------------------------------------------------------------------
 
 import arcpy
+
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -18,7 +19,7 @@ from helpers.units import SPATIAL_UNITS, Distance, get_z_unit
 from .TopographicPositionIndex import topographic_position_index
 
 
-class LandscapePosition(object):
+class LandscapePosition:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Landscape Position"
@@ -106,16 +107,14 @@ class LandscapePosition(object):
         if parameters[4].value is None:
             parameters[4].value = "1000 Meters"
 
-        return
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
@@ -262,5 +261,3 @@ class LandscapePosition(object):
         # save project
         log("saving project")
         project.save()
-
-        return

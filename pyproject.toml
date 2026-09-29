@@ -12,25 +12,38 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ruff>=0.16.5",
     "ty>=0.0.51",
 ]
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-package-dir = {"" = "src"}
-
-[tool.setuptools.packages.find]
-where = ["src"]
 
 [tool.uv]
 exclude-newer = "30 days"
 
 [tool.ty.environment]
-python-version = "3.11"
+python-version = "3.11" # target 3.11 for arcpy >=3.3 compatibility
 
 [tool.ty.rules]
 unresolved-import = "ignore"
 unresolved-attribute = "ignore"
+possibly-missing-submodule = "ignore"
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+ignore = [
+    "BLE001",
+    "N999",
+    "SIM208",
+    "PYI041",
+    "E501",
+    "RUF015",
+]
+
+extend-select = ["ARG"]

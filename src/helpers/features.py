@@ -10,6 +10,7 @@ import os
 
 import arcpy
 
+
 def fc_to_geometry(fc, keep_fields: list[str]):
     # geometry = arcpy.management.CopyFeatures(fc, arcpy.Geometry())
     if "SHAPE@" not in keep_fields:
@@ -19,6 +20,7 @@ def fc_to_geometry(fc, keep_fields: list[str]):
     out_geo = [list(row) for row in arcpy.da.SearchCursor(fc, keep_fields)]
 
     return out_geo
+
 
 def geometry_to_fc(geo: list[arcpy.Geometry], fc: str, spatial_reference: arcpy.SpatialReference):
     out_name = fc.split("\\")[-1]
@@ -32,6 +34,7 @@ def geometry_to_fc(geo: list[arcpy.Geometry], fc: str, spatial_reference: arcpy.
             cursor.insertRow([g])
 
     return out_fc
+
 
 def is_empty(fc):
     """Return boolean representing if the feature class is empty."""
