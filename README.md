@@ -482,6 +482,10 @@ Only for in-house use since it depends on a very specific file structure and his
 
 Remove feature classes unused in any project maps from a given workspace (geodatabse, folder, etc).
 
+### 6. Surface Area [↑](#table-of-contents)
+
+Add surface area information to polygon fc in user-specific areal units. A convenience wrapper around [Add Surface Information](https://doc.esri.com/en/arcgis-pro/latest/tool-reference/spatial-analyst/add-surface-information.html).
+
 ## Automated Agricultural Assessment [↑](#table-of-contents)
 
 ### Notes:

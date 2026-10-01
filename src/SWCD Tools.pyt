@@ -57,6 +57,7 @@ class Toolbox(object):
             GeocodeAddress,
             RemoveUnused,
             CollectRasters,
+            SurfaceArea,
         ]
 
         # List of tool classes associated with this toolbox
