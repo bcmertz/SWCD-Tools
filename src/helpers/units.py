@@ -190,26 +190,20 @@ def get_z_unit(fc) -> SPATIAL_UNITS | None:
     return None
 
 
-def get_linear_unit(fc) -> LINEAR_UNITS:
+def get_linear_unit(data) -> LINEAR_UNITS:
     """Find linear unit from spatial reference."""
     # find linear unit from spatial reference
-    data_type = ""
     try:
-        desc = arcpy.Describe(fc)
-        data_type = desc.dataType
-    except Exception:
-        pass
-
-    if (data_type == "RasterLayer") | (data_type == "RasterDataset") | (data_type == ""):
+        desc = arcpy.Describe(data)
         try:
             return SPATIAL_UNITS[desc.spatialReference.linearUnitName].to_linear()
         except Exception:
-            return SPATIAL_UNITS[fc.spatialReference.linearUnitName].to_linear()
-    else:
-        try:
             return LINEAR_UNITS[desc.spatialReference.linearUnitName]
-        except Exception:
-            return LINEAR_UNITS[fc.spatialReference.linearUnitName]
+    except Exception:
+        try:
+            return SPATIAL_UNITS[data.spatialReference.linearUnitName].to_linear()
+        except:
+            return LINEAR_UNITS[data.spatialReference.linearUnitName]
 
 
 class BaseAmount:
