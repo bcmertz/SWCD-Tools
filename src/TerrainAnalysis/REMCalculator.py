@@ -192,7 +192,7 @@ class RelativeElevationModel:
             parameters[5].value = "25 Feet"
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
