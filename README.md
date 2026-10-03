@@ -49,6 +49,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
   	- [Export Layouts](#3-export-layouts-)
  	- [Historical Imagery](#4-historical-imagery-)
  	- [Remove Unused](#5-remove-unused-)
+ 	- [Surface Area](#6-surface-area-)
 - [Contributing](#contributing-)
 - [License](#license-)
 
