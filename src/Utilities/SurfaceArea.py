@@ -86,7 +86,7 @@ class SurfaceArea:
         """The source code of the tool."""
         # Setup
         log("setting up project")
-        project, orig_map = setup()
+        project, _orig_map = setup()
 
         # reading in parameters
         log("reading in parameters")

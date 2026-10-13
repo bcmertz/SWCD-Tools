@@ -301,7 +301,7 @@ class DamRemoval:
         with arcpy.da.SearchCursor(scratch_centerline_elev_points, ["SHAPE@", "RASTERVALU", "ORIG_LEN"]) as cursor:
             for point in cursor:
                 # read in values
-                shape, elev, distance = point[0], point[1], point[2]
+                shape, elev, _distance = point[0], point[1], point[2]
                 # create transect
                 transect = transect_line(centerline_polyline, shape, transect_width)
                 # interpolate elevations

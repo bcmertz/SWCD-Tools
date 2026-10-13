@@ -202,7 +202,7 @@ def get_linear_unit(data) -> LINEAR_UNITS:
     except Exception:
         try:
             return SPATIAL_UNITS[data.spatialReference.linearUnitName].to_linear()
-        except:
+        except Exception:
             return LINEAR_UNITS[data.spatialReference.linearUnitName]
 
 
