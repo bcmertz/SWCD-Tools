@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# entry point for ArcGIS Pro toolbox
 
 from AgAssessment import *
 from BufferTools import *
@@ -10,7 +10,7 @@ from TileDrainage import *
 from Utilities import *
 
 
-class Toolbox(object):
+class Toolbox:
     def __init__(self):
         """Define the toolbox (the name of the toolbox is the name of the
         .pyt file)."""
