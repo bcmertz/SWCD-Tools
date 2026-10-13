@@ -129,6 +129,8 @@ class CalculateEFH2:
                     parameters[5].value = "RCN"
                 if "LandUse" in fields:
                     parameters[6].value = "LandUse"
+                elif "LandCover" in fields:
+                    parameters[6].value = "LandCover"
             else:
                 parameters[4].enabled = False
                 parameters[5].enabled = False

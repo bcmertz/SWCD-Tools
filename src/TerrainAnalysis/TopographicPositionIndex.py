@@ -124,13 +124,24 @@ class TopographicPositionIndex:
 
         # update raster symbology
         log("updating tpi raster symbology")
+        min_value = -200
+        max_value = 200
         sym = tpi_raster.symbology
         if hasattr(sym, 'colorizer'):
             if sym.colorizer.type != "RasterStretchColorizer":
                 sym.updateColorizer("RasterStretchColorizer")
             sym.colorizer.stretchType = "MinimumMaximum"
             sym.colorizer.colorRamp = project.listColorRamps('Prediction')[0]
+            sym.colorizer.minLabel = f"{min_value}"
+            sym.colorizer.maxLabel = f"{max_value}"
             tpi_raster.symbology = sym
+        cim_layer = tpi_raster.getDefinition("V3")
+        cim_layer.colorizer.statsType = 'GlobalStats'
+        cim_layer.colorizer.customStretchMin = min_value
+        cim_layer.colorizer.customStretchMax = max_value
+        cim_layer.colorizer.stretchStats.max = max_value
+        cim_layer.colorizer.stretchStats.min = min_value
+        tpi_raster.setDefinition(cim_layer)
 
         # save project
         log("saving project")

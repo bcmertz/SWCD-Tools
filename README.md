@@ -49,6 +49,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
   	- [Export Layouts](#3-export-layouts-)
  	- [Historical Imagery](#4-historical-imagery-)
  	- [Remove Unused](#5-remove-unused-)
+ 	- [Surface Area](#6-surface-area-)
 - [Contributing](#contributing-)
 - [License](#license-)
 
@@ -481,6 +482,10 @@ Only for in-house use since it depends on a very specific file structure and his
 ### 5. Remove Unused [↑](#table-of-contents)
 
 Remove feature classes unused in any project maps from a given workspace (geodatabse, folder, etc).
+
+### 6. Surface Area [↑](#table-of-contents)
+
+Add surface area information to polygon fc in user-specific areal units. A convenience wrapper around [Add Surface Information](https://doc.esri.com/en/arcgis-pro/latest/tool-reference/spatial-analyst/add-surface-information.html).
 
 ## Automated Agricultural Assessment [↑](#table-of-contents)
 

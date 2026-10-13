@@ -11,6 +11,7 @@ from .ExportLayouts import ExportLayouts
 from .GeocodeAddress import GeocodeAddress
 from .LocalMinimums import LocalMinimums
 from .RemoveUnused import RemoveUnused
+from .SurfaceArea import SurfaceArea
 
 __all__ = [
     "CollectRasters",
@@ -18,4 +19,5 @@ __all__ = [
     "GeocodeAddress",
     "LocalMinimums",
     "RemoveUnused",
+    "SurfaceArea",
 ]
