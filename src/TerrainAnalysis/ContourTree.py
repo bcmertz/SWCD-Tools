@@ -8,10 +8,25 @@
 
 import arcpy
 
-from helpers import license, empty_workspace, reload_module, log, fc_to_geometry, geometry_to_fc, \
-    LINEAR_UNITS, SPATIAL_UNITS, get_z_unit, raster_and_layer, Distance
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from helpers.geometry import (
+    fc_to_geometry,
+)
+from helpers.logging import log
+from helpers.parameter import raster_and_layer
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import (
+    EXTENSIONS,
+    empty_workspace,
+    license,
+    reload_module,
+)
+from helpers.tool import setup_environment as setup
+from helpers.units import (
+    SPATIAL_UNITS,
+    Distance,
+    get_z_unit,
+)
+
 
 class ContourTree:
     def __init__(self):
@@ -67,7 +82,8 @@ class ContourTree:
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
-        return license(['Spatial'])
+        return license([EXTENSIONS.Spatial])
+
 
 
     def updateMessages(self, parameters):
@@ -75,7 +91,6 @@ class ContourTree:
         # make optional parameters[3] required based off of parameters[2]
         validate(parameters)
 
-        return
 
     def updateParameters(self, parameters):
         # find z unit of raster based on vertical coordinate system
@@ -95,17 +110,16 @@ class ContourTree:
                 parameters[1].enabled = False
                 parameters[1].value = None
 
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
         project, active_map = setup()
         spatial_reference_name = active_map.spatialReference.name
         spatial_reference = arcpy.SpatialReference(spatial_reference_name)
-        env_path = r"{}".format(arcpy.env.workspace)
+        env_path = rf"{arcpy.env.workspace}"
 
         # read in parameters
         log("reading in parameters")

@@ -12,11 +12,12 @@ import arcpy
 import numpy as np
 from scipy.spatial import Delaunay
 
-from helpers import license, reload_module, log, empty_workspace, fc_to_numpy_array, bbox, voronoi
+from helpers import bbox, empty_workspace, fc_to_numpy_array, license, log, reload_module, voronoi
 from helpers import setup_environment as setup
 from helpers import validate_spatial_reference as validate
 
-class PolygonCenterline(object):
+
+class PolygonCenterline:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "Polygon Centerline"
@@ -60,7 +61,7 @@ class PolygonCenterline(object):
         params = [param0, param1, param2]
         return params
 
-    def updateParameters(self, parameters):
+    def updateParameters(self, _parameters):
         return
 
     def isLicensed(self):
@@ -70,10 +71,9 @@ class PolygonCenterline(object):
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
-        return
 
     @reload_module(__name__)
-    def execute(self, parameters, messages):
+    def execute(self, parameters, _messages):
         """The source code of the tool."""
         # Setup
         log("setting up project")
