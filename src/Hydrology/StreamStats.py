@@ -6,12 +6,6 @@
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------------------------
 
-# Sources used:
-#
-# https://www.usgs.gov/streamstats/new-york-streamstats
-# Lumia, Richard, Freehafer, D.A., and Smith, M.J., 2006, Magnitude and Frequency of Floods in New York: U.S. Geological Survey Scientific Investigations Report 2006–5112, 152 p.
-# Mulvihill, C.I., Baldigo, B.P., Miller, S.J., and DeKoskie, Douglas, 2009, Bankfull Discharge and Channel Characteristics of Streams in New York State: U.S. Geological Survey Scientific Investigations Report 2009-5144, 51 p
-
 import os
 
 import arcpy
