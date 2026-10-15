@@ -35,6 +35,7 @@ class Toolbox:
             GenerateCrossSections,
             CalculateEFH2,
             RunoffCurveNumber,
+            StreamStats,
             SubBasinDelineation,
             WatershedDelineation,
             WatershedSize,
