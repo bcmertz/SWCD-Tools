@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------------------------------
 # Name:        StreamStats
-# Purpose:     TODO
+# Purpose:     Calculate peak flow and bankfull statistics
 #
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
@@ -27,7 +27,7 @@ class StreamStats:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
         self.label = "StreamStats"
-        self.description = "TODO"
+        self.description = "Calculate peak flow and bankfull statistics"
         self.category = "Hydrology"
 
     def getParameterInfo(self):
@@ -149,8 +149,6 @@ class StreamStats:
             cluster_tolerance=None,
             output_type="LINE"
         )
-
-        # TODO: convert DA to sq mi
 
         # add required fields
         fields_ex = [f.name for f in arcpy.ListFields(output_file)]
