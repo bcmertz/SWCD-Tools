@@ -36,6 +36,7 @@ class Toolbox:
             PolygonCenterline,
             CalculateEFH2,
             RunoffCurveNumber,
+            StreamStats,
             SubBasinDelineation,
             WatershedDelineation,
             WatershedSize,

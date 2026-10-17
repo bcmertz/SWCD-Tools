@@ -4,3 +4,5 @@ arcpy/
 __pycache__
 # ignore image thumbnails
 assets/**/Thumbs.db
+# ignore lock files
+*.lock
