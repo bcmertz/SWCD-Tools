@@ -12,9 +12,11 @@ import arcpy
 import numpy as np
 from scipy.spatial import Delaunay
 
-from helpers import bbox, empty_workspace, fc_to_numpy_array, license, log, reload_module, voronoi
-from helpers import setup_environment as setup
-from helpers import validate_spatial_reference as validate
+from helpers.geometry import bbox, fc_to_numpy_array, voronoi
+from helpers.logging import log
+from helpers.parameter import validate_spatial_reference as validate
+from helpers.tool import empty_workspace, license, reload_module
+from helpers.tool import setup_environment as setup
 
 
 class PolygonCenterline:
