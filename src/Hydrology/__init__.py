@@ -8,16 +8,18 @@
 
 from .CalculateEFH2 import CalculateEFH2
 from .RunoffCurveNumber import RunoffCurveNumber
-from .StreamStats import StreamStats
+from .StreamStats import STREAM_STATS_FIELD_MAPPING, StreamStats, calculate_statistics
 from .SubBasinDelineation import SubBasinDelineation
 from .WatershedDelineation import WatershedDelineation
 from .WatershedSize import WatershedSize
 
 __all__ = [
+    "STREAM_STATS_FIELD_MAPPING",
     "CalculateEFH2",
     "RunoffCurveNumber",
     "StreamStats",
     "SubBasinDelineation",
     "WatershedDelineation",
     "WatershedSize",
+    "calculate_statistics",
 ]
