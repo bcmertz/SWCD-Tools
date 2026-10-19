@@ -8,7 +8,7 @@
 # --------------------------------------------------------------------------------
 import arcpy
 
-from helpers.features import is_empty
+from helpers.features import find_field, is_empty
 from helpers.layers import get_oid
 from helpers.logging import error, log
 from helpers.parameter import raster_and_layer, set_required_parameter

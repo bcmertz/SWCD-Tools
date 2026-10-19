@@ -39,3 +39,11 @@ def geometry_to_fc(geo: list[arcpy.Geometry], fc: str, spatial_reference: arcpy.
 def is_empty(fc):
     """Return boolean representing if the feature class is empty."""
     return int(arcpy.management.GetCount(fc)[0]) == 0
+
+
+def find_field(fc, name: str | None=None, alias: str | None=None) -> arcpy.Field | None:
+    # Get a list of fields for each feature class
+    field_list = arcpy.ListFields(fc)
+    for field in field_list:
+        if field.aliasName == alias or field.name == name:
+            return field
