@@ -380,7 +380,7 @@ class StreamStats:
             field_name = STREAM_STATS_FIELD_MAPPING[field]
             field_alias = field
 
-            if field not in fields_ex:
+            if field_name not in fields_ex:
                 log(f"adding and calculating field: {field_alias}")
                 arcpy.management.AddField(
                     in_table=output_file,
