@@ -408,10 +408,9 @@ class StreamNetwork:
                 arcpy.management.AlterField(
                     in_table=scratch_feature,
                     field=watershed_size_field.name,
-                    new_field_name="watershed",
-                    new_field_alias=f"Max Total Drainage Area ({watershed_size_unit})",
+                    new_field_name="wshed_area",
+                    new_field_alias=f"Drainage Area ({watershed_size_unit})",
                 )
-
 
             # calculate rest of asked for fields
             for field in calc_fields:
