@@ -454,16 +454,14 @@ class StreamNetwork:
                 with arcpy.da.UpdateCursor(output_file, [watershed_size_field.name, "RegionID91", "RegionID06", field_name]) as cursor:
                     for line in cursor:
                         da, region91, region06 = line[0], line[1], line[2]
-                        line[3] = calculate_statistics(
-                            region91=region91,
-                            region06=region06,
-                            field=field_name,
-                            drainage_area=Area(da, watershed_size_unit)
-                        )
+                        if da is not None:
+                            line[3] = calculate_statistics(
+                                region91=region91,
+                                region06=region06,
+                                field=field_name,
+                                drainage_area=Area(da, watershed_size_unit)
+                            )
                         cursor.updateRow(line)
-
-
-
 
         # warn about empty outputs
         if is_empty(scratch_feature):
