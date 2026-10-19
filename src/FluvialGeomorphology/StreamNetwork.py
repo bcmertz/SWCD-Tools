@@ -6,6 +6,8 @@
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
 # --------------------------------------------------------------------------------
+import os
+
 import arcpy
 
 from helpers.features import find_field, is_empty
@@ -413,6 +415,27 @@ class StreamNetwork:
 
             # calculate rest of asked for fields
             for field in calc_fields:
+                # hydrologic information
+                hydrologic_regions_91 = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'NY Hydrologic Regions', 'NY_Hydrologic_Regions_91.shp')
+                hydrologic_regions_06 = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'NY Hydrologic Regions', 'NY_Hydrologic_Regions_06.shp')
+
+                # intersect streams and hydrologic regions to get Region ID
+                log("intersect stream lines with hydrologic regions info")
+                arcpy.analysis.PairwiseIntersect(
+                    in_features=[scratch_feature, hydrologic_regions_91],
+                    out_feature_class=scratch_intersect,
+                    join_attributes="ALL",
+                    cluster_tolerance=None,
+                    output_type="LINE"
+                )
+                arcpy.analysis.PairwiseIntersect(
+                    in_features=[scratch_intersect, hydrologic_regions_06],
+                    out_feature_class=scratch_feature,
+                    join_attributes="ALL",
+                    cluster_tolerance=None,
+                    output_type="LINE"
+                )
+
                 field_name = STREAM_STATS_FIELD_MAPPING[field]
                 field_alias = field
                 fields_ex = [f.name for f in arcpy.ListFields(scratch_feature)]
