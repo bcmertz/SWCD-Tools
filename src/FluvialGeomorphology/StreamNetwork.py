@@ -401,10 +401,11 @@ class StreamNetwork:
                 # copy scratch watershed size to scratch_output
                 # necessary because otherwise AlterField gets upset about altering a joined table
                 log("copying watershed size data to new feature class")
-                arcpy.management.CopyFeatures(scratch_watershed_size, scratch_feature)
+                arcpy.management.CopyFeatures(scratch_watershed_size, scratch_output)
+                scratch_feature = scratch_output # annoying workaround for https://pro.arcgis.com/en/pro-app/3.4/tool-reference/tool-errors-and-warnings/001001-010000/tool-errors-and-warnings-00726-00750-000733.htm
 
                 # rename MAX field created by zonal stats
-                watershed_size_field = find_field(scratch_max, alias="MAX")
+                watershed_size_field = find_field(scratch_feature, alias="MAX")
                 arcpy.management.AlterField(
                     in_table=scratch_feature,
                     field=watershed_size_field.name,
@@ -451,7 +452,7 @@ class StreamNetwork:
 
                 # calculate values from regression equations
                 # for update cursor
-                with arcpy.da.UpdateCursor(output_file, [watershed_size_field.name, "RegionID91", "RegionID06", field_name]) as cursor:
+                with arcpy.da.UpdateCursor(scratch_feature, ["wshed_area", "RegionID91", "RegionID06", field_name]) as cursor:
                     for line in cursor:
                         da, region91, region06 = line[0], line[1], line[2]
                         if da is not None:
