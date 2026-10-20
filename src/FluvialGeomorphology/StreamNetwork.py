@@ -347,6 +347,14 @@ class StreamNetwork:
                     method="BILINEAR",
                     z_factor=z_factor,
                 )
+                # alias Avg_Slope field
+                slope_field = find_field(scratch_feature, alias="Avg_Slope")
+                arcpy.management.AlterField(
+                    in_table=scratch_feature,
+                    field=slope_field.name,
+                    new_field_name="slope_per",
+                    new_field_alias="Slope (%)",
+                )
 
             # calculate watershed size if asked for or if statistics requiring it are called for
             if ("Watershed Size" in calc_fields) or ("Watershed Size" not in calc_fields and calc_fields):
