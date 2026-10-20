@@ -423,6 +423,7 @@ class StreamNetwork:
                     new_field_name="wshed_area",
                     new_field_alias=f"Drainage Area ({watershed_size_unit})",
                 )
+                fields_ex.add("wshed_area")
 
             # calculate rest of asked for fields
             for field in calc_fields:
