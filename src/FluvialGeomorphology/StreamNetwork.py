@@ -334,6 +334,7 @@ class StreamNetwork:
             log("creating stream feature")
             arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, "SIMPLIFY")
 
+        fields_ex = {f.name for f in arcpy.ListFields(scratch_feature)}
         if calc_fields:
             if "Slope" in calc_fields:
                 calc_fields.remove("Slope")
@@ -355,6 +356,7 @@ class StreamNetwork:
                     new_field_name="slope_per",
                     new_field_alias="Slope (%)",
                 )
+                fields_ex.add("slope_per")
 
             # calculate watershed size if asked for or if statistics requiring it are called for
             if ("Watershed Size" in calc_fields) or ("Watershed Size" not in calc_fields and calc_fields):
@@ -449,6 +451,8 @@ class StreamNetwork:
                 field_alias = field
                 fields_ex = [f.name for f in arcpy.ListFields(scratch_feature)]
                 if field_name not in fields_ex:
+                    fields_ex.add(field_name)
+
                     log(f"adding and calculating field: {field_alias}")
                     arcpy.management.AddField(
                         in_table=scratch_feature,
@@ -480,6 +484,10 @@ class StreamNetwork:
         # copy output to feature class
         log("copying output to feature class")
         arcpy.management.CopyFeatures(scratch_feature, output_file)
+
+        # remove unecessary fields
+        log("removing unecessary fields")
+        arcpy.management.DeleteField(output_file, fields_ex, method="KEEP_FIELDS")
 
         # add flow path polyline to map
         log("adding output to map")
