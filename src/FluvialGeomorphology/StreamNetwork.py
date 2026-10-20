@@ -426,7 +426,7 @@ class StreamNetwork:
                 fields_ex.add("wshed_area")
 
             # calculate rest of asked for fields
-            for field in calc_fields:
+            if calc_fields:
                 # hydrologic information
                 hydrologic_regions_91 = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'NY Hydrologic Regions', 'NY_Hydrologic_Regions_91.shp')
                 hydrologic_regions_06 = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'assets', 'NY Hydrologic Regions', 'NY_Hydrologic_Regions_06.shp')
@@ -448,10 +448,9 @@ class StreamNetwork:
                     output_type="LINE"
                 )
 
-                field_name = STREAM_STATS_FIELD_MAPPING[field]
-                field_alias = field
-                fields_ex = [f.name for f in arcpy.ListFields(scratch_feature)]
-                if field_name not in fields_ex:
+                for field in calc_fields:
+                    field_name = STREAM_STATS_FIELD_MAPPING[field]
+                    field_alias = field
                     fields_ex.add(field_name)
 
                     log(f"adding and calculating field: {field_alias}")
@@ -461,22 +460,20 @@ class StreamNetwork:
                         field_type="FLOAT",
                         field_alias=field_alias,
                     )
-                else:
-                    log(f"calculating field: {field_alias}")
 
-                # calculate values from regression equations
-                # for update cursor
-                with arcpy.da.UpdateCursor(scratch_feature, ["wshed_area", "RegionID91", "RegionID06", field_name]) as cursor:
-                    for line in cursor:
-                        da, region91, region06 = line[0], line[1], line[2]
-                        if da is not None:
-                            line[3] = calculate_statistics(
-                                region91=region91,
-                                region06=region06,
-                                field=field_name,
-                                drainage_area=Area(da, watershed_size_unit)
-                            )
-                        cursor.updateRow(line)
+                    # calculate values from regression equations
+                    # for update cursor
+                    with arcpy.da.UpdateCursor(scratch_feature, ["wshed_area", "RegionID91", "RegionID06", field_name]) as cursor:
+                        for line in cursor:
+                            da, region91, region06 = line[0], line[1], line[2]
+                            if da is not None:
+                                line[3] = calculate_statistics(
+                                    region91=region91,
+                                    region06=region06,
+                                    field=field_name,
+                                    drainage_area=Area(da, watershed_size_unit)
+                                )
+                            cursor.updateRow(line)
 
         # warn about empty outputs
         if is_empty(scratch_feature):
