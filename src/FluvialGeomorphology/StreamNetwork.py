@@ -425,6 +425,7 @@ class StreamNetwork:
                 keep_fields = {f.name for f in arcpy.ListFields(scratch_feature)}
 
             if "Slope" in calc_fields:
+                log("calculating slope for each stream feature")
                 calc_fields.remove("Slope")
 
                 linear_unit = get_linear_unit(scratch_feature)
