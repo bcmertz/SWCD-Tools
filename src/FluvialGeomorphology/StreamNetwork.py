@@ -10,7 +10,7 @@ import os
 
 import arcpy
 
-from helpers.features import find_field, is_empty
+from helpers.features import delete_field_safely, find_field, is_empty, list_user_fields
 from helpers.layers import get_oid
 from helpers.logging import error, log
 from helpers.parameter import raster_and_layer, set_required_parameter
