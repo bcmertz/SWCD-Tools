@@ -42,7 +42,7 @@ def is_empty(fc):
 
 
 def find_field(fc, name: str | None=None, alias: str | None=None) -> arcpy.Field | None:
-    # Get a list of fields for each feature class
+    """Get a list of fields for each feature class."""
     field_list = arcpy.ListFields(fc)
     for field in field_list:
         if field.aliasName == alias or field.name == name:
