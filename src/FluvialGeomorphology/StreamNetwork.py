@@ -424,6 +424,28 @@ class StreamNetwork:
                         )
                 keep_fields = {f.name for f in arcpy.ListFields(scratch_feature)}
 
+            if "Slope" in calc_fields:
+                calc_fields.remove("Slope")
+
+                linear_unit = get_linear_unit(scratch_feature)
+                z_factor = str(Distance(1, z_unit).to_unit(linear_unit).amount)
+                arcpy.sa.AddSurfaceInformation(
+                    in_feature_class=scratch_feature,
+                    in_surface=dem,
+                    out_property="AVG_SLOPE",
+                    method="BILINEAR",
+                    z_factor=z_factor,
+                )
+                # alias Avg_Slope field
+                slope_field = find_field(scratch_feature, alias="Avg_Slope")
+                arcpy.management.AlterField(
+                    in_table=scratch_feature,
+                    field=slope_field.name,
+                    new_field_name="slope_per",
+                    new_field_alias="Slope (%)",
+                )
+                keep_fields.add("slope_per")
+
             # calculate stream stats fields
             if calc_fields:
                 # hydrologic information
@@ -473,28 +495,6 @@ class StreamNetwork:
                                     drainage_area=Area(da, watershed_size_unit)
                                 )
                             cursor.updateRow(line)
-
-            if "Slope" in calc_fields:
-                calc_fields.remove("Slope")
-
-                linear_unit = get_linear_unit(scratch_feature)
-                z_factor = str(Distance(1, z_unit).to_unit(linear_unit).amount)
-                arcpy.sa.AddSurfaceInformation(
-                    in_feature_class=scratch_feature,
-                    in_surface=dem,
-                    out_property="AVG_SLOPE",
-                    method="BILINEAR",
-                    z_factor=z_factor,
-                )
-                # alias Avg_Slope field
-                slope_field = find_field(scratch_feature, alias="Avg_Slope")
-                arcpy.management.AlterField(
-                    in_table=scratch_feature,
-                    field=slope_field.name,
-                    new_field_name="slope_per",
-                    new_field_alias="Slope (%)",
-                )
-                keep_fields.add("slope_per")
 
         # warn about empty outputs
         if is_empty(scratch_feature):
