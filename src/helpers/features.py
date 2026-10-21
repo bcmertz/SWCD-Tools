@@ -47,3 +47,13 @@ def find_field(fc, name: str | None=None, alias: str | None=None) -> arcpy.Field
     for field in field_list:
         if field.aliasName == alias or field.name == name:
             return field
+
+
+def list_user_fields(fc) -> set[str]:
+    return {f for f in arcpy.ListFields(fc) if not f.required}
+
+
+def delete_fields_safely(fc, keep_fields: list[str] | set[str]) -> None:
+    """Remove fields that aren't requried or asked to be kept."""
+    remove_fields = {f.name for f in list_user_fields(fc)} - set(keep_fields)
+    arcpy.management.DeleteField(fc, list(remove_fields), method="DELETE_FIELDS")
