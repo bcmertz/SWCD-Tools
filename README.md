@@ -23,8 +23,9 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Watershed Delineation](#1-watershed-delineation-)
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
     - [Runoff Curve Number (RCN)](#3-runoff-curve-number-)
-    - [EFH-2](#4-efh-2-calculation-)
-    - [Watershed Size Raster](#5-watershed-size-raster-)
+    - [StreamStats (NY)](#4-streamstats-ny-)
+    - [EFH-2](#5-efh-2-calculation-)
+    - [Watershed Size Raster](#6-watershed-size-raster-)
   - [Terrain Analysis](#terrain-analysis-)
     - [Model Potential Wetlands](#1-model-potential-wetlands-)
     - [Topographic Wetness Index (TWI)](#2-topographic-wetness-index-twi-)
@@ -243,11 +244,15 @@ Note: in order to use this tool you must have land use / runoff curve number dat
 <img src="./assets/readme_examples/runoff_curve_numbers_rcn_table.png" alt="a picture of a raster attribute table showing runoff curve number values for hydrologic soil groups A,B,C,D for " width="800"/>
 </span>
 
-### 4. EFH-2 Calculation [↑](#table-of-contents)
+### 4. StreamStats (NY) [↑](#table-of-contents)
+
+Calculate StreamStats peak flow and bankfull statistics based on drainage area. This is an implementation of regression equations from [Lumia et al 2006](https://pubs.usgs.gov/sir/2006/5112/) and [Mulvihill et al 2009](https://pubs.usgs.gov/sir/2009/5144/). This is limited to New York.
+
+### 5. EFH-2 Calculation [↑](#table-of-contents)
 
 Perform EFH-2 runoff calculations for a given watershed using DEM and land-use data.
 
-### 5. Watershed Size Raster [↑](#table-of-contents)
+### 6. Watershed Size Raster [↑](#table-of-contents)
 
 Take a DEM and a user defined areal unit and generate a raster where each cell's value represents the watershed size (in specified units) at that location.
 
@@ -567,7 +572,7 @@ git clone git@github.com:bcmertz/arcpy-typestubs.git arcpy
 
 This project kindly asks contributors to refrain from submitting LLM generated code. If you don't have capacity to program without LLMs, creating a [new issue](https://github.com/bcmertz/SWCD-Tools/issues/new) with your desired change is welcomed :).
 
-If you want to learn more about the issues with LLMs in open source and society, a good starting point is [Why not LLMs?](https://codeberg.org/ethical-foss/open-slopware/src/branch/main/why_not_llms.md#ties-to-the-war-industrial-complex) by `ethical-foss`.
+If you want to learn more about the issues with LLMs in open source and society, a good starting point is [Why not LLMs?](https://codeberg.org/ethical-foss/open-slopware/src/branch/main/why_not_llms.md) by `ethical-foss`.
 
 # License [↑](#table-of-contents)
 
