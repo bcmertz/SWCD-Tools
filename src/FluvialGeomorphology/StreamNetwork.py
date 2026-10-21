@@ -334,36 +334,17 @@ class StreamNetwork:
             log("creating stream feature")
             arcpy.sa.StreamToFeature(con_accumulation, flow_direction, scratch_feature, "SIMPLIFY")
 
-        fields_ex = {f.name for f in arcpy.ListFields(scratch_feature)}
+        # remove `arcid` and `grid_code` fields and save copy of "good" field names
+        arcpy.management.DeleteField(scratch_feature, ["arcid", "grid_code"])
+        keep_fields = {f.name for f in arcpy.ListFields(scratch_feature)}
+
         if calc_fields:
-            if "Slope" in calc_fields:
-                calc_fields.remove("Slope")
-
-                linear_unit = get_linear_unit(scratch_feature)
-                z_factor = str(Distance(1, z_unit).to_unit(linear_unit).amount)
-                arcpy.sa.AddSurfaceInformation(
-                    in_feature_class=scratch_feature,
-                    in_surface=dem,
-                    out_property="AVG_SLOPE",
-                    method="BILINEAR",
-                    z_factor=z_factor,
-                )
-                # alias Avg_Slope field
-                slope_field = find_field(scratch_feature, alias="Avg_Slope")
-                arcpy.management.AlterField(
-                    in_table=scratch_feature,
-                    field=slope_field.name,
-                    new_field_name="slope_per",
-                    new_field_alias="Slope (%)",
-                )
-                fields_ex.add("slope_per")
-
             # calculate watershed size if asked for or if statistics requiring it are called for
             if ("Watershed Size" in calc_fields) or ("Watershed Size" not in calc_fields and calc_fields):
                 # get rid of field if it exists
                 calc_fields.discard("Watershed Size")
 
-                # fields_set = set(calc_fields) - set("Watershed Size")
+                # set watershed size unit
                 if watershed_size_unit is None:
                     watershed_size_unit = AREAL_UNITS.SquareMilesUS
 
@@ -413,17 +394,57 @@ class StreamNetwork:
                 # necessary because otherwise AlterField gets upset about altering a joined table
                 log("copying watershed size data to new feature class")
                 arcpy.management.CopyFeatures(scratch_watershed_size, scratch_output)
+                feature_basename = os.path.basename(scratch_feature)
                 scratch_feature = scratch_output # annoying workaround for https://pro.arcgis.com/en/pro-app/3.4/tool-reference/tool-errors-and-warnings/001001-010000/tool-errors-and-warnings-00726-00750-000733.htm
 
                 # rename MAX field created by zonal stats
                 watershed_size_field = find_field(scratch_feature, alias="MAX")
+                watershed_size_field_new_name = "wshed_area"
                 arcpy.management.AlterField(
                     in_table=scratch_feature,
                     field=watershed_size_field.name,
-                    new_field_name="wshed_area",
+                    new_field_name=watershed_size_field_new_name,
                     new_field_alias=f"Drainage Area ({watershed_size_unit})",
                 )
-                fields_ex.add("wshed_area")
+                keep_fields.add(watershed_size_field_new_name)
+
+                # cleanup messed up field names from zonalstatisticsastable output which
+                # appends the fc basename to the front of the field name
+                zonst_basename = os.path.basename(scratch_zonst)
+                user_fields = list_user_fields(scratch_feature)
+                for field in user_fields:
+                    if field.name.startswith(zonst_basename):
+                        arcpy.management.DeleteField(scratch_feature, field.name)
+                    elif field.name.startswith(feature_basename):
+                        new_name = field.name.removeprefix(feature_basename+"_")
+                        arcpy.management.AlterField(
+                            in_table=scratch_feature,
+                            field=field.name,
+                            new_field_name=new_name,
+                        )
+                keep_fields = {f.name for f in arcpy.ListFields(scratch_feature)}
+
+            if "Slope" in calc_fields:
+                calc_fields.remove("Slope")
+
+                linear_unit = get_linear_unit(scratch_feature)
+                z_factor = str(Distance(1, z_unit).to_unit(linear_unit).amount)
+                arcpy.sa.AddSurfaceInformation(
+                    in_feature_class=scratch_feature,
+                    in_surface=dem,
+                    out_property="AVG_SLOPE",
+                    method="BILINEAR",
+                    z_factor=z_factor,
+                )
+                # alias Avg_Slope field
+                slope_field = find_field(scratch_feature, alias="Avg_Slope")
+                arcpy.management.AlterField(
+                    in_table=scratch_feature,
+                    field=slope_field.name,
+                    new_field_name="slope_per",
+                    new_field_alias="Slope (%)",
+                )
+                keep_fields.add("slope_per")
 
             # calculate rest of asked for fields
             if calc_fields:
@@ -451,7 +472,7 @@ class StreamNetwork:
                 for field in calc_fields:
                     field_name = STREAM_STATS_FIELD_MAPPING[field]
                     field_alias = field
-                    fields_ex.add(field_name)
+                    keep_fields.add(field_name)
 
                     log(f"adding and calculating field: {field_alias}")
                     arcpy.management.AddField(
@@ -481,7 +502,7 @@ class StreamNetwork:
 
         # remove unecessary fields
         log("removing unecessary fields")
-        delete_fields_safely(scratch_feature, keep_fields)
+        delete_field_safely(scratch_feature, keep_fields, method="KEEP_FIELDS")
 
         # copy output to feature class
         log("copying output to feature class")
