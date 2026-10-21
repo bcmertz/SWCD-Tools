@@ -220,8 +220,8 @@ class StreamNetwork:
         # parameters[3] is just a toggle for updateParameters to visualize what the user is doing
         stream = parameters[4].value
         threshold = Area(parameters[5].valueAsText) if parameters[5].value is not None else None
-        keep_fields: list[str] = parameters[6].valueAsText.split(";") if parameters[6].value is not None else []
-        calc_fields: set[str] = set(parameters[7].valueAsText.replace("'","").split(";")) if parameters[7].value is not None else set()
+        keep_fields: set[str] = parameters[6].valueAsText.split(";") if parameters[6].value is not None else set()
+        calc_fields: set[str] = set(parameters[7].valueAsText.replace("\'","").split(";")) if parameters[7].value is not None else set()
         # read in areal unit and map it's pretty string to the arcpy representation
         watershed_size_unit = AREAL_UNITS(parameters[8].valueAsText) if parameters[8].value is not None else None
         output_file = parameters[9].valueAsText
