@@ -479,13 +479,13 @@ class StreamNetwork:
         if is_empty(scratch_feature):
             error("Warning: empty output created. Ensure stream initiation data and DEM are valid in study area selected.")
 
+        # remove unecessary fields
+        log("removing unecessary fields")
+        delete_fields_safely(scratch_feature, keep_fields)
+
         # copy output to feature class
         log("copying output to feature class")
         arcpy.management.CopyFeatures(scratch_feature, output_file)
-
-        # remove unecessary fields
-        log("removing unecessary fields")
-        arcpy.management.DeleteField(output_file, fields_ex, method="KEEP_FIELDS")
 
         # add flow path polyline to map
         log("adding output to map")
