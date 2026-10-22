@@ -15,7 +15,7 @@ from .StreambankDetection import StreambankDetection
 from .StreamCenterlineAdjuster import LeastAction
 from .StreamElevation import StreamElevation
 from .StreamNetwork import StreamNetwork
-from .StreamSlope import StreamSlope, stream_slope
+from .StreamSlope import StreamSlope, calculate_slope
 
 __all__ = [
     "GenerateCrossSections",
@@ -24,7 +24,7 @@ __all__ = [
     "StreamNetwork",
     "StreamSlope",
     "StreambankDetection",
+    "calculate_slope",
     "generate_transects",
-    "stream_slope",
     "transect_line",
 ]

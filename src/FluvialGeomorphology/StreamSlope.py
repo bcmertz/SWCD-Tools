@@ -22,7 +22,7 @@ from helpers.tool import setup_environment as setup
 from helpers.units import SPATIAL_UNITS, Distance, get_linear_unit, get_z_unit
 
 
-def stream_slope(stream, dem, z_factor):
+def calculate_slope(stream, dem, z_factor):
     # check if slope was calculated previously so we can overwrite it
     slope_prev = find_field(stream, name="slope_per")
     if slope_prev:
@@ -142,7 +142,7 @@ class StreamSlope:
         z_factor = str(Distance(1, z_unit).to_unit(linear_unit).amount)
 
         # calculating stream slope
-        stream_slope(stream, dem, z_factor)
+        calculate_slope(stream, dem, z_factor)
 
         # TODO: check if stream fc is already in map
         # add output_file to map
