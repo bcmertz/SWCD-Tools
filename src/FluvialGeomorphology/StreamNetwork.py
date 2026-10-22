@@ -26,6 +26,8 @@ from helpers.tool import setup_environment as setup
 from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance, get_linear_unit, get_z_unit
 from Hydrology import STREAM_STATS_FIELD_MAPPING, calculate_statistics
 
+from .StreamSlope import calculate_slope
+
 
 class StreamNetwork:
     def __init__(self):
@@ -428,23 +430,15 @@ class StreamNetwork:
                 log("calculating slope for each stream feature")
                 calc_fields.remove("Slope")
 
-                linear_unit = get_linear_unit(scratch_feature)
+                # z_factor converts dem z linear units to dem x,y linear units
+                log("finding z_factor of dem")
+                linear_unit = get_linear_unit(dem)
                 z_factor = str(Distance(1, z_unit).to_unit(linear_unit).amount)
-                arcpy.sa.AddSurfaceInformation(
-                    in_feature_class=scratch_feature,
-                    in_surface=dem,
-                    out_property="AVG_SLOPE",
-                    method="BILINEAR",
-                    z_factor=z_factor,
-                )
-                # alias Avg_Slope field
-                slope_field = find_field(scratch_feature, alias="Avg_Slope")
-                arcpy.management.AlterField(
-                    in_table=scratch_feature,
-                    field=slope_field.name,
-                    new_field_name="slope_per",
-                    new_field_alias="Slope (%)",
-                )
+
+                # calculate stream slope
+                calculate_slope(scratch_feature, dem, z_factor)
+
+                # add slope field
                 keep_fields.add("slope_per")
 
             # calculate stream stats fields
