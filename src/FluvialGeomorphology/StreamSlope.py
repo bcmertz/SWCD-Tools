@@ -154,6 +154,11 @@ class StreamSlope:
         if extent:
             arcpy.env.extent = extent
 
+        # add stream to map if it's not already
+        if not find_layer(active_map, stream):
+            log("stream data to map")
+            stream = active_map.addDataFromPath(stream)
+
         # z_factor converts dem z linear units to dem x,y linear units
         log("finding z_factor of dem")
         linear_unit = get_linear_unit(dem)
@@ -161,11 +166,6 @@ class StreamSlope:
 
         # calculating stream slope
         calculate_slope(stream, dem, z_factor)
-
-        # add output_file to map if it's not already
-        if not find_layer(active_map, stream):
-            log("adding output to map")
-            active_map.addDataFromPath(stream)
 
         # save and exit program successfully
         log("saving project")
