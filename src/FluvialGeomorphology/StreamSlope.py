@@ -9,6 +9,7 @@
 import arcpy
 
 from helpers.features import find_field
+from helpers.layers import find_layer
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
@@ -144,10 +145,10 @@ class StreamSlope:
         # calculating stream slope
         calculate_slope(stream, dem, z_factor)
 
-        # TODO: check if stream fc is already in map
-        # add output_file to map
-        log("adding output to map")
-        active_map.addDataFromPath(stream)
+        # add output_file to map if it's not already
+        if not find_layer(active_map, stream):
+            log("adding output to map")
+            active_map.addDataFromPath(stream)
 
         # save and exit program successfully
         log("saving project")

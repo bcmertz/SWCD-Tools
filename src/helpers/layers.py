@@ -23,3 +23,17 @@ def add_layer_to_group(active_map, group, layer, hide=False):
     if hide:
         new_layer.visible = False
     return new_layer
+
+
+def find_layer(active_map, data_source: str) -> arcpy._mp.Layer | None:
+    """Find layer from data source if it exists.
+    data_source - file path, layer name, or layer long name
+    """
+    layers = active_map.listLayers()
+    for layer in layers:
+        if layer.supports("DATASOURCE") and layer.dataSource == data_source:  # noqa: SIM114
+            return layer
+        elif layer.supports("NAME") and layer.name == data_source:  # noqa: SIM114
+            return layer
+        elif layer.supports("LONGNAME") and layer.longName == data_source:
+            return layer
