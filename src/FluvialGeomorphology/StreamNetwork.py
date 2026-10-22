@@ -195,7 +195,7 @@ class StreamNetwork:
         return license([EXTENSIONS.Spatial])
 
     def updateMessages(self, parameters):
-        "Modify the messages created by internal validation for each tool parameter."""
+        """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
         # toggle existing stream lines /  watershed threshold
