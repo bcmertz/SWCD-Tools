@@ -148,7 +148,7 @@ class StreamSlope:
         dem, _ = raster_and_layer(parameters[0].value)
         z_unit = SPATIAL_UNITS[parameters[1].value].to_linear()
         extent = parameters[2].value
-        stream = parameters[3].value
+        stream = parameters[3].valueAsText
 
         # set analysis extent
         if extent:
