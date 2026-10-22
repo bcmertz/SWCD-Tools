@@ -24,12 +24,15 @@ from helpers.units import SPATIAL_UNITS, Distance, get_linear_unit, get_z_unit
 
 
 def calculate_slope(stream, dem, z_factor):
-    # check if slope was calculated previously so we can overwrite it
-    slope_prev = find_field(stream, name="slope_per")
-    if slope_prev:
-        log("removing old slope information")
-        arcpy.management.DeleteField(stream, ["slope_per"])
+    """Calculate slope on a given feature class, layer, or shapefile.
+    stream - fc, layer, or shapefile
+    dem - raster
+    z_factor - conversion factor for dem z linear units to dem x,y linear units
 
+    Note: we have to add a new field, transfer over data, and delete the old field
+    as opposed to using alterfield because it only works on feature classes and fails
+    with shapefiles as of arcpy 3.4
+    """
     # calculate percent slope
     log("calculating percent slope")
     arcpy.sa.AddSurfaceInformation(
@@ -40,15 +43,29 @@ def calculate_slope(stream, dem, z_factor):
         z_factor=z_factor,
     )
 
-    # alias Avg_Slope field
-    log("updating field name")
-    slope_field = find_field(stream, name="Avg_Slope")
-    arcpy.management.AlterField(
+    # check if slope was calculated previously so we can overwrite
+    log("renaming slope field")
+    slope_prev = find_field(stream, name="slope_per")
+    if not slope_prev:
+        arcpy.management.AddField(
+            in_table=stream,
+            field_name="slope_per",
+            field_type="DOUBLE",
+            field_alias="Slope (%)",
+        )
+
+    # transfer slope values to output field
+    slope_out = find_field(stream, name="slope_per")
+    slope_tmp = find_field(stream, name="Avg_Slope")
+    arcpy.management.CalculateField(
         in_table=stream,
-        field=slope_field.name,
-        new_field_name="slope_per",
-        new_field_alias="Slope (%)",
+        field=slope_out.name,
+        expression=f"!{slope_tmp.name}!",
     )
+
+    # delete unwanted slope field
+    arcpy.management.DeleteField(stream, [slope_tmp.name], "DELETE_FIELDS")
+
 
 class StreamSlope:
     def __init__(self):
