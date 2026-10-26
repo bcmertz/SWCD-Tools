@@ -293,7 +293,7 @@ class Distance(BaseAmount):
         if not isinstance(other, Distance):
             return False
         else:
-            other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
+            other_length = other.to_unit(self.unit).length
             return self.length == other_length
 
     def __ne__(self: Self, other) -> bool:
@@ -302,32 +302,32 @@ class Distance(BaseAmount):
 
     def __lt__(self: Self, other: Self) -> bool:
         # Less than
-        other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
+        other_length = other.to_unit(self.unit).length
         return self.length < other_length
 
     def __gt__(self: Self, other: Self) -> bool:
         # Greater than
-        other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
+        other_length = other.to_unit(self.unit).length
         return self.length > other_length
 
     def __le__(self: Self, other: Self) -> bool:
         # Less or equal
-        other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
+        other_length = other.to_unit(self.unit).length
         return self.length <= other_length
 
     def __ge__(self: Self, other: Self) -> bool:
         # Greater or equal
-        other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
+        other_length = other.to_unit(self.unit).length
         return self.length >= other_length
 
     def __add__(self: Self, other: Self) -> Self:
-        other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
+        other_length = other.to_unit(self.unit).length
         out = copy(self)
         out.length += other_length
         return out
 
     def __sub__(self: Self, other: Self) -> Self:
-        other_length = other.length * arcpy.LinearUnitConversionFactor(str(other.unit), str(self.unit))
+        other_length = other.to_unit(self.unit).length
         out = copy(self)
         out.length -= other_length
         return out
@@ -397,7 +397,7 @@ class Area(BaseAmount):
         if not isinstance(other, Area):
             return False
         else:
-            other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
+            other_area = other.to_unit(self.unit).area
             return self.area == other_area
 
     def __ne__(self: Self, other) -> bool:
@@ -406,32 +406,32 @@ class Area(BaseAmount):
 
     def __lt__(self: Self, other: Self) -> bool:
         # Less than
-        other_area = other.length * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
+        other_area = other.to_unit(self.unit).area
         return self.length < other_area
 
     def __gt__(self: Self, other: Self) -> bool:
         # Greater than
-        other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
+        other_area = other.to_unit(self.unit).area
         return self.area > other_area
 
     def __le__(self: Self, other: Self) -> bool:
         # Less or equal
-        other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
+        other_area = other.to_unit(self.unit).area
         return self.area <= other_area
 
     def __ge__(self: Self, other: Self) -> bool:
         # Greater or equal
-        other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
+        other_area = other.to_unit(self.unit).area
         return self.area >= other_area
 
     def __add__(self: Self, other: Self) -> Self:
-        other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
+        other_area = other.to_unit(self.unit).area
         out = copy(self)
         out.area += other_area
         return out
 
     def __sub__(self: Self, other: Self) -> Self:
-        other_area = other.area * arcpy.ArealUnitConversionFactor(str(other.unit), str(self.unit))
+        other_area = other.to_unit(self.unit).area
         out = copy(self)
         out.area -= other_area
         return out
