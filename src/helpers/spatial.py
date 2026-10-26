@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------------
-# Name:        Features Helper
-# Purpose:     This package contains various tools for working with arcpy features.
+# Name:        Spatial Reference Helper
+# Purpose:     This package contains various tools for working with spatial references.
 #
 # License:     Contextual Copyleft AI (CCAI) License v1.0.
 #              Full license in LICENSE file.
