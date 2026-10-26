@@ -434,7 +434,7 @@ class Flow(BaseAmount):
     # (https://github.com/astral-sh/ty/issues/2805)
     @singledispatchmethod
     def __init__(self, input):
-        """Accepts distance and unit either:
+        """Accepts discharge and unit either:
         1) Separately:
            - Flow(4, "CFS")
            - Flow(5, "cf^3")
@@ -545,7 +545,7 @@ class Slope(BaseAmount):
     # (https://github.com/astral-sh/ty/issues/2805)
     @singledispatchmethod
     def __init__(self, input):
-        """Accepts distance and unit either:
+        """Accepts slope and unit either:
         1) Separately:
            - Slope(4, "Percent")
            - Slope(4, SLOPE_UNITS.Percent)
