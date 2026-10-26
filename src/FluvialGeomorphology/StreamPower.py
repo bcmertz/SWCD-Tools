@@ -90,8 +90,6 @@ class StreamPower:
         param6.parameterDependencies = [param0.name]
         param6.schema.clone = True
 
-        # TODO: type of power - specific, index, total
-
         params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
@@ -151,7 +149,7 @@ class StreamPower:
         log("calculating stream power at each discharge given")
         for discharge_field in discharge_fields:
             # add field and calculate power
-            power_field = discharge_field[0:4] + "_power" # TODO add units
+            power_field = discharge_field[0:4] + "_power"
             arcpy.management.CalculateField(
                 in_table=output_file,
                 field=power_field,
