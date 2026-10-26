@@ -17,9 +17,10 @@ from helpers.logging import log, warn
 from helpers.parameter import raster_and_layer, sanitize, set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.rasters import pixel_type
+from helpers.spatial import get_z_unit
 from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
 from helpers.tool import setup_environment as setup
-from helpers.units import LINEAR_UNITS, SPATIAL_UNITS, Distance, get_z_unit
+from helpers.units import LINEAR_UNITS, SPATIAL_UNITS, Distance
 
 
 class BermAnalysis:

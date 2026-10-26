@@ -13,9 +13,10 @@ from helpers.layers import get_oid
 from helpers.logging import log, warn
 from helpers.parameter import raster_and_layer, set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate
+from helpers.spatial import get_z_unit
 from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
 from helpers.tool import setup_environment as setup
-from helpers.units import SPATIAL_UNITS, get_z_unit
+from helpers.units import SPATIAL_UNITS
 
 
 class PotentialWetlands:
