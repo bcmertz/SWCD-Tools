@@ -135,7 +135,7 @@ class StreamElevation:
         return license([EXTENSIONS.Spatial, EXTENSIONS.Foundation])
 
     def updateMessages(self, parameters):
-        "Modify the messages created by internal validation for each tool parameter."""
+        """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
 
     @reload_module(__name__)

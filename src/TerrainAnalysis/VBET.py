@@ -12,9 +12,10 @@ from helpers.features import is_empty
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
+from helpers.spatial import get_z_unit
 from helpers.tool import EXTENSIONS, empty_workspace, license, reload_module
 from helpers.tool import setup_environment as setup
-from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance, get_z_unit
+from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance
 from TerrainAnalysis import relative_elevation_model
 
 

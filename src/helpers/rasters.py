@@ -10,11 +10,8 @@ from enum import StrEnum
 
 import arcpy
 
-from .units import (
-    Area,
-    Distance,
-    get_linear_unit,
-)
+from .spatial import get_linear_unit
+from .units import Area, Distance
 
 
 class PIXEL_TYPE(StrEnum):

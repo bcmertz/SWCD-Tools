@@ -10,9 +10,10 @@ import arcpy
 
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
+from helpers.spatial import get_linear_unit, get_z_unit
 from helpers.tool import EXTENSIONS, license, reload_module
 from helpers.tool import setup_environment as setup
-from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance, get_linear_unit, get_z_unit
+from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance
 
 
 class SurfaceArea:
