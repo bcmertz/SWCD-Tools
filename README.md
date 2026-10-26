@@ -19,7 +19,8 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Stream Centerline Adjuster](#3-stream-centerline-adjuster-)
     - [Streambank Detection](#4-streambank-detection-)
     - [Stream Slope](#5-stream-slope-)
-    - [Generate Cross-Sections](#6generate-cross-sections-)
+    - [Stream Power](#6-stream-power-)
+    - [Generate Cross-Sections](#7-generate-cross-sections-)
   - [Hydrology](#hydrology-)
     - [Watershed Delineation](#1-watershed-delineation-)
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
@@ -201,7 +202,11 @@ Example above shows an ouput raster of streambank likelihood based off of the DE
 
 This tool adds and calculates a percent slope field to each stream line segment.
 
-### 6. Generate Cross-Sections [↑](#table-of-contents)
+### 6. Stream Power [↑](#table-of-contents)
+
+This tool adds and calculates stream power (Watts) for each stream line segment.
+
+### 7. Generate Cross-Sections [↑](#table-of-contents)
 
 Generate cross-sections along a stream line
 
