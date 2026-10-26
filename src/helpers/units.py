@@ -252,18 +252,14 @@ class Distance(BaseAmount):
         unit, *rest = unit.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=length, unit=LINEAR_UNITS(unit))
-        else:
-            super().__init__(amount=length, unit=LINEAR_UNITS[unit])
+        super().__init__(amount=length, unit=LINEAR_UNITS(unit))
 
     @__init__.register
     def _(self, quantity: str):
         length, unit, *rest = quantity.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=float(length), unit=LINEAR_UNITS(unit))
-        else:
-            super().__init__(amount=float(length), unit=LINEAR_UNITS[unit])
+        super().__init__(amount=float(length), unit=LINEAR_UNITS(unit))
 
     @property
     def length(self) -> int | float:
@@ -356,18 +352,14 @@ class Area(BaseAmount):
         unit, *rest = unit.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=area, unit=AREAL_UNITS(unit))
-        else:
-            super().__init__(amount=area, unit=AREAL_UNITS[unit])
+        super().__init__(amount=area, unit=AREAL_UNITS(unit))
 
     @__init__.register
     def _(self, quantity: str):
         area, unit, *rest = quantity.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=float(area), unit=AREAL_UNITS(unit))
-        else:
-            super().__init__(amount=float(area), unit=AREAL_UNITS[unit])
+        super().__init__(amount=float(area), unit=AREAL_UNITS(unit))
 
     @property
     def area(self) -> int | float:
@@ -460,18 +452,14 @@ class Flow(BaseAmount):
         unit, *rest = unit.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=discharge, unit=FLOW_UNITS(unit))
-        else:
-            super().__init__(amount=discharge, unit=FLOW_UNITS[unit])
+        super().__init__(amount=discharge, unit=FLOW_UNITS(unit))
 
     @__init__.register
     def _(self, quantity: str):
         discharge, unit, *rest = quantity.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=float(discharge), unit=FLOW_UNITS(unit))
-        else:
-            super().__init__(amount=float(discharge), unit=FLOW_UNITS[unit])
+        super().__init__(amount=float(discharge), unit=FLOW_UNITS(unit))
 
     @property
     def discharge(self) -> int | float:
@@ -575,18 +563,14 @@ class Slope(BaseAmount):
         unit, *rest = unit.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=slope, unit=SLOPE_UNITS(unit))
-        else:
-            super().__init__(amount=slope, unit=SLOPE_UNITS[unit])
+        super().__init__(amount=slope, unit=SLOPE_UNITS(unit))
 
     @__init__.register
     def _(self, quantity: str):
         slope, unit, *rest = quantity.split(" ")
         if rest:
             unit += " " + " ".join(rest)
-            super().__init__(amount=float(slope), unit=SLOPE_UNITS(unit))
-        else:
-            super().__init__(amount=float(slope), unit=SLOPE_UNITS[unit])
+        super().__init__(amount=float(slope), unit=SLOPE_UNITS(unit))
 
     @property
     def slope(self) -> int | float:
