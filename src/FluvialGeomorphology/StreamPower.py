@@ -144,8 +144,8 @@ class StreamPower:
 
         # find unit conversions
         log("finding unit conversions")
-        slope_adjust = Slope(1, slope_unit).to_unit(SLOPE_UNITS.Ratio).
-        flow_adjust = Flow(1, flow_unit).to_unit(FLOW_UNITS.CMS)
+        slope_adjust = Slope(1, slope_unit).to_unit(SLOPE_UNITS.Ratio).slope
+        flow_adjust = Flow(1, flow_unit).to_unit(FLOW_UNITS.CMS).discharge
 
         # calculate stream power for each discharge field
         log("calculating stream power at each discharge given")
