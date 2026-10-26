@@ -8,7 +8,6 @@
 import arcpy
 
 from helpers.logging import log
-from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
     EXTENSIONS,
@@ -17,8 +16,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import FLOW_UNITS, SLOPE_UNITS, SPATIAL_UNITS, Flow, Slope
-from helpers.spatial import get_z_unit
+from helpers.units import FLOW_UNITS, SLOPE_UNITS, Flow, Slope
 
 
 class StreamPower:
