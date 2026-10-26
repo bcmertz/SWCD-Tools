@@ -547,12 +547,10 @@ class Slope(BaseAmount):
     def __init__(self, input):
         """Accepts distance and unit either:
         1) Separately:
-           - Slope(4, "CFS")
-           - Slope(5, "cf^3")
-           - Slope(4, SLOPE_UNITS.CFS)
+           - Slope(4, "Percent")
+           - Slope(4, SLOPE_UNITS.Percent)
         2) Together:
-           - Slope("4 CFS")
-           - Slope("5 cf^3")
+           - Slope("4 Percent")
         """
         raise TypeError(
             f"Parameters must either be one of 1) input: str, unit: None 2) input: float | int, unit: str | SLOPE_UNITS. Received {input}"
