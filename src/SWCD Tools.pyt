@@ -31,6 +31,7 @@ class Toolbox:
             StreamNetwork,
             LeastAction,
             StreambankDetection,
+            StreamPower,
             StreamSlope,
             StreamElevation,
             GenerateCrossSections,
