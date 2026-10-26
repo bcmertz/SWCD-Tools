@@ -16,6 +16,7 @@ from helpers.logging import error, log
 from helpers.parameter import raster_and_layer, set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.rasters import cell_area
+from helpers.spatial import get_linear_unit, get_z_unit
 from helpers.tool import (
     EXTENSIONS,
     empty_workspace,
@@ -23,7 +24,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance, get_linear_unit, get_z_unit
+from helpers.units import AREAL_UNITS, SPATIAL_UNITS, Area, Distance
 from Hydrology import STREAM_STATS_FIELD_MAPPING, calculate_statistics
 
 from .StreamSlope import calculate_slope

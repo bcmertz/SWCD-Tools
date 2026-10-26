@@ -13,6 +13,7 @@ from helpers.layers import find_layer
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
+from helpers.spatial import get_linear_unit, get_z_unit
 from helpers.tool import (
     EXTENSIONS,
     empty_workspace,
@@ -20,7 +21,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import SPATIAL_UNITS, Distance, get_linear_unit, get_z_unit
+from helpers.units import SPATIAL_UNITS, Distance
 
 
 def calculate_slope(stream, dem, z_factor):
