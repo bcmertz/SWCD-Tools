@@ -204,7 +204,7 @@ Example above shows an ouput raster of streambank likelihood based off of the DE
 This tool creates a raster inside a polygon representing the width at variously lengths along the centerline.
 
 <span>
-<img src="./assets/readme_examples/stream_width_after.png" alt="a picture showing a streambank polygon filled with red to blue colors representing output stream with data" width="400"/>
+<img src="./assets/readme_examples/stream_width_after.png" alt="a picture showing a streambank polygon filled with red to blue colors representing output stream with data" width="600"/>
 </span>
 
 Example above shows a typical output showing the width of bankfull throughout the bankfull polygon, as given by [Streambank Detection](#4-streambank-detection-).
