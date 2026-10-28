@@ -33,6 +33,7 @@ class Toolbox:
             StreambankDetection,
             StreamPower,
             StreamSlope,
+            StreamWidth,
             StreamElevation,
             GenerateCrossSections,
             CalculateEFH2,
