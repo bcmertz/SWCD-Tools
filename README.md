@@ -18,7 +18,7 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Calculate Stream Network](#2-calculate-stream-network-)
     - [Stream Centerline Adjuster](#3-stream-centerline-adjuster-)
     - [Streambank Detection](#4-streambank-detection-)
-    - [Stream Width](#6-stream-width-)
+    - [Stream Width](#5-stream-width-)
     - [Stream Slope](#6-stream-slope-)
     - [Stream Power](#7-stream-power-)
     - [Generate Cross-Sections](#8-generate-cross-sections-)
