@@ -18,9 +18,10 @@ This is a set of tools for various GIS workflows related to hydrology, geomorpho
     - [Calculate Stream Network](#2-calculate-stream-network-)
     - [Stream Centerline Adjuster](#3-stream-centerline-adjuster-)
     - [Streambank Detection](#4-streambank-detection-)
-    - [Stream Slope](#5-stream-slope-)
-    - [Stream Power](#6-stream-power-)
-    - [Generate Cross-Sections](#7-generate-cross-sections-)
+    - [Stream Width](#6-stream-width-)
+    - [Stream Slope](#6-stream-slope-)
+    - [Stream Power](#7-stream-power-)
+    - [Generate Cross-Sections](#8-generate-cross-sections-)
   - [Hydrology](#hydrology-)
     - [Watershed Delineation](#1-watershed-delineation-)
     - [Sub-Basin Delineation](#2-sub-basin-delineation-)
@@ -198,15 +199,27 @@ This tool finds most likely locations of streambanks based off of a DEM using re
 
 Example above shows an ouput raster of streambank likelihood based off of the DEM, where the closest peak in high raster values (white pixels) represents the likely top of bank.
 
-### 5. Stream Slope [↑](#table-of-contents)
+### 5. Stream Width [↑](#table-of-contents)
+
+This tool creates a raster inside a polygon representing the width at variously lengths along the centerline.
+
+<span>
+<img src="./assets/readme_examples/stream_width_after.png" alt="a picture showing a streambank polygon filled with red to blue colors representing output stream with data" width="400"/>
+</span>
+
+Example above shows a typical output showing the width of bankfull throughout the bankfull polygon, as given by [Streambank Detection](#4-streambank-detection-).
+
+
+
+### 6. Stream Slope [↑](#table-of-contents)
 
 This tool adds and calculates a percent slope field to each stream line segment.
 
-### 6. Stream Power [↑](#table-of-contents)
+### 7. Stream Power [↑](#table-of-contents)
 
 This tool adds and calculates stream power (Watts) for each stream line segment.
 
-### 7. Generate Cross-Sections [↑](#table-of-contents)
+### 8. Generate Cross-Sections [↑](#table-of-contents)
 
 Generate cross-sections along a stream line
 
