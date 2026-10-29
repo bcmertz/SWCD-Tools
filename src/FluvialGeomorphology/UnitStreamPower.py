@@ -41,7 +41,7 @@ class UnitStreamPower:
             displayName="Stream Line",
             name="stream",
             datatype="GPFeatureLayer",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param0.filter.list = ["PolyLine"]
 
