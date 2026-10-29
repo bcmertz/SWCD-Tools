@@ -95,11 +95,11 @@ class UnitStreamPower:
         if not parameters[0].hasBeenValidated:
             if parameters[0].value:
                 fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
-                parameters[2].enabled = True
-                parameters[2].filter.list = fields
+                parameters[1].enabled = True
+                parameters[1].filter.list = fields
             else:
-                parameters[2].value = None
-                parameters[2].enabled = False
+                parameters[1].value = None
+                parameters[1].enabled = False
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
