@@ -98,8 +98,8 @@ class UnitStreamPower:
                 parameters[2].enabled = True
                 parameters[2].filter.list = fields
             else:
-                parameters[4].value = None
-                parameters[4].enabled = False
+                parameters[2].value = None
+                parameters[2].enabled = False
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
