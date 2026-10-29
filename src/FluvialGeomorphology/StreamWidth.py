@@ -58,7 +58,7 @@ class StreamWidth:
             displayName="Minimum stream width",
             name="threshold",
             datatype="GPLinearUnit",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
 
         param3 = arcpy.Parameter(
