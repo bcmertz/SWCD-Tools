@@ -60,6 +60,9 @@ def set_required_parameter(toggle, parameter) -> None:
     """Set optional PARAMETER as required when TOGGLE is True."""
     if toggle and not parameter.value:
         parameter.setIDMessage("ERROR", 530)
+    else:
+        if parameter.hasError():
+            parameter.clearMessage()
 
 
 def sanitize(text):
