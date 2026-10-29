@@ -35,6 +35,7 @@ class Toolbox:
             StreamSlope,
             StreamWidth,
             StreamElevation,
+            UnitStreamPower,
             GenerateCrossSections,
             CalculateEFH2,
             RunoffCurveNumber,
