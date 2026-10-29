@@ -117,7 +117,7 @@ class UnitStreamPower:
 
         # read in parameters
         streams = parameters[0].valueAsText
-        power_field: set[str] = parameters[1].valueAsText
+        power_field = parameters[1].valueAsText
         extent = parameters[2].value
         width, _ = raster_and_layer(parameters[3].value)
         width_unit = LINEAR_UNITS[parameters[4].valueAsText]
