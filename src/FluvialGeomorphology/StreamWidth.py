@@ -17,7 +17,6 @@ from helpers.rasters import (
     coordinate_to_pixel,
     raster_max_coordinates,
 )
-from helpers.spatial import get_linear_unit
 from helpers.tool import (
     EXTENSIONS,
     empty_workspace,
@@ -25,7 +24,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import Distance
+from helpers.units import SPATIAL_UNITS, Distance
 
 
 class StreamWidth:
@@ -41,7 +40,7 @@ class StreamWidth:
             displayName="Stream Polygon",
             name="stream",
             datatype="GPFeatureLayer",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         param0.filter.list = ["Polygon"]
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
@@ -58,7 +57,7 @@ class StreamWidth:
             displayName="Minimum stream width",
             name="threshold",
             datatype="GPLinearUnit",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
 
         param3 = arcpy.Parameter(
@@ -90,11 +89,15 @@ class StreamWidth:
         log("setting up project")
         project, active_map = setup()
         spatial_reference = active_map.spatialReference
+        linear_unit = SPATIAL_UNITS[active_map.spatialReference.linearUnitName].to_linear()
 
         # read in parameters
         stream_polygon = parameters[0].valueAsText
         extent = parameters[1].value
         min_stream_radius = Distance(parameters[2].valueAsText) / 2 # width to radius
+        output_unit = min_stream_radius.unit
+        min_circle_size = min_stream_radius.to_unit(linear_unit).length
+        conversion_factor = Distance(1, linear_unit).to_unit(output_unit).length
         output_file = parameters[3].valueAsText
 
         # set analysis extent
@@ -116,11 +119,15 @@ class StreamWidth:
         arcpy.management.PolygonToLine(stream_polygon, scratch_stream_lines)
 
         # distance accumulation
+        #
+        # note - width unit will be in arcpy.env.outputCoordinateSystem linear_unit
         log("finding distances to edge")
         distance_raster = arcpy.sa.DistanceAccumulation(
             in_source_data=scratch_stream_lines,
             distance_method="GEODESIC"
         )
+        # convert linear_unit to output unit given by user supplied minimum stream radius
+        distance_raster = distance_raster * conversion_factor
         distance_raster.save(scratch_distance)
 
         # access size of file
@@ -135,11 +142,6 @@ class StreamWidth:
         pixelWidth = abs(geotransform[1])
         pixelHeight = abs(geotransform[5])
         pixelSize = (pixelWidth + pixelHeight) / 2
-
-        # keep track of center vertices and widths
-        log("calculating circle radius")
-        linear_unit = get_linear_unit(scratch_distance)
-        min_circle_size = min_stream_radius.to_unit(linear_unit).length
 
         # find the largest width, fill it with a circle of 1.5 * radius of the width
         # iterate, ignoring previously filled areas, until there are no distances left

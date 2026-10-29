@@ -30,6 +30,7 @@ class Toolbox:
             BufferPotential,
             StreamNetwork,
             LeastAction,
+            SpecificStreamPower,
             StreambankDetection,
             StreamPower,
             StreamSlope,
