@@ -11,13 +11,6 @@ import arcpy
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
-from helpers.rasters import (
-    cell_length,
-    circular_mask,
-    coordinate_to_pixel,
-    raster_max_coordinates,
-)
-from helpers.spatial import get_linear_unit
 from helpers.tool import (
     EXTENSIONS,
     empty_workspace,
