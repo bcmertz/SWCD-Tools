@@ -49,7 +49,6 @@ class UnitStreamPower:
             displayName="Stream Power Field",
             name="flow_field",
             datatype="GPString",
-            multiValue="True",
             parameterType="Required",
             direction="Input",
         )
