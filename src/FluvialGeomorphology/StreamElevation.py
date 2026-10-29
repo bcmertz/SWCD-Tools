@@ -12,7 +12,7 @@ import platform
 import arcpy
 
 from helpers.logging import log
-from helpers.parameter import raster_and_layer
+from helpers.parameter import raster_and_layer, set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
     EXTENSIONS,
@@ -43,17 +43,16 @@ class StreamElevation:
         param0.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows line creation
 
         param1 = arcpy.Parameter(
-            displayName="from_node field",
-            name="from",
-            datatype="GPString",
-            parameterType="Required",
+            displayName="Accumulate distance between network features?",
+            name="acc",
+            datatype="GPBoolean",
+            parameterType="Optional",
             direction="Input")
-        param1.filter.type = "ValueList"
-        param1.filter.list = []
+        param1.value = True
 
         param2 = arcpy.Parameter(
-            displayName="to_node field",
-            name="to",
+            displayName="from_node field",
+            name="from",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
@@ -61,74 +60,86 @@ class StreamElevation:
         param2.filter.list = []
 
         param3 = arcpy.Parameter(
+            displayName="to_node field",
+            name="to",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param3.filter.type = "ValueList"
+        param3.filter.list = []
+
+        param4 = arcpy.Parameter(
             displayName="Fields to keep",
             name="keep",
             datatype="GPString",
             parameterType="Optional",
             multiValue="True",
             direction="Input")
-        param3.filter.type = "ValueList"
-        param3.filter.list = []
+        param4.filter.type = "ValueList"
+        param4.filter.list = []
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
             displayName="DEM",
             name="dem",
             datatype="GPRasterLayer",
             parameterType="Required",
             direction="Input")
 
-        param5 = arcpy.Parameter(
+        param6 = arcpy.Parameter(
             displayName="Watershed",
             name="analysis_area",
             datatype="GPFeatureLayer",
             parameterType="Optional",
             direction="Input")
-        param5.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
+        param6.controlCLSID = '{60061247-BCA8-473E-A7AF-A2026DDE1C2D}' # allows polygon creation
 
-        param6 = arcpy.Parameter(
+        param7 = arcpy.Parameter(
             displayName="Point Spacing",
             name="point_spacing",
             datatype="GPLinearUnit",
             parameterType="Required",
             direction="Input")
 
-        param7 = arcpy.Parameter(
+        param8 = arcpy.Parameter(
             displayName="Output Table",
             name="out_table",
             datatype="DEFile",
             parameterType="Required",
             direction="Output")
-        param7.filter.list = ['csv']
+        param8.filter.list = ['csv']
 
-        params = [param0, param1, param2, param3, param4, param5, param6, param7]
+        params = [param0, param1, param2, param3, param4, param5, param6, param7, param8]
         return params
 
     def updateParameters(self, parameters):
         # get stream line fields
-        if not parameters[0].hasBeenValidated:
+        if not parameters[0].hasBeenValidated or not parameters[1].hasBeenValidated:
             if parameters[0].value:
-                parameters[1].enabled = True
+                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
+                parameters[4].enabled = True
+                parameters[4].filter.list = fields
+            else:
+                parameters[4].enabled = False
+                parameters[4].value = None
+
+            if parameters[0].value and parameters[1].value:
                 parameters[2].enabled = True
                 parameters[3].enabled = True
-                fields = [f.name for f in arcpy.ListFields(parameters[0].value)]
-                parameters[1].filter.list = fields
                 parameters[2].filter.list = fields
                 parameters[3].filter.list = fields
                 if "from_node" in fields:
-                    parameters[1].value = "from_node"
+                    parameters[2].value = "from_node"
                 if "to_node" in fields:
-                    parameters[2].value = "to_node"
+                    parameters[3].value = "to_node"
             else:
-                parameters[1].enabled = False
-                parameters[1].value = None
                 parameters[2].enabled = False
                 parameters[2].value = None
                 parameters[3].enabled = False
                 parameters[3].value = None
 
         # default point spacing
-        if parameters[6].value is None:
-            parameters[6].value = "50 FeetUS"
+        if parameters[7].value is None:
+            parameters[7].value = "50 FeetUS"
 
     def isLicensed(self):
         """Set whether the tool is licensed to execute."""
@@ -136,6 +147,10 @@ class StreamElevation:
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
+        # ask for to_node and from_node if accumulating distance
+        set_required_parameter(parameters[0].value and parameters[1].value, parameters[2])
+        set_required_parameter(parameters[0].value and parameters[1].value, parameters[3])
+
         validate(parameters)
 
     @reload_module(__name__)
@@ -148,13 +163,14 @@ class StreamElevation:
 
         # read in parameters
         streams = parameters[0].value
-        from_node_field = parameters[1].value
-        to_node_field = parameters[2].value
-        keep_fields = parameters[3].valueAsText.split(";") if parameters[3].value else []
-        dem, _ = raster_and_layer(parameters[4].value)
-        watershed = parameters[5].value
-        point_spacing = Distance(parameters[6].valueAsText).to_unit(map_unit)
-        output_file = parameters[7].valueAsText
+        accumulate_distance = parameters[1].value
+        from_node_field = parameters[2].value
+        to_node_field = parameters[3].value
+        keep_fields = parameters[4].valueAsText.split(";") if parameters[4].value else []
+        dem, _ = raster_and_layer(parameters[5].value)
+        watershed = parameters[6].value
+        point_spacing = Distance(parameters[7].valueAsText).to_unit(map_unit)
+        output_file = parameters[8].valueAsText
 
         # create scratch layers
         log("creating scratch layers")
@@ -170,93 +186,101 @@ class StreamElevation:
         else:
             arcpy.management.CopyFeatures(streams, scratch_streams)
 
-        # set line and segment direction
-        #
-        # use reverse direction since we accumulate downstream length
-        log("setting topographic drainage directions")
-        arcpy.topographic.SetLineDirection(scratch_streams, dem, line_direction="DOWNHILL", reverse_direction="REVERSE_DIRECTION")
+        if accumulate_distance:
+            # set line and segment direction
+            #
+            # use reverse direction since we accumulate downstream length
+            log("setting topographic drainage directions")
+            arcpy.topographic.SetLineDirection(scratch_streams, dem, line_direction="DOWNHILL", reverse_direction="REVERSE_DIRECTION")
 
-        # calculate geometry lengths
-        log("calculate segment lengths")
-        field_name = "length"
-        if field_name not in [f.name for f in arcpy.ListFields(scratch_streams)]:
-            arcpy.management.AddField(scratch_streams, field_name, "DOUBLE")
-        arcpy.management.CalculateGeometryAttributes(
-            in_features=scratch_streams,
-            geometry_property=[[field_name, "LENGTH_GEODESIC"]],
-            length_unit=point_spacing.unit.display(),
-            coordinate_format="SAME_AS_INPUT"
-        )
+            # calculate geometry lengths
+            log("calculate segment lengths")
+            field_name = "length"
+            if field_name not in [f.name for f in arcpy.ListFields(scratch_streams)]:
+                arcpy.management.AddField(scratch_streams, field_name, "DOUBLE")
+            arcpy.management.CalculateGeometryAttributes(
+                in_features=scratch_streams,
+                geometry_property=[[field_name, "LENGTH_GEODESIC"]],
+                length_unit=point_spacing.unit.display(),
+                coordinate_format="SAME_AS_INPUT"
+            )
 
-        # construct DAG in reverse order - looking downstream to upstream
-        # dag: {
-        #     from_node: {
-        #                    to_nodes: {
-        #                        ID: length_to_node,
-        #                    }
-        #                    total_length: #
-        #                }
-        # }
-        log("finding segment end points")
-        arcpy.management.FeatureVerticesToPoints(
-            in_features=scratch_streams,
-            out_feature_class=scratch_nodes,
-            point_location="END"
-        )
-        log("constructing directed acyclic graph")
-        dag = {}
-        to_nodes = set()
-        from_nodes = set()
-        with arcpy.da.SearchCursor(scratch_nodes, [from_node_field, to_node_field, "length"]) as cursor:
-            for row in cursor:
-                to_node = row[0]    # reversed since our dag "flows" upstream
-                from_node = row[1]  # reversed since out dag "flows" upstream
-                length = row[2]
-                to_nodes.add(to_node)
-                from_nodes.add(from_node)
-                if from_node in dag:
-                    dag[from_node]["to_nodes"][to_node] = length
-                else:
-                    dag[from_node] = {
-                        "to_nodes": {to_node: length},
-                        "downstream_length": 0,
-                    }
+            # construct DAG in reverse order - looking downstream to upstream
+            # dag: {
+            #     from_node: {
+            #                    to_nodes: {
+            #                        ID: length_to_node,
+            #                    }
+            #                    total_length: #
+            #                }
+            # }
+            log("finding segment end points")
+            arcpy.management.FeatureVerticesToPoints(
+                in_features=scratch_streams,
+                out_feature_class=scratch_nodes,
+                point_location="END"
+            )
+            log("constructing directed acyclic graph")
+            dag = {}
+            to_nodes = set()
+            from_nodes = set()
+            with arcpy.da.SearchCursor(scratch_nodes, [from_node_field, to_node_field, "length"]) as cursor:
+                for row in cursor:
+                    to_node = row[0]    # reversed since our dag "flows" upstream
+                    from_node = row[1]  # reversed since out dag "flows" upstream
+                    length = row[2]
+                    to_nodes.add(to_node)
+                    from_nodes.add(from_node)
+                    if from_node in dag:
+                        dag[from_node]["to_nodes"][to_node] = length
+                    else:
+                        dag[from_node] = {
+                            "to_nodes": {to_node: length},
+                            "downstream_length": 0,
+                        }
 
-        # find end nodes (furthest downstream) and start nodes (headwaters)
-        log("finding start and end nodes")
-        end_nodes = list(from_nodes - to_nodes)
+            # find end nodes (furthest downstream) and start nodes (headwaters)
+            log("finding start and end nodes")
+            end_nodes = list(from_nodes - to_nodes)
 
-        # for each end node, add downstream length info to all upstream nodes
-        log("calculating accumulated segment lengths")
-        def process_lengths(end_node_id, downstream_length):
-            """Recursively traverse DAG and find all downstream lengths."""
-            node = dag[end_node_id]
-            to_nodes = node["to_nodes"]
-            node["downstream_length"] = downstream_length
-            for to_node in to_nodes:
-                if to_node in dag:
-                    length = to_nodes[to_node]
-                    downstream_length = downstream_length + length
-                    return process_lengths(to_node, downstream_length)
-        for end_node in end_nodes:
-            process_lengths(end_node_id=end_node, downstream_length=0)
+            # for each end node, add downstream length info to all upstream nodes
+            log("calculating accumulated segment lengths")
+            def process_lengths(end_node_id, downstream_length):
+                """Recursively traverse DAG and find all downstream lengths."""
+                node = dag[end_node_id]
+                to_nodes = node["to_nodes"]
+                node["downstream_length"] = downstream_length
+                for to_node in to_nodes:
+                    if to_node in dag:
+                        length = to_nodes[to_node]
+                        downstream_length = downstream_length + length
+                        return process_lengths(to_node, downstream_length)
+            for end_node in end_nodes:
+                process_lengths(end_node_id=end_node, downstream_length=0)
 
-        # generate points along line
-        log("generate data points along lines")
-        arcpy.management.GeneratePointsAlongLines(scratch_streams, scratch_points, "DISTANCE", str(point_spacing), Include_End_Points="END_POINTS", Add_Chainage_Fields="ADD_CHAINAGE")
+            # generate points along line
+            log("generate data points along lines")
+            arcpy.management.GeneratePointsAlongLines(scratch_streams, scratch_points, "DISTANCE", str(point_spacing), Include_End_Points="END_POINTS", Add_Chainage_Fields="ADD_CHAINAGE")
+
+        else:
+            # generate points along line
+            log("generate data points along lines")
+            arcpy.management.GeneratePointsAlongLines(streams, scratch_points, "DISTANCE", str(point_spacing), Include_End_Points="END_POINTS", Add_Chainage_Fields="ADD_CHAINAGE")
+
 
         # extract values to points
         log("extract elevations at data points")
         arcpy.sa.ExtractValuesToPoints(scratch_points, dem, scratch_points_elev)
 
-        # update lengths to include upstream length
-        log("add downstream length to data points")
-        with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", to_node_field]) as cursor:
-            for row in cursor:
-                orig_len = row[0]
-                to_node = row[1]
-                row[0] = orig_len + dag[to_node]["downstream_length"]
-                cursor.updateRow(row)
+        if accumulate_distance:
+            # update lengths to include upstream length
+            log("add downstream length to data points")
+            with arcpy.da.UpdateCursor(scratch_points_elev, ["ORIG_LEN", to_node_field]) as cursor:
+                for row in cursor:
+                    orig_len = row[0]
+                    to_node = row[1]
+                    row[0] = orig_len + dag[to_node]["downstream_length"]
+                    cursor.updateRow(row)
 
         # delete unnecessary fields
         log("deleting unnecessary fields")
