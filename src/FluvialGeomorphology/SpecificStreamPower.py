@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------
-# Name:        Unit Stream Power
+# Name:        Specific Stream Power
 # Purpose:     This tool creates a raster of unit or specific stream power within a
 #              geometry
 #
@@ -21,11 +21,11 @@ from helpers.tool import setup_environment as setup
 from helpers.units import LINEAR_UNITS, Distance
 
 
-class UnitStreamPower:
+class SpecificStreamPower:
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Unit Stream Power"
-        self.description = "Calculate stream power raster"
+        self.label = "Specific Stream Power"
+        self.description = "Calculate specific stream power raster"
         self.category = "Fluvial Geomorphology"
 
     def getParameterInfo(self):
@@ -151,8 +151,8 @@ class UnitStreamPower:
             z_field=power_field,
         )
 
-        # calculate unit stream power as power / width (m)
-        log("calculating unit stream power")
+        # calculate specific stream power as power / width (m)
+        log("calculating specific stream power")
         out = power / (width * conversion_factor)
         out.save(output_file)
 
