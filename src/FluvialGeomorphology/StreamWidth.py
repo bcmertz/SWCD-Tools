@@ -17,7 +17,6 @@ from helpers.rasters import (
     coordinate_to_pixel,
     raster_max_coordinates,
 )
-from helpers.spatial import get_linear_unit
 from helpers.tool import (
     EXTENSIONS,
     empty_workspace,
@@ -25,7 +24,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import LINEAR_UNITS, SPATIAL_UNITS, Distance
+from helpers.units import SPATIAL_UNITS, Distance
 
 
 class StreamWidth:
