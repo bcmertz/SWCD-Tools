@@ -8,12 +8,13 @@
 
 import arcpy
 
-from helpers.geometry import (
+from helpers.features import (
     fc_to_geometry,
 )
 from helpers.logging import log
 from helpers.parameter import raster_and_layer
 from helpers.parameter import validate_spatial_reference as validate
+from helpers.spatial import get_z_unit
 from helpers.tool import (
     EXTENSIONS,
     empty_workspace,
@@ -24,7 +25,6 @@ from helpers.tool import setup_environment as setup
 from helpers.units import (
     SPATIAL_UNITS,
     Distance,
-    get_z_unit,
 )
 
 
