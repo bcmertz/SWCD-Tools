@@ -12,6 +12,7 @@ import math
 import arcpy
 
 from helpers.logging import log
+from helpers.parameter import set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
     empty_workspace,
@@ -56,22 +57,37 @@ class ShrubClusters:
             direction="Input")
 
         param3 = arcpy.Parameter(
+            displayName="Shrub Cluster Layout Parameter",
+            name="toggle",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param3.filter.list = ["Number of clusters", "Cluster spacing"]
+
+        param4 = arcpy.Parameter(
             displayName="Number of clusters",
             name="number",
             datatype="GPDouble",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
+            displayName="Cluster spacing",
+            name="spacing",
+            datatype="GPLinearUnit",
+            parameterType="Optional",
+            direction="Input")
+
+        param6 = arcpy.Parameter(
             displayName="Cluster Shape",
             name="shape",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param4.filter.type = "ValueList"
-        param4.filter.list = ["Square", "Circle"]
+        param6.filter.type = "ValueList"
+        param6.filter.list = ["Square", "Circle"]
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def isLicensed(self):
@@ -79,14 +95,35 @@ class ShrubClusters:
         return license()
 
     def updateParameters(self, parameters):
+        # toggle shrub spacing data source
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].valueAsText == "Number of clusters":
+                parameters[4].enabled = True
+                parameters[5].enabled = False
+                parameters[5].value = None
+            elif parameters[3].valueAsText == "Cluster spacing":
+                parameters[4].enabled = False
+                parameters[4].value = None
+                parameters[5].enabled = True
+            else:
+                parameters[4].enabled = False
+                parameters[4].value = None
+                parameters[5].enabled = False
+                parameters[5].value = None
+
         # set default cluster shape
-        if parameters[4].value is None:
-            parameters[4].value = "Square"
+        if parameters[6].value is None:
+            parameters[6].value = "Square"
 
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
+
+        # toggle shrub cluster spacing data source
+        set_required_parameter(parameters[3].valueAsText == "Number of clusters", parameters[4])
+        set_required_parameter(parameters[3].valueAsText == "Cluster spacing", parameters[5])
+
 
     @reload_module(__name__)
     def execute(self, parameters, _messages):
