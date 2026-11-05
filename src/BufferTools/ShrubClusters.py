@@ -12,6 +12,7 @@ import math
 import arcpy
 
 from helpers.logging import log
+from helpers.parameter import set_required_parameter
 from helpers.parameter import validate_spatial_reference as validate
 from helpers.tool import (
     empty_workspace,
@@ -19,7 +20,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import Distance
+from helpers.units import Area, Distance
 
 
 class ShrubClusters:
@@ -56,22 +57,37 @@ class ShrubClusters:
             direction="Input")
 
         param3 = arcpy.Parameter(
+            displayName="Shrub Cluster Layout Parameter",
+            name="toggle",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+        param3.filter.list = ["Number of clusters", "Cluster spacing"]
+
+        param4 = arcpy.Parameter(
             displayName="Number of clusters",
             name="number",
             datatype="GPDouble",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Input")
 
-        param4 = arcpy.Parameter(
+        param5 = arcpy.Parameter(
+            displayName="Cluster spacing",
+            name="spacing",
+            datatype="GPLinearUnit",
+            parameterType="Optional",
+            direction="Input")
+
+        param6 = arcpy.Parameter(
             displayName="Cluster Shape",
             name="shape",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        param4.filter.type = "ValueList"
-        param4.filter.list = ["Square", "Circle"]
+        param6.filter.type = "ValueList"
+        param6.filter.list = ["Square", "Circle"]
 
-        params = [param0, param1, param2, param3, param4]
+        params = [param0, param1, param2, param3, param4, param5, param6]
         return params
 
     def isLicensed(self):
@@ -79,14 +95,35 @@ class ShrubClusters:
         return license()
 
     def updateParameters(self, parameters):
+        # toggle shrub spacing data source
+        if not parameters[3].hasBeenValidated:
+            if parameters[3].valueAsText == "Number of clusters":
+                parameters[4].enabled = True
+                parameters[5].enabled = False
+                parameters[5].value = None
+            elif parameters[3].valueAsText == "Cluster spacing":
+                parameters[4].enabled = False
+                parameters[4].value = None
+                parameters[5].enabled = True
+            else:
+                parameters[4].enabled = False
+                parameters[4].value = None
+                parameters[5].enabled = False
+                parameters[5].value = None
+
         # set default cluster shape
-        if parameters[4].value is None:
-            parameters[4].value = "Square"
+        if parameters[6].value is None:
+            parameters[6].value = "Square"
 
 
     def updateMessages(self, parameters):
         """Modify the messages created by internal validation for each tool parameter."""
         validate(parameters)
+
+        # toggle shrub cluster spacing data source
+        set_required_parameter(parameters[3].valueAsText == "Number of clusters", parameters[4])
+        set_required_parameter(parameters[3].valueAsText == "Cluster spacing", parameters[5])
+
 
     @reload_module(__name__)
     def execute(self, parameters, _messages):
@@ -96,11 +133,19 @@ class ShrubClusters:
         project, _active_map = setup()
 
         log("reading in parameters")
-        area = parameters[0].value
+        polygon = parameters[0].value
         output_file = parameters[1].valueAsText
         cluster_width = Distance(parameters[2].valueAsText) / 2
-        number = parameters[3].value
-        geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
+        # parameters[3] is just a toggle for updateParameters to visualize what the user is doing
+        number = parameters[4].value
+        spacing = Distance(parameters[5].valueAsText) if parameters[5].value is not None else None
+        geom_type = "CIRCLE" if parameters[6].valueAsText == "Circle" else "ENVELOPE"
+
+        if spacing:
+            # find hexagon area "bin size" from cluster spacing
+            areal_unit = spacing.unit.to_areal()
+            spacing = (1/2) * (spacing.length ** 2) * math.sqrt(3)
+            bin_size = Area(spacing, areal_unit)
 
         # create scratch layers
         log("creating scratch layers")
@@ -113,8 +158,7 @@ class ShrubClusters:
         buffer_width = cluster_width * -1
         if geom_type == "ENVELOPE":
             buffer_width = buffer_width * math.sqrt(2)
-
-        arcpy.analysis.PairwiseBuffer(area, scratch_area, str(buffer_width))
+        arcpy.analysis.PairwiseBuffer(polygon, scratch_area, str(buffer_width))
 
         # create point locations
         log("creating shrub cluster point locations")
@@ -123,7 +167,7 @@ class ShrubClusters:
             out_features=scratch_points,
             sampling_method="SYSTEMATIC",
             bin_shape="HEXAGON",
-            bin_size=number,
+            bin_size=number if number else str(bin_size),
             geometry_type="POINT",
             spatial_relationship="HAVE_THEIR_CENTER_IN"
         )
@@ -137,7 +181,10 @@ class ShrubClusters:
         )
 
         # make square around buffer
-        log(f"creating {int(number)} {parameters[4].valueAsText.lower()} shrub clusters")
+        if number:
+            log(f"creating {int(number)} {parameters[6].valueAsText.lower()} shrub clusters")
+        else:
+            log("creating output shrub clusters")
         arcpy.management.MinimumBoundingGeometry(
             in_features=scratch_buffer,
             out_feature_class=output_file,
