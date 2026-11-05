@@ -142,7 +142,7 @@ class ShrubClusters:
         geom_type = "CIRCLE" if parameters[6].valueAsText == "Circle" else "ENVELOPE"
 
         if spacing:
-            # find spacing between hexagonal bins based off given centerpoint distance
+            # find hexagon area "bin size" from cluster spacing
             areal_unit = spacing.unit.to_areal()
             spacing = (1/2) * (spacing.length ** 2) * math.sqrt(3)
             bin_size = Area(spacing, areal_unit)
