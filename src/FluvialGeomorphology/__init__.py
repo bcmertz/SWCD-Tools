@@ -11,6 +11,7 @@ from .GenerateCrossSections import (
     generate_transects,
     transect_line,
 )
+from .PolygonCenterline import PolygonCenterline
 from .SpecificStreamPower import SpecificStreamPower
 from .StreambankDetection import StreambankDetection
 from .StreamCenterlineAdjuster import LeastAction
@@ -23,6 +24,7 @@ from .StreamWidth import StreamWidth
 __all__ = [
     "GenerateCrossSections",
     "LeastAction",
+    "PolygonCenterline",
     "SpecificStreamPower",
     "StreamElevation",
     "StreamNetwork",
