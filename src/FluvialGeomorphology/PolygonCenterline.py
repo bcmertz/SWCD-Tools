@@ -86,66 +86,63 @@ class PolygonCenterline:
         edge_points = parameters[1].value
         output_file = parameters[2].valueAsText
 
-        # # create scratch layers
-        # log("create scratch layers")
-        # scratch_edge = arcpy.CreateScratchName("edge_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        # # # create scratch layers
+        # # log("create scratch layers")
+        # # scratch_edge = arcpy.CreateScratchName("edge_pts", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        #
+        # # # export polygon to scratch
+        # # log("export")
+        # # arcpy.management.CopyFeatures(edge_points, scratch_edge)
+        #
+        # # convert fc to numpy array
+        # log("converting input polygon feature class to numpy array")
+        # spatial_ref = arcpy.Describe(polygon).spatialReference
+        # _, np_arr = fc_to_numpy_array(polygon)
+        #
+        # # calculate bounding box and add it to the polygon numpy array
+        # log("finding polygon bounding box")
+        # box = bbox(np_arr)
+        # np_arr = np.concatenate((np_arr, box), axis=0)
+        #
+        # # find the delaunay triangulation
+        # log("calculating Delaunay triangulation")
+        # delaunay = Delaunay(np_arr)
+        #
+        # # find voronoi polygon array
+        # log("creating voronoi polygons from Delaunay triangulation")
+        # # if edge_points:
+        # #     _, edge_arr = fc_to_numpy_array(edge_points)
+        # #     vor_arr = voronoi(delaunay)
+        # # else:
+        # #     vor_arr = voronoi(delaunay)
+        # vor_arr = voronoi(delaunay)
+        # features = []
+        # for feature in vor_arr:
+        #     array = arcpy.Array([arcpy.Point(*coords) for coords in feature])
+        #     polyline = arcpy.Polyline(array, spatial_reference=spatial_ref)
+        #     features.append(polyline)
 
-        # # export polygon to scratch
-        # log("export")
-        # arcpy.management.CopyFeatures(edge_points, scratch_edge)
 
-        # convert fc to numpy array
-        log("converting input polygon feature class to numpy array")
-        spatial_ref = arcpy.Describe(polygon).spatialReference
-        _, np_arr = fc_to_numpy_array(polygon)
-
-        # calculate bounding box and add it to the polygon numpy array
-        log("finding polygon bounding box")
-        box = bbox(np_arr)
-        np_arr = np.concatenate((np_arr, box), axis=0)
-
-        # find the delaunay triangulation
-        log("calculating Delaunay triangulation")
-        delaunay = Delaunay(np_arr)
-
-        # find voronoi polygon array
-        log("creating voronoi polygons from Delaunay triangulation")
-        # if edge_points:
-        #     _, edge_arr = fc_to_numpy_array(edge_points)
-        #     vor_arr = voronoi(delaunay)
-        # else:
-        #     vor_arr = voronoi(delaunay)
-        vor_arr = voronoi(delaunay)
-        features = []
-        for feature in vor_arr:
-            array = arcpy.Array([arcpy.Point(*coords) for coords in feature])
-            polyline = arcpy.Polyline(array, spatial_reference=spatial_ref)
-            features.append(polyline)
-
-        # create output fc from polygons
-        arcpy.management.CopyFeatures(features, output_file)
-        return
 
 
         ####
 
-        arcpy.da.NumPyArrayToFeatureClass(circum_centers, output_file, ["X","Y"], spatial_ref)
-        return
+        # arcpy.da.NumPyArrayToFeatureClass(circum_centers, output_file, ["X","Y"], spatial_ref)
 
 
         # TODO: handle multiple polygons / points
 
         # create scratch layers
-        # scratch_polygon = arcpy.CreateScratchName("polygon", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        # scratch_vertices = arcpy.CreateScratchName("vertices", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        # scratch_thiessen = arcpy.CreateScratchName("thiessen", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        # scratch_line = arcpy.CreateScratchName("line", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        # scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
-        # scratch_dangling = arcpy.CreateScratchName("dangling", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_polygon = arcpy.CreateScratchName("polygon", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_vertices = arcpy.CreateScratchName("vertices", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_thiessen = arcpy.CreateScratchName("thiessen", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_line = arcpy.CreateScratchName("line", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dissolve = arcpy.CreateScratchName("dissolve", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
+        scratch_dangling = arcpy.CreateScratchName("dangling", data_type="FeatureClass", workspace=arcpy.env.scratchGDB)
 
         # export polygon to scratch
-        # log("export")
-        # arcpy.management.CopyFeatures(polygon, scratch_polygon)
+        log("export")
+        arcpy.management.CopyFeatures(polygon, scratch_polygon)
 
 
         # densify
@@ -180,6 +177,11 @@ class PolygonCenterline:
             out_feature_class=scratch_line,
             neighbor_option="IDENTIFY_NEIGHBORS"
         )
+
+
+
+#################################################################
+
 
         # select by location: completely within
         log("select by location")
@@ -234,6 +236,24 @@ class PolygonCenterline:
             unsplit_lines="DISSOLVE_LINES",
         )
 
+        # # create output fc from polygons
+        # arcpy.management.CopyFeatures(features, output_file)
+
+        # add data
+        log("adding data")
+        active_map.addDataFromPath(output_file)
+
+        # cleanup
+        log("deleting unneeded data")
+        empty_workspace(arcpy.env.scratchGDB)
+
+        # save project
+        log("saving project")
+        project.save()
+
+        return
+
+
         ### IF CONNECTION POINTS ###
 
         # # TODO: Generate near table
@@ -275,17 +295,3 @@ class PolygonCenterline:
         # TODO: Select by location (completely within VBET)
 
         # TODO: Delete selected
-
-        # add data
-        log("adding data")
-        active_map.addDataFromPath(output_file)
-
-        # cleanup
-        log("deleting unneeded data")
-        empty_workspace(arcpy.env.scratchGDB)
-
-        # save project
-        log("saving project")
-        project.save()
-
-        return
