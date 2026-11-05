@@ -136,8 +136,15 @@ class ShrubClusters:
         polygon = parameters[0].value
         output_file = parameters[1].valueAsText
         cluster_width = Distance(parameters[2].valueAsText) / 2
-        number = parameters[3].value
-        geom_type = "CIRCLE" if parameters[4].valueAsText == "Circle" else "ENVELOPE"
+        # parameters[3] is just a toggle for updateParameters to visualize what the user is doing
+        number = parameters[4].value
+        spacing = Distance(parameters[5].valueAsText) if parameters[5].value is not None else None
+        geom_type = "CIRCLE" if parameters[6].valueAsText == "Circle" else "ENVELOPE"
+
+        if spacing:
+            # find spacing between hexagonal bins based off given centerpoint distance
+            spacing = spacing / (2 * math.cos(math.radians(30)))
+            bin_size = Area(spacing.length ** 2, spacing.unit.to_areal())
 
         # create scratch layers
         log("creating scratch layers")
@@ -159,7 +166,7 @@ class ShrubClusters:
             out_features=scratch_points,
             sampling_method="SYSTEMATIC",
             bin_shape="HEXAGON",
-            bin_size=number,
+            bin_size=number if number else str(bin_size),
             geometry_type="POINT",
             spatial_relationship="HAVE_THEIR_CENTER_IN"
         )
@@ -173,7 +180,10 @@ class ShrubClusters:
         )
 
         # make square around buffer
-        log(f"creating {int(number)} {parameters[4].valueAsText.lower()} shrub clusters")
+        if number:
+            log(f"creating {int(number)} {parameters[6].valueAsText.lower()} shrub clusters")
+        else:
+            log("creating output shrub clusters")
         arcpy.management.MinimumBoundingGeometry(
             in_features=scratch_buffer,
             out_feature_class=output_file,
