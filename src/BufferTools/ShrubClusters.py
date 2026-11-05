@@ -143,8 +143,9 @@ class ShrubClusters:
 
         if spacing:
             # find spacing between hexagonal bins based off given centerpoint distance
-            spacing = spacing / (2 * math.cos(math.radians(30)))
-            bin_size = Area(spacing.length ** 2, spacing.unit.to_areal())
+            areal_unit = spacing.unit.to_areal()
+            spacing = (1/2) * (spacing.length ** 2) * math.sqrt(3)
+            bin_size = Area(spacing, areal_unit)
 
         # create scratch layers
         log("creating scratch layers")
