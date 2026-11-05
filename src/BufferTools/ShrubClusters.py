@@ -20,7 +20,7 @@ from helpers.tool import (
     reload_module,
 )
 from helpers.tool import setup_environment as setup
-from helpers.units import Distance
+from helpers.units import Area, Distance
 
 
 class ShrubClusters:
@@ -133,7 +133,7 @@ class ShrubClusters:
         project, _active_map = setup()
 
         log("reading in parameters")
-        area = parameters[0].value
+        polygon = parameters[0].value
         output_file = parameters[1].valueAsText
         cluster_width = Distance(parameters[2].valueAsText) / 2
         number = parameters[3].value
@@ -150,8 +150,7 @@ class ShrubClusters:
         buffer_width = cluster_width * -1
         if geom_type == "ENVELOPE":
             buffer_width = buffer_width * math.sqrt(2)
-
-        arcpy.analysis.PairwiseBuffer(area, scratch_area, str(buffer_width))
+        arcpy.analysis.PairwiseBuffer(polygon, scratch_area, str(buffer_width))
 
         # create point locations
         log("creating shrub cluster point locations")
